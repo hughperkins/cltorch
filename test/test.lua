@@ -1,0 +1,4 @@
+require 'init'
+
+print('done')
+
