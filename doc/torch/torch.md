@@ -87,22 +87,61 @@
 
 ## root /
 
-* init.c
 * init.lua
+  * require libcutorch
+  * include Tensor.lua, FFI.lua, test,la
+* init.c
+  * defines and registers global functions, eg synchronize, getNumStreams, setDevice
+  * calls cutorch_Cuda(Storage|Tensor|TensorMath|TensorOperator)_init(L)
+  * intializes THCState, and stores it as _state
 * Storage.c
+  * calls generic/Storage.c for Real=Cuda
+  * defines cutorch_CudaStorage_copy for src type (Cuda|Byte|...)
+  * defines cutorch_(Type)Storage_copy for all src types
+  * registers the copy methods as 'copy' method of torch.ByteStorage etc
+
+  * seems like since generic/Storage.c just calls appropriate THCuda method, that generic/Storage.c doesnt need much modificatoin?
 * Tensor.c
+  * as for Storage.c: include generic/Tensor.c for every type, just overwite `copy` methods
 * Tensor.lua
+  * injects a `cuda()` method to each of the other Tensor types
+  * adds 'double()', 'float()' etc method to torch.CudaTensor type
+* FFI.lua
+  * almost empty
+  * contains the structs, ie:
+    * THCState
+    * THCudaStorage
+    * THCudaTensor
+  * adds `cdata` and `data` methods (?) to Storage and Tensor
 
 ## torch/generic
 
-* Storage.c and Tensor.c from torch/generic
+* Storage.c and Tensor.c from torch/generic, no change
 
 ## lib/THC
 
 * THC.h
-* THCStorage.c/h
-* THCStorage.cu
-* THCTensor.c/h
-* THCTensor.cu
+  * includes lib/THC/TH*.h
+* THCGeneral.h/c
+  * includes cuda.h etc
+  * defines THAssert
+  * defines THC_API, THC_EXTERNC
+  * defines THCState struct
+  * implementation for global functions, like:
+    * THCudaInit
+    * THCudaBlas_init
+    * THCState_getNumDevices
+* THCStorage.c/h/cu
+  * defines THCudaStorage struct, containing allocator, refcount, ..
+  * defines THCudaStorage_(new,set,get,free,fill,resize,data)
+  * `fill` and `resize` are in .cu, presumably because these need kernels (seems like .cu is just more definitions of what are in the .h file though, some in the .c, some in the .cu)
+  * other methods just use cudaMalloc, cudaFree, cudaMemcpy, etc
+* THCTensor.c/h/cu
+  * various methods like retain, free, set1d/2d/..., get1d/2d/...
+    squeeze, storage, new, data, lots of `new` methods, `resize` methods
+  * meld shows there's basically no difference between the .c file and the original torch one, in lib/TH/generic/THTensor.c
+  * the cu has two functions:
+    * THCudaTensor_getDevice
+    * THCudaTensor_getTextureObject
 * (No lib/THC/generic)
 
