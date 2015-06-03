@@ -21,9 +21,15 @@
 # define THCL_API THCL_EXTERNC
 #endif
 
+//#define THClCheck(err)  __THClCheck(err, __FILE__, __LINE__)
+//THCL_API void __THClCheck(clError_t err, const char *file, const int line);
+
+struct EasyCL;
+
 /* Global state to be held in the cutorch table. */
 typedef struct THClState
 {
+  struct EasyCL *c;
 } THClState;
 
 THCL_API void THClInit(THClState* state);
