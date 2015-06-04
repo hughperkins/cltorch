@@ -10,7 +10,6 @@ using namespace std;
 //extern void clnn_ClTensorMath_init(lua_State* L);
 //extern void clnn_ClTensorOperator_init(lua_State* L);
 
-
 extern "C" {
   #include "lua.h"
   #include "utils.h"
@@ -19,42 +18,53 @@ extern "C" {
   int luaopen_libclnn( lua_State *L );
 }
 
-#define SET_DEVN_PROP(NAME) \
-  lua_pushnumber(L, prop.NAME); \
-  lua_setfield(L, -2, #NAME);
+namespace clnn {
 
-static int clnn_getDeviceProperties(lua_State *L)
-{
-  cout << "clnn_getDeviceProperties" << endl;
+  #define SET_DEVN_PROP(NAME) \
+    lua_pushnumber(L, prop.NAME); \
+    lua_setfield(L, -2, #NAME);
 
-  lua_newtable(L);
+//  void setProperty(lua_State *L, 
 
-//  size_t freeMem;
-//  THCudaCheck(cudaMemGetInfo (&freeMem, NULL));
-//  lua_pushnumber(L, freeMem);
-//  lua_setfield(L, -2, "freeGlobalMem");
+  static int clnn_getDeviceProperties(lua_State *L)
+  {
+    cout << "clnn_getDeviceProperties" << endl;
 
-//  lua_pushstring(L, prop.name);
-//  lua_setfield(L, -2, "name");
+    lua_newtable(L);
 
-  lua_pushstring(L, "v0.0.1");
-  lua_setfield(L, -2, "version");
+      int getComputeUnits();
+      int getLocalMemorySize();
+      int getLocalMemorySizeKB();
+      int getMaxWorkgroupSize();
+      int getMaxAllocSizeMB();
 
-  return 1;
+  //  size_t freeMem;
+  //  THCudaCheck(cudaMemGetInfo (&freeMem, NULL));
+  //  lua_pushnumber(L, freeMem);
+  //  lua_setfield(L, -2, "freeGlobalMem");
+
+  //  lua_pushstring(L, prop.name);
+  //  lua_setfield(L, -2, "name");
+
+    lua_pushstring(L, "v0.0.1");
+    lua_setfield(L, -2, "version");
+
+    return 1;
+  }
+
+  //static int cutorch_getState(lua_State *L)
+  //{
+  //  lua_getglobal(L, "cutorch");
+  //  lua_getfield(L, -1, "_state");
+  //  lua_remove(L, -2);
+  //  return 1;
+  //}
+
+  static const struct luaL_Reg clnn_stuff__ [] = {
+    {"getDeviceProperties", clnn_getDeviceProperties},
+    {NULL, NULL}
+  };
 }
-
-//static int cutorch_getState(lua_State *L)
-//{
-//  lua_getglobal(L, "cutorch");
-//  lua_getfield(L, -1, "_state");
-//  lua_remove(L, -2);
-//  return 1;
-//}
-
-static const struct luaL_Reg clnn_stuff__ [] = {
-  {"getDeviceProperties", clnn_getDeviceProperties},
-  {NULL, NULL}
-};
 
 int luaopen_libclnn( lua_State *L ) {
   printf("luaopen_libclnn called :-)\n");
@@ -62,7 +72,7 @@ int luaopen_libclnn( lua_State *L ) {
 
   lua_newtable(L);
 
-  luaL_setfuncs(L, clnn_stuff__, 0);
+  luaL_setfuncs(L, clnn::clnn_stuff__, 0);
   cout << "setfuncs done" << endl;
 
   THClState* state = (THClState*)malloc(sizeof(THClState));
