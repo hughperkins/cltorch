@@ -24,4 +24,5 @@ SET(src init.cpp torch/utils.c)
 SET(luasrc init.lua test/test.lua)
 
 ADD_TORCH_PACKAGE(clnn "${src}" "${luasrc}")
+TARGET_LINK_LIBRARIES(clnn luaT THCL)
 
