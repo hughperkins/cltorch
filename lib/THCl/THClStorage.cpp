@@ -1,52 +1,68 @@
 #include "THClStorage.h"
 #include "THClGeneral.h"
 #include "THAtomic.h"
+#include "EasyCL.h"
+#include <stdexcept>
+using namespace std;
 
 void THClStorage_set(THClState *state, THClStorage *self, long index, float value)
 {
-//  THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
+  THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
+  if( self->wrapper->isDeviceDirty() ) {
+    self->wrapper->copyToHost();
+  }
+  self->data[index] = value;
+  self->wrapper->copyToDevice();
 }
 
 float THClStorage_get(THClState *state, const THClStorage *self, long index)
 {
-  THError("not available yet for THClStorage");
-  return 0;
-//  float value;
-//  THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
-//  return value;
+  printf("THClStorage_get\n");
+  float value;
+  THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
+  if( self->wrapper->isDeviceDirty() ) {
+    self->wrapper->copyToHost();
+  }
+  return self->data[index];
 }
 
 THClStorage* THClStorage_new(THClState *state)
 {
-  THError("not available yet for THClStorage");
-  return NULL;
-//  THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
-//  storage->data = NULL;
-//  storage->size = 0;
-//  storage->refcount = 1;
-//  storage->flag = TH_STORAGE_REFCOUNTED | TH_STORAGE_RESIZABLE | TH_STORAGE_FREEMEM;
-//  return storage;
+  THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
+  storage->data = NULL;
+  storage->wrapper = 0;
+  storage->size = 0;
+  storage->refcount = 1;
+  storage->flag = TH_STORAGE_REFCOUNTED | TH_STORAGE_RESIZABLE | TH_STORAGE_FREEMEM;
+  return storage;
 }
 
 THClStorage* THClStorage_newWithSize(THClState *state, long size)
 {
-  THError("not available yet for THClStorage");
-  return NULL;
-//  THArgCheck(size >= 0, 2, "invalid size");
+  THArgCheck(size >= 0, 2, "invalid size");
 
-//  if(size > 0)
-//  {
-//    THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
+  if(size > 0)
+  {
+    THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
+    float *data = new float[size];
+    EasyCL *cl = state->cl;
+    CLWrapper *wrapper = cl->wrap( size, data );
+    wrapper->createOnDevice();
+    storage->data = data;
+    storage->wrapper = wrapper;
+    //THCudaCheck(cudaMalloc((void**)&(storage->data), size * sizeof(float)));
 
-//    storage->size = size;
-//    storage->refcount = 1;
-//    storage->flag = TH_STORAGE_REFCOUNTED | TH_STORAGE_RESIZABLE | TH_STORAGE_FREEMEM;
-//    return storage;
-//  }
-//  else
-//  {
-//    return THClStorage_new(state);
-//  }
+    storage->size = size;
+    storage->refcount = 1;
+    storage->flag = TH_STORAGE_REFCOUNTED | TH_STORAGE_RESIZABLE | TH_STORAGE_FREEMEM;
+    return storage;
+  }
+  else
+  {
+    return THClStorage_new(state);
+  }
+//  THError("not available yet for THClStorage");
+//  return NULL;
 }
 
 THClStorage* THClStorage_newWithSize1(THClState *state, float data0)
@@ -118,6 +134,7 @@ void THClStorage_retain(THClState *state, THClStorage *self)
 
 void THClStorage_free(THClState *state, THClStorage *self)
 {
+  throw runtime_error("not available yet for THClStorage");
   THError("not available yet for THClStorage");
 //  if(!(self->flag & TH_STORAGE_REFCOUNTED))
 //    return;
@@ -132,9 +149,11 @@ void THClStorage_free(THClState *state, THClStorage *self)
 }
 void THClStorage_fill(THClState *state, THClStorage *self, float value)
 {
+  THError("not available yet for THClStorage");
 }
 
 void THClStorage_resize(THClState *state, THClStorage *self, long size)
 {
+  THError("not available yet for THClStorage");
 }
 

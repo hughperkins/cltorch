@@ -9,13 +9,15 @@
 
 void THClInit(THClState* state)
 {
+    printf("*******************************************\n");
     printf("THClInit()\n");
-  state->cl = new EasyCL();
+  state->cl = EasyCL::createForFirstGpuOtherwiseCpu(); // obviously this should change...
 }
 
 void THClShutdown(THClState* state)
 {
-    printf("THClShutdown()\n");
   delete state->cl;
+    printf("THClShutdown()\n");
+    printf("*******************************************\n");
 }
 

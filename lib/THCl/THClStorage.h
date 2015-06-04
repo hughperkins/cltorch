@@ -8,10 +8,10 @@
 #define TH_STORAGE_RESIZABLE  2
 #define TH_STORAGE_FREEMEM    4
 
-
 typedef struct THClStorage
 {
-    float *data;
+    float *data; // I know this seems a bit superfluous....
+    struct CLWrapper *wrapper;
     long size;
     int refcount;
     char flag;

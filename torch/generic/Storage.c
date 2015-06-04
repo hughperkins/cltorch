@@ -159,6 +159,7 @@ static int torch_Storage_(__index__)(lua_State *L)
 #if defined(TH_REAL_IS_CHAR) || defined(TH_REAL_IS_BYTE)
 static int torch_Storage_(string)(lua_State *L)
 {
+  printf("torch_Storage_(string)\n");
   THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
   if(lua_isstring(L, -1))
   {

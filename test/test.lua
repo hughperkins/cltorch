@@ -40,3 +40,14 @@ end
 
 print('num devices:', clnn.getDeviceCount())
 
+c = torch.ClStorage()
+print('c1', c)
+
+c = torch.ClStorage(3)
+print('c2', c)
+c[1] = 5
+print('c3', c)
+c[3] = 7
+print('c4', c)
+-- print('c' .. c)
+
