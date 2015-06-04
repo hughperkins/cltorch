@@ -1,3 +1,6 @@
 [submodule "EasyCL"]
 	path = EasyCL
 	url = git@github.com:hughperkins/EasyCL.git
+[submodule "DeepCL"]
+	path = DeepCL
+	url = git@github.com:hughperkins/DeepCL.git
