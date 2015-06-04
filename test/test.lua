@@ -38,3 +38,5 @@ for k,v in pairs(props) do
   print('props k,v', k, v)
 end
 
+print('num devices:', clnn.getDeviceCount())
+

@@ -34,7 +34,12 @@ namespace clnn {
     lua_pushstring(L, value.c_str());
     lua_setfield(L, -2, name.c_str());
   }
-
+  static int clnn_getDeviceCount(lua_State *L)
+  {
+    int count = easycl::DevicesInfo::getNumDevices();
+    lua_pushnumber(L, count);
+    return 1;
+  }
   static int clnn_getDeviceProperties(lua_State *L)
   {
     cout << "clnn_getDeviceProperties" << endl;
@@ -42,17 +47,13 @@ namespace clnn {
     int device = (int)luaL_checknumber(L, 1)-1;
     cout << "device: " << device << endl;
 
-    EasyCL *cl = EasyCL::createForIndexedGpu(device); // probably not most efficient way of doing this, since it creates all the queues and stuff...
-                                                      // but easy for now
-
+    easycl::DeviceInfo deviceInfo = easycl::DevicesInfo::getDeviceInfo( device );
     lua_newtable(L);
 
-    setProperty(L, "localMemorySize", cl->getLocalMemorySize());
-    setProperty(L, "localMemorySizeKB", cl->getLocalMemorySizeKB());
-    setProperty(L, "maxAllocSizeMB", cl->getMaxAllocSizeMB());
-    setProperty(L, "maxWorkgroupSize", cl->getMaxWorkgroupSize());
-
-    delete cl;
+    setProperty(L, "maxWorkGroupSize", deviceInfo.maxWorkGroupSize);
+//    setProperty(L, "localMemorySizeKB", cl->getLocalMemorySizeKB());
+//    setProperty(L, "maxAllocSizeMB", cl->getMaxAllocSizeMB());
+//    setProperty(L, "maxWorkgroupSize", cl->getMaxWorkgroupSize());
 
     return 1;
   }
@@ -66,6 +67,7 @@ namespace clnn {
   //}
 
   static const struct luaL_Reg clnn_stuff__ [] = {
+    {"getDeviceCount", clnn_getDeviceCount},
     {"getDeviceProperties", clnn_getDeviceProperties},
     {NULL, NULL}
   };

@@ -27,6 +27,7 @@ ADD_TORCH_PACKAGE(clnn "${src}" "${luasrc}")
 
 set( EasyCL_sources EasyCL/EasyCL.cpp
     EasyCL/deviceinfo_helper.cpp EasyCL/platforminfo_helper.cpp EasyCL/CLWrapper.cpp
+    EasyCL/DevicesInfo.cpp EasyCL/DeviceInfo.cpp
     EasyCL/CLKernel.cpp EasyCL/thirdparty/clew/src/clew.c )
 add_library( EasyCL SHARED ${EasyCL_sources} )
 #link_libraries( EasyCL )
