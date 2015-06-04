@@ -11,9 +11,16 @@ void THClStorage_rawCopy(THClState *state, THClStorage *self, float *src)
 
 void THClStorage_copy(THClState *state, THClStorage *self, THClStorage *src)
 {
-  THError("not available yet for THClStorage");
   THArgCheck(self->size == src->size, 2, "size does not match");
-//  THClCheck(clMemcpyAsync(self->data, src->data, self->size * sizeof(float), clMemcpyDeviceToDevice, THClState_getCurrentStream(state)));
+  // yes I know on your fancy nvidia device, you can copy directly ;-)
+  // might be possible in later opencl versions too probably actually (or even in 1.1?)
+  if( src->wrapper->isDeviceDirty() ) {
+    src->wrapper->copyToHost();
+  }
+  for( int i = 0; i < self->size; i++ ) {
+    self->data[i] = src->data[i];
+  }
+  self->wrapper->copyToDevice();
 }
 
 void THClStorage_copyCl(THClState *state, THClStorage *self, THClStorage *src)

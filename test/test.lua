@@ -73,4 +73,8 @@ print('aaaaaa', a)
 a:copy(c)
 print('aaaaaa', a)
 
+d = torch.ClStorage(3)
+d:copy(c)
+print('dddd', d)
+
 
