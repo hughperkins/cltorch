@@ -29,7 +29,7 @@ struct EasyCL;
 /* Global state to be held in the cutorch table. */
 typedef struct THClState
 {
-  struct EasyCL *c;
+  struct EasyCL *cl;
 } THClState;
 
 THCL_API void THClInit(THClState* state);

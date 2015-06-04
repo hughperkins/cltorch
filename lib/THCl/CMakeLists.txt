@@ -2,9 +2,11 @@ SET(CMAKE_C_FLAGS "-std=c99")
 #SET(src
 #    THCGeneral.c THCAllocator.c THCStorage.c THCStorageCopy.c THCTensor.c THCTensorCopy.c)
 SET(src
-    THClGeneral.c )
+    THClGeneral.cpp )
 set(src-cl)
 # add_library( THCl SHARED THClStorage.c THClGeneral.c )
+
+INCLUDE_DIRECTORIES(../../EasyCL)
 
 ADD_LIBRARY(THCL SHARED ${src} ${src-cl})
 TARGET_LINK_LIBRARIES(THCL TH )

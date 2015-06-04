@@ -27,6 +27,8 @@ static int clnn_getDeviceProperties(lua_State *L)
 {
   cout << "clnn_getDeviceProperties" << endl;
 
+  lua_newtable(L);
+
 //  size_t freeMem;
 //  THCudaCheck(cudaMemGetInfo (&freeMem, NULL));
 //  lua_pushnumber(L, freeMem);
@@ -34,6 +36,9 @@ static int clnn_getDeviceProperties(lua_State *L)
 
 //  lua_pushstring(L, prop.name);
 //  lua_setfield(L, -2, "name");
+
+  lua_pushstring(L, "v0.0.1");
+  lua_setfield(L, -2, "version");
 
   return 1;
 }
