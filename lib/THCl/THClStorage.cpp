@@ -49,7 +49,6 @@ THClStorage* THClStorage_newWithSize(THClState *state, long size)
     wrapper->createOnDevice();
     storage->data = data;
     storage->wrapper = wrapper;
-    //THCudaCheck(cudaMalloc((void**)&(storage->data), size * sizeof(float)));
 
     storage->size = size;
     storage->refcount = 1;
@@ -60,8 +59,6 @@ THClStorage* THClStorage_newWithSize(THClState *state, long size)
   {
     return THClStorage_new(state);
   }
-//  THError("not available yet for THClStorage");
-//  return NULL;
 }
 
 THClStorage* THClStorage_newWithSize1(THClState *state, float data0)
