@@ -1,6 +1,6 @@
 #include "torch/utils.h"
 #include "THCl.h"
-#include "THFile.h"
+//#include "THFile.h"
 #include "luaT.h"
 
 /* everything is as the generic Storage.c, except few things (see below) */
@@ -14,15 +14,15 @@
 #define THFile_readRealRaw(file, data, size)                            \
   {                                                                     \
     float *fdata = (float*)THAlloc(sizeof(float)*size);                 \
-//    THFile_readFloatRaw(file, fdata, size);                             \
-    THClCheck(clMemcpy(data, fdata, size * sizeof(float), clMemcpyHostToDevice)); \
+    THFile_readFloatRaw(file, fdata, size);                             \
+/*    THClCheck(clMemcpy(data, fdata, size * sizeof(float), clMemcpyHostToDevice));*/ \
     THFree(fdata);                                                      \
   }
 
 #define THFile_writeRealRaw(file, data, size)                           \
   {                                                                     \
     float *fdata = (float*)THAlloc(sizeof(float)*size);                 \
-//    THClCheck(clMemcpy(fdata, data, size * sizeof(float), clMemcpyDeviceToHost)); \
+/*    THClCheck(clMemcpy(fdata, data, size * sizeof(float), clMemcpyDeviceToHost));*/ \
     THFile_writeFloatRaw(file, fdata, size);                            \
     THFree(fdata);                                                      \
   }

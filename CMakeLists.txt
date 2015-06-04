@@ -9,8 +9,8 @@ FIND_PACKAGE(Torch REQUIRED)
 
 # add_library( clnn SHARED init.cpp )
 
-SET(CMAKE_C_FLAGS "-std=c99 -Werror=implicit-function-declaration")
-SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall")
+SET(CMAKE_C_FLAGS "-std=c99 -Werror=implicit-function-declaration -save-temps")
+SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall -save-temps")
 
 ADD_SUBDIRECTORY(lib)
 
