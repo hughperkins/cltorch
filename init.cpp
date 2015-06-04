@@ -19,11 +19,6 @@ extern "C" {
 }
 
 namespace clnn {
-
-  #define SET_DEVN_PROP(NAME) \
-    lua_pushnumber(L, prop.NAME); \
-    lua_setfield(L, -2, #NAME);
-
   void setProperty(lua_State *L, string name, int value)
   {
     lua_pushnumber(L, value);
@@ -51,9 +46,28 @@ namespace clnn {
     lua_newtable(L);
 
     setProperty(L, "maxWorkGroupSize", deviceInfo.maxWorkGroupSize);
-//    setProperty(L, "localMemorySizeKB", cl->getLocalMemorySizeKB());
-//    setProperty(L, "maxAllocSizeMB", cl->getMaxAllocSizeMB());
-//    setProperty(L, "maxWorkgroupSize", cl->getMaxWorkgroupSize());
+    setProperty(L, "platformVendor", deviceInfo.platformVendor);
+    string deviceTypeString = "";
+    if( deviceInfo.deviceType == 4 ) {
+        deviceTypeString = "GPU";
+    }
+    if( deviceInfo.deviceType == 2 ) {
+        deviceTypeString = "CPU";
+    }
+    if( deviceInfo.deviceType == 8 ) {
+        deviceTypeString = "Accelerator";
+    }
+    setProperty(L, "deviceType", deviceTypeString);
+    setProperty(L, "globalMemSizeMB", deviceInfo.globalMemSize / 1024 / 1024);
+    setProperty(L, "localMemSizeKB", deviceInfo.localMemSize / 1024);
+    setProperty(L, "globalMemCachelineSizeKB", deviceInfo.globalMemCachelineSize / 1024 );
+    setProperty(L, "maxMemAllocSizeMB", deviceInfo.maxMemAllocSize / 1024 / 1024);
+    setProperty(L, "maxComputeUnits", deviceInfo.maxComputeUnits);
+    setProperty(L, "maxWorkGroupSize", deviceInfo.maxWorkGroupSize);
+    setProperty(L, "deviceName", deviceInfo.deviceName);
+    setProperty(L, "openClCVersion", deviceInfo.openClCVersion);
+    setProperty(L, "deviceVersion", deviceInfo.deviceVersion);
+    setProperty(L, "maxClockFrequency", deviceInfo.maxClockFrequency);
 
     return 1;
   }
@@ -92,7 +106,6 @@ int luaopen_libclnn( lua_State *L ) {
 //  cltorch_ClTensorMath_init(L);
 //  cltorch_ClTensorOperator_init(L);
 
-  /* Store state in cutorch table. */
   lua_pushlightuserdata(L, state);
   lua_setfield(L, -2, "_state");
   cout << "luaopen_libclnn done\n" << endl;
