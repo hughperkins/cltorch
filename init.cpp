@@ -24,30 +24,35 @@ namespace clnn {
     lua_pushnumber(L, prop.NAME); \
     lua_setfield(L, -2, #NAME);
 
-//  void setProperty(lua_State *L, 
+  void setProperty(lua_State *L, string name, int value)
+  {
+    lua_pushnumber(L, value);
+    lua_setfield(L, -2, name.c_str());
+  }
+  void setProperty(lua_State *L, string name, string value)
+  {
+    lua_pushstring(L, value.c_str());
+    lua_setfield(L, -2, name.c_str());
+  }
 
   static int clnn_getDeviceProperties(lua_State *L)
   {
     cout << "clnn_getDeviceProperties" << endl;
 
+    int device = (int)luaL_checknumber(L, 1)-1;
+    cout << "device: " << device << endl;
+
+    EasyCL *cl = EasyCL::createForIndexedGpu(device); // probably not most efficient way of doing this, since it creates all the queues and stuff...
+                                                      // but easy for now
+
     lua_newtable(L);
 
-      int getComputeUnits();
-      int getLocalMemorySize();
-      int getLocalMemorySizeKB();
-      int getMaxWorkgroupSize();
-      int getMaxAllocSizeMB();
+    setProperty(L, "localMemorySize", cl->getLocalMemorySize());
+    setProperty(L, "localMemorySizeKB", cl->getLocalMemorySizeKB());
+    setProperty(L, "maxAllocSizeMB", cl->getMaxAllocSizeMB());
+    setProperty(L, "maxWorkgroupSize", cl->getMaxWorkgroupSize());
 
-  //  size_t freeMem;
-  //  THCudaCheck(cudaMemGetInfo (&freeMem, NULL));
-  //  lua_pushnumber(L, freeMem);
-  //  lua_setfield(L, -2, "freeGlobalMem");
-
-  //  lua_pushstring(L, prop.name);
-  //  lua_setfield(L, -2, "name");
-
-    lua_pushstring(L, "v0.0.1");
-    lua_setfield(L, -2, "version");
+    delete cl;
 
     return 1;
   }

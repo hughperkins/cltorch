@@ -32,7 +32,7 @@ for k,v in pairs(clnn) do
   print('clnn k,v', k, v)
 end
 
-props = clnn:getDeviceProperties()
+props = clnn.getDeviceProperties(1)
 print('props', props)
 for k,v in pairs(props) do
   print('props k,v', k, v)
