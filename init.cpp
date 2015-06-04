@@ -23,13 +23,15 @@ extern "C" {
   lua_pushnumber(L, prop.NAME); \
   lua_setfield(L, -2, #NAME);
 
-//extern "C" {
-//  static int clnn_getDeviceProperties(lua_State *L);
-//}
+extern "C" {
+  static int clnn_getDeviceProperties(lua_State *L);
+}
 
+extern "C" {
 static int clnn_getDeviceProperties(lua_State *L)
 {
-  int device = (int)luaL_checknumber(L, 1)-1;
+  cout << "clnn_getDeviceProperties" << endl;
+//  int device = (int)luaL_checknumber(L, 1)-1;
 
   // switch context to given device so the call to cudaMemGetInfo is for the correct device
 //  int oldDevice;
@@ -38,7 +40,7 @@ static int clnn_getDeviceProperties(lua_State *L)
 
 //  struct cudaDeviceProp prop;
 //  THCudaCheck(cudaGetDeviceProperties(&prop, device));
-  lua_newtable(L);
+//  lua_newtable(L);
 //  SET_DEVN_PROP(canMapHostMemory);
 //  SET_DEVN_PROP(clockRate);
 //  SET_DEVN_PROP(computeMode);
@@ -75,6 +77,7 @@ static int clnn_getDeviceProperties(lua_State *L)
 
   return 1;
 }
+}
 
 //static int cutorch_getState(lua_State *L)
 //{
@@ -84,7 +87,7 @@ static int clnn_getDeviceProperties(lua_State *L)
 //  return 1;
 //}
 
-const char *getDevicePropertiesName = "getDeviceProperties";
+//const char *getDevicePropertiesName = "getDeviceProperties";
 
 static const struct luaL_Reg clnn_stuff__ [] = {
 //  {"synchronize", cutorch_synchronize},
@@ -105,12 +108,29 @@ static const struct luaL_Reg clnn_stuff__ [] = {
   {NULL, NULL}
 };
 
+struct luaL_Reg makeReg( const char *name, lua_CFunction fn ) {
+    struct luaL_Reg reg;
+    reg.name = name;
+    reg.func = fn;
+    cout << "reg.name" << reg.name <<endl;
+    return reg;
+}
+
 int luaopen_libclnn( lua_State *L ) {
   printf("luaopen_libclnn called :-)\n");
   cout << " try cout" << endl;
 
-//  luaL_setfuncs(L, clnn_stuff__, 0);
-  luaL_register(L, NULL, clnn_stuff__);
+  lua_newtable(L);
+
+//  struct luaL_Reg clnn_stuff[2];
+ // cout << "clnn_getDeviceProperties" << (long)clnn_getDeviceProperties << endl;
+ // clnn_stuff[0] = makeReg("getDeviceProperties", clnn_getDeviceProperties);
+//  clnn_stuff[0] = makeReg("", 0);
+ // clnn_stuff[1] = makeReg(NULL, NULL);
+
+  luaL_setfuncs(L, clnn_stuff__, 0);
+ // cout << "clnn_stuff[0]->name" << clnn_stuff[0].name << endl;
+ // luaL_register(L, NULL, clnn_stuff);
   cout << "setfuncs done" << endl;
 
   THClState* state = (THClState*)malloc(sizeof(THClState));
