@@ -18,7 +18,6 @@ void THClStorage_set(THClState *state, THClStorage *self, long index, float valu
 float THClStorage_get(THClState *state, const THClStorage *self, long index)
 {
   printf("THClStorage_get\n");
-  float value;
   THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
   if( self->wrapper->isDeviceDirty() ) {
     self->wrapper->copyToHost();
@@ -134,22 +133,27 @@ void THClStorage_retain(THClState *state, THClStorage *self)
 
 void THClStorage_free(THClState *state, THClStorage *self)
 {
-  throw runtime_error("not available yet for THClStorage");
-  THError("not available yet for THClStorage");
-//  if(!(self->flag & TH_STORAGE_REFCOUNTED))
-//    return;
+  if(!(self->flag & TH_STORAGE_REFCOUNTED))
+    return;
 
-//  if (THAtomicDecrementRef(&self->refcount))
-//  {
-//    if(self->flag & TH_STORAGE_FREEMEM) {
-//      THClCheck(cudaFree(self->data));
-//    }
-//    THFree(self);
-//  }
+  if (THAtomicDecrementRef(&self->refcount))
+  {
+    if(self->flag & TH_STORAGE_FREEMEM) {
+      delete self->wrapper;
+      delete self->data;
+    }
+    THFree(self);
+  }
 }
 void THClStorage_fill(THClState *state, THClStorage *self, float value)
 {
-  THError("not available yet for THClStorage");
+  if( self->wrapper->isDeviceDirty() ) {
+    self->wrapper->copyToHost();
+  }
+  for( int i = 0; i < self->size; i++ ) {
+    self->data[i] = value;
+  }
+  self->wrapper->copyToDevice();
 }
 
 void THClStorage_resize(THClState *state, THClStorage *self, long size)

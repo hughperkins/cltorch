@@ -54,3 +54,6 @@ print('c4', c)
 c = torch.ClStorage{4,9,2}
 print('c5', c)
 
+c:fill(7)
+print('c6', c)
+
