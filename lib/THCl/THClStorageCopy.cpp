@@ -55,7 +55,12 @@ TH_CL_STORAGE_IMPLEMENT_COPY(Double)
 void THFloatStorage_copyCl(THClState *state, THFloatStorage *self, struct THClStorage *src)
 {
   THArgCheck(self->size == src->size, 2, "size does not match");
-//  THClCheck(clMemcpy(self->data, src->data, self->size * sizeof(float), clMemcpyDeviceToHost));
+  if( src->wrapper->isDeviceDirty() ) {
+    src->wrapper->copyToHost();
+  }
+  for( int i = 0; i < self->size; i++ ) {
+    self->data[i] = src->data[i];
+  }
 }
 
 #define TH_CL_STORAGE_IMPLEMENT_COPYTO(TYPEC)                           \

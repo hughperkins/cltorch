@@ -67,3 +67,10 @@ print('bbbbb', b)
 c:copy(a)
 print('c7', c)
 
+c[2] = 21
+print('c8', c)
+print('aaaaaa', a)
+a:copy(c)
+print('aaaaaa', a)
+
+
