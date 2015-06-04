@@ -1,6 +1,6 @@
 #include "utils.h"
 
-THLongStorage* cutorch_checklongargs(lua_State *L, int index)
+THLongStorage* clnn_checklongargs(lua_State *L, int index)
 {
   THLongStorage *storage;
   int i;
@@ -28,7 +28,7 @@ THLongStorage* cutorch_checklongargs(lua_State *L, int index)
   return storage;
 }
 
-int cutorch_islongargs(lua_State *L, int index)
+int clnn_islongargs(lua_State *L, int index)
 {
   int narg = lua_gettop(L)-index+1;
 
@@ -50,11 +50,11 @@ int cutorch_islongargs(lua_State *L, int index)
   return 0;
 }
 
-struct THCState* cutorch_getstate(lua_State* L)
+struct THClState* clnn_getstate(lua_State* L)
 {
-  lua_getglobal(L, "cutorch");
+  lua_getglobal(L, "clnn");
   lua_getfield(L, -1, "_state");
-  struct THCState *state = lua_touserdata(L, -1);
+  struct THClState *state = lua_touserdata(L, -1);
   lua_pop(L, 2);
   return state;
 }

@@ -1,5 +1,5 @@
-#ifndef CUTORCH_UTILS_INC
-#define CUTORCH_UTILS_INC
+#ifndef CLNN_UTILS_INC
+#define CLNN_UTILS_INC
 
 #include "luaT.h"
 #include "TH.h"
@@ -39,10 +39,10 @@ static void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
 #endif
 
 
-TORCH_API THLongStorage* cutorch_checklongargs(lua_State *L, int index);
-TORCH_API int cutorch_islongargs(lua_State *L, int index);
+TORCH_API THLongStorage* clnn_checklongargs(lua_State *L, int index);
+TORCH_API int clnn_islongargs(lua_State *L, int index);
 
-struct THCState;
-TORCH_API struct THCState* cutorch_getstate(lua_State* L);
+struct THClState;
+TORCH_API struct THClState* clnn_getstate(lua_State* L);
 
 #endif

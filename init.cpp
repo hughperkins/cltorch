@@ -5,7 +5,6 @@ using namespace std;
 
 //#include "THClTensorRandom.h"
 
-//extern void clnn_ClStorage_init(lua_State* L);
 //extern void clnn_ClTensor_init(lua_State* L);
 //extern void clnn_ClTensorMath_init(lua_State* L);
 //extern void clnn_ClTensorOperator_init(lua_State* L);
@@ -16,6 +15,7 @@ extern "C" {
   #include "luaT.h"
   #include "THClGeneral.h"
   int luaopen_libclnn( lua_State *L );
+  extern void clnn_ClStorage_init(lua_State* L);
 }
 
 namespace clnn {
@@ -101,7 +101,7 @@ int luaopen_libclnn( lua_State *L ) {
   THClInit(state);
   cout << "THClInit done" << endl;
 
-//  cltorch_ClStorage_init(L);
+  clnn_ClStorage_init(L);
 //  cltorch_ClTensor_init(L);
 //  cltorch_ClTensorMath_init(L);
 //  cltorch_ClTensorOperator_init(L);

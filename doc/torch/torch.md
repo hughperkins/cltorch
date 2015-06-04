@@ -116,7 +116,7 @@
 
 ## torch/generic
 
-* Storage.c and Tensor.c from torch/generic, no change
+* Storage.c and Tensor.c from torch/generic, -no change-, but modified some... eg THCState instead of THState, and cutorch_getState, instead of checkudata and not the only difference :-(
 
 ## lib/THC
 
