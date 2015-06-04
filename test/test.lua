@@ -51,3 +51,6 @@ c[3] = 7
 print('c4', c)
 -- print('c' .. c)
 
+c = torch.ClStorage{4,9,2}
+print('c5', c)
+
