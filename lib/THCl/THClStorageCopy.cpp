@@ -1,19 +1,24 @@
 #include "THClStorageCopy.h"
 #include "THClGeneral.h"
+#include <stdio.h>
+#include "EasyCL.h"
 
 void THClStorage_rawCopy(THClState *state, THClStorage *self, float *src)
 {
+  THError("not available yet for THClStorage");
 //  THClCheck(clMemcpyAsync(self->data, src, self->size * sizeof(float), clMemcpyDeviceToDevice, THClState_getCurrentStream(state)));
 }
 
 void THClStorage_copy(THClState *state, THClStorage *self, THClStorage *src)
 {
+  THError("not available yet for THClStorage");
   THArgCheck(self->size == src->size, 2, "size does not match");
 //  THClCheck(clMemcpyAsync(self->data, src->data, self->size * sizeof(float), clMemcpyDeviceToDevice, THClState_getCurrentStream(state)));
 }
 
 void THClStorage_copyCl(THClState *state, THClStorage *self, THClStorage *src)
 {
+  THError("not available yet for THClStorage");
   THArgCheck(self->size == src->size, 2, "size does not match");
 //  THClCheck(clMemcpyAsync(self->data, src->data, self->size * sizeof(float), clMemcpyDeviceToDevice, THClState_getCurrentStream(state)));
 }
@@ -21,12 +26,17 @@ void THClStorage_copyCl(THClState *state, THClStorage *self, THClStorage *src)
 void THClStorage_copyFloat(THClState *state, THClStorage *self, struct THFloatStorage *src)
 {
   THArgCheck(self->size == src->size, 2, "size does not match");
+  for( int i = 0; i < self->size; i++ ) {
+    self->data[i] = src->data[i];
+  }
+  self->wrapper->copyToDevice();
  // THClCheck(clMemcpy(self->data, src->data, self->size * sizeof(float), clMemcpyHostToDevice));
 }
 
 #define TH_CL_STORAGE_IMPLEMENT_COPY(TYPEC)                           \
   void THClStorage_copy##TYPEC(THClState *state, THClStorage *self, struct TH##TYPEC##Storage *src) \
   {                                                                     \
+    printf("THClStorage_copy_type\n");         \
     THFloatStorage *buffer;                                             \
     THArgCheck(self->size == src->size, 2, "size does not match");      \
     buffer = THFloatStorage_newWithSize(src->size);                     \

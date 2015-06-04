@@ -57,3 +57,13 @@ print('c5', c)
 c:fill(7)
 print('c6', c)
 
+a = torch.Storage{1.5, 2.4, 5.3}
+print('a', a)
+
+b = torch.Storage(3)
+b:copy(a)
+print('bbbbb', b)
+
+c:copy(a)
+print('c7', c)
+
