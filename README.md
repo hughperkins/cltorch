@@ -9,7 +9,7 @@ Apparently, my md markup table-foo is not one of them :-P
 
 |  Component | Status | Examples |
 |--|---|--|
-| require 'clnn' | works | `require 'clnn' |
+| `require 'clnn'` | works | `require 'clnn'` |
 | device information | works | ```
 print('num devices:', clnn.getDeviceCount())
 props = clnn.getDeviceProperties(1)
@@ -42,5 +42,5 @@ print('a\n', a)
 d = torch.ClStorage(3)
 d:copy(c)
 print('d\n', d)
-```
+``` |
 
