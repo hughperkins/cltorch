@@ -2,6 +2,8 @@
 #include "THClGeneral.h"
 #include <stdio.h>
 #include "EasyCL.h"
+#include "DeepCL.h"
+#include "clmath/CopyBuffer.h"
 
 void THClStorage_rawCopy(THClState *state, THClStorage *self, float *src)
 {
@@ -12,15 +14,8 @@ void THClStorage_rawCopy(THClState *state, THClStorage *self, float *src)
 void THClStorage_copy(THClState *state, THClStorage *self, THClStorage *src)
 {
   THArgCheck(self->size == src->size, 2, "size does not match");
-  // yes I know on your fancy nvidia device, you can copy directly ;-)
-  // might be possible in later opencl versions too probably actually (or even in 1.1?)
-  if( src->wrapper->isDeviceDirty() ) {
-    src->wrapper->copyToHost();
-  }
-  for( int i = 0; i < self->size; i++ ) {
-    self->data[i] = src->data[i];
-  }
-  self->wrapper->copyToDevice();
+  CopyBuffer copyBuffer( state->cl );
+  copyBuffer.copy( src->size, src->wrapper, self->wrapper );
 }
 
 void THClStorage_copyCl(THClState *state, THClStorage *self, THClStorage *src)
