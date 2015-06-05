@@ -8,7 +8,7 @@ This is 99.9999% experimental.  Might get deleted.  Who knows :-P
 Apparently, my md markup table-foo is not one of them :-P
 
 |  Component | Status | Examples |
-|--|---|--|
+|------------|--------|----------|
 | `require 'clnn'` | works | `require 'clnn'` |
 
 | device information | works | ```
