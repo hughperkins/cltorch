@@ -130,9 +130,8 @@ THClStorage* THClStorage_newWithData(THClState *state, float *data, long size)
 
 void THClStorage_retain(THClState *state, THClStorage *self)
 {
-  THError("not available yet for THClStorage");
-//  if(self && (self->flag & TH_STORAGE_REFCOUNTED))
-//    THAtomicIncrementRef(&self->refcount);
+  if(self && (self->flag & TH_STORAGE_REFCOUNTED))
+    THAtomicIncrementRef(&self->refcount);
 }
 
 void THClStorage_free(THClState *state, THClStorage *self)

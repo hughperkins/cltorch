@@ -27,3 +27,15 @@ print('d', d)
 d:copy(c)
 print('d2', d)
 
+b = torch.Tensor{{4,2,-2},{3.1,1.2,4.9}}
+b[1][2] = 2.123
+print('b2\n', b)
+
+c = torch.ClTensor{{4,2,-2},{3.1,1.2,4.9}}
+c[1][2] = 2.123
+print('c5\n', c)
+
+b[1][2] = 5.432
+c:copy(b)
+print('c6\n', c)
+
