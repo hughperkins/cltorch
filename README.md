@@ -9,7 +9,7 @@ This is 99.9999% experimental.  Might get deleted.  Who knows :-P
 
 <tr><td>Component<td>Status<td>Examples</tr>
 
-<tr><td><pre>require 'clnn'</pre> <td> works <td><pre> `require 'clnn'` </pre></tr>
+<tr><td><pre>require 'clnn'</pre> <td> works <td><pre>require 'clnn'</pre></tr>
 
 <tr><td>Device information<td>works<td><pre>
 print('num devices:', clnn.getDeviceCount())
