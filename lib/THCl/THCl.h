@@ -6,10 +6,10 @@
 //#include "THClBlas.h"
 #include "THClStorage.h"
 #include "THClStorageCopy.h"
-//#include "THClTensor.h"
-//#include "THClTensorCopy.h"
+#include "THClTensor.h"
+#include "THClTensorCopy.h"
 //#include "THClTensorRandom.h"
-//#include "THClTensorMath.h"
+#include "THClTensorMath.h"
 //#include "THClTensorConv.h"
 //#include "THClTensorSort.h"
 

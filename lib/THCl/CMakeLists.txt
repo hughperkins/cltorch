@@ -2,7 +2,7 @@ SET(CMAKE_C_FLAGS "-std=c99")
 #SET(src
 #    THCGeneral.c THCAllocator.c THCStorage.c THCStorageCopy.c THCTensor.c THCTensorCopy.c)
 SET(src
-    THClGeneral.cpp THClStorage.cpp THClStorageCopy.cpp THClStorageCopy.c )
+    THClGeneral.cpp THClStorage.cpp THClStorageCopy.cpp THClStorageCopy.c THClTensor.cpp THClTensorCopy.cpp )
 set(src-cl)
 # add_library( THCl SHARED THClStorage.c THClGeneral.c )
 
