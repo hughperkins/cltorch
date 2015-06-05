@@ -40,7 +40,6 @@ b:copy(c)
 c:copy(b)
 d = torch.ClTensor(2,3)
 d:copy(c)
-print('d2', d)
 c[1][2] = 2.123
 </pre></tr>
 
