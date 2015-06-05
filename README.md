@@ -5,21 +5,18 @@ This is 99.9999% experimental.  Might get deleted.  Who knows :-P
 
 ## Things that are working
 
-Apparently, my md markup table-foo is not one of them :-P
-
-|  Component | Status | Examples |
-|------------|--------|----------|
-| `require 'clnn'` | works | `require 'clnn'` |
-
-| device information | works | ```
+<table>
+<tr><td>Component<td>Status<td>Examples</tr>
+<tr><td><pre>require 'clnn'</pre> <td> works <td><pre> `require 'clnn'` </pre></tr>
+<tr><td>Device information<td>works<td><pre>
 print('num devices:', clnn.getDeviceCount())
 props = clnn.getDeviceProperties(1)
 print('props', props)
 for k,v in pairs(props) do
   print('props k,v', k, v)
 end
-``` |
-| torch.ClStorage | works | ```
+</pre></tr>
+<tr><td> torch.ClStorage <td> works <td><pre>
 c = torch.ClStorage()
 print('c1\n', c)
 c = torch.ClStorage(3)
@@ -43,5 +40,7 @@ print('a\n', a)
 d = torch.ClStorage(3)
 d:copy(c)
 print('d\n', d)
-``` |
+</pre></tr>
+</table>
+
 
