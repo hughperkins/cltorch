@@ -1,5 +1,8 @@
-#include "THClStorageCopy.h"
-#include "THClGeneral.h"
+extern "C" {
+    #include "THClStorageCopy.h"
+    #include "THClGeneral.h"
+}
+
 #include <stdio.h>
 #include "EasyCL.h"
 #include "DeepCL.h"

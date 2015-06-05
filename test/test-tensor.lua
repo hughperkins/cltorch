@@ -6,4 +6,5 @@ a = torch.Tensor{3,5,2}
 print('a\n', a)
 
 c = torch.ClTensor{7,4,5}
+print('c1\n', c)
 

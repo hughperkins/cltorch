@@ -1,10 +1,12 @@
-#include "THClTensorMath.h"
-#include "THClGeneral.h"
-//#include "THClBlas.h"
-#include "THClTensorCopy.h"
-#include "THClTensorRandom.h"
-#include "THClApply.cuh"
-#include "THClReduce.cuh"
+extern "C" {
+    #include "THClTensorMath.h"
+    #include "THClGeneral.h"
+    //#include "THClBlas.h"
+    #include "THClTensorCopy.h"
+    #include "THClTensorRandom.h"
+    #include "THClApply.cuh"
+    #include "THClReduce.cuh"
+}
 
 //#include <thrust/device_ptr.h>
 //#include <thrust/fill.h>

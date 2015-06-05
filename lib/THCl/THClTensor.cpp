@@ -1,7 +1,9 @@
-#include "THClGeneral.h"
-#include "THClTensor.h"
-#include "THClTensorCopy.h"
-#include "THAtomic.h"
+extern "C" {
+    #include "THClGeneral.h"
+    #include "THClTensor.h"
+    #include "THClTensorCopy.h"
+    #include "THAtomic.h"
+}
 
 /**** access methods ****/
 THClStorage *THClTensor_storage(THClState *state, const THClTensor *self)

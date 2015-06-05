@@ -2,7 +2,7 @@ require "torch"
 clnn = paths.require("libclnn")
 
 torch.ClStorage.__tostring__ = torch.FloatStorage.__tostring__
---torch.CudaTensor.__tostring__ = torch.FloatTensor.__tostring__
+torch.ClTensor.__tostring__ = torch.FloatTensor.__tostring__
 
 include('Tensor.lua')
 --include('FFI.lua')

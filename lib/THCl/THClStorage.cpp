@@ -1,14 +1,21 @@
-#include "THClStorage.h"
-#include "THClGeneral.h"
-#include "THAtomic.h"
+extern "C" {
+    #include "THClStorage.h"
+    #include "THClGeneral.h"
+    #include "THAtomic.h"
+}
+
 #include "EasyCL.h"
 #include <stdexcept>
+#include <iostream>
 using namespace std;
 
 void THClStorage_set(THClState *state, THClStorage *self, long index, float value)
 {
+  cout << "set size=" << self->size << " index=" << index << " value=" << value << endl;
   THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
-  if( self->wrapper->isDeviceDirty() ) {
+  if( self->wrapper->isDeviceDirty() ) { // we have to do this, since we're going to copy it all back again
+                                         // although I suppose we could set via a kernel perhaps
+                                         // either way, this function is pretty inefficient right now :-P
     self->wrapper->copyToHost();
   }
   self->data[index] = value;
@@ -144,9 +151,6 @@ void THClStorage_free(THClState *state, THClStorage *self)
 }
 void THClStorage_fill(THClState *state, THClStorage *self, float value)
 {
-  if( self->wrapper->isDeviceDirty() ) {
-    self->wrapper->copyToHost();
-  }
   for( int i = 0; i < self->size; i++ ) {
     self->data[i] = value;
   }
@@ -155,6 +159,13 @@ void THClStorage_fill(THClState *state, THClStorage *self, float value)
 
 void THClStorage_resize(THClState *state, THClStorage *self, long size)
 {
-  THError("not available yet for THClStorage");
+  if( size <= self->size ) {
+    return;
+  }
+  delete self->wrapper;
+  delete[] self->data;
+  self->data = new float[size];
+  self->wrapper = state->cl->wrap( size, self->data );
+  self->size = size;
 }
 

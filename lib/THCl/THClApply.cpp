@@ -1,4 +1,6 @@
-#include "THClApply.h"
+extern "C" {
+    #include "THClApply.h"
+}
 
 // Implementation of copyIgnoringOverlaps, defined after pointwiseApply2.
 void THClTensor_copyIgnoringOverlaps(THClState* state,

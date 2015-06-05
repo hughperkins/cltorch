@@ -1,16 +1,18 @@
-#include "THClTensorMath.h"
-#include "THClGeneral.h"
-//#include "THClBlas.h"
-#include "THClTensorCopy.h"
-//#include "THClTensorRandom.h"
-//#include "THClApply.cuh"
-//#include "THClReduce.cuh"
+extern "C" {
+    #include "THClTensorMath.h"
+    #include "THClGeneral.h"
+    //#include "THClBlas.h"
+    #include "THClTensorCopy.h"
+    //#include "THClTensorRandom.h"
+    //#include "THClApply.cuh"
+    //#include "THClReduce.cuh"
 
-//#include <thrust/device_ptr.h>
-//#include <thrust/fill.h>
-//#include <thrust/functional.h>
-//#include <thrust/reduce.h>
-//#include <thrust/inner_product.h>
+    //#include <thrust/device_ptr.h>
+    //#include <thrust/fill.h>
+    //#include <thrust/functional.h>
+    //#include <thrust/reduce.h>
+    //#include <thrust/inner_product.h>
+}
 
 #ifndef DIVUP
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
