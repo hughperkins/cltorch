@@ -10,6 +10,7 @@ Apparently, my md markup table-foo is not one of them :-P
 |  Component | Status | Examples |
 |--|---|--|
 | `require 'clnn'` | works | `require 'clnn'` |
+
 | device information | works | ```
 print('num devices:', clnn.getDeviceCount())
 props = clnn.getDeviceProperties(1)
