@@ -12,8 +12,8 @@ luarocks make rocks/clnn-scm-1.rockspec || exit 1
 # LUA_CPATH="$LUA_CPATH;build/?.so" LUA_PATH="$LUA_PATH;?.lua" luajit test/test.lua
 
 if [[ x${RUNGDB} == x1 ]]; then {
-  rungdb.sh luajit test/test.lua
+  rungdb.sh luajit test/test-storage.lua
 } else {
-  luajit test/test.lua
+  luajit test/test-storage.lua
 } fi
 

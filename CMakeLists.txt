@@ -23,7 +23,7 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/DeepCL/EasyCL")
 
 # SET(src Storage.c init.c Tensor.c TensorMath.c TensorOperator.c torch/utils.c)
 SET(src init.cpp torch/utils.c Storage.c)
-SET(luasrc init.lua test/test.lua)
+SET(luasrc init.lua )
 
 ADD_TORCH_PACKAGE(clnn "${src}" "${luasrc}")
 
