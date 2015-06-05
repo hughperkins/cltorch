@@ -24,6 +24,6 @@ print('c4', c)
 d = torch.ClTensor(2,3)
 print('d', d)
 
--- d:copy(c)
--- print('d2', d)
+d:copy(c)
+print('d2', d)
 

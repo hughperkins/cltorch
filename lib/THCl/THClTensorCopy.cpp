@@ -121,34 +121,30 @@ void THClTensor_copyCl(THClState *state, THClTensor *self, THClTensor *src)
 
 THCL_API void
 THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
-  THError("Not implemented");
-//  long totalElements = THClTensor_nElement(state, dst);
+  long totalElements = THClTensor_nElement(state, dst);
 
-//  THArgCheck(totalElements == THClTensor_nElement(state, src), 2,
-//             "sizes do not match");
+  THArgCheck(totalElements == THClTensor_nElement(state, src), 2,
+             "sizes do not match");
 
-//  if (THClTensor_nDimension(state, dst) == 0) {
-//    // Zero-dim tensor; copy nothing
-//    return;
-//  }
+  if (THClTensor_nDimension(state, dst) == 0) {
+    // Zero-dim tensor; copy nothing
+    return;
+  }
 
-//  // We can memcpy the memory if:
-//  // -both tensors are contiguous; or,
-//  // -there is only one element to copy; or,
-//  // -FIXME: if both tensors have matching size and stride arrays, and no
-//  // holes within (in other words, there is some permutation that can be applied
-//  // to the size/strides such that the resulting tensor is contiguous).
-//  bool srcContig = THClTensor_isContiguous(state, src);
-//  bool dstContig = THClTensor_isContiguous(state, dst);
-//  bool memcpyEligible = (srcContig && dstContig) || (totalElements == 1);
+  // We can memcpy the memory if:
+  // -both tensors are contiguous; or,
+  // -there is only one element to copy; or,
+  // -FIXME: if both tensors have matching size and stride arrays, and no
+  // holes within (in other words, there is some permutation that can be applied
+  // to the size/strides such that the resulting tensor is contiguous).
+  bool srcContig = THClTensor_isContiguous(state, src);
+  bool dstContig = THClTensor_isContiguous(state, dst);
+  bool memcpyEligible = (srcContig && dstContig) || (totalElements == 1);
 
-//  if (memcpyEligible) {
-//    THClCheck(cudaMemcpyAsync(THClTensor_data(state, dst),
-//                                THClTensor_data(state, src),
-//                                totalElements * sizeof(float),
-//                                cudaMemcpyDeviceToDevice,
-//                                THClState_getCurrentStream(state)));
-//  } else {
+  if (memcpyEligible) {
+    CopyBuffer copyBuffer(state->cl);
+    copyBuffer.copy( totalElements, src->storage->wrapper, dst->storage->wrapper);
+ } else {
 //    int oldDev = curGPU();
 //    int srcDev = THClTensor_getDevice(state, src);
 //    int dstDev = THClTensor_getDevice(state, dst);
@@ -200,10 +196,6 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
 //    if (curGPU() != oldDev) {
 //      THClCheck(cudaSetDevice(oldDev));
 //    }
-//  }
-
-//  cudaError errcode = cudaGetLastError();
-//  if (errcode != cudaSuccess) {
-//    THError(cudaGetErrorString(errcode));
-//  }
+    THError("Not implemented");
+  }
 }
