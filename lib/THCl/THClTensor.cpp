@@ -1,9 +1,9 @@
-extern "C" {
+//extern "C" {
     #include "THClGeneral.h"
     #include "THClTensor.h"
     #include "THClTensorCopy.h"
     #include "THAtomic.h"
-}
+//}
 
 /**** access methods ****/
 THClStorage *THClTensor_storage(THClState *state, const THClTensor *self)
@@ -797,10 +797,10 @@ THCL_API int THClTensor_getDevice(THClState* state, const THClTensor* thc) {
 }
 int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...)
 {
-  THError("THClTensor_checkGPU Not implemented");
-  return 0;
+ // THError("THClTensor_checkGPU Not implemented");
+//  return 0;
 //#ifdef DISABLE_CHECK_GPU
-//  return 1;  // Disable GPU checks.
+  return 1;  // Disable GPU checks.
 //#else
 //  int curDev = -1;
 //  THClCheck(cudaGetDevice(&curDev));

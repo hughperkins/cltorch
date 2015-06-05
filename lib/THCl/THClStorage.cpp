@@ -1,8 +1,6 @@
-extern "C" {
-    #include "THClStorage.h"
-    #include "THClGeneral.h"
-    #include "THAtomic.h"
-}
+#include "THClStorage.h"
+#include "THClGeneral.h"
+#include "THAtomic.h"
 
 #include "EasyCL.h"
 #include <stdexcept>

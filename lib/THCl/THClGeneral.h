@@ -34,5 +34,15 @@ typedef struct THClState
 
 THCL_API void THClInit(THClState* state);
 THCL_API void THClShutdown(THClState* state);
+
+
+// define dim3, since this came from cuda in cutorch
+
+typedef struct _dim3 {
+    float x;
+    float y;
+    float z;
+} dim3;
+
 #endif
 

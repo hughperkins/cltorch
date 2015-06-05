@@ -1,9 +1,7 @@
-extern "C" {
-    #include "THClApply.h"
-    #include "THClTensorCopy.h"
-    #include "THClGeneral.h"
-    #include "THClTensor.h"
-}
+#include "THClApply.h"
+#include "THClTensorCopy.h"
+#include "THClGeneral.h"
+#include "THClTensor.h"
 
 #include "EasyCL.h"
 #include "clmath/CopyBuffer.h"

@@ -111,3 +111,4 @@ THCL_API int THClTensor_logicalall(THClState *state, THClTensor *self);
 THCL_API int THClTensor_logicalany(THClState *state, THClTensor *self);
 
 #endif
+

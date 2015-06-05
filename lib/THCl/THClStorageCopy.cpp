@@ -1,7 +1,5 @@
-extern "C" {
-    #include "THClStorageCopy.h"
-    #include "THClGeneral.h"
-}
+#include "THClStorageCopy.h"
+#include "THClGeneral.h"
 
 #include <stdio.h>
 #include "EasyCL.h"

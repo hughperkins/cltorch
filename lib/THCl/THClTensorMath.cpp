@@ -1,18 +1,10 @@
-extern "C" {
-    #include "THClTensorMath.h"
-    #include "THClGeneral.h"
-    //#include "THClBlas.h"
-    #include "THClTensorCopy.h"
-    //#include "THClTensorRandom.h"
-    //#include "THClApply.cuh"
-    //#include "THClReduce.cuh"
-
-    //#include <thrust/device_ptr.h>
-    //#include <thrust/fill.h>
-    //#include <thrust/functional.h>
-    //#include <thrust/reduce.h>
-    //#include <thrust/inner_product.h>
-}
+#include "THClTensorMath.h"
+#include "THClGeneral.h"
+//#include "THClBlas.h"
+#include "THClTensorCopy.h"
+//#include "THClTensorRandom.h"
+#include "THClApply.h"
+//#include "THClReduce.cuh"
 
 #ifndef DIVUP
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
@@ -27,18 +19,18 @@ extern "C" {
 
 void THClTensor_fill(THClState* state, THClTensor *self_, float value)
 {
-  THError("Not implemented");
 //  THAssert(THClTensor_checkGPU(state, 1, self_));
 //  if (!THClTensor_pointwiseApply1(state, self_, TensorFillOp(value))) {
 //    THArgCheck(false, 1, CUTORCH_DIM_WARNING);
 //  }
 
 //  THClCheck(cudaGetLastError());
+    THError("Not implemented");
+//    return 0;
 }
 
 void THClTensor_zero(THClState *state, THClTensor *self_)
 {
-  THError("Not implemented");
 //  THAssert(THClTensor_checkGPU(state, 1, self_));
 //  if (THClTensor_isContiguous(state, self_)) {
 //    THClCheck(cudaMemsetAsync(THClTensor_data(state, self_),
@@ -52,27 +44,35 @@ void THClTensor_zero(THClState *state, THClTensor *self_)
 //  }
 
 //  THClCheck(cudaGetLastError());
+    THError("Not implemented");
+//    return 0;
 }
 
 void THClTensor_zeros(THClState *state, THClTensor *r_, THLongStorage *size)
 {
-  THAssert(THClTensor_checkGPU(state, 1, r_));
-  THClTensor_resize(state, r_, size, NULL);
-  THClTensor_zero(state, r_);
+//  THAssert(THClTensor_checkGPU(state, 1, r_));
+//  THClTensor_resize(state, r_, size, NULL);
+//  THClTensor_zero(state, r_);
+    THError("Not implemented");
+//    return 0;
 }
 
 void THClTensor_ones(THClState *state, THClTensor *r_, THLongStorage *size)
 {
-  THAssert(THClTensor_checkGPU(state, 1, r_));
-  THClTensor_resize(state, r_, size, NULL);
-  THClTensor_fill(state, r_, 1);
+//  THAssert(THClTensor_checkGPU(state, 1, r_));
+//  THClTensor_resize(state, r_, size, NULL);
+//  THClTensor_fill(state, r_, 1);
+    THError("Not implemented");
+//    return 0;
 }
 
 void THClTensor_reshape(THClState *state, THClTensor *r_, THClTensor *t, THLongStorage *size)
 {
-  THAssert(THClTensor_checkGPU(state, 2, r_, t));
-  THClTensor_resize(state, r_, size, NULL);
-  THClTensor_copy(state, r_, t);
+//  THAssert(THClTensor_checkGPU(state, 2, r_, t));
+//  THClTensor_resize(state, r_, size, NULL);
+//  THClTensor_copy(state, r_, t);
+    THError("Not implemented");
+//    return 0;
 }
 
 long THClTensor_numel(THClState *state, THClTensor *t)
@@ -92,7 +92,6 @@ long THClTensor_numel(THClState *state, THClTensor *t)
 
 void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THClTensor *src2)
 {
-  THError("Not implemented");
 //  THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));
 //  THArgCheck(THClTensor_nElement(state, src1) ==
 //             THClTensor_nElement(state, src2), 3, "sizes do not match");
@@ -112,6 +111,8 @@ void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THCl
 //  }
 
 //  THClCheck(cudaGetLastError());
+    THError("Not implemented");
+//    return 0;
 }
 
 //struct TensorDivOp {
@@ -128,7 +129,6 @@ void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THCl
 
 void THClTensor_cdiv(THClState* state, THClTensor *self_, THClTensor *src1, THClTensor *src2)
 {
-  THError("Not implemented");
 //  THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));
 //  THArgCheck(THClTensor_nElement(state, src1) ==
 //             THClTensor_nElement(state, src2), 3, "sizes do not match");
@@ -148,6 +148,8 @@ void THClTensor_cdiv(THClState* state, THClTensor *self_, THClTensor *src1, THCl
 //  }
 
 //  THClCheck(cudaGetLastError());
+    THError("Not implemented");
+//    return 0;
 }
 
 //struct TensorAddCMulOp {
@@ -163,7 +165,6 @@ void THClTensor_cdiv(THClState* state, THClTensor *self_, THClTensor *src1, THCl
 
 void THClTensor_addcmul(THClState *state, THClTensor *self_, THClTensor *t, float value, THClTensor *src1, THClTensor *src2)
 {
-  THError("Not implemented");
 //  THAssert(THClTensor_checkGPU(state, 4, self_, t, src1, src2));
 //  if(self_ != t)
 //  {
@@ -180,6 +181,7 @@ void THClTensor_addcmul(THClState *state, THClTensor *self_, THClTensor *t, floa
 //  }
 
 //  THClCheck(cudaGetLastError());
+    THError("Not implemented");
 }
 
 //struct TensorAddCDivOp {
@@ -195,7 +197,6 @@ void THClTensor_addcmul(THClState *state, THClTensor *self_, THClTensor *t, floa
 
 void THClTensor_addcdiv(THClState *state, THClTensor *self_, THClTensor *t, float value, THClTensor *src1, THClTensor *src2)
 {
-  THError("Not implemented");
 //  THAssert(THClTensor_checkGPU(state, 4, self_, t, src1, src2));
 //  if(self_ != t)
 //  {
@@ -211,12 +212,12 @@ void THClTensor_addcdiv(THClState *state, THClTensor *self_, THClTensor *t, floa
 //  }
 
 //  THClCheck(cudaGetLastError());
+    THError("Not implemented");
+//    return 0;
 }
 
 float THClTensor_minall(THClState *state, THClTensor *self)
 {
-  THError("Not implemented");
-  return 0;
 //  THAssert(THClTensor_checkGPU(state, 1, self));
 //  self = THClTensor_newContiguous(state, self);
 //  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
@@ -225,12 +226,12 @@ float THClTensor_minall(THClState *state, THClTensor *self)
 
 //  THClTensor_free(state, self);
 //  return result;
+    THError("Not implemented");
+    return 0;
 }
 
 float THClTensor_maxall(THClState *state, THClTensor *self)
 {
-  THError("Not implemented");
-  return 0;
 //  THAssert(THClTensor_checkGPU(state, 1, self));
 //  self = THClTensor_newContiguous(state, self);
 //  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
@@ -239,12 +240,12 @@ float THClTensor_maxall(THClState *state, THClTensor *self)
 
 //  THClTensor_free(state, self);
 //  return result;
+    THError("Not implemented");
+    return 0;
 }
 
 float THClTensor_sumall(THClState *state, THClTensor *self)
 {
-  THError("Not implemented");
-  return 0;
 //  THAssert(THClTensor_checkGPU(state, 1, self));
 //  self = THClTensor_newContiguous(state, self);
 //  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
@@ -253,12 +254,12 @@ float THClTensor_sumall(THClState *state, THClTensor *self)
 
 //  THClTensor_free(state, self);
 //  return result;
+    THError("Not implemented");
+    return 0;
 }
 
 float THClTensor_prodall(THClState *state, THClTensor *self)
 {
-  THError("Not implemented");
-  return 0;
 //  THAssert(THClTensor_checkGPU(state, 1, self));
 //  self = THClTensor_newContiguous(state, self);
 //  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
@@ -267,6 +268,8 @@ float THClTensor_prodall(THClState *state, THClTensor *self)
 
 //  THClTensor_free(state, self);
 //  return result;
+    THError("Not implemented");
+    return 0;
 }
 
 //struct dim4 {
@@ -281,24 +284,26 @@ float THClTensor_prodall(THClState *state, THClTensor *self)
 
 void THClTensor_sum(THClState* state, THClTensor *self, THClTensor *src, long dimension)
 {
-  THError("Not implemented");
 //  THAssert(THClTensor_checkGPU(state, 2, self, src));
 //  THClTensor_reduceDim(
 //    state, self, src,
 //    thrust::identity<float>(), thrust::plus<float>(), 0.0f, dimension);
 
 //  THClCheck(cudaGetLastError());
+    THError("Not implemented");
+//    return 0;
 }
 
 void THClTensor_prod(THClState* state, THClTensor *self, THClTensor *src, long dimension)
 {
-  THError("Not implemented");
 //  THAssert(THClTensor_checkGPU(state, 2, self, src));
 //  THClTensor_reduceDim(
 //    state, self, src,
 //    thrust::identity<float>(), thrust::multiplies<float>(), 1.0f, dimension);
 
 //  THClCheck(cudaGetLastError());
+    THError("Not implemented");
+//    return 0;
 }
 
 //struct logicalall_functor
@@ -318,8 +323,6 @@ void THClTensor_prod(THClState* state, THClTensor *self, THClTensor *src, long d
 //};
 
 int THClTensor_logicalall(THClState *state, THClTensor *self) {
-  THError("Not implemented");
-  return 0;
 //  THAssert(THClTensor_checkGPU(state, 1, self));
 //  self = THClTensor_newContiguous(state, self);
 //  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
@@ -328,11 +331,11 @@ int THClTensor_logicalall(THClState *state, THClTensor *self) {
 
 //  THClTensor_free(state, self);
 //  return result;
+    THError("Not implemented");
+    return 0;
 }
 
 int THClTensor_logicalany(THClState *state, THClTensor *self) {
-  THError("Not implemented");
-  return 0;
 //  THAssert(THClTensor_checkGPU(state, 1, self));
 //  self = THClTensor_newContiguous(state, self);
 //  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
@@ -341,4 +344,6 @@ int THClTensor_logicalany(THClState *state, THClTensor *self) {
 
 //  THClTensor_free(state, self);
 //  return result;
+    THError("Not implemented");
+    return 0;
 }

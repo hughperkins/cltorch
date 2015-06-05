@@ -122,7 +122,7 @@ THCL_API float THClTensor_get2d(THClState *state, const THClTensor *tensor, long
 THCL_API float THClTensor_get3d(THClState *state, const THClTensor *tensor, long x0, long x1, long x2);
 THCL_API float THClTensor_get4d(THClState *state, const THClTensor *tensor, long x0, long x1, long x2, long x3);
 
-/* CUDA-specific functions */
+/* GPU-specific functions */
 //THCL_API cudaTextureObject_t THClTensor_getTextureObject(THClState *state, THClTensor *self);
 THCL_API int THClTensor_getDevice(THClState *state, const THClTensor *self);
 THCL_API int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...);

@@ -1,7 +1,5 @@
-extern "C" {
-    #include "THClGeneral.h"
-    #include "TH.h"
-}
+#include "THClGeneral.h"
+#include "TH.h"
 
 #include <stdio.h>
 #include "EasyCL.h"

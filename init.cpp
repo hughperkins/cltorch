@@ -9,13 +9,14 @@ extern "C" {
   #include "lua.h"
   #include "utils.h"
   #include "luaT.h"
-  #include "THClGeneral.h"
   int luaopen_libclnn( lua_State *L );
   extern void clnn_ClStorage_init(lua_State* L);
   extern void clnn_ClTensor_init(lua_State* L);
-  //extern void clnn_ClTensorMath_init(lua_State* L);
+  extern void clnn_ClTensorMath_init(lua_State* L);
   //extern void clnn_ClTensorOperator_init(lua_State* L);
 }
+
+#include "THClGeneral.h"
 
 namespace clnn {
   void setProperty(lua_State *L, string name, int value)
@@ -102,7 +103,7 @@ int luaopen_libclnn( lua_State *L ) {
 
   clnn_ClStorage_init(L);
   clnn_ClTensor_init(L);
-//  clnn_ClTensorMath_init(L);
+  clnn_ClTensorMath_init(L);
 //  clnn_ClTensorOperator_init(L);
 
   lua_pushlightuserdata(L, state);

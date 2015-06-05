@@ -22,15 +22,17 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/torch")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/DeepCL/EasyCL")
 
 # SET(src Storage.c init.c Tensor.c TensorMath.c TensorOperator.c torch/utils.c)
-SET(src init.cpp torch/utils.c Storage.c Tensor.c)
+SET(src init.cpp torch/utils.c Storage.c Tensor.c TensorMath.c)
 SET(luasrc init.lua Tensor.lua )
+
+ADD_TORCH_WRAP(clnntensormathwrap TensorMath.lua)
 
 ADD_TORCH_PACKAGE(clnn "${src}" "${luasrc}")
 
-set( EasyCL_sources EasyCL/EasyCL.cpp
-    EasyCL/deviceinfo_helper.cpp EasyCL/platforminfo_helper.cpp EasyCL/CLWrapper.cpp
-    EasyCL/DevicesInfo.cpp EasyCL/DeviceInfo.cpp
-    EasyCL/CLKernel.cpp EasyCL/thirdparty/clew/src/clew.c )
+#set( EasyCL_sources EasyCL/EasyCL.cpp
+#    EasyCL/deviceinfo_helper.cpp EasyCL/platforminfo_helper.cpp EasyCL/CLWrapper.cpp
+#    EasyCL/DevicesInfo.cpp EasyCL/DeviceInfo.cpp
+#    EasyCL/CLKernel.cpp EasyCL/thirdparty/clew/src/clew.c )
 #add_library( EasyCL SHARED ${EasyCL_sources} )
 #link_libraries( EasyCL )
 #INSTALL(TARGETS EasyCL
