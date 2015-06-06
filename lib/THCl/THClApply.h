@@ -63,6 +63,7 @@ void THClTensor_copyIgnoringOverlaps(THClState* state,
 //  }
 //}
 
+// this is a kernel, since marked with `__global__`
 //template <typename Op, typename IndexType, int ADims, int BDims, int CDims>
 //#if __CL_ARCH__ >= 350
 //__launch_bounds__(32 * 16, 4)
@@ -396,6 +397,7 @@ bool THClTensor_pointwiseApply2(THClState* state,
   return true;
 }
 
+// this is a c++ template
 template <typename Op>
 bool THClTensor_pointwiseApply3(THClState* state,
                                   THClTensor* a,
@@ -463,8 +465,9 @@ bool THClTensor_pointwiseApply3(THClState* state,
 
 #define HANDLE_CASE(TYPE, A, B, C)                                      \
   THError("Not implemented");  
+    /* kernel launch ... */ \
   /* THClTensor_pointwiseApply3<Op, TYPE, A, B, C>                       \
-    <<<grid, block, 0, THClState_getCurrentStream(state)>>>(             \
+    /* <<<grid, block, 0, THClState_getCurrentStream(state)>>>(             \
       aInfo, bInfo, cInfo, (TYPE) totalElements, op); */
 
 #define HANDLE_C_CASE(TYPE, A, B, C)             \

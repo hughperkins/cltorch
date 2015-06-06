@@ -62,6 +62,32 @@ struct TensorInfo {
 ```
 
 ```
+// Translate a linear index for the apply to a float* offset;
+// specialized on `Dims` to reduce nvcc compilation time
+template <typename IndexType, int Dims>
+struct IndexToOffset {
+  static __host__ __device__ IndexType get(
+    IndexType linearId,
+    const TensorInfo<IndexType>& info) {
+    IndexType offset = 0;
+
+    // Use static dims
+    for (int i = Dims - 1; i >= 0; --i) {
+      IndexType curDimIndex = linearId % info.sizes[i];
+      IndexType curDimOffset = curDimIndex * info.strides[i];
+      offset += curDimOffset;
+
+      if (i > 0) {
+        linearId /= info.sizes[i];
+      }
+    }
+
+    return offset;
+  }
+};
+```
+
+```
 // This is the kernel entry point, since it is marked with `__global__`
 template <typename Op, typename IndexType, int ADims, int BDims, int CDims>
 __global__ void
