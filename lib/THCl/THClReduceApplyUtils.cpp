@@ -6,7 +6,7 @@
 // Maximum size per grid dimension that we assume
 #define MAX_GRID_SIZE 65535L
 
-bool THCL_canUse32BitIndexMath(CHClState* state, THClTensor* t) {
+bool THCL_canUse32BitIndexMath(THClState* state, THClTensor* t) {
   long elements = THClTensor_nElement(state, t);
   if (elements >= UINT_MAX) {
     return false;
@@ -68,7 +68,7 @@ int compareSizeAndStride(const void* a, const void* b) {
 
 }
 
-bool THCL_overlappingIndices(CHClState* state, THClTensor* t) {
+bool THCL_overlappingIndices(THClState* state, THClTensor* t) {
   // In this function, we don't care about permutations of the
   // size/stride arrays (transpositions).
   // We order the size/stride arrays by stride, skipping dimensions of
@@ -84,7 +84,7 @@ bool THCL_overlappingIndices(CHClState* state, THClTensor* t) {
   // `dim`, or the innermost stride is 0.
 
   // Extract size/stride arrays; only consider size >1 dims.
-  SizeAndStride info[MAX_CUTORCH_DIMS];
+  SizeAndStride info[MAX_CLNN_DIMS];
 
   int dims = THClTensor_nDimension(state, t);
   int nonSize1Dims = 0;

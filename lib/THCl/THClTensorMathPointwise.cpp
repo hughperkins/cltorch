@@ -47,7 +47,7 @@
 
 #undef IMPLEMENT_CL_TENSOR_BASIC_FUNC
 
-//struct TensorAddOp {s 
+struct TensorAddOp {
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
 //    *out += *in;
 //  }
@@ -55,10 +55,10 @@
 //  __device__ __forceinline__ void operator()(float* out, float* in1, float* in2) {
 //    *out = *in1 + *in2;
 //  }
-//};
+};
 
-//struct TensorCAddOp {
-//  TensorCAddOp(float v) : val(v) {}
+struct TensorCAddOp {
+  TensorCAddOp(float v) : val(v) {}
 
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
 //    *out += val * *in;
@@ -68,8 +68,8 @@
 //    *out = *in1 + val * *in2;
 //  }
 
-//  float val;
-//};
+  float val;
+};
 
 void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, float value, THClTensor *src2)
 {
@@ -108,7 +108,7 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
 //  THClCheck(cudaGetLastError());
 }
 
-//struct TensorMulOp {
+struct TensorMulOp {
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
 //    *out *= *in;
 //  }
@@ -116,7 +116,7 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
 //  __device__ __forceinline__ void operator()(float* out, float* in1, float* in2) {
 //    *out = *in1 * *in2;
 //  }
-//};
+};
 
 void THClTensor_cmul(THClState *state, THClTensor *self_, THClTensor *src1, THClTensor *src2)
 {

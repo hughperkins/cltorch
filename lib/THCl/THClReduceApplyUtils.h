@@ -48,9 +48,9 @@ struct TensorInfo {
 
   // Contiguous tensors of more than one dimension are collapsed down
   // to one tensor
-//  __host__ __device__ inline bool isContiguous() const {
-//    return (dims == 1 && strides[0] == 1);
-//  }
+  inline bool isContiguous() const {
+    return (dims == 1 && strides[0] == 1);
+  }
 
   float* data;
   IndexType sizes[MAX_CLNN_DIMS];
