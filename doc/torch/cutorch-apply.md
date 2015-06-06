@@ -2,6 +2,16 @@
 
 ## THCApply
 
+Useful CUDA intro :-P http://www.nvidia.com/docs/IO/116711/sc11-cuda-c-basics.pdf
+- `__global__` is a kernel, equivalent to OpenCL `kernel`
+- `mykernel<<<num_workgroups, workgroup_size>>>(param1, param2, ...)` , with the triple brackets, is a *kernel launch* (equivalent to OpenCL `run(dims, num_workgroups * workgroup_size, workgroup_size)` (ish...)
+- `__shared__` means local memory, ie `__local__` in OpenCL
+- `__syncthreads()` is like `barrier(CLK_LOCAL_MEM_FENCE)` in OpenCL
+- `cudaDeviceSynchronize()` is like `clFinish()`
+- `__device__` means a function that can be called from a kernel
+- `__host__` means a function that can be called from the host, ie from c/c++ main program
+  - possible to add both `__device__` and `__host__`, just to be really confusing :-P
+
 ```
 typedef struct THCudaTensor
 {
@@ -38,6 +48,8 @@ struct TensorInfo {
 
   // Contiguous tensors of more than one dimension are collapsed down
   // to one tensor
+  // note: since both __host__ and __device__, this is available from both main
+  // c++ code, and from kernels
   __host__ __device__ inline bool isContiguous() const {
     return (dims == 1 && strides[0] == 1);
   }
@@ -50,6 +62,20 @@ struct TensorInfo {
 ```
 
 ```
+// This is the kernel entry point, since it is marked with `__global__`
+template <typename Op, typename IndexType, int ADims, int BDims, int CDims>
+__global__ void
+THCudaTensor_pointwiseApply3(TensorInfo<IndexType> a,
+                             TensorInfo<IndexType> b,
+                             TensorInfo<IndexType> c,
+                             IndexType totalElements,
+                             Op op)
+```
+
+```
+// This is a normal C++ host-side method, not kernel or anything
+// It happens to launch the kernel though, ie launches 
+// THCudaTensor_pointwiseApply3, above
 template <typename Op>
 bool THCudaTensor_pointwiseApply3(THCState* state,
                                   THCudaTensor* a,
@@ -58,22 +84,13 @@ bool THCudaTensor_pointwiseApply3(THCState* state,
                                   const Op& op,
                                   TensorArgType aType = ReadWrite,
                                   TensorArgType bType = ReadOnly,
-                                  TensorArgType cType = ReadOnly)
-```
-
-```
+                                  TensorArgType cType = ReadOnly) {
+  ...
+  // triple quotes, so this is a kernel *launch*
   THCudaTensor_pointwiseApply3<Op, TYPE, A, B, C>
     <<<grid, block, 0, THCState_getCurrentStream(state)>>>(
       aInfo, bInfo, cInfo, (TYPE) totalElements, op);
-```
-
-```
-template <typename Op, typename IndexType, int ADims, int BDims, int CDims>
-__global__ void
-THCudaTensor_pointwiseApply3(TensorInfo<IndexType> a,
-                             TensorInfo<IndexType> b,
-                             TensorInfo<IndexType> c,
-                             IndexType totalElements,
-                             Op op)
+  ...
+}
 ```
 
