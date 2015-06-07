@@ -75,9 +75,11 @@ for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
   print('c3\n', c)
 end
 
-a = torch.lt(c,d)
-print('a\n', a)
-a = torch.gt(c,d)
-print('a\n', a)
+c[2][1] = d[2][1]
+c[1][2] = d[1][2]
+for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+  print('name', name)
+  print(loadstring('return torch.' .. name .. '(c,d)')())
+end
 
 

@@ -54,8 +54,9 @@ for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
    'atan', 'tanh', 'ceil', 'floor', 'abs', 'round'}) do
   loadstring('c:' .. name .. '()')()
 end
-a = torch.lt(c,d)
-a = torch.gt(c,d)
+for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+  print(loadstring('return torch.' .. name .. '(c,d)')())
+end
 
 </pre></tr>
 
