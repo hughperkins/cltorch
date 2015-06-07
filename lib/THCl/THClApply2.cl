@@ -14,7 +14,7 @@
 // (Ported from cutorch's THCApply.cuh)
 
 // Maximum number of dimensions allowed for cutorch
-#define MAX_CUTORCH_DIMS 25
+// #define MAX_CUTORCH_DIMS 25
 
 // Enum that indicates whether tensor arguments are read/write or
 // read-only

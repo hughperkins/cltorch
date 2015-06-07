@@ -2,9 +2,11 @@
 
 ## THCApply
 
-Useful CUDA intro :-P http://www.nvidia.com/docs/IO/116711/sc11-cuda-c-basics.pdf
+Useful CUDA intro :-P http://www.nvidia.com/docs/IO/116711/sc11-cuda-c-basics.pdf and http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#kernels
 - `__global__` is a kernel, equivalent to OpenCL `kernel`
 - `mykernel<<<num_workgroups, workgroup_size>>>(param1, param2, ...)` , with the triple brackets, is a *kernel launch* (equivalent to OpenCL `run(dims, num_workgroups * workgroup_size, workgroup_size)` (ish...)
+  - `num_workgroups` and `workgroup_size` can be integers, or `dim3`
+  - where there are 4 launch parameters, the fourth is the stream, ie `<<<num_workgroups, workgroup_size, 0, stream>>>`
 - `__shared__` means local memory, ie `__local__` in OpenCL
 - `__syncthreads()` is like `barrier(CLK_LOCAL_MEM_FENCE)` in OpenCL
 - `cudaDeviceSynchronize()` is like `clFinish()`

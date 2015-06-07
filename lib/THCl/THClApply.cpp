@@ -32,7 +32,7 @@ std::string getApply2_template() {
     "// (Ported from cutorch's THCApply.cuh)\n" 
     "\n" 
     "// Maximum number of dimensions allowed for cutorch\n" 
-    "#define MAX_CUTORCH_DIMS 25\n" 
+    "// #define MAX_CUTORCH_DIMS 25\n" 
     "\n" 
     "// Enum that indicates whether tensor arguments are read/write or\n" 
     "// read-only\n" 

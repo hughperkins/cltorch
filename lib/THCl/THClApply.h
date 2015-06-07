@@ -5,6 +5,8 @@
 #include "THClReduceApplyUtils.h"
 #include "templates/TemplatedKernel.h"
 #include "util/stringhelper.h"
+#include "EasyCL.h"
+#include "CLKernel_structs.h"
 
 #include <string>
 
@@ -79,8 +81,31 @@ void THClTensor_copyIgnoringOverlaps(THClState* state,
 //  }
 //}
 
+typedef struct TensorInfoCl {
+  TensorInfoCl( TensorInfo<unsigned int> info ) {
+    dims = info.dims;
+    for( int i = 0; i < dims; i++ ) {
+      sizes[i] = info.sizes[i];
+      strides[i] = info.strides[i];
+    }
+  }
+  TensorInfoCl( TensorInfo<unsigned long> info ) {
+    dims = info.dims;
+    for( int i = 0; i < dims; i++ ) {
+      if( info.sizes[i] > ( 1l << 31 ) ) {
+        throw std::runtime_error("size " + toString(info.sizes[i]) + " out of bounds");
+      }
+      sizes[i] = info.sizes[i];
+      strides[i] = info.strides[i];
+    }
+  }
+  unsigned int sizes[MAX_CLNN_DIMS];
+  unsigned int strides[MAX_CLNN_DIMS];
+  int dims;
+} TensorInfoCl;
+
 template< typename Op, typename IndexType >
-void kernelLaunch_pointwiseApply2( THClState *state, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, Op op ) {
+void kernelLaunch_pointwiseApply2( THClState *state, dim3 num_workgroups, dim3 local_ws, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, Op op ) {
     TemplatedKernel kernelBuilder( state->cl );
     kernelBuilder.set("adim", A);
     kernelBuilder.set("bdim", B);
@@ -92,10 +117,30 @@ void kernelLaunch_pointwiseApply2( THClState *state, int A, int B, TensorInfo<In
     kernelBuilder.set("dims", dims);
     kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
     kernelBuilder.set("operation", op.operator2());
-    std::string uniqueName = "apply2_" + toString(A) + "_" + toString(B);
+    std::string uniqueName = "apply2_" + toString(A) + "_" + toString(B) + "_" + op.operator2();
     CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply2.cl", getApply2_template(), "THClTensor_pointwiseApply2" );
-      THError("Not implemented");
+    // calculate workgroup sizes and stuff
+    dim3 global_ws;
+    for( int i = 0; i < 3; i++ ) {
+        global_ws.vec[i] = num_workgroups.vec[i] * local_ws.vec[i];
+    }
+
+    // set up tensorinfos
+    TensorInfoCl aInfoCl(aInfo);
+    TensorInfoCl bInfoCl(bInfo);
+    kernel->in(1, &aInfoCl)->in(1, &bInfoCl);
+    // kernel->in( in progress... dont we have a CLWrapper class object???
+    kernel->run(3, global_ws.vec, local_ws.vec);
+    state->cl->finish();
+
+    THError("Not implemented");
 }
+//struct TensorInfo a,
+//                             struct TensorInfo b,
+//                            global float* a_data,
+//                            global float*b_data,
+//                             int totalElements
+
 
 // this is a kernel, since marked with `__global__`
 //template <typename Op, typename IndexType, int ADims, int BDims, int CDims>
@@ -332,7 +377,7 @@ bool THClTensor_pointwiseApply2(THClState* state,
   // dimension, and the loop to translate the linear index to the array
   // index can be similarly collapsed. That is what this unrolling is for.
 #define HANDLE_CASE(TYPE, A, B)                                \
-   kernelLaunch_pointwiseApply2<Op, TYPE>(state, A, B, aInfo, bInfo, (TYPE) totalElements, op ); \
+   kernelLaunch_pointwiseApply2<Op, TYPE>(state, grid, block, A, B, aInfo, bInfo, (TYPE) totalElements, op ); \
    THError("Not implemented"); \
   /* THClTensor_pointwiseApply2<Op, TYPE, A, B>                 \
     <<<grid, block, 0, THClState_getCurrentStream(state)>>>(    \
