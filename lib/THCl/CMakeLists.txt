@@ -6,7 +6,8 @@ SET(CMAKE_C_FLAGS "-std=c99")
 SET(src
     THClGeneral.cpp THClStorage.cpp THClStorageCopy.cpp THClStorageCopy.c THClTensor.cpp THClTensorCopy.cpp THClTensorMath.cpp 
     THClTensorMathPointwise.cpp THClReduceApplyUtils.cpp THClApply.cpp
-    THClTensorMathCompare.cpp THClTensorMathCompareT.cpp )
+    THClTensorMathCompare.cpp THClTensorMathCompareT.cpp
+    THClTensorMathPairwise.cpp )
 set(src-cl)
 # add_library( THCl SHARED THClStorage.c THClGeneral.c )
 

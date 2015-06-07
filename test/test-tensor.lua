@@ -82,4 +82,6 @@ for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
   print(loadstring('return torch.' .. name .. '(c,d)')())
 end
 
+print('torch.add', torch.add(c,3))
+c:add(3)
 

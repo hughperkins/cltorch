@@ -13,6 +13,7 @@
 std::string getApply1_template();
 std::string getApply2_template();
 std::string getApply3_template();
+std::string getApplyD_template();
 
 //
 // This file contains pointwise operation functions and kernels that
@@ -120,10 +121,18 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     dims.push_back(B);
   }
   kernelBuilder.set("dims", dims);
+  kernelBuilder.set("num_tensor_inputs", 2);
+  kernelBuilder.set("include_scalar_input", 0);
   kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
   kernelBuilder.set("operation", op.operator2());
-  std::string uniqueName = "apply2_" + toString(A) + "_" + toString(B) + "_" + op.operator2();
-  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply2.cl", getApply2_template(), "THClTensor_pointwiseApply2" );
+  std::string uniqueName = "applyD_2t0s_" + toString(A) + "_" + toString(B) + "_" + op.operator2();
+  CLKernel *kernel = 0;
+  try {
+    kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyD.cl", getApplyD_template(), "THClTensor_pointwiseApplyD" );
+  } catch( std::runtime_error &e ) {
+    std::cout << "Error: " << e.what() << std::endl;
+    throw e;
+  }
   // calculate workgroup sizes and stuff
   dim3 global_ws;
   for( int i = 0; i < 3; i++ ) {
@@ -151,9 +160,12 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     std::cout<< "global_ws " << global_ws << std::endl;
   }
 
-  kernel->in(1, &aInfoCl)->in(1, &bInfoCl);
-  kernel->inout( aInfo.wrapper )
-    ->inout( bInfo.wrapper );
+  kernel->in(1, &aInfoCl);
+  kernel->inout( aInfo.wrapper );
+
+  kernel->in(1, &bInfoCl);
+  kernel->inout( bInfo.wrapper );
+
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
   }
