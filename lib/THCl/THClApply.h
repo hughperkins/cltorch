@@ -84,6 +84,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, int A, int B, TensorInfo<In
     TemplatedKernel templatedKernel( state->cl );
     std::string uniqueName = "apply2_" + toString(A) + "_" + toString(B);
     CLKernel *kernel = templatedKernel.buildKernel( uniqueName, "THClApply2.cl", getApply2_template(), "THClTensor_pointwiseApply2" );
+      THError("Not implemented");
 }
 
 // this is a kernel, since marked with `__global__`
