@@ -125,15 +125,6 @@ struct TensorDivOp {
   string operator3() {
     return "*out = *in1 / *in2";
   }
-//  __device__ __forceinline__ void
-//  operator()(float* out, float* in) {
-//    *out /= *in;
-//  }
-
-//  __device__ __forceinline__ void
-//  operator()(float* out, float* in1, float* in2) {
-//    *out = *in1 / *in2;
-//  }
 };
 
 void THClTensor_cdiv(THClState* state, THClTensor *self_, THClTensor *src1, THClTensor *src2)

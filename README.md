@@ -49,6 +49,7 @@ c:cmul(d)
 c:cdiv(d)
 c = c + d
 c = c - d
+c:abs()
 </pre></tr>
 
 </table>

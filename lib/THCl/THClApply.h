@@ -10,6 +10,7 @@
 
 #include <string>
 
+std::string getApply1_template();
 std::string getApply2_template();
 
 //class Op2 {
@@ -112,6 +113,51 @@ typedef struct TensorInfoCl {
   int offset;
   int dims;
 } TensorInfoCl;
+
+template< typename Op, typename IndexType >
+void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int A, TensorInfo<IndexType> aInfo, IndexType totalElements, Op op ) {
+  TemplatedKernel kernelBuilder( state->cl );
+  kernelBuilder.set("adim", A);
+  std::vector<int> dims;
+  if( A >= 0 ) {
+    dims.push_back(A);
+  }
+  kernelBuilder.set("dims", dims);
+  kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
+  kernelBuilder.set("operation", op.operator1());
+  std::string uniqueName = "apply1_" + toString(A) + "_" + op.operator1();
+  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply1.cl", getApply1_template(), "THClTensor_pointwiseApply1" );
+  // calculate workgroup sizes and stuff
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = grid.vec[i] * block.vec[i];
+  }
+
+  // set up tensorinfos
+  TensorInfoCl aInfoCl(aInfo);
+
+  if( false ) {
+    std::cout << "totalElements " << totalElements << std::endl;
+    std::cout << "a offset " << aInfoCl.offset << std::endl;
+    std::cout << "adims " << aInfoCl.dims << std::endl;
+    for( int i = 0; i < aInfoCl.dims; i++ ) {
+      std::cout << "a dim" << i << " size=" << aInfoCl.sizes[i] << 
+        " stride=" << aInfoCl.strides[i] << std::endl;
+    }
+    std::cout<< "block " << block << std::endl;
+    std::cout<< "grid " << grid << std::endl;
+    std::cout<< "global_ws " << global_ws << std::endl;
+  }
+
+  kernel->in(1, &aInfoCl);
+  kernel->inout( aInfo.wrapper );
+  if( totalElements > ( 1l << 30 )) {
+    throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
+  }
+  kernel->in( (int)totalElements );
+  kernel->run(3, global_ws.vec, block.vec);
+  state->cl->finish();
+}
 
 template< typename Op, typename IndexType >
 void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, Op op ) {
@@ -232,56 +278,56 @@ inline bool getApplyGrid(THClState* state, long totalElements, dim3& grid) {
   return true;
 }
 
-//template <typename Op>
-//bool THClTensor_pointwiseApply1(THClState* state,
-//                                  THClTensor* a,
-//                                  const Op& op,
-//                                  TensorArgType aType = ReadWrite) {
-//  long totalElements = THClTensor_nElement(state, a);
+template <typename Op>
+bool THClTensor_pointwiseApply1(THClState* state,
+                                  THClTensor* a,
+                                  const Op& op,
+                                  TensorArgType aType = ReadWrite) {
+  long totalElements = THClTensor_nElement(state, a);
 
-//  if (THClTensor_nDimension(state, a) > MAX_CLNN_DIMS) {
-//    return false;
-//  }
+  if (THClTensor_nDimension(state, a) > MAX_CLNN_DIMS) {
+    return false;
+  }
 
-//  if (THClTensor_nDimension(state, a) == 0) {
-//    // Zero-dim tensor; do nothing
-//    return true;
-//  }
+  if (THClTensor_nDimension(state, a) == 0) {
+    // Zero-dim tensor; do nothing
+    return true;
+  }
 
-//  const dim3 block = getApplyBlock();
+  const dim3 block = getApplyBlock();
 
-//  dim3 grid;
-//  if (!getApplyGrid(state, totalElements, grid)) {
-//    return false;
-//  }
+  dim3 grid;
+  if (!getApplyGrid(state, totalElements, grid)) {
+    return false;
+  }
 
-//  // If tensor args have overlapping indices and are read/write, then
-//  // we must expand the tensor to a contiguous form first, since
-//  // otherwise there are conflicting writes. Upon copying back to the
-//  // non-contiguous form, there will be conflicting writes, but at
-//  // least with copy, one of the updaters will win atomically. This is
-//  // a sketchy property of the old system as well (writing into all
-//  // indices of a tensor with overlapping indices should probably be
-//  // an error, since it is unclear which one should win), but we will
-//  // preserve this last-writer-wins (in arbitrary copy order) behavior.
-//  THClTensor* oldA = NULL;
+  // If tensor args have overlapping indices and are read/write, then
+  // we must expand the tensor to a contiguous form first, since
+  // otherwise there are conflicting writes. Upon copying back to the
+  // non-contiguous form, there will be conflicting writes, but at
+  // least with copy, one of the updaters will win atomically. This is
+  // a sketchy property of the old system as well (writing into all
+  // indices of a tensor with overlapping indices should probably be
+  // an error, since it is unclear which one should win), but we will
+  // preserve this last-writer-wins (in arbitrary copy order) behavior.
+  THClTensor* oldA = NULL;
 
-//  if (aType == ReadWrite && THCL_overlappingIndices(state, a)) {
-//    // Must perform in contiguous space
-//    oldA = a;
-//    a = THClTensor_newContiguous(state, a);
-//  }
+  if (aType == ReadWrite && THCL_overlappingIndices(state, a)) {
+    // Must perform in contiguous space
+    oldA = a;
+    a = THClTensor_newContiguous(state, a);
+  }
 
-//  // It is possible that the tensor dimensions are able to be collapsed,
-//  // and thus we can reduce the actual code complexity of the copy by
-//  // exploiting this knowledge statically, since the div/mod is the
-//  // most expensive part of the operation, more so than memory accesses.
-//  // For instance, when copying a non-contiguous to a contiguous tensor
-//  // (or vice versa), the contiguous tensor can be collapsed to one
-//  // dimension, and the loop to translate the linear index to the array
-//  // index can be similarly collapsed. That is what this unrolling is for.
+  // It is possible that the tensor dimensions are able to be collapsed,
+  // and thus we can reduce the actual code complexity of the copy by
+  // exploiting this knowledge statically, since the div/mod is the
+  // most expensive part of the operation, more so than memory accesses.
+  // For instance, when copying a non-contiguous to a contiguous tensor
+  // (or vice versa), the contiguous tensor can be collapsed to one
+  // dimension, and the loop to translate the linear index to the array
+  // index can be similarly collapsed. That is what this unrolling is for.
 #define HANDLE_CASE(TYPE, A)                                   \
-  THError("Not implemented"); 
+   kernelLaunch_pointwiseApply1<Op, TYPE>(state, grid, block, A, aInfo, (TYPE) totalElements, op ); \
   /*THClTensor_pointwiseApply1<Op, TYPE, A>                    \
     <<<grid, block, 0, THClState_getCurrentStream(state)>>>(    \
       aInfo, (TYPE) totalElements, op);*/
@@ -308,44 +354,46 @@ inline bool getApplyGrid(THClState* state, long totalElements, dim3& grid) {
     }                                               \
   }
 
-//  // Can we use 32-bit integer math in the kernel (the linear ID for the copy
-//  // and the resulting non-linear offset is all computable using 32-bit math?)
-//  // We also use unsigned index math in the kernel, as signed div/mod has
-//  // additional overhead.
-//  if (THCL_canUse32BitIndexMath(state, a)) {
-//    TensorInfo<unsigned int> aInfo(state, a);
+  // Can we use 32-bit integer math in the kernel (the linear ID for the copy
+  // and the resulting non-linear offset is all computable using 32-bit math?)
+  // We also use unsigned index math in the kernel, as signed div/mod has
+  // additional overhead.
+  if (THCL_canUse32BitIndexMath(state, a)) {
+    TensorInfo<unsigned int> aInfo(state, a);
 
-//    HANDLE_A_CASE(unsigned int, aInfo.dims);
-//  } else {
-//    TensorInfo<unsigned long> aInfo(state, a);
+    HANDLE_A_CASE(unsigned int, aInfo.dims);
+  } else {
+    TensorInfo<unsigned long> aInfo(state, a);
 
-//    // For large tensors, we only compile the completely contiguous
-//    // version and the completely generic version, to reduce
-//    // compilation time.
-//    if (aInfo.isContiguous()) {
-//      THClTensor_pointwiseApply1<Op, unsigned long, -2>
-//        <<<grid, block, 0, THClState_getCurrentStream(state)>>>(
-//          aInfo, (unsigned long) totalElements, op);
-//    } else {
-//      THClTensor_pointwiseApply1<Op, unsigned long, -1>
-//        <<<grid, block, 0, THClState_getCurrentStream(state)>>>(
-//          aInfo, (unsigned long) totalElements, op);
-//    }
-//  }
+    // For large tensors, we only compile the completely contiguous
+    // version and the completely generic version, to reduce
+    // compilation time.
+    if (aInfo.isContiguous()) {
+      /*THClTensor_pointwiseApply1<Op, unsigned long, -2>
+        <<<grid, block, 0, THClState_getCurrentStream(state)>>>(
+          aInfo, (unsigned long) totalElements, op);*/
+      THError("Not implemented");
+    } else {
+      /*THClTensor_pointwiseApply1<Op, unsigned long, -1>
+        <<<grid, block, 0, THClState_getCurrentStream(state)>>>(
+          aInfo, (unsigned long) totalElements, op);*/
+      THError("Not implemented");
+    }
+  }
 #undef HANDLE_CASE
 #undef HANDLE_A_CASE
 
-//  if (oldA) {
-//    // Ignore overlaps when copying back; if we use THClTensor_copy
-//    // instead, it will recursively try and invoke ourselves to make
-//    // oldA contiguous.
-//    THClTensor_copyIgnoringOverlaps(state, oldA, a);
-//    THClTensor_free(state, a);
-//    a = oldA;
-//  }
+  if (oldA) {
+    // Ignore overlaps when copying back; if we use THClTensor_copy
+    // instead, it will recursively try and invoke ourselves to make
+    // oldA contiguous.
+    THClTensor_copyIgnoringOverlaps(state, oldA, a);
+    THClTensor_free(state, a);
+    a = oldA;
+  }
 
-//  return true;
-//}
+  return true;
+}
 
 template <typename Op>
 bool THClTensor_pointwiseApply2(THClState* state,

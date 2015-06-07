@@ -10,6 +10,22 @@
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
+struct TensorabsOp {
+    std::string operator1() {
+        return "*out =fabs( *out )";
+    }
+    std::string operator2() {
+        return "*out = fabs( *in1 )";
+    }
+//  __device__ __forceinline__ void operator()(float* out, float* in) {
+//    *out += *in;
+//  }
+
+//  __device__ __forceinline__ void operator()(float* out, float* in1, float* in2) {
+//    *out = *in1 + *in2;
+//  }
+};
+
 #define IMPLEMENT_CL_TENSOR_BASIC_FUNC(NAME, CFUNC)                   \
   void THClTensor_##NAME(THClState* state, THClTensor* self_, THClTensor* src) { \
     THAssert(THClTensor_checkGPU(state, 2, self_, src));                \
@@ -42,7 +58,7 @@
 //IMPLEMENT_CL_TENSOR_BASIC_FUNC(sqrt, sqrt)
 //IMPLEMENT_CL_TENSOR_BASIC_FUNC(ceil, ceil)
 //IMPLEMENT_CL_TENSOR_BASIC_FUNC(floor, floor)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(abs, fabs)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(abs, fabs)
 //IMPLEMENT_CL_TENSOR_BASIC_FUNC(round, roundf)
 
 #undef IMPLEMENT_CL_TENSOR_BASIC_FUNC
@@ -127,13 +143,6 @@ struct TensorMulOp {
     std::string operator3() {
         return "*out = *in1 * *in2";
     }
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out *= *in;
-//  }
-
-//  __device__ __forceinline__ void operator()(float* out, float* in1, float* in2) {
-//    *out = *in1 * *in2;
-//  }
 };
 
 void THClTensor_cmul(THClState *state, THClTensor *self_, THClTensor *src1, THClTensor *src2)
