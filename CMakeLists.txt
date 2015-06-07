@@ -3,11 +3,11 @@ cmake_minimum_required( VERSION 2.8.12 )
 OPTION(DEV_RUN_COG "clnn maintainers only, otherwise set to 'OFF'." OFF)
 
 # remove unused options
-unset(LIBPNGPP_AVAILABLE CACHE)
+set(LIBPNGPP_AVAILABLE FALSE CACHE BOOL "libjpeg available" FORCE)
 mark_as_advanced(FORCE LIBPNGPP_AVAILABLE)
-unset(LIBPJPEG_AVAILABLE CACHE)
+set(LIBJPEG_AVAILABLE FALSE CACHE BOOL "libjpeg available" FORCE)
 mark_as_advanced(FORCE LIBJPEG_AVAILABLE)
-unset(BUILD_LUA_WRAPPERS CACHE)
+set(BUILD_LUA_WRAPPERS FALSE CACHE BOOL "libjpeg available" FORCE)
 mark_as_advanced(FORCE BUILD_LUA_WRAPPERS)
 
 if( "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" )
@@ -75,8 +75,10 @@ endif()
 
 # message("deepcl src ${deepcl_sources}")
 
-ADD_SUBDIRECTORY( DeepCL EXCLUDE_FROM_ALL )
+#set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
+ADD_SUBDIRECTORY( DeepCL )
 
 # ADD_LIBRARY( DeepCL SHARED 
 TARGET_LINK_LIBRARIES(clnn luaT THCL EasyCL DeepCL)
+
 
