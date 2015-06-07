@@ -70,6 +70,7 @@ print('c3\n', c)
 for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
    'atan', 'tanh', 'ceil', 'floor', 'abs', 'round'}) do
   print('name', name)
+  c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
   loadstring('c:' .. name .. '()')()
   print('c3\n', c)
 end
