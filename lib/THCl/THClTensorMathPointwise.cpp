@@ -48,6 +48,12 @@
 #undef IMPLEMENT_CL_TENSOR_BASIC_FUNC
 
 struct TensorAddOp {
+    std::string operator2() {
+        return "*out += *in";
+    }
+    std::string operator3() {
+        return "*out = *in1 + *in2";
+    }
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
 //    *out += *in;
 //  }
@@ -59,6 +65,12 @@ struct TensorAddOp {
 
 struct TensorCAddOp {
   TensorCAddOp(float v) : val(v) {}
+    std::string operator2() {
+        return "*out += " + toString(val) + " * *in";
+    }
+    std::string operator3() {
+        return "*out += *in1 + " + toString(val) + " * *in2";
+    }
 
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
 //    *out += val * *in;
@@ -109,6 +121,12 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
 }
 
 struct TensorMulOp {
+    std::string operator2() {
+        return "*out *= *in";
+    }
+    std::string operator3() {
+        return "*out = *in1 * *in2";
+    }
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
 //    *out *= *in;
 //  }

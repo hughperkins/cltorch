@@ -40,8 +40,8 @@ bool TensorInfo_isContiguous( TensorInfo tensorInfo ) {
     return (tensorInfo.dims == 1 && tensorInfo.strides[0] == 1);    
 }
 
-void op3( float *out, float *val1, float *val2 ) {
-    {{operation}};
+void op2( float *out, float *val1 ) {
+    return {{operation}};
 }
 
 // Translate a linear index for the apply to a float* offset;
@@ -66,9 +66,8 @@ int IndexToOffset_{{1000 + dim}}_get( int linearId, const TensorInfo info) {
 {% end %}
 
 kernel void
-THClTensor_pointwiseApply3(TensorInfo a,
+THClTensor_pointwiseApply2(TensorInfo a,
                              TensorInfo b,
-                             TensorInfo c,
                              int totalElements {
   for (int linearIndex = blockIdx.x * blockDim.x + threadIdx.x;
        linearIndex < totalElements;
@@ -81,11 +80,7 @@ THClTensor_pointwiseApply3(TensorInfo a,
     const int bOffset =
       IndexToOffset_{{1000+bdim}}_get(linearIndex, b);
 
-    // Convert `linearIndex` into an offset of `c`
-    const int cOffset =
-      IndexToOffset_{{1000+cdim}}_get(linearIndex, c);
-
-    op3( &(a.data[aOffset]), &(b.data[bOffset]), &(c.data[cOffset]));
+    op2( &(a.data[aOffset]), &(b.data[bOffset]));
   }
 }
 

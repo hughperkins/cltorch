@@ -1,5 +1,22 @@
 cmake_minimum_required( VERSION 2.8.12 )
 
+OPTION(DEV_RUN_COG "clnn maintainers only, otherwise set to 'OFF'." OFF)
+
+# remove unused options
+unset(LIBPNGPP_AVAILABLE CACHE)
+mark_as_advanced(FORCE LIBPNGPP_AVAILABLE)
+unset(LIBPJPEG_AVAILABLE CACHE)
+mark_as_advanced(FORCE LIBJPEG_AVAILABLE)
+unset(BUILD_LUA_WRAPPERS CACHE)
+mark_as_advanced(FORCE BUILD_LUA_WRAPPERS)
+
+if( "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" )
+  set( ON_LINUX 1 )
+endif()
+if( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows" )
+  set( ON_WINDOWS 1 )
+endif()
+
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 
 #Find_package(Lua51 REQUIRED)
@@ -29,6 +46,20 @@ ADD_TORCH_WRAP(clnntensormathwrap TensorMath.lua)
 
 ADD_TORCH_PACKAGE(clnn "${src}" "${luasrc}")
 
+if( ON_LINUX ) 
+    execute_process( COMMAND git --version RESULT_VARIABLE git_test ERROR_QUIET )
+    if( ${git_test} EQUAL 0 )
+        set( GIT_FOUND 1 )
+    endif()
+    if( GIT_FOUND )
+        add_custom_target( 
+            git_clnn_rec
+            git submodule update --init --force --recursive
+        )
+        add_dependencies( clnn git_clnn_rec )
+    endif()
+endif()
+
 #set( EasyCL_sources EasyCL/EasyCL.cpp
 #    EasyCL/deviceinfo_helper.cpp EasyCL/platforminfo_helper.cpp EasyCL/CLWrapper.cpp
 #    EasyCL/DevicesInfo.cpp EasyCL/DeviceInfo.cpp
@@ -47,6 +78,5 @@ ADD_TORCH_PACKAGE(clnn "${src}" "${luasrc}")
 ADD_SUBDIRECTORY( DeepCL EXCLUDE_FROM_ALL )
 
 # ADD_LIBRARY( DeepCL SHARED 
-
 TARGET_LINK_LIBRARIES(clnn luaT THCL EasyCL DeepCL)
 

@@ -3,6 +3,22 @@
 
 #include "THClTensorCopy.h"
 #include "THClReduceApplyUtils.h"
+#include "templates/TemplatedKernel.h"
+#include "util/stringhelper.h"
+
+#include <string>
+
+std::string getApply2_template();
+
+//class Op2 {
+//public:
+//    std::string getOperation() = 0;
+//};
+
+//class Op3 {
+//public:
+//    std::string getOperation() = 0;
+//};
 
 //
 // This file contains pointwise operation functions and kernels that
@@ -62,6 +78,13 @@ void THClTensor_copyIgnoringOverlaps(THClState* state,
 //    op(&a.data[aOffset], &b.data[bOffset]);
 //  }
 //}
+
+template< typename Op, typename IndexType >
+void kernelLaunch_pointwiseApply2( THClState *state, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, Op op ) {
+    TemplatedKernel templatedKernel( state->cl );
+    std::string uniqueName = "apply2_" + toString(A) + "_" + toString(B);
+    CLKernel *kernel = templatedKernel.buildKernel( uniqueName, "THClApply2.cl", getApply2_template(), "THClTensor_pointwiseApply2" );
+}
 
 // this is a kernel, since marked with `__global__`
 //template <typename Op, typename IndexType, int ADims, int BDims, int CDims>
@@ -298,7 +321,8 @@ bool THClTensor_pointwiseApply2(THClState* state,
   // dimension, and the loop to translate the linear index to the array
   // index can be similarly collapsed. That is what this unrolling is for.
 #define HANDLE_CASE(TYPE, A, B)                                \
-   THError("Not implemented"); 
+   kernelLaunch_pointwiseApply2<Op, TYPE>(state, A, B, aInfo, bInfo, (TYPE) totalElements, op ); \
+   THError("Not implemented"); \
   /* THClTensor_pointwiseApply2<Op, TYPE, A, B>                 \
     <<<grid, block, 0, THClState_getCurrentStream(state)>>>(    \
       aInfo, bInfo, (TYPE) totalElements, op); */
@@ -466,7 +490,7 @@ bool THClTensor_pointwiseApply3(THClState* state,
 #define HANDLE_CASE(TYPE, A, B, C)                                      \
   THError("Not implemented");  
     /* kernel launch ... */ \
-  /* THClTensor_pointwiseApply3<Op, TYPE, A, B, C>                       \
+  /* THClTensor_pointwiseApply3<Op, TYPE, A, B, C> */                      \
     /* <<<grid, block, 0, THClState_getCurrentStream(state)>>>(             \
       aInfo, bInfo, cInfo, (TYPE) totalElements, op); */
 
