@@ -1,6 +1,7 @@
 #ifndef THCL_REDUCE_APPLY_UTILS_INC
 #define THCL_REDUCE_APPLY_UTILS_INC
 
+#include <string>
 #include <assert.h>
 #include "THGeneral.h"
 #include "THClGeneral.h"
@@ -24,8 +25,11 @@
 enum TensorArgType { ReadWrite, ReadOnly };
 
 // Copy operator for the pointwise apply kernel
-//template <typename T>
-//struct CopyOp {
+template <typename T>
+struct CopyOp {
+    std::string operator2() {
+        return "*dst += *src";
+    }
 //  __device__ __forceinline__ void operator()(T* dst, T* src) {
 //#if __CL_ARCH__ >= 350
 //    *dst = __ldg(src);
@@ -33,7 +37,7 @@ enum TensorArgType { ReadWrite, ReadOnly };
 //    *dst = *src;
 //#endif
 //  }
-//};
+};
 
 // CL kernel argument that defines tensor layout
 template <typename IndexType>

@@ -105,5 +105,6 @@ std::string getApply2_template() {
     "\n" 
     "";
     // [[[end]]]
+    return kernelSource;
 }
 

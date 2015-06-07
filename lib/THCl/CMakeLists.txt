@@ -5,7 +5,7 @@ SET(CMAKE_C_FLAGS "-std=c99")
 #    THCGeneral.c THCAllocator.c THCStorage.c THCStorageCopy.c THCTensor.c THCTensorCopy.c)
 SET(src
     THClGeneral.cpp THClStorage.cpp THClStorageCopy.cpp THClStorageCopy.c THClTensor.cpp THClTensorCopy.cpp THClTensorMath.cpp 
-    THClTensorMathPointwise.cpp THClReduceApplyUtils.cpp )
+    THClTensorMathPointwise.cpp THClReduceApplyUtils.cpp THClApply.cpp )
 set(src-cl)
 # add_library( THCl SHARED THClStorage.c THClGeneral.c )
 
