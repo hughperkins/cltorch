@@ -22,3 +22,8 @@ void THClShutdown(THClState* state)
     printf("*******************************************\n");
 }
 
+std::ostream &operator<<( std::ostream &os, const dim3 &obj ) {
+    os << "dim3{" << obj.vec[0] << ", " << obj.vec[1] << ", " << obj.vec[2] << "}";
+    return os;
+}
+

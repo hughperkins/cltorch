@@ -65,6 +65,25 @@ int IndexToOffset_{{1000 + dim}}_get( int linearId, TensorInfoCl info) {
 }
 {% end %}
 
+int IndexToOffset_998_get(int linearId, const TensorInfoCl info) {
+    return linearId;
+}
+
+int IndexToOffset_999_get(int linearId, const TensorInfoCl info) {
+  int offset = 0;
+
+  // Use dynamic dims
+  for (int i = info.dims - 1; i >= 0; --i) {
+    int curDimIndex = linearId % info.sizes[i];
+    int curDimOffset = curDimIndex * info.strides[i];
+    offset += curDimOffset;
+
+    linearId /= info.sizes[i];
+  }
+
+  return offset;
+}
+
 kernel void
 THClTensor_pointwiseApply2(global TensorInfoCl *a,
                              global TensorInfoCl *b,

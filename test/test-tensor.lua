@@ -41,8 +41,10 @@ print('c6\n', c)
 
 -- =============================
 
-d = torch.ClTensor{{4,2,-2},{2.1,2.2,3.9}}
-c = torch.ClTensor{{4,2,-2},{3.1,1.2,4.9}}
+d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
+c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
 print('about to call add :-P')
 c:add(d)
+print('c2\n', c)
+
 

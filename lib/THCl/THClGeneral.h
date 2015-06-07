@@ -26,6 +26,10 @@
 
 struct EasyCL;
 
+#ifdef __cplusplus
+#include <iostream>
+#endif // __cplusplus
+
 /* Global state to be held in the cutorch table. */
 typedef struct THClState
 {
@@ -71,6 +75,9 @@ public:
 //        return &vec_size_t;
 //    }
 };
+
+std::ostream &operator<<( std::ostream &os, const dim3 &obj );
+
 //typedef struct _dim3 {
 //    int x;
 //    int y;
