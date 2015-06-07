@@ -45,6 +45,8 @@ c[1][2] = 2.123
 d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
 c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
 c:add(d)
+c:cmul(d)
+c:cdiv(d)
 </pre></tr>
 
 </table>

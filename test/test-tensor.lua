@@ -55,4 +55,6 @@ print('a', a)
 c:cmul(d)
 print('c2\n', c)
 
+c:cdiv(d)
+print('c2\n', c)
 

@@ -1,3 +1,4 @@
+#include <string>
 #include "THClTensorMath.h"
 #include "THClGeneral.h"
 //#include "THClBlas.h"
@@ -5,6 +6,8 @@
 //#include "THClTensorRandom.h"
 #include "THClApply.h"
 //#include "THClReduce.cuh"
+
+using namespace std;
 
 #ifndef DIVUP
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
@@ -21,7 +24,7 @@ void THClTensor_fill(THClState* state, THClTensor *self_, float value)
 {
 //  THAssert(THClTensor_checkGPU(state, 1, self_));
 //  if (!THClTensor_pointwiseApply1(state, self_, TensorFillOp(value))) {
-//    THArgCheck(false, 1, CUTORCH_DIM_WARNING);
+//    THArgCheck(false, 1, CLNN_DIM_WARNING);
 //  }
 
 //  THClCheck(cudaGetLastError());
@@ -39,7 +42,7 @@ void THClTensor_zero(THClState *state, THClTensor *self_)
 //                                THClState_getCurrentStream(state)));
 //  } else {
 //    if (!THClTensor_pointwiseApply1(state, self_, TensorFillOp(0))) {
-//      THArgCheck(false, 1, CUTORCH_DIM_WARNING);
+//      THArgCheck(false, 1, CLNN_DIM_WARNING);
 //    }
 //  }
 
@@ -99,14 +102,14 @@ void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THCl
 //  if (self_ == src1) {
 //    // self = pow(self, src2)
 //    if (!THClTensor_pointwiseApply2(state, self_, src2, TensorCPowOp())) {
-//      THArgCheck(false, 2, CUTORCH_DIM_WARNING);
+//      THArgCheck(false, 2, CLNN_DIM_WARNING);
 //    }
 //  } else {
 //    THClTensor_resizeAs(state, self_, src1);
 
 //    // self = pow(src1, src2)
 //    if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorCPowOp())) {
-//      THArgCheck(false, 2, CUTORCH_DIM_WARNING);
+//      THArgCheck(false, 2, CLNN_DIM_WARNING);
 //    }
 //  }
 
@@ -115,7 +118,13 @@ void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THCl
 //    return 0;
 }
 
-//struct TensorDivOp {
+struct TensorDivOp {
+  string operator2() {
+    return "*out /= *in1";
+  }
+  string operator3() {
+    return "*out = *in1 / *in2";
+  }
 //  __device__ __forceinline__ void
 //  operator()(float* out, float* in) {
 //    *out /= *in;
@@ -125,31 +134,27 @@ void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THCl
 //  operator()(float* out, float* in1, float* in2) {
 //    *out = *in1 / *in2;
 //  }
-//};
+};
 
 void THClTensor_cdiv(THClState* state, THClTensor *self_, THClTensor *src1, THClTensor *src2)
 {
-//  THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));
-//  THArgCheck(THClTensor_nElement(state, src1) ==
-//             THClTensor_nElement(state, src2), 3, "sizes do not match");
+  THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));
+  THArgCheck(THClTensor_nElement(state, src1) ==
+             THClTensor_nElement(state, src2), 3, "sizes do not match");
 
-//  if (self_ == src1) {
-//    // self *= src2
-//    if (!THClTensor_pointwiseApply2(state, self_, src2, TensorDivOp())) {
-//      THArgCheck(false, 2, CUTORCH_DIM_WARNING);
-//    }
-//  } else {
-//    THClTensor_resizeAs(state, self_, src1);
+  if (self_ == src1) {
+    // self *= src2
+    if (!THClTensor_pointwiseApply2(state, self_, src2, TensorDivOp())) {
+      THArgCheck(false, 2, CLNN_DIM_WARNING);
+    }
+  } else {
+    THClTensor_resizeAs(state, self_, src1);
 
-//    // self = src1 * src2
-//    if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorDivOp())) {
-//      THArgCheck(false, 2, CUTORCH_DIM_WARNING);
-//    }
-//  }
-
-//  THClCheck(cudaGetLastError());
-    THError("Not implemented");
-//    return 0;
+    // self = src1 * src2
+    if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorDivOp())) {
+      THArgCheck(false, 2, CLNN_DIM_WARNING);
+    }
+  }
 }
 
 //struct TensorAddCMulOp {
@@ -177,7 +182,7 @@ void THClTensor_addcmul(THClState *state, THClTensor *self_, THClTensor *t, floa
 //             THClTensor_nElement(state, src2), 3, "sizes do not match");
 
 //  if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorAddCMulOp(value))) {
-//    THArgCheck(false, 2, CUTORCH_DIM_WARNING);
+//    THArgCheck(false, 2, CLNN_DIM_WARNING);
 //  }
 
 //  THClCheck(cudaGetLastError());
@@ -208,7 +213,7 @@ void THClTensor_addcdiv(THClState *state, THClTensor *self_, THClTensor *t, floa
 //  THArgCheck(THClTensor_nElement(state, src1) == THClTensor_nElement(state, src2), 3, "sizes do not match");
 
 //  if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorAddCDivOp(value))) {
-//    THArgCheck(false, 2, CUTORCH_DIM_WARNING);
+//    THArgCheck(false, 2, CLNN_DIM_WARNING);
 //  }
 
 //  THClCheck(cudaGetLastError());
