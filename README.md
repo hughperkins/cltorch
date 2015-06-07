@@ -48,6 +48,7 @@ c:add(d)
 c:cmul(d)
 c:cdiv(d)
 c = c + d
+c = c - d
 </pre></tr>
 
 </table>

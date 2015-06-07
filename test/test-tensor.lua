@@ -60,3 +60,6 @@ print('c2\n', c)
 c = c + d
 print('c3\n', c)
 
+c = c - d
+print('c3\n', c)
+
