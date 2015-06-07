@@ -146,8 +146,6 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 num_workgroups, dim3 l
     kernel->in( (int)totalElements );
     kernel->run(3, global_ws.vec, local_ws.vec);
     state->cl->finish();
-
-    THError("Not implemented");
 }
 //struct TensorInfo a,
 //                             struct TensorInfo b,
@@ -392,7 +390,6 @@ bool THClTensor_pointwiseApply2(THClState* state,
   // index can be similarly collapsed. That is what this unrolling is for.
 #define HANDLE_CASE(TYPE, A, B)                                \
    kernelLaunch_pointwiseApply2<Op, TYPE>(state, grid, block, A, B, aInfo, bInfo, (TYPE) totalElements, op ); \
-   THError("Not implemented"); \
   /* THClTensor_pointwiseApply2<Op, TYPE, A, B>                 \
     <<<grid, block, 0, THClState_getCurrentStream(state)>>>(    \
       aInfo, bInfo, (TYPE) totalElements, op); */

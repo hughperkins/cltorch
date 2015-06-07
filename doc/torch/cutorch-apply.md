@@ -2,7 +2,12 @@
 
 ## THCApply
 
-Useful CUDA intro :-P http://www.nvidia.com/docs/IO/116711/sc11-cuda-c-basics.pdf and http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#kernels
+Useful CUDA intro/info:
+- http://www.nvidia.com/docs/IO/116711/sc11-cuda-c-basics.pdf
+- http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#kernels
+- http://developer.amd.com/tools-and-sdks/opencl-zone/opencl-resources/programming-in-opencl/porting-cuda-applications-to-opencl/
+
+notes:
 - `__global__` is a kernel, equivalent to OpenCL `kernel`
 - `mykernel<<<num_workgroups, workgroup_size>>>(param1, param2, ...)` , with the triple brackets, is a *kernel launch* (equivalent to OpenCL `run(dims, num_workgroups * workgroup_size, workgroup_size)` (ish...)
   - `num_workgroups` and `workgroup_size` can be integers, or `dim3`
