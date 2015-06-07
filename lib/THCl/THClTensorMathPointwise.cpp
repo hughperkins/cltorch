@@ -10,16 +10,6 @@
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-// these can all be generaetd somehow, but just using copy/paste
-// for now, to get it working
-//struct TensorabsOp {
-//    std::string operator1() {
-//        return "*out =fabs( *out )";
-//    }
-//    std::string operator2() {
-//        return "*out = fabs( *in1 )";
-//    }
-//};
 struct TensorGenOp {
   std::string cfun;
   TensorGenOp( std::string cfun ) {
@@ -77,13 +67,6 @@ struct TensorAddOp {
     std::string operator3() {
         return "*out = *in1 + *in2";
     }
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out += *in;
-//  }
-
-//  __device__ __forceinline__ void operator()(float* out, float* in1, float* in2) {
-//    *out = *in1 + *in2;
-//  }
 };
 
 struct TensorCAddOp {
@@ -94,15 +77,6 @@ struct TensorCAddOp {
     std::string operator3() {
         return "*out += *in1 + " + toString(val) + " * *in2";
     }
-
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out += val * *in;
-//  }
-
-//  __device__ __forceinline__ void operator()(float* out, float* in1, float* in2) {
-//    *out = *in1 + val * *in2;
-//  }
-
   float val;
 };
 
@@ -139,8 +113,6 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
       }
     }
   }
-
-//  THClCheck(cudaGetLastError());
 }
 
 struct TensorMulOp {
@@ -171,6 +143,5 @@ void THClTensor_cmul(THClState *state, THClTensor *self_, THClTensor *src1, THCl
       THArgCheck(false, 2, CLNN_DIM_WARNING);
     }
   }
-
-//  THClCheck(cudaGetLastError());
 }
+
