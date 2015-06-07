@@ -31,6 +31,7 @@ struct TensorInfo {
 
   int sizes[{{MAX_CLNN_DIMS}}];
   int strides[{{MAX_CLNN_DIMS}}];
+  int offset;
   int dims;
 };
 // Contiguous tensors of more than one dimension are collapsed down
@@ -81,7 +82,7 @@ THClTensor_pointwiseApply2(struct TensorInfo a,
     const int bOffset =
       IndexToOffset_{{1000+bdim}}_get(linearIndex, b);
 
-    op2( &(a_data[aOffset]), &(b_data[bOffset]));
+    op2( &(a_data[aOffset + a.offset]), &(b_data[bOffset + b.offset]));
   }
 }
 

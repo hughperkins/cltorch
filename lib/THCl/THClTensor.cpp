@@ -54,6 +54,13 @@ float *THClTensor_data(THClState *state, const THClTensor *self)
   else
     return NULL;
 }
+CLWrapper *THClTensor_wrapper(THClState *state, const THClTensor *self)
+{
+  if(self->storage)
+    return self->storage->wrapper;
+  else
+    return NULL;
+}
 
 void THClTensor_setFlag(THClState *state, THClTensor *self, const char flag)
 {

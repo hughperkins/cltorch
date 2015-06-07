@@ -84,6 +84,10 @@ void THClTensor_copyIgnoringOverlaps(THClState* state,
 typedef struct TensorInfoCl {
   TensorInfoCl( TensorInfo<unsigned int> info ) {
     dims = info.dims;
+    if( info.offset > ( 1l << 30 ) ) {
+      throw std::runtime_error("size " + toString(info.offset) + " out of bounds");
+    }
+    offset = (int)info.offset;
     for( int i = 0; i < dims; i++ ) {
       sizes[i] = info.sizes[i];
       strides[i] = info.strides[i];
@@ -91,6 +95,10 @@ typedef struct TensorInfoCl {
   }
   TensorInfoCl( TensorInfo<unsigned long> info ) {
     dims = info.dims;
+    if( info.offset > ( 1l << 30 ) ) {
+      throw std::runtime_error("size " + toString(info.offset) + " out of bounds");
+    }
+    offset = (int)info.offset;
     for( int i = 0; i < dims; i++ ) {
       if( info.sizes[i] > ( 1l << 31 ) ) {
         throw std::runtime_error("size " + toString(info.sizes[i]) + " out of bounds");
@@ -101,6 +109,7 @@ typedef struct TensorInfoCl {
   }
   unsigned int sizes[MAX_CLNN_DIMS];
   unsigned int strides[MAX_CLNN_DIMS];
+  int offset;
   int dims;
 } TensorInfoCl;
 
@@ -129,7 +138,12 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 num_workgroups, dim3 l
     TensorInfoCl aInfoCl(aInfo);
     TensorInfoCl bInfoCl(bInfo);
     kernel->in(1, &aInfoCl)->in(1, &bInfoCl);
-    // kernel->in( in progress... dont we have a CLWrapper class object???
+    kernel->inout( aInfo.wrapper )
+          ->inout( bInfo.wrapper );
+    if( totalElements > ( 1l << 30 )) {
+        throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
+    }
+    kernel->in( (int)totalElements );
     kernel->run(3, global_ws.vec, local_ws.vec);
     state->cl->finish();
 

@@ -7,6 +7,8 @@
 
 #define TH_TENSOR_REFCOUNTED 1
 
+//struct CLWrapper;
+
 typedef struct THClTensor
 {
     long *size;
@@ -31,6 +33,9 @@ THCL_API long THClTensor_stride(THClState *state, const THClTensor *self, int di
 THCL_API THLongStorage *THClTensor_newSizeOf(THClState *state, THClTensor *self);
 THCL_API THLongStorage *THClTensor_newStrideOf(THClState *state, THClTensor *self);
 THCL_API float *THClTensor_data(THClState *state, const THClTensor *self);
+#ifdef __cplusplus
+THCL_API class CLWrapper *THClTensor_wrapper(THClState *state, const THClTensor *self);
+#endif // __cplusplus
 
 THCL_API void THClTensor_setFlag(THClState *state, THClTensor *self, const char flag);
 THCL_API void THClTensor_clearFlag(THClState *state, THClTensor *self, const char flag);

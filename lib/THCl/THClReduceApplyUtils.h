@@ -39,6 +39,8 @@ struct CopyOp {
 //  }
 };
 
+class CLWrapper;
+
 // CL kernel argument that defines tensor layout
 template <typename IndexType>
 struct TensorInfo {
@@ -56,7 +58,9 @@ struct TensorInfo {
     return (dims == 1 && strides[0] == 1);
   }
 
-  float* data;
+  CLWrapper *wrapper;
+  long offset;
+//  float* data;
   IndexType sizes[MAX_CLNN_DIMS];
   IndexType strides[MAX_CLNN_DIMS];
   int dims;
@@ -66,12 +70,13 @@ template <typename IndexType>
 TensorInfo<IndexType>::TensorInfo(THClState* state,
                                   THClTensor* t,
                                   int reduceDim)
-    : data(NULL), dims(0) {
+    : wrapper(NULL), offset(0), dims(0) {
   int origDims = THClTensor_nDimension(state, t);
   assert(origDims <= MAX_CLNN_DIMS);
   assert(reduceDim < origDims);
 
-  data = THClTensor_data(state, t);
+  offset = THClTensor_storageOffset(state, t);
+  wrapper = THClTensor_wrapper(state, t);
 
   // Count the number of successive dimensions that can be collapsed, from
   // innermost to outermost.
