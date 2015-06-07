@@ -12,16 +12,7 @@
 
 std::string getApply1_template();
 std::string getApply2_template();
-
-//class Op2 {
-//public:
-//    std::string getOperation() = 0;
-//};
-
-//class Op3 {
-//public:
-//    std::string getOperation() = 0;
-//};
+std::string getApply3_template();
 
 //
 // This file contains pointwise operation functions and kernels that
@@ -38,49 +29,6 @@ std::string getApply2_template();
 void THClTensor_copyIgnoringOverlaps(THClState* state,
                                        THClTensor* dst,
                                        THClTensor* src);
-
-//template <typename Op, typename IndexType, int ADims>
-//#if __CL_ARCH__ >= 350
-//__launch_bounds__(32 * 16, 4)
-//#endif
-//__global__ void
-//THClTensor_pointwiseApply1(TensorInfo<IndexType> a,
-//                             IndexType totalElements,
-//                             Op op) {
-//  for (IndexType linearIndex = blockIdx.x * blockDim.x + threadIdx.x;
-//       linearIndex < totalElements;
-//       linearIndex += gridDim.x * blockDim.x) {
-//    // Convert `linearIndex` into an offset of `a`
-//    const IndexType aOffset =
-//      IndexToOffset<IndexType, ADims>::get(linearIndex, a);
-
-//    op(&a.data[aOffset]);
-//  }
-//}
-
-//template <typename Op, typename IndexType, int ADims, int BDims>
-//#if __CL_ARCH__ >= 350
-//__launch_bounds__(32 * 16, 4)
-//#endif
-//__global__ void
-//THClTensor_pointwiseApply2(TensorInfo<IndexType> a,
-//                             TensorInfo<IndexType> b,
-//                             IndexType totalElements,
-//                             Op op) {
-//  for (IndexType linearIndex = blockIdx.x * blockDim.x + threadIdx.x;
-//       linearIndex < totalElements;
-//       linearIndex += gridDim.x * blockDim.x) {
-//    // Convert `linearIndex` into an offset of `a`
-//    const IndexType aOffset =
-//      IndexToOffset<IndexType, ADims>::get(linearIndex, a);
-
-//    // Convert `linearIndex` into an offset of `b`
-//    const IndexType bOffset =
-//      IndexToOffset<IndexType, BDims>::get(linearIndex, b);
-
-//    op(&a.data[aOffset], &b.data[bOffset]);
-//  }
-//}
 
 typedef struct TensorInfoCl {
   TensorInfoCl( TensorInfo<unsigned int> info ) {
@@ -213,42 +161,70 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   kernel->run(3, global_ws.vec, block.vec);
   state->cl->finish();
 }
-//struct TensorInfo a,
-//                             struct TensorInfo b,
-//                            global float* a_data,
-//                            global float*b_data,
-//                             int totalElements
 
+template< typename Op, typename IndexType >
+void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, Op op ) {
+  TemplatedKernel kernelBuilder( state->cl );
+  kernelBuilder.set("adim", A);
+  kernelBuilder.set("bdim", B);
+  kernelBuilder.set("cdim", C);
+  std::vector<int> dims;
+  if( A >= 0 ) {
+    dims.push_back(A);
+  }
+  if( B != A && B >= 0 ) {
+    dims.push_back(B);
+  }
+  if( C != A && C != B && C >= 0 ) {
+    dims.push_back(C);
+  }
+  kernelBuilder.set("dims", dims);
+  kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
+  kernelBuilder.set("operation", op.operator3());
+  std::string uniqueName = "apply3_" + toString(A) + "_" + toString(B) + "_" + toString(C) + "_" + op.operator3();
+  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply3.cl", getApply3_template(), "THClTensor_pointwiseApply3" );
+  // calculate workgroup sizes and stuff
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = grid.vec[i] * block.vec[i];
+  }
 
-// this is a kernel, since marked with `__global__`
-//template <typename Op, typename IndexType, int ADims, int BDims, int CDims>
-//#if __CL_ARCH__ >= 350
-//__launch_bounds__(32 * 16, 4)
-//#endif
-//__global__ void
-//THClTensor_pointwiseApply3(TensorInfo<IndexType> a,
-//                             TensorInfo<IndexType> b,
-//                             TensorInfo<IndexType> c,
-//                             IndexType totalElements,
-//                             Op op) {
-//  for (IndexType linearIndex = blockIdx.x * blockDim.x + threadIdx.x;
-//       linearIndex < totalElements;
-//       linearIndex += gridDim.x * blockDim.x) {
-//    // Convert `linearIndex` into an offset of `a`
-//    const IndexType aOffset =
-//      IndexToOffset<IndexType, ADims>::get(linearIndex, a);
+  // set up tensorinfos
+  TensorInfoCl aInfoCl(aInfo);
+  TensorInfoCl bInfoCl(bInfo);
+  TensorInfoCl cInfoCl(cInfo);
 
-//    // Convert `linearIndex` into an offset of `b`
-//    const IndexType bOffset =
-//      IndexToOffset<IndexType, BDims>::get(linearIndex, b);
+  if( false ) {
+    std::cout << "totalElements " << totalElements << std::endl;
+    std::cout << "a offset " << aInfoCl.offset << 
+      " b offset " << bInfoCl.offset << std::endl;
+    std::cout << "adims " << aInfoCl.dims << " bdims " << bInfoCl.dims
+      << std::endl;
+    for( int i = 0; i < aInfoCl.dims; i++ ) {
+      std::cout << "a dim" << i << " size=" << aInfoCl.sizes[i] << 
+        " stride=" << aInfoCl.strides[i] << std::endl;
+      std::cout << "b dim" << i << " size=" << bInfoCl.sizes[i] << 
+        " stride=" << bInfoCl.strides[i] << std::endl;
+    }
+    std::cout<< "block " << block << std::endl;
+    std::cout<< "grid " << grid << std::endl;
+    std::cout<< "global_ws " << global_ws << std::endl;
+  }
 
-//    // Convert `linearIndex` into an offset of `c`
-//    const IndexType cOffset =
-//      IndexToOffset<IndexType, CDims>::get(linearIndex, c);
-
-//    op(&a.data[aOffset], &b.data[bOffset], &c.data[cOffset]);
-//  }
-//}
+  kernel->in(1, &aInfoCl)->in(1, &bInfoCl)->in(1, &cInfoCl);
+  if( !aInfo.wrapper->isOnDevice() ) {
+    aInfo.wrapper->createOnDevice();
+  }
+  kernel->inout( aInfo.wrapper );
+  kernel->inout( bInfo.wrapper );
+  kernel->inout( cInfo.wrapper );
+  if( totalElements > ( 1l << 30 )) {
+    throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
+  }
+  kernel->in( (int)totalElements );
+  kernel->run(3, global_ws.vec, block.vec);
+  state->cl->finish();
+}
 
 inline dim3 getApplyBlock() {
   return dim3(THCL_APPLY_THREADS_PER_BLOCK);
@@ -623,8 +599,8 @@ bool THClTensor_pointwiseApply3(THClState* state,
   }
 
 #define HANDLE_CASE(TYPE, A, B, C)                                      \
-  THError("Not implemented");  
     /* kernel launch ... */ \
+   kernelLaunch_pointwiseApply3<Op, TYPE>(state, grid, block, A, B, C, aInfo, bInfo, cInfo, (TYPE) totalElements, op ); \
   /* THClTensor_pointwiseApply3<Op, TYPE, A, B, C> */                      \
     /* <<<grid, block, 0, THClState_getCurrentStream(state)>>>(             \
       aInfo, bInfo, cInfo, (TYPE) totalElements, op); */

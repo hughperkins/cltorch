@@ -75,4 +75,6 @@ for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
   print('c3\n', c)
 end
 
+a = torch.lt(c,d)
+print('a\n', a)
 
