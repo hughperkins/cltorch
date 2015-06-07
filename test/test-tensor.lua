@@ -47,4 +47,12 @@ print('about to call add :-P')
 c:add(d)
 print('c2\n', c)
 
+a = c:float()
+b = d:float()
+a:cmul(b)
+print('a', a)
+
+c:cmul(d)
+print('c2\n', c)
+
 

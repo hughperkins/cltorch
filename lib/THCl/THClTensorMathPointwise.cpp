@@ -122,7 +122,7 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
 
 struct TensorMulOp {
     std::string operator2() {
-        return "*out *= *in";
+        return "*out *= *in1";
     }
     std::string operator3() {
         return "*out = *in1 * *in2";
