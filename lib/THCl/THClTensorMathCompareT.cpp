@@ -27,13 +27,21 @@ void THClTensor_logicalTensor(THClState *state, THClTensor *self_, THClTensor *s
 //  THClCheck(cudaGetLastError());
 }
 
+
+// these should be generatable really...
 struct TensorLTOp {
   string operator3() {
     return "*out = (float) (*in1 < *in2)";
   }
-//  __device__ __forceinline__ void operator()(float* out, float* a, float* b) {
-//    *out = (float) (*a < *b);
-//  }
+};
+struct TensorGenLogOp {
+  string logop;
+  TensorGenLogOp(string logop) {
+    this->logop = logop;
+  }
+  string operator3() {
+    return "*out = (float) (*in1 " + logop + " *in2)";
+  }
 };
 /*
 struct TensorGTOp {
@@ -72,12 +80,12 @@ void THClTensor_ltTensor(THClState *state, THClTensor *self_, THClTensor *src1, 
   THClTensor_logicalTensor(state, self_, src1, src2, TensorLTOp());
 }
 
-/*
 void THClTensor_gtTensor(THClState *state, THClTensor *self_, THClTensor *src1, THClTensor *src2)
 {
   THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));
-  THClTensor_logicalTensor(state, self_, src1, src2, TensorGTOp());
+  THClTensor_logicalTensor(state, self_, src1, src2, TensorGenLogOp(">"));
 }
+/*
 
 
 void THClTensor_leTensor(THClState *state, THClTensor *self_, THClTensor *src1, THClTensor *src2)

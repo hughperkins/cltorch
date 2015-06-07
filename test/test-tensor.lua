@@ -77,4 +77,7 @@ end
 
 a = torch.lt(c,d)
 print('a\n', a)
+a = torch.gt(c,d)
+print('a\n', a)
+
 

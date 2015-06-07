@@ -55,6 +55,7 @@ for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
   loadstring('c:' .. name .. '()')()
 end
 a = torch.lt(c,d)
+a = torch.gt(c,d)
 
 </pre></tr>
 
