@@ -47,7 +47,7 @@ c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
 c:add(d)
 c:cmul(d)
 c:cdiv(d)
-c = c - d
+c = c + d
 </pre></tr>
 
 </table>
