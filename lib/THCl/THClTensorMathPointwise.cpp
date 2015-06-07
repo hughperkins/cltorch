@@ -49,7 +49,7 @@
 
 struct TensorAddOp {
     std::string operator2() {
-        return "*out += *in";
+        return "*out += *in1";
     }
     std::string operator3() {
         return "*out = *in1 + *in2";
@@ -66,7 +66,7 @@ struct TensorAddOp {
 struct TensorCAddOp {
   TensorCAddOp(float v) : val(v) {}
     std::string operator2() {
-        return "*out += " + toString(val) + " * *in";
+        return "*out += " + toString(val) + " * *in1";
     }
     std::string operator3() {
         return "*out += *in1 + " + toString(val) + " * *in2";

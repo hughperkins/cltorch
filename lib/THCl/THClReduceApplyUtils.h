@@ -28,7 +28,7 @@ enum TensorArgType { ReadWrite, ReadOnly };
 template <typename T>
 struct CopyOp {
     std::string operator2() {
-        return "*dst += *src";
+        return "*out += *in1";
     }
 //  __device__ __forceinline__ void operator()(T* dst, T* src) {
 //#if __CL_ARCH__ >= 350

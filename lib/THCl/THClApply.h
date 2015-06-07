@@ -81,9 +81,19 @@ void THClTensor_copyIgnoringOverlaps(THClState* state,
 
 template< typename Op, typename IndexType >
 void kernelLaunch_pointwiseApply2( THClState *state, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, Op op ) {
-    TemplatedKernel templatedKernel( state->cl );
+    TemplatedKernel kernelBuilder( state->cl );
+    kernelBuilder.set("adim", A);
+    kernelBuilder.set("bdim", B);
+    std::vector<int> dims;
+    dims.push_back(A);
+    if( B != A ) {
+        dims.push_back(B);
+    }
+    kernelBuilder.set("dims", dims);
+    kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
+    kernelBuilder.set("operation", op.operator2());
     std::string uniqueName = "apply2_" + toString(A) + "_" + toString(B);
-    CLKernel *kernel = templatedKernel.buildKernel( uniqueName, "THClApply2.cl", getApply2_template(), "THClTensor_pointwiseApply2" );
+    CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply2.cl", getApply2_template(), "THClTensor_pointwiseApply2" );
       THError("Not implemented");
 }
 

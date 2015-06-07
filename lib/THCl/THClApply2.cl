@@ -29,25 +29,24 @@ struct TensorInfo {
   // The optional `reduceDim` indicates a reduction dimension for the
   // given tensor, so that the output size for this dimension will be 1.
 
-  float* data;
-  int sizes[{{MAX_CUTORCH_DIMS}}];
-  int strides[{{MAX_CUTORCH_DIMS}}];
+  int sizes[{{MAX_CLNN_DIMS}}];
+  int strides[{{MAX_CLNN_DIMS}}];
   int dims;
 };
 // Contiguous tensors of more than one dimension are collapsed down
 // to one tensor
-bool TensorInfo_isContiguous( TensorInfo tensorInfo ) {
+bool TensorInfo_isContiguous( struct TensorInfo tensorInfo ) {
     return (tensorInfo.dims == 1 && tensorInfo.strides[0] == 1);    
 }
 
-void op2( float *out, float *val1 ) {
-    return {{operation}};
+void op2( float *out, float *in1 ) {
+    {{operation}};
 }
 
 // Translate a linear index for the apply to a float* offset;
 // specialized on `Dims` to reduce nvcc compilation time
 {% for _,dim in ipairs(dims) do %}
-int IndexToOffset_{{1000 + dim}}_get( int linearId, const TensorInfo info) {
+int IndexToOffset_{{1000 + dim}}_get( int linearId, const struct TensorInfo info) {
   int offset = 0;
 
   // Use static dims
@@ -66,9 +65,11 @@ int IndexToOffset_{{1000 + dim}}_get( int linearId, const TensorInfo info) {
 {% end %}
 
 kernel void
-THClTensor_pointwiseApply2(TensorInfo a,
-                             TensorInfo b,
-                             int totalElements {
+THClTensor_pointwiseApply2(struct TensorInfo a,
+                             struct TensorInfo b,
+                            global float* a_data,
+                            global float*b_data,
+                             int totalElements) {
   for (int linearIndex = blockIdx.x * blockDim.x + threadIdx.x;
        linearIndex < totalElements;
        linearIndex += gridDim.x * blockDim.x) {
@@ -80,7 +81,7 @@ THClTensor_pointwiseApply2(TensorInfo a,
     const int bOffset =
       IndexToOffset_{{1000+bdim}}_get(linearIndex, b);
 
-    op2( &(a.data[aOffset]), &(b.data[bOffset]));
+    op2( &(a_data[aOffset]), &(b_data[bOffset]));
   }
 }
 

@@ -9,12 +9,12 @@
 //
 // maybe should add:
 // IndexType (hardcoded to int for now)
-// MAX_CUTORCH_DIMS (hardcoded to 25 for now)
+// MAX_CLNN_DIMS (hardcoded to 25 for now)
 
 // (Ported from cutorch's THCApply.cuh)
 
 // Maximum number of dimensions allowed for cutorch
-#define MAX_CUTORCH_DIMS 25
+#define MAX_CLNN_DIMS 25
 
 // Enum that indicates whether tensor arguments are read/write or
 // read-only
@@ -30,8 +30,8 @@ struct TensorInfo {
   // given tensor, so that the output size for this dimension will be 1.
 
   float* data;
-  int sizes[{{MAX_CUTORCH_DIMS}}];
-  int strides[{{MAX_CUTORCH_DIMS}}];
+  int sizes[{{MAX_CLNN_DIMS}}];
+  int strides[{{MAX_CLNN_DIMS}}];
   int dims;
 };
 // Contiguous tensors of more than one dimension are collapsed down
@@ -40,7 +40,7 @@ bool TensorInfo_isContiguous( TensorInfo tensorInfo ) {
     return (tensorInfo.dims == 1 && tensorInfo.strides[0] == 1);    
 }
 
-void op3( float *out, float *val1, float *val2 ) {
+void op3( float *out, float *in1, float *in2 ) {
     {{operation}};
 }
 
