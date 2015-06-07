@@ -115,56 +115,57 @@ typedef struct TensorInfoCl {
 
 template< typename Op, typename IndexType >
 void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, Op op ) {
-    TemplatedKernel kernelBuilder( state->cl );
-    kernelBuilder.set("adim", A);
-    kernelBuilder.set("bdim", B);
-    std::vector<int> dims;
-    if( A >= 0 ) {
-      dims.push_back(A);
-    }
-    if( B != A && B >= 0 ) {
-        dims.push_back(B);
-    }
-    kernelBuilder.set("dims", dims);
-    kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
-    kernelBuilder.set("operation", op.operator2());
-    std::string uniqueName = "apply2_" + toString(A) + "_" + toString(B) + "_" + op.operator2();
-    CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply2.cl", getApply2_template(), "THClTensor_pointwiseApply2" );
-    // calculate workgroup sizes and stuff
-    dim3 global_ws;
-    for( int i = 0; i < 3; i++ ) {
-        global_ws.vec[i] = grid.vec[i] * block.vec[i];
-    }
+  TemplatedKernel kernelBuilder( state->cl );
+  kernelBuilder.set("adim", A);
+  kernelBuilder.set("bdim", B);
+  std::vector<int> dims;
+  if( A >= 0 ) {
+    dims.push_back(A);
+  }
+  if( B != A && B >= 0 ) {
+    dims.push_back(B);
+  }
+  kernelBuilder.set("dims", dims);
+  kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
+  kernelBuilder.set("operation", op.operator2());
+  std::string uniqueName = "apply2_" + toString(A) + "_" + toString(B) + "_" + op.operator2();
+  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply2.cl", getApply2_template(), "THClTensor_pointwiseApply2" );
+  // calculate workgroup sizes and stuff
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = grid.vec[i] * block.vec[i];
+  }
 
-    // set up tensorinfos
-    TensorInfoCl aInfoCl(aInfo);
-    TensorInfoCl bInfoCl(bInfo);
+  // set up tensorinfos
+  TensorInfoCl aInfoCl(aInfo);
+  TensorInfoCl bInfoCl(bInfo);
 
-
+  if( false ) {
     std::cout << "totalElements " << totalElements << std::endl;
     std::cout << "a offset " << aInfoCl.offset << 
-        " b offset " << bInfoCl.offset << std::endl;
+      " b offset " << bInfoCl.offset << std::endl;
     std::cout << "adims " << aInfoCl.dims << " bdims " << bInfoCl.dims
-        << std::endl;
+      << std::endl;
     for( int i = 0; i < aInfoCl.dims; i++ ) {
-        std::cout << "a dim" << i << " size=" << aInfoCl.sizes[i] << 
-            " stride=" << aInfoCl.strides[i] << std::endl;
-        std::cout << "b dim" << i << " size=" << bInfoCl.sizes[i] << 
-            " stride=" << bInfoCl.strides[i] << std::endl;
+      std::cout << "a dim" << i << " size=" << aInfoCl.sizes[i] << 
+        " stride=" << aInfoCl.strides[i] << std::endl;
+      std::cout << "b dim" << i << " size=" << bInfoCl.sizes[i] << 
+        " stride=" << bInfoCl.strides[i] << std::endl;
     }
     std::cout<< "block " << block << std::endl;
     std::cout<< "grid " << grid << std::endl;
     std::cout<< "global_ws " << global_ws << std::endl;
+  }
 
-    kernel->in(1, &aInfoCl)->in(1, &bInfoCl);
-    kernel->inout( aInfo.wrapper )
-          ->inout( bInfo.wrapper );
-    if( totalElements > ( 1l << 30 )) {
-        throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
-    }
-    kernel->in( (int)totalElements );
-    kernel->run(3, global_ws.vec, block.vec);
-    state->cl->finish();
+  kernel->in(1, &aInfoCl)->in(1, &bInfoCl);
+  kernel->inout( aInfo.wrapper )
+    ->inout( bInfo.wrapper );
+  if( totalElements > ( 1l << 30 )) {
+    throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
+  }
+  kernel->in( (int)totalElements );
+  kernel->run(3, global_ws.vec, block.vec);
+  state->cl->finish();
 }
 //struct TensorInfo a,
 //                             struct TensorInfo b,

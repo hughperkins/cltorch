@@ -4,12 +4,12 @@
 
 #include "EasyCL.h"
 #include <stdexcept>
-#include <iostream>
+//#include <iostream>
 using namespace std;
 
 void THClStorage_set(THClState *state, THClStorage *self, long index, float value)
 {
-  cout << "set size=" << self->size << " index=" << index << " value=" << value << endl;
+//  cout << "set size=" << self->size << " index=" << index << " value=" << value << endl;
   THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
   if( self->wrapper->isDeviceDirty() ) { // we have to do this, since we're going to copy it all back again
                                          // although I suppose we could set via a kernel perhaps
@@ -22,7 +22,7 @@ void THClStorage_set(THClState *state, THClStorage *self, long index, float valu
 
 float THClStorage_get(THClState *state, const THClStorage *self, long index)
 {
-  printf("THClStorage_get\n");
+//  printf("THClStorage_get\n");
   THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
   if( self->wrapper->isDeviceDirty() ) {
     self->wrapper->copyToHost();

@@ -2,7 +2,7 @@
 #define TH_GENERIC_FILE "generic/Tensor.c"
 #else
 
-#include <stdio.h>
+// #include <stdio.h>
 
 static void torch_Tensor_(c_readTensorStorageSizeStride)(lua_State *L, int index, int allowNone, int allowTensor, int allowStorage, int allowStride,
                                                          THStorage **storage_, long *storageOffset_, THLongStorage **size_, THLongStorage **stride_);
@@ -75,7 +75,7 @@ static int torch_Tensor_(storageOffset)(lua_State *L)
 
 static int torch_Tensor_(new)(lua_State *L)
 {
-    printf("clnn/torch/generic/Tensor.c torch_Tensor_(new)\n");
+  //  printf("clnn/torch/generic/Tensor.c torch_Tensor_(new)\n");
   THClState *state = clnn_getstate(L);
   THTensor *tensor;
   long storageOffset;

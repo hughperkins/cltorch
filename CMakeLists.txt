@@ -39,7 +39,8 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/torch")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/DeepCL/EasyCL")
 
 # SET(src Storage.c init.c Tensor.c TensorMath.c TensorOperator.c torch/utils.c)
-SET(src init.cpp torch/utils.c Storage.c Tensor.c TensorMath.c)
+SET(src init.cpp torch/utils.c Storage.c Tensor.c TensorMath.c
+  TensorOperator.c)
 SET(luasrc init.lua Tensor.lua )
 
 ADD_TORCH_WRAP(clnntensormathwrap TensorMath.lua)

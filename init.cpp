@@ -13,7 +13,7 @@ extern "C" {
   extern void clnn_ClStorage_init(lua_State* L);
   extern void clnn_ClTensor_init(lua_State* L);
   extern void clnn_ClTensorMath_init(lua_State* L);
-  //extern void clnn_ClTensorOperator_init(lua_State* L);
+  extern void clnn_ClTensorOperator_init(lua_State* L);
 }
 
 #include "THClGeneral.h"
@@ -104,7 +104,7 @@ int luaopen_libclnn( lua_State *L ) {
   clnn_ClStorage_init(L);
   clnn_ClTensor_init(L);
   clnn_ClTensorMath_init(L);
-//  clnn_ClTensorOperator_init(L);
+  clnn_ClTensorOperator_init(L);
 
   lua_pushlightuserdata(L, state);
   lua_setfield(L, -2, "_state");
