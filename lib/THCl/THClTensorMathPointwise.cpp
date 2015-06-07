@@ -10,56 +10,63 @@
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-struct TensorabsOp {
-    std::string operator1() {
-        return "*out =fabs( *out )";
-    }
-    std::string operator2() {
-        return "*out = fabs( *in1 )";
-    }
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out += *in;
-//  }
-
-//  __device__ __forceinline__ void operator()(float* out, float* in1, float* in2) {
-//    *out = *in1 + *in2;
-//  }
+// these can all be generaetd somehow, but just using copy/paste
+// for now, to get it working
+//struct TensorabsOp {
+//    std::string operator1() {
+//        return "*out =fabs( *out )";
+//    }
+//    std::string operator2() {
+//        return "*out = fabs( *in1 )";
+//    }
+//};
+struct TensorGenOp {
+  std::string cfun;
+  TensorGenOp( std::string cfun ) {
+     this->cfun = cfun;
+  }
+  std::string operator1() {
+    return "*out =" + cfun + "( *out )";
+  }
+  std::string operator2() {
+    return "*out = " + cfun + "( *in1 )";
+  }
 };
 
 #define IMPLEMENT_CL_TENSOR_BASIC_FUNC(NAME, CFUNC)                   \
   void THClTensor_##NAME(THClState* state, THClTensor* self_, THClTensor* src) { \
     THAssert(THClTensor_checkGPU(state, 2, self_, src));                \
     if (self_ == src) {                                                 \
-      if (!THClTensor_pointwiseApply1(state, self_, Tensor##NAME##Op())) { \
+      if (!THClTensor_pointwiseApply1(state, self_, TensorGenOp(#CFUNC))) { \
         THArgCheck(false, 2, CLNN_DIM_WARNING); \
       }                                                                 \
     } else {                                                            \
       THClTensor_resizeAs(state, self_, src);                         \
                                                                         \
-      if (!THClTensor_pointwiseApply2(state, self_, src, Tensor##NAME##Op())) { \
+      if (!THClTensor_pointwiseApply2(state, self_, src, TensorGenOp(#CFUNC))) { \
         THArgCheck(false, 2, CLNN_DIM_WARNING); \
       }                                                                 \
     }                                                                   \
                                                                         \
   }
 
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(log, log)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(log1p, log1p)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(exp, exp)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(cos, cos)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(acos, acos)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(cosh, cosh)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(sin, sin)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(asin, asin)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(sinh, sinh)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(tan, tan)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(atan, atan)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(tanh, tanh)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(sqrt, sqrt)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(ceil, ceil)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(floor, floor)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(log, native_log)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(log1p, log1p)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(exp, native_exp)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(cos, native_cos)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(acos, acos)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(cosh, cosh)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(sin, native_sin)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(asin, asin)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(sinh, sinh)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(tan, native_tan)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(atan, atan)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(tanh, tanh)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(sqrt, native_sqrt)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(ceil, ceil)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(floor, floor)
 IMPLEMENT_CL_TENSOR_BASIC_FUNC(abs, fabs)
-//IMPLEMENT_CL_TENSOR_BASIC_FUNC(round, roundf)
+IMPLEMENT_CL_TENSOR_BASIC_FUNC(round, round)
 
 #undef IMPLEMENT_CL_TENSOR_BASIC_FUNC
 

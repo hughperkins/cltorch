@@ -65,4 +65,13 @@ print('c3\n', c)
 
 c:abs()
 print('c3\n', c)
+c:sqrt()
+print('c3\n', c)
+for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
+   'atan', 'tanh', 'ceil', 'floor', 'abs', 'round'}) do
+  print('name', name)
+  loadstring('c:' .. name .. '()')()
+  print('c3\n', c)
+end
+
 

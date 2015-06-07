@@ -50,6 +50,11 @@ c:cdiv(d)
 c = c + d
 c = c - d
 c:abs()
+for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
+   'atan', 'tanh', 'ceil', 'floor', 'abs', 'round'}) do
+  loadstring('c:' .. name .. '()')()
+end
+
 </pre></tr>
 
 </table>
