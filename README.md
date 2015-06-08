@@ -72,6 +72,8 @@ for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
 end
 torch.pow(2,c)
 c:pow(2)
+torch.cpow(c,d)
+torch.cdiv(c,d)
 torch.pow(c,2)
 torch.clamp(c, 50, 100)
 c:clamp(50, 100)

@@ -119,3 +119,7 @@ print(torch.clamp(c, 50, 100))
 c:clamp(50, 100)
 print('c\n', c)
 
+print(torch.cpow(c,d))
+print(torch.cdiv(c,d))
+
+
