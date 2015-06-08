@@ -115,6 +115,7 @@ print('c\n', c)
 print(torch.pow(c,2))
 
 print('c\n', c)
-torch:clamp(c, 10, 1000)
+print(torch.clamp(c, 50, 100))
+c:clamp(50, 100)
 print('c\n', c)
 

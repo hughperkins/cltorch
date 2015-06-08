@@ -98,10 +98,21 @@ void THClTensor_atan2(THClState *state, THClTensor *self_, THClTensor *tx, THClT
   THClCheck(cudaGetLastError());
 }
 */
-/*
-class TensorClampOp : public OpBase {
+
+class TensorClampOp : public HasOperator1, public HasOperator2, public HasScalars {
 public:
+  int getNumScalars() const { return 2; }
+  float getScalar( int index ) const {
+    if( index == 0 ) { return minValue; }
+    return maxValue;
+  }
   TensorClampOp(float min, float max) : minValue(min), maxValue(max) {}
+  string operator2() const {
+    return "*out = fmax(fmin(*in1, val2), val1)";
+  }
+  string operator1() const {
+    return "*out = fmax(fmin(*out, val2), val1)";
+  }
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
 //    *out = max(min(*in, maxValue), minValue);
 //  }
@@ -129,7 +140,7 @@ void THClTensor_clamp(THClState *state, THClTensor *self_, THClTensor *src, floa
       THArgCheck(false, 2, CLNN_DIM_WARNING);
     }
   }
-}*/
+}
 /*
 struct TensorSignOp {
   __device__ __forceinline__ void operator()(float* out, float* in) {
