@@ -126,7 +126,7 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
   }
 }
 
-class TensorMulOp : public HasOperator2, HasOperator3 {
+class TensorMulOp : public HasOperator2, public HasOperator3 {
 public:
   bool has_scalar() { return false; }
   float val; // not used, since has_scalar is false

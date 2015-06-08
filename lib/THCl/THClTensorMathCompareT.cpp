@@ -25,14 +25,15 @@ void THClTensor_logicalTensor(THClState *state, THClTensor *self_, THClTensor *s
   }
 }
 
-struct TensorGenLogOp {
+class TensorGenLogOp : public HasOperator3 {
+public:
   bool has_scalar(){ return false; }
   float val;
   string logop;
   TensorGenLogOp(string logop) {
     this->logop = logop;
   }
-  string operator3() {
+  string operator3() const {
     return "*out = (float) (*in1 " + logop + " *in2)";
   }
 };

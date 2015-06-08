@@ -83,7 +83,7 @@ long THClTensor_numel(THClState *state, THClTensor *t)
   return THClTensor_nElement(state, t);
 }
 
-class TensorCPowOp : public HasOperator2, HasOperator3 {
+class TensorCPowOp : public HasOperator2, public HasOperator3 {
 public:
   bool has_scalar(){ return false; }
   float val;
@@ -123,7 +123,7 @@ void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THCl
   }
 }
 
-class TensorDivOp : public HasOperator2, HasOperator3 {
+class TensorDivOp : public HasOperator2, public HasOperator3 {
 public:
   bool has_scalar() { return false; }
   float val; // not used, since has_scalar is false
