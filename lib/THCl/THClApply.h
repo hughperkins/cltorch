@@ -210,7 +210,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   state->cl->finish();
 }
 
-template< typename Op, typename IndexType >
+template< typename IndexType >
 void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, HasOperator3 const*op ) {
   TemplatedKernel kernelBuilder( state->cl );
   kernelBuilder.set("dim1", A);
