@@ -24,12 +24,15 @@ void THClTensor_logicalValue(THClState *state, THClTensor *self_, THClTensor *sr
   }
 }
 
-struct TensorGenCompareValueOp {
+class TensorGenCompareValueOp : public HasOperator2, public HasScalars {
+public:
+  int getNumScalars() const { return 1; }
+  float getScalar( int index ) const { return val; }
   bool has_scalar() { return true; }
   TensorGenCompareValueOp(std::string op, float v) : 
     val(v),
     op(op) {}
-  string operator2() {
+  string operator2() const {
     return "*out = (*in1 " + op + " val)";
   }
   const float val;

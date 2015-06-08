@@ -24,12 +24,46 @@
 // read-only
 enum TensorArgType { ReadWrite, ReadOnly };
 
+#ifdef __cplusplus
+class OpBase {
+public:
+};
+
+class HasScalars : public OpBase {
+public:
+    virtual int getNumScalars() const = 0;
+    virtual float getScalar(int index) const = 0;
+};
+
+class HasOperator1 : public OpBase {
+public:
+    virtual std::string operator1() const = 0;
+};
+
+class HasOperator2 : public OpBase {
+public:
+    virtual std::string operator2() const = 0;
+};
+
+class HasOperator3 : public OpBase {
+public:
+    virtual std::string operator3() const = 0;
+};
+
+
+//class HasScalar2 {
+//public:
+////    float getScalar1() = 0;
+//    virtual float getVal2() = 0;
+//};
+#endif // __cplusplus
+
 // Copy operator for the pointwise apply kernel
-template <typename T>
-struct CopyOp {
+class CopyOp : public HasOperator2 {
+public:
   bool has_scalar() { return false; }
   float val; // not used, since has_scalar is false
-    std::string operator2() {
+    std::string operator2() const {
         return "*out += *in1";
     }
 //  __device__ __forceinline__ void operator()(T* dst, T* src) {

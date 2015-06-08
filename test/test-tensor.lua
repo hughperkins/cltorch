@@ -114,3 +114,7 @@ c:pow(2)
 print('c\n', c)
 print(torch.pow(c,2))
 
+print('c\n', c)
+torch:clamp(c, 10, 1000)
+print('c\n', c)
+

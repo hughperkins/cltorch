@@ -14,14 +14,17 @@ using namespace std;
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-struct TensorAddConstantOp {
+class TensorAddConstantOp : public HasOperator1, public HasOperator2, public HasScalars {
+public:
+  int getNumScalars() const { return 1; }
+  float getScalar( int index ) const { return val; }
   bool has_scalar() { return true; }
   TensorAddConstantOp(float v) : val(v) {}
-  string operator2() {
-    return "*out = *in1 + val";
+  string operator2() const {
+    return "*out = *in1 + val1";
   }
-  string operator1() {
-    return "*out += val";
+  string operator1() const {
+    return "*out += val1";
   }
   const float val;
 };
@@ -44,14 +47,17 @@ void THClTensor_add(THClState *state, THClTensor *self_, THClTensor *src_, float
 //  THClCheck(cudaGetLastError());
 }
 
-struct TensorMulConstantOp {
+class TensorMulConstantOp : public HasOperator2, public HasOperator1, public HasScalars {
+public:
+  int getNumScalars() const { return 1; }
+  float getScalar( int index ) const { return val; }
   bool has_scalar() { return true; }
   TensorMulConstantOp(float v) : val(v) {}
-  string operator2() {
-    return "*out = *in1 * val";
+  string operator2() const {
+    return "*out = *in1 * val1";
   }
-  string operator1() {
-    return "*out *= val";
+  string operator1() const {
+    return "*out *= val1";
   }
   const float val;
 };

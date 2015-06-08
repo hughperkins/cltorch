@@ -10,17 +10,18 @@
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-struct TensorGenOp {
+class TensorGenOp : public HasOperator1, public HasOperator2 {
+public:
   bool has_scalar() { return false; }
   float val; // not used, since has_scalar is false
   std::string cfun;
   TensorGenOp( std::string cfun ) {
      this->cfun = cfun;
   }
-  std::string operator1() {
+  std::string operator1() const {
     return "*out =" + cfun + "( *out )";
   }
-  std::string operator2() {
+  std::string operator2() const {
     return "*out = " + cfun + "( *in1 )";
   }
 };
@@ -63,25 +64,29 @@ IMPLEMENT_CL_TENSOR_BASIC_FUNC(round, round)
 
 #undef IMPLEMENT_CL_TENSOR_BASIC_FUNC
 
-struct TensorAddOp {
+class TensorAddOp : public HasOperator2, public HasOperator3 {
+public:
   bool has_scalar() { return false; }
   float val; // not used, since has_scalar is false
-    std::string operator2() {
+    std::string operator2() const {
         return "*out += *in1";
     }
-    std::string operator3() {
+    std::string operator3() const {
         return "*out = *in1 + *in2";
     }
 };
 
-struct TensorCAddOp {
+class TensorCAddOp : public HasOperator2, public HasOperator3, public HasScalars {
+public:
   bool has_scalar() { return true; }
+  int getNumScalars() const { return 1; }
+  float getScalar(int index) const { return val; }
   TensorCAddOp(float v) : val(v) {}
-    std::string operator2() {
-        return "*out += val * *in1";
+    std::string operator2() const {
+        return "*out += val1 * *in1";
     }
-    std::string operator3() {
-        return "*out += *in1 + val * *in2";
+    std::string operator3() const {
+        return "*out += *in1 + val1 * *in2";
     }
   float val;
 };
@@ -121,13 +126,14 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
   }
 }
 
-struct TensorMulOp {
+class TensorMulOp : public HasOperator2, HasOperator3 {
+public:
   bool has_scalar() { return false; }
   float val; // not used, since has_scalar is false
-    std::string operator2() {
+    std::string operator2() const {
         return "*out *= *in1";
     }
-    std::string operator3() {
+    std::string operator3() const {
         return "*out = *in1 * *in2";
     }
 };

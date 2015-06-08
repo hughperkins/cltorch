@@ -83,13 +83,14 @@ long THClTensor_numel(THClState *state, THClTensor *t)
   return THClTensor_nElement(state, t);
 }
 
-struct TensorCPowOp {
+class TensorCPowOp : public HasOperator2, HasOperator3 {
+public:
   bool has_scalar(){ return false; }
   float val;
-  string operator2() {
+  string operator2() const {
     return "*out = native_powr(*out, *in1)";
   }
-  string operator3() {
+  string operator3() const {
     return "*out = native_powr(*in1, *in2)";
   }
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
@@ -122,13 +123,14 @@ void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THCl
   }
 }
 
-struct TensorDivOp {
+class TensorDivOp : public HasOperator2, HasOperator3 {
+public:
   bool has_scalar() { return false; }
   float val; // not used, since has_scalar is false
-  string operator2() {
+  string operator2() const {
     return "*out /= *in1";
   }
-  string operator3() {
+  string operator3() const {
     return "*out = *in1 / *in2";
   }
 };

@@ -93,5 +93,6 @@ By comparison with cutorch (and cunn etc) files.  Note that `.cpp` here could ha
 | THClTensorCopy.cpp | 50% |
 | THClTensorMath.cpp | 5% |
 | THClTensorIndex.cpp | 0% |
+| THClTensorMath2.cpp | 5% |
 
 

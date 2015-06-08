@@ -10,10 +10,8 @@
 
 #include <string>
 
-std::string getApply1_template();
-std::string getApply2_template();
-std::string getApply3_template();
 std::string getApplyD_template();
+std::string getApplyDv2_template();
 
 //
 // This file contains pointwise operation functions and kernels that
@@ -134,8 +132,8 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   state->cl->finish();
 }
 
-template< typename Op, typename IndexType >
-void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, Op op ) {
+template< typename IndexType >
+void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, HasOperator2 const*op ) {
   TemplatedKernel kernelBuilder( state->cl );
   kernelBuilder.set("dim1", A);
   kernelBuilder.set("dim2", B);
@@ -146,30 +144,26 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   if( B != A && B >= 0 ) {
     dims.push_back(B);
   }
-  std::string operation = op.operator2();
+  std::string operation = op->operator2();
   int numTensors = 2;
-  bool includeScalar = op.has_scalar();
-  float scalar = 0.0f;
-  std::string includeScalarString = "0s";
-  if( includeScalar ) {
-    scalar = op.val;
-    std::cout << "got scalar " << scalar << std::endl;
-    includeScalarString = "1s";
-    //operation = operation.replace("val", "*in" + toString(numTensors));
+  int numScalars = 0;
+  HasScalars const*hasScalars = dynamic_cast<HasScalars const*>(op);
+  if( hasScalars != 0 ) {
+//    scalar = hasScalar->val;
+  //  std::cout << "got scalar " << scalar << std::endl;
+    numScalars = hasScalars->getNumScalars();
   }
-  kernelBuilder.set("num_tensor_inputs", numTensors);
-  if( includeScalar ) {
-    kernelBuilder.set("include_scalar_input", 1);
-  }
+  kernelBuilder.set("num_tensors", numTensors);
+  kernelBuilder.set("num_scalars", numScalars);
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
   kernelBuilder.set("operation", operation);
-  std::string uniqueName = "applyD_" + toString(numTensors) + "t" + includeScalarString + "_" + toString(A) + "_" + toString(B) + "_" + op.operator2();
+  std::string uniqueName = "applyD_" + toString(numTensors) + "t" + toString(numScalars) + "s_" + toString(A) + "_" + toString(B) + "_" + op->operator2();
   CLKernel *kernel = 0;
   try {
-    kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyD.cl", getApplyD_template(), "THClTensor_pointwiseApplyD" );
+    kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyDv2.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
   } catch( std::runtime_error &e ) {
-    std::cout << "Error building kernel in apply1 " << __FILE__ << ":" << toString( __LINE__ ) << ": " << e.what() << std::endl;
+    std::cout << "Error building kernel in apply2 " << __FILE__ << ":" << toString( __LINE__ ) << ": " << e.what() << std::endl;
     throw e;
   }
   // calculate workgroup sizes and stuff
@@ -211,8 +205,8 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   kernel->in(1, &bInfoCl);
   kernel->inout( bInfo.wrapper );
 
-  if( includeScalar ) {
-    kernel->in(scalar);
+  for( int i = 0; i < numScalars; i++ ) {
+    kernel->in(hasScalars->getScalar(i));
   }
 
   if( totalElements > ( 1l << 30 )) {
@@ -520,7 +514,7 @@ bool THClTensor_pointwiseApply2(THClState* state,
   // dimension, and the loop to translate the linear index to the array
   // index can be similarly collapsed. That is what this unrolling is for.
 #define HANDLE_CASE(TYPE, A, B)                                \
-   kernelLaunch_pointwiseApply2<Op, TYPE>(state, grid, block, A, B, aInfo, bInfo, (TYPE) totalElements, op ); \
+   kernelLaunch_pointwiseApply2< TYPE>(state, grid, block, A, B, aInfo, bInfo, (TYPE) totalElements, &op ); \
   /* THClTensor_pointwiseApply2<Op, TYPE, A, B>                 \
     <<<grid, block, 0, THClState_getCurrentStream(state)>>>(    \
       aInfo, bInfo, (TYPE) totalElements, op); */

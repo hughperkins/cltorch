@@ -14,23 +14,18 @@ using namespace std;
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-struct TensorPowOp {
+class TensorPowOp : public HasOperator1, public HasOperator2, public HasScalars {
+public:
+  int getNumScalars() const { return 1; }
+  float getScalar( int index ) const { return val; }
   bool has_scalar() { return true; }
   TensorPowOp(float v) : val(v) {}
-  string operator2() {
-    return "*out = native_powr(*in1, val)";
+  string operator2() const {
+    return "*out = native_powr(*in1, val1)";
   }
-  string operator1() {
-    return "*out = native_powr(*out, val)";
+  string operator1() const {
+    return "*out = native_powr(*out, val1)";
   }
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out = powf(*in, val);
-//  }
-
-//  __device__ __forceinline__ void operator()(float* v) {
-//    *v = powf(*v, val);
-//  }
-
   const float val;
 };
 
@@ -48,28 +43,20 @@ void THClTensor_pow(THClState *state, THClTensor *self_, THClTensor *src, float 
       THArgCheck(false, 2, CLNN_DIM_WARNING);
     }
   }
-
-//  THClCheck(cudaGetLastError());
 }
 
-struct TensorTPowOp {
+class TensorTPowOp : public HasOperator2, public HasOperator1, public HasScalars {
+public:
+  int getNumScalars() const { return 1; }
+  float getScalar( int index ) const { return val; }
   TensorTPowOp(float v) : val(v) {}
   bool has_scalar() { return true; }
-  string operator2() {
-    return "*out = native_powr(val, *in1)";
+  string operator2() const {
+    return "*out = native_powr(val1, *in1)";
   }
-  string operator1() {
-    return "*out = native_powr(val, *out)";
+  string operator1() const {
+    return "*out = native_powr(val1, *out)";
   }
-
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out = powf(val, *in);
-//  }
-
-//  __device__ __forceinline__ void operator()(float* v) {
-//    *v = powf(val, *v);
-//  }
-
   const float val;
 };
 
@@ -110,16 +97,18 @@ void THClTensor_atan2(THClState *state, THClTensor *self_, THClTensor *tx, THClT
 
   THClCheck(cudaGetLastError());
 }
-
-struct TensorClampOp {
+*/
+/*
+class TensorClampOp : public OpBase {
+public:
   TensorClampOp(float min, float max) : minValue(min), maxValue(max) {}
-  __device__ __forceinline__ void operator()(float* out, float* in) {
-    *out = max(min(*in, maxValue), minValue);
-  }
+//  __device__ __forceinline__ void operator()(float* out, float* in) {
+//    *out = max(min(*in, maxValue), minValue);
+//  }
 
-  __device__ __forceinline__ void operator()(float* v) {
-    *v = max(min(*v, maxValue), minValue);
-  }
+//  __device__ __forceinline__ void operator()(float* v) {
+//    *v = max(min(*v, maxValue), minValue);
+//  }
 
   const float minValue;
   const float maxValue;
@@ -140,10 +129,8 @@ void THClTensor_clamp(THClState *state, THClTensor *self_, THClTensor *src, floa
       THArgCheck(false, 2, CLNN_DIM_WARNING);
     }
   }
-
-  THClCheck(cudaGetLastError());
-}
-
+}*/
+/*
 struct TensorSignOp {
   __device__ __forceinline__ void operator()(float* out, float* in) {
     float orig = *in;
