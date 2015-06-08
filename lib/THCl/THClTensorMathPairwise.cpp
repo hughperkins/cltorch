@@ -23,15 +23,6 @@ struct TensorAddConstantOp {
   string operator1() {
     return "*out += val";
   }
-
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out = *in + val;
-//  }
-
-//  __device__ __forceinline__ void operator()(float* v) {
-//    *v += val;
-//  }
-
   const float val;
 };
 
@@ -54,18 +45,16 @@ void THClTensor_add(THClState *state, THClTensor *self_, THClTensor *src_, float
 }
 
 struct TensorMulConstantOp {
-//  TensorMulConstantOp(float v) : val(v) {}
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out = *in * val;
-//  }
-
-//  __device__ __forceinline__ void operator()(float* v) {
-//    *v *= val;
-//  }
-
+  bool has_scalar() { return true; }
+  TensorMulConstantOp(float v) : val(v) {}
+  string operator2() {
+    return "*out = *in1 * val";
+  }
+  string operator1() {
+    return "*out *= val";
+  }
   const float val;
 };
-/*
 void THClTensor_mul(THClState *state, THClTensor *self_, THClTensor *src_, float value)
 {
   THAssert(THClTensor_checkGPU(state, 2, self_, src_));
@@ -103,5 +92,5 @@ void THClTensor_div(THClState* state, THClTensor *self_, THClTensor *src_, float
 
 //  THClCheck(cudaGetLastError());
 }
-*/
+
 

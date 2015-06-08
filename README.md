@@ -57,6 +57,16 @@ end
 for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
   print(loadstring('return torch.' .. name .. '(c,d)')())
 end
+c:add(3)
+c:mul(3)
+c:div(2)
+c = torch.add(c,3)
+c = torch.mul(c, 4)
+c = torch.div(c, 3)
+c = c / 2
+c = c * 1.5
+c = c + 4
+c = c - 5
 
 </pre></tr>
 
