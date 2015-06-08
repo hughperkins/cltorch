@@ -83,7 +83,15 @@ long THClTensor_numel(THClState *state, THClTensor *t)
   return THClTensor_nElement(state, t);
 }
 
-//struct TensorCPowOp {
+struct TensorCPowOp {
+  bool has_scalar(){ return false; }
+  float val;
+  string operator2() {
+    return "*out = native_powr(*out, *in1)";
+  }
+  string operator3() {
+    return "*out = native_powr(*in1, *in2)";
+  }
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
 //    *out = powf(*out, *in);
 //  }
@@ -91,31 +99,27 @@ long THClTensor_numel(THClState *state, THClTensor *t)
 //  __device__ __forceinline__ void operator()(float* out, float* in1, float* in2) {
 //    *out = powf(*in1, *in2);
 //  }
-//};
+};
 
 void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THClTensor *src2)
 {
-//  THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));
-//  THArgCheck(THClTensor_nElement(state, src1) ==
-//             THClTensor_nElement(state, src2), 3, "sizes do not match");
+  THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));
+  THArgCheck(THClTensor_nElement(state, src1) ==
+             THClTensor_nElement(state, src2), 3, "sizes do not match");
 
-//  if (self_ == src1) {
-//    // self = pow(self, src2)
-//    if (!THClTensor_pointwiseApply2(state, self_, src2, TensorCPowOp())) {
-//      THArgCheck(false, 2, CLNN_DIM_WARNING);
-//    }
-//  } else {
-//    THClTensor_resizeAs(state, self_, src1);
+  if (self_ == src1) {
+    // self = pow(self, src2)
+    if (!THClTensor_pointwiseApply2(state, self_, src2, TensorCPowOp())) {
+      THArgCheck(false, 2, CLNN_DIM_WARNING);
+    }
+  } else {
+    THClTensor_resizeAs(state, self_, src1);
 
-//    // self = pow(src1, src2)
-//    if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorCPowOp())) {
-//      THArgCheck(false, 2, CLNN_DIM_WARNING);
-//    }
-//  }
-
-//  THClCheck(cudaGetLastError());
-    THError("Not implemented");
-//    return 0;
+    // self = pow(src1, src2)
+    if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorCPowOp())) {
+      THArgCheck(false, 2, CLNN_DIM_WARNING);
+    }
+  }
 }
 
 struct TensorDivOp {

@@ -101,6 +101,8 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   TensorInfoCl aInfoCl(aInfo);
 
   if( false ) {
+    std::cout << "numTensors " << numTensors << std::endl;
+    std::cout << "operation " << operation << std::endl;
     std::cout << "totalElements " << totalElements << std::endl;
     std::cout << "a offset " << aInfoCl.offset << std::endl;
     std::cout << "adims " << aInfoCl.dims << std::endl;
@@ -167,7 +169,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   try {
     kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyD.cl", getApplyD_template(), "THClTensor_pointwiseApplyD" );
   } catch( std::runtime_error &e ) {
-    std::cout << "Error: " << e.what() << std::endl;
+    std::cout << "Error building kernel in apply1 " << __FILE__ << ":" << toString( __LINE__ ) << ": " << e.what() << std::endl;
     throw e;
   }
   // calculate workgroup sizes and stuff
@@ -181,6 +183,8 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   TensorInfoCl bInfoCl(bInfo);
 
   if( false ) {
+    std::cout << "numTensors " << numTensors << std::endl;
+    std::cout << "operation " << operation << std::endl;
     std::cout << "totalElements " << totalElements << std::endl;
     std::cout << "a offset " << aInfoCl.offset << 
       " b offset " << bInfoCl.offset << std::endl;
@@ -267,6 +271,8 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   TensorInfoCl cInfoCl(cInfo);
 
   if( false ) {
+    std::cout << "numTensors " << numTensors << std::endl;
+    std::cout << "operation " << operation << std::endl;
     std::cout << "totalElements " << totalElements << std::endl;
     std::cout << "a offset " << aInfoCl.offset << 
       " b offset " << bInfoCl.offset << std::endl;

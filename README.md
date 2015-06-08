@@ -70,7 +70,9 @@ c = c - 5
 for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
   print(loadstring('return c:' .. name .. '(5)')())
 end
-
+torch.pow(2,c)
+c:pow(2)
+torch.pow(c,2)
 </pre></tr>
 
 </table>

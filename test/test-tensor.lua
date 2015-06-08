@@ -108,8 +108,9 @@ for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
   print(loadstring('return c:' .. name .. '(5)')())
 end
 
-
-
--- c:pow(2)
--- print('c\n', c)
+print('c\n', c)
+print(torch.pow(2,c))
+c:pow(2)
+print('c\n', c)
+print(torch.pow(c,2))
 

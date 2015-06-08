@@ -8,12 +8,6 @@
 #include "THClApply.h"
 //#include "THCReduce.cuh"
 
-//#include <thrust/device_ptr.h>
-//#include <thrust/fill.h>
-//#include <thrust/functional.h>
-//#include <thrust/reduce.h>
-//#include <thrust/inner_product.h>
-
 using namespace std;
 
 #ifndef DIVUP
