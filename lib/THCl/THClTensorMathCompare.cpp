@@ -33,7 +33,7 @@ public:
     val(v),
     op(op) {}
   string operator2() const {
-    return "*out = (*in1 " + op + " val)";
+    return "*out = (*in1 " + op + " val1)";
   }
   const float val;
   std::string op;
