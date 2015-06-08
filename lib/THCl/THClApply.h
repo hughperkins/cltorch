@@ -66,16 +66,31 @@ typedef struct TensorInfoCl {
 template< typename Op, typename IndexType >
 void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int A, TensorInfo<IndexType> aInfo, IndexType totalElements, Op op ) {
   TemplatedKernel kernelBuilder( state->cl );
-  kernelBuilder.set("adim", A);
+  kernelBuilder.set("dim1", A);
   std::vector<int> dims;
   if( A >= 0 ) {
     dims.push_back(A);
   }
+  std::string operation = op.operator1();
+  int numTensors = 1;
+  bool includeScalar = op.has_scalar();
+  float scalar = 0.0f;
+  std::string includeScalarString = "0s";
+  if( includeScalar ) {
+    scalar = op.val;
+    std::cout << "got scalar " << scalar << std::endl;
+    includeScalarString = "1s";
+    //operation = operation.replace("val", "*in" + toString(numTensors));
+  }
   kernelBuilder.set("dims", dims);
+  kernelBuilder.set("num_tensor_inputs", numTensors);
+  if( includeScalar ) {
+    kernelBuilder.set("include_scalar_input", 1);
+  }
   kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
-  kernelBuilder.set("operation", op.operator1());
-  std::string uniqueName = "apply1_" + toString(A) + "_" + op.operator1();
-  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply1.cl", getApply1_template(), "THClTensor_pointwiseApply1" );
+  kernelBuilder.set("operation", operation);
+  std::string uniqueName = "applyD_1t" + includeScalarString + "_" + toString(A) + "_" + op.operator1();
+  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyD.cl", getApplyD_template(), "THClTensor_pointwiseApplyD" );
   // calculate workgroup sizes and stuff
   dim3 global_ws;
   for( int i = 0; i < 3; i++ ) {
@@ -98,8 +113,17 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
     std::cout<< "global_ws " << global_ws << std::endl;
   }
 
+  if( !aInfo.wrapper->isOnDevice() ) {
+    aInfo.wrapper->createOnDevice();
+  }
+
   kernel->in(1, &aInfoCl);
   kernel->inout( aInfo.wrapper );
+
+  if( includeScalar ) {
+    kernel->in(scalar);
+  }
+
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
   }
@@ -120,12 +144,25 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   if( B != A && B >= 0 ) {
     dims.push_back(B);
   }
+  std::string operation = op.operator2();
+  int numTensors = 2;
+  bool includeScalar = op.has_scalar();
+  float scalar = 0.0f;
+  std::string includeScalarString = "0s";
+  if( includeScalar ) {
+    scalar = op.val;
+    std::cout << "got scalar " << scalar << std::endl;
+    includeScalarString = "1s";
+    //operation = operation.replace("val", "*in" + toString(numTensors));
+  }
   kernelBuilder.set("dims", dims);
-  kernelBuilder.set("num_tensor_inputs", 2);
-  // kernelBuilder.set("include_scalar_input", 0);
+  kernelBuilder.set("num_tensor_inputs", numTensors);
+  if( includeScalar ) {
+    kernelBuilder.set("include_scalar_input", 1);
+  }
   kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
-  kernelBuilder.set("operation", op.operator2());
-  std::string uniqueName = "applyD_2t0s_" + toString(A) + "_" + toString(B) + "_" + op.operator2();
+  kernelBuilder.set("operation", operation);
+  std::string uniqueName = "applyD_" + toString(numTensors) + "t" + includeScalarString + "_" + toString(A) + "_" + toString(B) + "_" + op.operator2();
   CLKernel *kernel = 0;
   try {
     kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyD.cl", getApplyD_template(), "THClTensor_pointwiseApplyD" );
@@ -160,11 +197,19 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     std::cout<< "global_ws " << global_ws << std::endl;
   }
 
+  if( !aInfo.wrapper->isOnDevice() ) {
+    aInfo.wrapper->createOnDevice();
+  }
+
   kernel->in(1, &aInfoCl);
   kernel->inout( aInfo.wrapper );
 
   kernel->in(1, &bInfoCl);
   kernel->inout( bInfo.wrapper );
+
+  if( includeScalar ) {
+    kernel->in(scalar);
+  }
 
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));

@@ -15,6 +15,7 @@ using namespace std;
 #endif
 
 struct TensorAddConstantOp {
+  bool has_scalar() { return true; }
   TensorAddConstantOp(float v) : val(v) {}
   string operator2() {
     return "*out = *in1 + val";

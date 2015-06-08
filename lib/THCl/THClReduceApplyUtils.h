@@ -27,6 +27,8 @@ enum TensorArgType { ReadWrite, ReadOnly };
 // Copy operator for the pointwise apply kernel
 template <typename T>
 struct CopyOp {
+  bool has_scalar() { return false; }
+  float val; // not used, since has_scalar is false
     std::string operator2() {
         return "*out += *in1";
     }

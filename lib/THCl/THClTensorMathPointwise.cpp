@@ -11,6 +11,8 @@
 #endif
 
 struct TensorGenOp {
+  bool has_scalar() { return false; }
+  float val; // not used, since has_scalar is false
   std::string cfun;
   TensorGenOp( std::string cfun ) {
      this->cfun = cfun;
@@ -61,6 +63,8 @@ IMPLEMENT_CL_TENSOR_BASIC_FUNC(round, round)
 #undef IMPLEMENT_CL_TENSOR_BASIC_FUNC
 
 struct TensorAddOp {
+  bool has_scalar() { return false; }
+  float val; // not used, since has_scalar is false
     std::string operator2() {
         return "*out += *in1";
     }
@@ -70,12 +74,13 @@ struct TensorAddOp {
 };
 
 struct TensorCAddOp {
+  bool has_scalar() { return true; }
   TensorCAddOp(float v) : val(v) {}
     std::string operator2() {
-        return "*out += " + toString(val) + " * *in1";
+        return "*out += val * *in1";
     }
     std::string operator3() {
-        return "*out += *in1 + " + toString(val) + " * *in2";
+        return "*out += *in1 + val * *in2";
     }
   float val;
 };
@@ -116,6 +121,8 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
 }
 
 struct TensorMulOp {
+  bool has_scalar() { return false; }
+  float val; // not used, since has_scalar is false
     std::string operator2() {
         return "*out *= *in1";
     }

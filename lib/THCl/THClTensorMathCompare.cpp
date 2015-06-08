@@ -33,15 +33,16 @@ void THClTensor_logicalValue(THClState *state, THClTensor *self_, THClTensor *sr
 }
 
 struct TensorLTValueOp {
-  TensorLTValueOp(float v) : value(v) {}
+  bool has_scalar() { return true; }
+  TensorLTValueOp(float v) : val(v) {}
   string operator2() {
-    return "*out = (*in < value)";
+    return "*out = (*in1 < val)";
   }
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
 //    *out = (*in < value);
 //  }
 
-  const float value;
+  const float val;
 };
 
 void THClTensor_ltValue(THClState *state, THClTensor *self_, THClTensor *src, float value)
@@ -51,15 +52,16 @@ void THClTensor_ltValue(THClState *state, THClTensor *self_, THClTensor *src, fl
 }
 
 struct TensorGTValueOp {
-  TensorGTValueOp(float v) : value(v) {}
+  bool has_scalar() { return true; }
+  TensorGTValueOp(float v) : val(v) {}
   string operator2() {
-    return "*out = (*in > value)";
+    return "*out = (*in1 > val)";
   }
 //  __device__ __forceinline__ void operator()(float* out, float* in) {
 //    *out = (*in > value);
 //  }
 
-  const float value;
+  const float val;
 };
 
 void THClTensor_gtValue(THClState *state, THClTensor *self_, THClTensor *src, float value)

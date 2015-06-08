@@ -119,6 +119,8 @@ void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THCl
 }
 
 struct TensorDivOp {
+  bool has_scalar() { return false; }
+  float val; // not used, since has_scalar is false
   string operator2() {
     return "*out /= *in1";
   }

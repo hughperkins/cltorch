@@ -50,7 +50,12 @@ bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
    end
  %}
 
-void op( global float *out, global float *in1 ) {
+void op( global float *out
+  {% for i=1,(num_tensor_inputs-1) do %}
+  , global float *in{{i}}
+  {% end %}
+  {% if include_scalar_input then %} , float val {% end %}
+) {
     {{operation}};
 }
 
@@ -119,7 +124,7 @@ THClTensor_pointwiseApplyD(
          &(data_{{input_idx}}[offset{{input_idx}} + info_{{input_idx}}->offset])
       {% end %}
       {% if include_scalar_input then %}
-      , &value
+      , value
       {% end %}
     );
   }
