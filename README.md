@@ -73,6 +73,8 @@ end
 torch.pow(2,c)
 c:pow(2)
 torch.pow(c,2)
+torch.clamp(c, 50, 100)
+c:clamp(50, 100)
 </pre></tr>
 
 </table>
