@@ -75,4 +75,21 @@ end
 
 </table>
 
+# Migration status by file
+
+By comparison with cutorch (and cunn etc) files.  Note that `.cpp` here could have been ported from `.c`, `.cpp`, or `.cu`.
+
+| File | Migration status |
+|---|---|
+| THClTensorMathCompare.cpp | Done |
+| THClTensormathCompareT.cpp | Done |
+| THClTensorMathPairwise.cpp | Done |
+| THClTensor.h | Done |
+| THClTensorCopy.h | Done |
+| THClTensorMath.h | Done |
+| THClTensor.cpp | 90% |
+| THClTensorCopy.cpp | 50% |
+| THClTensorMath.cpp | 5% |
+| THClTensorIndex.cpp | 0% |
+
 
