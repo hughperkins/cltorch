@@ -44,9 +44,9 @@ bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
 }
 
 {%
- total_opsize = num_input_tensors;
+ total_opsize = num_tensor_inputs
  if include_scalar_input then 
-      total_opsize += 1;
+      total_opsize = total_opsize + 1
    end
  %}
 
@@ -96,7 +96,7 @@ int IndexToOffset_999_get(int linearId, const TensorInfoCl info) {
 
 kernel void
 THClTensor_pointwiseApplyD(
-   {% for input_idx=1,num_input_tensors do %}
+   {% for input_idx=1,num_tensor_inputs do %}
     global TensorInfoCl *info_{{input_idx}},
     global float*data_{{input_idx}},
    {% end %}
@@ -107,14 +107,14 @@ THClTensor_pointwiseApplyD(
   for (int linearIndex = get_global_id(0);
        linearIndex < totalElements;
        linearIndex += get_global_size(0) /* ? */ ) {
-    {% for input_idx=1,num_input_tensors do %}
+    {% for input_idx=1,num_tensor_inputs do %}
     // Convert `linearIndex` into an offset of `a`
     const int offset{{input_idx}} =
       IndexToOffset_{{1000+loadstring('return dim' .. input_idx)()}}_get(linearIndex, info_{{input_idx}}[0]);
     {% end %}
 
     op( 
-      {% for input_idx=1,num_input_tensors do %}
+      {% for input_idx=1,num_tensor_inputs do %}
          {% if input_idx > 1 then %} , {% end %}
          &(data_{{input_idx}}[offset{{input_idx}} + info_{{input_idx}}->offset])
       {% end %}

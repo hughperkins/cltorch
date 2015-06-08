@@ -111,8 +111,8 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
 template< typename Op, typename IndexType >
 void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, Op op ) {
   TemplatedKernel kernelBuilder( state->cl );
-  kernelBuilder.set("adim", A);
-  kernelBuilder.set("bdim", B);
+  kernelBuilder.set("dim1", A);
+  kernelBuilder.set("dim2", B);
   std::vector<int> dims;
   if( A >= 0 ) {
     dims.push_back(A);
@@ -122,7 +122,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   }
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("num_tensor_inputs", 2);
-  kernelBuilder.set("include_scalar_input", 0);
+  // kernelBuilder.set("include_scalar_input", 0);
   kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
   kernelBuilder.set("operation", op.operator2());
   std::string uniqueName = "applyD_2t0s_" + toString(A) + "_" + toString(B) + "_" + op.operator2();
