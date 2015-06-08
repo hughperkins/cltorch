@@ -41,19 +41,21 @@ d:copy(c)
 c[1][2] = 2.123
 </pre></tr>
 
-<tr><td>torch.ClTensor per-element maths <td>80% done<td><pre>
-d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
-c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
-c:add(d)
-c:cmul(d)
-c:cdiv(d)
-c = c + d
-c = c - d
+<tr><td>Element-wise operations<td>Done<td><pre>
 c:abs()
 for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
    'atan', 'tanh', 'ceil', 'floor', 'abs', 'round'}) do
   loadstring('c:' .. name .. '()')()
 end
+</pre>
+</tr>
+
+<tr><td>basic operations <td>30% done<td><pre>
+d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
+c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
+c:add(d)
+c:cmul(d)
+c:cdiv(d)
 for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
   print(loadstring('return torch.' .. name .. '(c,d)')())
 end
@@ -63,10 +65,6 @@ c:div(2)
 c = torch.add(c,3)
 c = torch.mul(c, 4)
 c = torch.div(c, 3)
-c = c / 2
-c = c * 1.5
-c = c + 4
-c = c - 5
 for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
   print(loadstring('return c:' .. name .. '(5)')())
 end
@@ -78,6 +76,15 @@ torch.pow(c,2)
 torch.clamp(c, 50, 100)
 c:clamp(50, 100)
 -c
+</pre></tr>
+
+<tr><td>Overloaded operators <td>70% done (no matrix/vector multiplication yet)<td><pre>
+c = c + d
+c = c - d
+c = c / 2
+c = c * 1.5
+c = c + 4
+c = c - 5
 </pre></tr>
 
 </table>
