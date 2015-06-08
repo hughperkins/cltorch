@@ -26,6 +26,8 @@ void THClTensor_logicalTensor(THClState *state, THClTensor *self_, THClTensor *s
 }
 
 struct TensorGenLogOp {
+  bool has_scalar(){ return false; }
+  float val;
   string logop;
   TensorGenLogOp(string logop) {
     this->logop = logop;

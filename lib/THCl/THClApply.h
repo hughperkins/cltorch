@@ -155,11 +155,11 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     includeScalarString = "1s";
     //operation = operation.replace("val", "*in" + toString(numTensors));
   }
-  kernelBuilder.set("dims", dims);
   kernelBuilder.set("num_tensor_inputs", numTensors);
   if( includeScalar ) {
     kernelBuilder.set("include_scalar_input", 1);
   }
+  kernelBuilder.set("dims", dims);
   kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
   kernelBuilder.set("operation", operation);
   std::string uniqueName = "applyD_" + toString(numTensors) + "t" + includeScalarString + "_" + toString(A) + "_" + toString(B) + "_" + op.operator2();
@@ -222,9 +222,9 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
 template< typename Op, typename IndexType >
 void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, Op op ) {
   TemplatedKernel kernelBuilder( state->cl );
-  kernelBuilder.set("adim", A);
-  kernelBuilder.set("bdim", B);
-  kernelBuilder.set("cdim", C);
+  kernelBuilder.set("dim1", A);
+  kernelBuilder.set("dim2", B);
+  kernelBuilder.set("dim3", C);
   std::vector<int> dims;
   if( A >= 0 ) {
     dims.push_back(A);
@@ -235,11 +235,26 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   if( C != A && C != B && C >= 0 ) {
     dims.push_back(C);
   }
+  std::string operation = op.operator3();
+  int numTensors = 3;
+  bool includeScalar = op.has_scalar();
+  float scalar = 0.0f;
+  std::string includeScalarString = "0s";
+  if( includeScalar ) {
+    scalar = op.val;
+    std::cout << "got scalar " << scalar << std::endl;
+    includeScalarString = "1s";
+    //operation = operation.replace("val", "*in" + toString(numTensors));
+  }
+  kernelBuilder.set("num_tensor_inputs", numTensors);
+  if( includeScalar ) {
+    kernelBuilder.set("include_scalar_input", 1);
+  }
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
-  kernelBuilder.set("operation", op.operator3());
-  std::string uniqueName = "apply3_" + toString(A) + "_" + toString(B) + "_" + toString(C) + "_" + op.operator3();
-  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply3.cl", getApply3_template(), "THClTensor_pointwiseApply3" );
+  kernelBuilder.set("operation", operation);
+  std::string uniqueName = "applyD_3t" + includeScalarString + "_" + toString(A) + "_" + toString(B) + "_" + toString(C) + "_" + op.operator3();
+  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyD.cl", getApplyD_template(), "THClTensor_pointwiseApplyD" );
   // calculate workgroup sizes and stuff
   dim3 global_ws;
   for( int i = 0; i < 3; i++ ) {
@@ -268,13 +283,22 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
     std::cout<< "global_ws " << global_ws << std::endl;
   }
 
-  kernel->in(1, &aInfoCl)->in(1, &bInfoCl)->in(1, &cInfoCl);
   if( !aInfo.wrapper->isOnDevice() ) {
     aInfo.wrapper->createOnDevice();
   }
+  kernel->in(1, &aInfoCl);
   kernel->inout( aInfo.wrapper );
+
+  kernel->in(1, &bInfoCl);
   kernel->inout( bInfo.wrapper );
+
+  kernel->in(1, &cInfoCl);
   kernel->inout( cInfo.wrapper );
+
+  if( includeScalar ) {
+    kernel->in(scalar);
+  }
+
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
   }
