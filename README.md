@@ -67,6 +67,9 @@ c = c / 2
 c = c * 1.5
 c = c + 4
 c = c - 5
+for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+  print(loadstring('return c:' .. name .. '(5)')())
+end
 
 </pre></tr>
 

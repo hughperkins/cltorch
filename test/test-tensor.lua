@@ -103,3 +103,13 @@ print('c\n', c)
 c = c - 5
 print('c\n', c)
 
+for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+  print('name', name)
+  print(loadstring('return c:' .. name .. '(5)')())
+end
+
+
+
+-- c:pow(2)
+-- print('c\n', c)
+

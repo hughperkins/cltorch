@@ -28,105 +28,32 @@ void THClTensor_logicalValue(THClState *state, THClTensor *self_, THClTensor *sr
   if (!THClTensor_pointwiseApply2(state, self_, src, op)) {
     THArgCheck(false, 2, CLNN_DIM_WARNING);
   }
-
-//  THClCheck(cudaGetLastError());
 }
 
-struct TensorLTValueOp {
+struct TensorGenCompareValueOp {
   bool has_scalar() { return true; }
-  TensorLTValueOp(float v) : val(v) {}
+  TensorGenCompareValueOp(std::string op, float v) : 
+    val(v),
+    op(op) {}
   string operator2() {
-    return "*out = (*in1 < val)";
+    return "*out = (*in1 " + op + " val)";
   }
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out = (*in < value);
-//  }
-
   const float val;
+  std::string op;
 };
 
-void THClTensor_ltValue(THClState *state, THClTensor *self_, THClTensor *src, float value)
-{
-  THAssert(THClTensor_checkGPU(state, 2, self_, src));
-  THClTensor_logicalValue(state, self_, src, TensorLTValueOp(value));
+#define GENERATE_THClTensor_LogValue(NAME, OP) \
+ void THClTensor_##NAME##Value(THClState *state, THClTensor *self_, THClTensor *src, float value) \
+{ \
+  THAssert(THClTensor_checkGPU(state, 2, self_, src)); \
+  THClTensor_logicalValue(state, self_, src, TensorGenCompareValueOp(#OP, value)); \
 }
 
-struct TensorGTValueOp {
-  bool has_scalar() { return true; }
-  TensorGTValueOp(float v) : val(v) {}
-  string operator2() {
-    return "*out = (*in1 > val)";
-  }
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out = (*in > value);
-//  }
+GENERATE_THClTensor_LogValue(ge, >=)
+GENERATE_THClTensor_LogValue(ne, !=)
+GENERATE_THClTensor_LogValue(eq, ==)
+GENERATE_THClTensor_LogValue(le, <=)
+GENERATE_THClTensor_LogValue(lt, <)
+GENERATE_THClTensor_LogValue(gt, >)
 
-  const float val;
-};
 
-void THClTensor_gtValue(THClState *state, THClTensor *self_, THClTensor *src, float value)
-{
-  THAssert(THClTensor_checkGPU(state, 2, self_, src));
-  THClTensor_logicalValue(state, self_, src, TensorGTValueOp(value));
-}
-/*
-struct TensorLEValueOp {
-  TensorLEValueOp(float v) : value(v) {}
-  __device__ __forceinline__ void operator()(float* out, float* in) {
-    *out = (*in <= value);
-  }
-
-  const float value;
-};
-
-void THClTensor_leValue(THClState *state, THClTensor *self_, THClTensor *src, float value)
-{
-  THAssert(THClTensor_checkGPU(state, 2, self_, src));
-  THClTensor_logicalValue(state, self_, src, TensorLEValueOp(value));
-}
-
-struct TensorGEValueOp {
-  TensorGEValueOp(float v) : value(v) {}
-  __device__ __forceinline__ void operator()(float* out, float* in) {
-    *out = (*in >= value);
-  }
-
-  const float value;
-};
-
-void THClTensor_geValue(THClState *state, THClTensor *self_, THClTensor *src, float value)
-{
-  THAssert(THClTensor_checkGPU(state, 2, self_, src));
-  THClTensor_logicalValue(state, self_, src, TensorGEValueOp(value));
-}
-
-struct TensorEQValueOp {
-  TensorEQValueOp(float v) : value(v) {}
-  __device__ __forceinline__ void operator()(float* out, float* in) {
-    *out = (*in == value);
-  }
-
-  const float value;
-};
-
-void THClTensor_eqValue(THClState *state, THClTensor *self_, THClTensor *src, float value)
-{
-  THAssert(THClTensor_checkGPU(state, 2, self_, src));
-  THClTensor_logicalValue(state, self_, src, TensorEQValueOp(value));
-}
-
-struct TensorNEValueOp {
-  TensorNEValueOp(float v) : value(v) {}
-  __device__ __forceinline__ void operator()(float* out, float* in) {
-    *out = (*in != value);
-  }
-
-  const float value;
-};
-
-void THClTensor_neValue(THClState *state, THClTensor *self_, THClTensor *src, float value)
-{
-  THAssert(THClTensor_checkGPU(state, 2, self_, src));
-  THClTensor_logicalValue(state, self_, src, TensorNEValueOp(value));
-}
-*/
