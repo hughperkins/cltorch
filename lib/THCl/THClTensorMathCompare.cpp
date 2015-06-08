@@ -28,7 +28,6 @@ class TensorGenCompareValueOp : public HasOperator2, public HasScalars {
 public:
   int getNumScalars() const { return 1; }
   float getScalar( int index ) const { return val; }
-  bool has_scalar() { return true; }
   TensorGenCompareValueOp(std::string op, float v) : 
     val(v),
     op(op) {}

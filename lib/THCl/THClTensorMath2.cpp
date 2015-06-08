@@ -18,7 +18,6 @@ class TensorPowOp : public HasOperator1, public HasOperator2, public HasScalars 
 public:
   int getNumScalars() const { return 1; }
   float getScalar( int index ) const { return val; }
-  bool has_scalar() { return true; }
   TensorPowOp(float v) : val(v) {}
   string operator2() const {
     return "*out = native_powr(*in1, val1)";
@@ -50,7 +49,6 @@ public:
   int getNumScalars() const { return 1; }
   float getScalar( int index ) const { return val; }
   TensorTPowOp(float v) : val(v) {}
-  bool has_scalar() { return true; }
   string operator2() const {
     return "*out = native_powr(val1, *in1)";
   }

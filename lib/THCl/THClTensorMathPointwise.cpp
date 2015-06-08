@@ -12,8 +12,6 @@
 
 class TensorGenOp : public HasOperator1, public HasOperator2 {
 public:
-  bool has_scalar() { return false; }
-  float val; // not used, since has_scalar is false
   std::string cfun;
   TensorGenOp( std::string cfun ) {
      this->cfun = cfun;
@@ -66,8 +64,6 @@ IMPLEMENT_CL_TENSOR_BASIC_FUNC(round, round)
 
 class TensorAddOp : public HasOperator2, public HasOperator3 {
 public:
-  bool has_scalar() { return false; }
-  float val; // not used, since has_scalar is false
     std::string operator2() const {
         return "*out += *in1";
     }
@@ -78,7 +74,6 @@ public:
 
 class TensorCAddOp : public HasOperator2, public HasOperator3, public HasScalars {
 public:
-  bool has_scalar() { return true; }
   int getNumScalars() const { return 1; }
   float getScalar(int index) const { return val; }
   TensorCAddOp(float v) : val(v) {}
@@ -128,8 +123,6 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
 
 class TensorMulOp : public HasOperator2, public HasOperator3 {
 public:
-  bool has_scalar() { return false; }
-  float val; // not used, since has_scalar is false
     std::string operator2() const {
         return "*out *= *in1";
     }

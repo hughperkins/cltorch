@@ -85,21 +85,12 @@ long THClTensor_numel(THClState *state, THClTensor *t)
 
 class TensorCPowOp : public HasOperator2, public HasOperator3 {
 public:
-  bool has_scalar(){ return false; }
-  float val;
   string operator2() const {
     return "*out = native_powr(*out, *in1)";
   }
   string operator3() const {
     return "*out = native_powr(*in1, *in2)";
   }
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out = powf(*out, *in);
-//  }
-
-//  __device__ __forceinline__ void operator()(float* out, float* in1, float* in2) {
-//    *out = powf(*in1, *in2);
-//  }
 };
 
 void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THClTensor *src2)
@@ -125,8 +116,6 @@ void THClTensor_cpow(THClState *state, THClTensor *self_, THClTensor *src1, THCl
 
 class TensorDivOp : public HasOperator2, public HasOperator3 {
 public:
-  bool has_scalar() { return false; }
-  float val; // not used, since has_scalar is false
   string operator2() const {
     return "*out /= *in1";
   }

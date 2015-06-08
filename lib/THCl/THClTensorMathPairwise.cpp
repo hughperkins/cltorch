@@ -18,7 +18,6 @@ class TensorAddConstantOp : public HasOperator1, public HasOperator2, public Has
 public:
   int getNumScalars() const { return 1; }
   float getScalar( int index ) const { return val; }
-  bool has_scalar() { return true; }
   TensorAddConstantOp(float v) : val(v) {}
   string operator2() const {
     return "*out = *in1 + val1";
@@ -51,7 +50,6 @@ class TensorMulConstantOp : public HasOperator2, public HasOperator1, public Has
 public:
   int getNumScalars() const { return 1; }
   float getScalar( int index ) const { return val; }
-  bool has_scalar() { return true; }
   TensorMulConstantOp(float v) : val(v) {}
   string operator2() const {
     return "*out = *in1 * val1";

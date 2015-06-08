@@ -61,18 +61,9 @@ public:
 // Copy operator for the pointwise apply kernel
 class CopyOp : public HasOperator2 {
 public:
-  bool has_scalar() { return false; }
-  float val; // not used, since has_scalar is false
     std::string operator2() const {
         return "*out += *in1";
     }
-//  __device__ __forceinline__ void operator()(T* dst, T* src) {
-//#if __CL_ARCH__ >= 350
-//    *dst = __ldg(src);
-//#else
-//    *dst = *src;
-//#endif
-//  }
 };
 
 class CLWrapper;
