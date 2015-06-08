@@ -77,6 +77,7 @@ torch.cdiv(c,d)
 torch.pow(c,2)
 torch.clamp(c, 50, 100)
 c:clamp(50, 100)
+-c
 </pre></tr>
 
 </table>

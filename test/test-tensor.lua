@@ -121,5 +121,5 @@ print('c\n', c)
 
 print(torch.cpow(c,d))
 print(torch.cdiv(c,d))
-
+print(-c)
 
