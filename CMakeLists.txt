@@ -25,6 +25,12 @@ SET(CMAKE_C_FLAGS "-std=c99 -Werror=implicit-function-declaration -save-temps")
 SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall")
 
 
+SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+
+INCLUDE("${CMAKE_MODULE_PATH}/build_clBLAS.cmake")
+INCLUDE_DIRECTORIES(${CLBLAS_INCLUDE_DIRS})
+LINK_DIRECTORIES(${CLBLAS_LIBRARY_DIR})
+
 ADD_SUBDIRECTORY(lib)
 
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/lib/THCl")
@@ -57,6 +63,27 @@ endif()
 
 ADD_SUBDIRECTORY( DeepCL )
 
+message("CLBLAS_INCLUDE_DIRS ${CLBLAS_INCLUDE_DIRS}")
+
+#ADD_SUBDIRECTORY( clMathLibraries/clBLAS/src )
+#SET(BUILD_KTEST FALSE CACHE BOOL "clblas build ktest" FORCE)
+#   mark_as_advanced(FORCE BUILD_KTEST)
+#SET(BUILD_TEST FALSE CACHE BOOL "clblas build test" FORCE)
+#   mark_as_advanced(FORCE BUILD_TEST)
+#SET(CORR_TEST_WITH_ACML FALSE CACHE BOOL "clblas acml correctness test" FORCE)
+#   mark_as_advanced(FORCE CORR_TEST_WITH_ACML)
+#mark_as_advanced(FORCE BLAS_DEBUG_TOOLS)
+#mark_as_advanced(FORCE BLAS_DUMP_CLBLAS_KERNELS)
+#mark_as_advanced(FORCE BLAS_PRINT_BUILD_ERRORS)
+#mark_as_advanced(FORCE BLAS_TRACE_MALLOC)
+#mark_as_advanced(FORCE BUILD_CLIENT)
+#mark_as_advanced(FORCE BUILD_PERFORMANCE)
+#mark_as_advanced(FORCE BUILD_RUNTIME)
+#mark_as_advanced(FORCE BUILD_SAMPLE)
+#mark_as_advanced(FORCE BUILD_SHARED_LIBS)
+#mark_as_advanced(FORCE BLAS_KEEP_KERNEL_SOURCES)
+
 TARGET_LINK_LIBRARIES(clnn luaT THCL EasyCL DeepCL)
+TARGET_LINK_LIBRARIES( clnn ${CLBLAS_LIBRARIES} )
 
 

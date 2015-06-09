@@ -7,16 +7,20 @@ SET(src
     THClGeneral.cpp THClStorage.cpp THClStorageCopy.cpp THClStorageCopy.c THClTensor.cpp THClTensorCopy.cpp THClTensorMath.cpp 
     THClTensorMathPointwise.cpp THClReduceApplyUtils.cpp THClApply.cpp
     THClTensorMathCompare.cpp THClTensorMathCompareT.cpp
-    THClTensorMathPairwise.cpp THClTensorMath2.cpp )
+    THClTensorMathPairwise.cpp THClTensorMath2.cpp
+    THClBlas.cpp )
 set(src-cl)
 # add_library( THCl SHARED THClStorage.c THClGeneral.c )
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../../DeepCL/EasyCL)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../../DeepCL/src)
+message("CLBLAS_INCLUDE_DIRS ${CLBLAS_INCLUDE_DIRS}")
+INCLUDE_DIRECTORIES(${CLBLAS_INCLUDE_DIRS})
 
 ADD_LIBRARY(THCL SHARED ${src} ${src-cl})
 TARGET_LINK_LIBRARIES(THCL TH )
 TARGET_LINK_LIBRARIES(THCL EasyCL)
+TARGET_LINK_LIBRARIES( THCL ${CLBLAS_LIBRARIES} )
 
 if(DEV_RUN_COG)
     add_custom_target(
