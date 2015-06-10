@@ -50,11 +50,10 @@ void THClTensor_zero(THClState *state, THClTensor *self_)
 
 void THClTensor_zeros(THClState *state, THClTensor *r_, THLongStorage *size)
 {
-//  THAssert(THClTensor_checkGPU(state, 1, r_));
-//  THClTensor_resize(state, r_, size, NULL);
-//  THClTensor_zero(state, r_);
-    THError("Not implemented");
-//    return 0;
+  THAssert(THClTensor_checkGPU(state, 1, r_));
+  THClTensor_resize(state, r_, size, NULL);
+  THClTensor_zero(state, r_);
+//    THError("Not implemented");
 }
 
 void THClTensor_ones(THClState *state, THClTensor *r_, THLongStorage *size)
