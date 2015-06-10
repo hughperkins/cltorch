@@ -273,17 +273,6 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
         THError("clblasSetup() failed with %d", err);
     }
 
-//    CLFloatWrapper *Awrap = cl->wrap( M * K, A );
-//    CLFloatWrapper *Bwrap = cl->wrap( K * N, B );
-//    CLFloatWrapper *Cwrap = cl->wrap( M * N, C );
-//    Awrap->copyToDevice();
-//    Bwrap->copyToDevice();
-//    Cwrap->copyToDevice();
-
-//    size_t lda = K;        /* i.e. lda = K */
-//    size_t ldb = N;        /* i.e. ldb = N */
-//    size_t ldc = N;        /* i.e. ldc = N */
-
     if( !aWrapper->isOnDevice() ) {
       aWrapper->createOnDevice();
     }

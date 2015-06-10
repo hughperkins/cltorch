@@ -76,6 +76,14 @@ torch.pow(c,2)
 torch.clamp(c, 50, 100)
 c:clamp(50, 100)
 -c
+
+A = torch.ClTensor{{1,2,-1},
+                   {3,4,0}}
+B = torch.ClTensor{{0,1},
+                   {1,2},
+                   {4,5}}
+print(torch.mm(A,B))
+C:mm(A,B)
 </pre></tr>
 
 <tr><td>Overloaded operators <td>70% done (no matrix/vector multiplication yet)<td><pre>
@@ -106,6 +114,7 @@ By comparison with cutorch (and cunn etc) files.  Note that `.cpp` here could ha
 | THClTensorMath.cpp | 5% |
 | THClTensorIndex.cpp | 0% |
 | THClTensorMath2.cpp | 20% |
-| THClTensorMathBlas.cpp | 0% |
+| THClTensorMathBlas.cpp | 25% |
+| THClBlas.cpp | 33% |
 
 
