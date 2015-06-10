@@ -257,9 +257,6 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
   clblasTranspose opa = convertTransToClblasOperation(transa);
   clblasTranspose opb = convertTransToClblasOperation(transb);
 
-  cout << "INT_MAX " << INT_MAX << endl;
-  cout << "m=" << m << endl;
-  cout << "m <= INT_MAX " << (m <= INT_MAX ) << endl;
   if( (m <= INT_MAX) && (n <= INT_MAX) && (k <= INT_MAX) && (lda <= INT_MAX)  && (ldb <= INT_MAX) && (ldc <= INT_MAX) )
   {
     int i_m = (int)m;
@@ -297,21 +294,7 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
       cWrapper->createOnDevice();
     }
 
-    // DEBUG
-    aWrapper->copyToHost();
-    cout << "A:" << endl;
-    for( int i = 0; i < 6; i++ ) {
-      cout << "A[i]=" << ((float *)aWrapper->getHostArray())[i] << endl;
-    }
-    bWrapper->copyToHost();
-    cout << "B:" << endl;
-    for( int i = 0; i < 6; i++ ) {
-      cout << "B[i]=" << ((float *)bWrapper->getHostArray())[i] << endl;
-    }
-
     cl_event event = NULL;
-      cout << "m=" << i_m << " n=" << i_n << " k=" << i_k
-           << " lda=" << i_lda << " ldb=" << i_ldb << " ldc=" << i_ldc << endl;
     err = clblasSgemm(clblasColumnMajor, opa, opb, i_m, i_n, i_k,
                          alpha, aWrapper->getBuffer(), offseta, i_lda,
                          bWrapper->getBuffer(), offsetb, i_ldb, beta,
@@ -327,14 +310,6 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
 
     /* Finalize work with clblas. */
     clblasTeardown();
-
-    // DEBUG
-//    cWrapper->copyToHost();
-//    cout << "C:" << endl;
-//    for( int i = 0; i < 4; i++ ) {
-//      cout << "C[i]=" << ((float *)cWrapper->getHostArray())[i] << endl;
-//    }
-
 
 //    THCublasCheck(cublasSgemm(*state->blasState->current_handle, opa, opb, i_m, i_n, i_k, &alpha, a, i_lda, b, i_ldb, &beta, c, i_ldc));
     return;

@@ -193,16 +193,8 @@ void THClTensor_addmm(THClState *state, THClTensor *r_, float beta, THClTensor *
     THClTensor_free(state, m2_);
 
   if(r__ != r_) {
-    cout << " calling THClTensor_freeCopyTo for r__ => r_" << endl;
     THClTensor_freeCopyTo(state, r__, r_);
   }
-
-   // DEBUGGING REMOVEME
-//  cout << "r_" << endl;
-//  r_->storage->wrapper->copyToHost();
-//  for( int i = 0; i < 4; i++ ) {
-//    cout << "r_[" << i << "]=" << ((float *)r_->storage->wrapper->getHostArray())[i] << endl;
-//  }
 }
 
 void THClTensor_addr(THClState *state, THClTensor *r_, float beta, THClTensor *t, float alpha, THClTensor *vec1, THClTensor *vec2)

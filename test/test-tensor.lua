@@ -133,3 +133,10 @@ print('A\n', A)
 print('B\n', B)
 print(torch.mm(A,B))
 
+print(torch.mm(A:float(), B:float()))
+
+C = torch.ClTensor{{0,0},{0,0}}
+C:mm(A,B)
+print(C)
+
+

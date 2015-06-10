@@ -16,7 +16,6 @@ using namespace std;
 
 void THClTensor_copyFloat(THClState *state, THClTensor *self, struct THFloatTensor *src)
 {
-  cout << "THClTensor_copyFloat" << endl;
   THArgCheck(THClTensor_nElement(state, self) == THFloatTensor_nElement(src), 2, "sizes do not match"); 
   {
     THClTensor *selfc = THClTensor_newContiguous(state, self);
@@ -64,7 +63,6 @@ IMPLEMENT_TH_CL_TENSOR_COPY(Double)
 
 void THFloatTensor_copyCl(THClState *state, THFloatTensor *self, struct THClTensor *src)
 {
-  cout << "THFloatTensor_copyCl" << endl;
   THArgCheck(THFloatTensor_nElement(self) == THClTensor_nElement(state, src), 2, "sizes do not match");
 
   {
@@ -79,7 +77,6 @@ void THFloatTensor_copyCl(THClState *state, THFloatTensor *self, struct THClTens
     float *src_segment =  src->storage->data + src->storageOffset;
     for( int i = 0; i < numElements; i++ ) {
         dest_segment[i] = src_segment[i];
-        cout << "  copyCl src_segment[" << i << "]=" << src_segment[i] << endl;
     }
 
     THClTensor_free(state, src);
@@ -113,7 +110,6 @@ IMPLEMENT_TH_CL_TENSOR_COPY_TO(Double)
 
 void THClTensor_copyCl(THClState *state, THClTensor *self, THClTensor *src)
 {
-  cout << "THClTensor_copyCl" << endl;
   THClTensor_copy(state, self, src);
 }
 
@@ -147,9 +143,7 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
   bool dstContig = THClTensor_isContiguous(state, dst);
   bool memcpyEligible = (srcContig && dstContig) || (totalElements == 1);
 
-  cout << "THClTensor_copy" << endl;
   if (memcpyEligible) {
-    cout << "CopyBuffer.copy" << endl;
     CopyBuffer copyBuffer(state->cl);
     copyBuffer.copy( totalElements, src->storage->wrapper, dst->storage->wrapper);
  } else {
