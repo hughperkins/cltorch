@@ -13,42 +13,39 @@ using namespace std;
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-//struct TensorFillOp {
-//  TensorFillOp(float v) : val(v) {}
-//  __device__ __forceinline__ void operator()(float* v) { *v = val; }
+class TensorFillOp : public HasOperator1, public HasScalars {
+public:
+  int getNumScalars() const { return 1; }
+  float getScalar(int index) const { return val; }
+  TensorFillOp(float v) : val(v) {}
+  string operator1() const {
+    return "*out = val1";
+  }
 
-//  const float val;
-//};
+  const float val;
+};
 
 void THClTensor_fill(THClState* state, THClTensor *self_, float value)
 {
-//  THAssert(THClTensor_checkGPU(state, 1, self_));
-//  if (!THClTensor_pointwiseApply1(state, self_, TensorFillOp(value))) {
-//    THArgCheck(false, 1, CLNN_DIM_WARNING);
-//  }
-
-//  THClCheck(cudaGetLastError());
-    THError("Not implemented");
-//    return 0;
+  THAssert(THClTensor_checkGPU(state, 1, self_));
+  if (!THClTensor_pointwiseApply1(state, self_, TensorFillOp(value))) {
+    THArgCheck(false, 1, CLNN_DIM_WARNING);
+  }
 }
 
 void THClTensor_zero(THClState *state, THClTensor *self_)
 {
-//  THAssert(THClTensor_checkGPU(state, 1, self_));
+  THAssert(THClTensor_checkGPU(state, 1, self_));
 //  if (THClTensor_isContiguous(state, self_)) {
 //    THClCheck(cudaMemsetAsync(THClTensor_data(state, self_),
 //                                0,
 //                                sizeof(float) * THClTensor_nElement(state, self_),
 //                                THClState_getCurrentStream(state)));
 //  } else {
-//    if (!THClTensor_pointwiseApply1(state, self_, TensorFillOp(0))) {
-//      THArgCheck(false, 1, CLNN_DIM_WARNING);
-//    }
+    if (!THClTensor_pointwiseApply1(state, self_, TensorFillOp(0))) {
+      THArgCheck(false, 1, CLNN_DIM_WARNING);
+    }
 //  }
-
-//  THClCheck(cudaGetLastError());
-    THError("Not implemented");
-//    return 0;
 }
 
 void THClTensor_zeros(THClState *state, THClTensor *r_, THLongStorage *size)

@@ -86,13 +86,14 @@ print(torch.mm(A,B))
 C:mm(A,B)
 </pre></tr>
 
-<tr><td>Overloaded operators <td>70% done (no matrix/vector multiplication yet)<td><pre>
+<tr><td>Overloaded operators <td>80% done (no -matrix/- vector multiplication yet)<td><pre>
 c = c + d
 c = c - d
 c = c / 2
 c = c * 1.5
 c = c + 4
 c = c - 5
+print( A * B)
 </pre></tr>
 
 </table>
