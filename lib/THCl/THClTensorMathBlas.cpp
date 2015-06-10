@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "THClTensorMath.h"
 #include "THClGeneral.h"
 #include "THClBlas.h"
@@ -5,6 +7,8 @@
 //#include "THClTensorRandom.h"
 #include "THClApply.h"
 //#include "THClReduce.cuh"
+
+using namespace std;
 
 #ifndef DIVUP
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
@@ -28,7 +32,8 @@ float THClTensor_dot(THClState *state, THClTensor *self, THClTensor *src)
 
 //    return result;
 //  }
-    THError("Not implemented");
+  THError("Not implemented");
+  return 0;
 }
 
 void THClTensor_addmv(THClState *state, THClTensor *r_, float beta, THClTensor *t, float alpha, THClTensor *mat, THClTensor *vec)
@@ -77,113 +82,127 @@ void THClTensor_addmv(THClState *state, THClTensor *r_, float beta, THClTensor *
 
 //    THClTensor_free(state, cmat);
 //  }
-    THError("Not implemented");
+  THError("Not implemented");
 }
 
 void THClTensor_addmm(THClState *state, THClTensor *r_, float beta, THClTensor *t, float alpha, THClTensor *m1, THClTensor *m2)
 {
-//  THAssert(THClTensor_checkGPU(state, 4, r_, t, m1, m2));
-//  char transpose_r, transpose_m1, transpose_m2;
-//  THClTensor *r__, *m1_, *m2_;
+//  throw runtime_error("foo");
+  THAssert(THClTensor_checkGPU(state, 4, r_, t, m1, m2));
+  char transpose_r, transpose_m1, transpose_m2;
+  THClTensor *r__, *m1_, *m2_;
 
-//  if( (m1->nDimension != 2) || (m2->nDimension != 2) )
-//    THError("matrix and matrix expected");
+  if( (m1->nDimension != 2) || (m2->nDimension != 2) )
+    THError("matrix and matrix expected");
 
-//  if(t->nDimension != 2)
-//    THError("size mismatch");
+  if(t->nDimension != 2)
+    THError("size mismatch");
 
-//  if( (t->size[0] != m1->size[0]) || (t->size[1] != m2->size[1]) || (m1->size[1] != m2->size[0]) )
-//    THError("size mismatch");
+  if( (t->size[0] != m1->size[0]) || (t->size[1] != m2->size[1]) || (m1->size[1] != m2->size[0]) )
+    THError("size mismatch");
 
-//  if(t != r_)
-//  {
-//    THClTensor_resizeAs(state, r_, t);
-//    THClTensor_copy(state, r_, t);
+  if(t != r_)
+  {
+    THClTensor_resizeAs(state, r_, t);
+    THClTensor_copy(state, r_, t);
+  }
+
+  /* r_ */
+  if(r_->stride[0] == 1)
+  {
+    transpose_r = 'n';
+    r__ = r_;
+  }
+  else if(r_->stride[1] == 1)
+  {
+    THClTensor *swap = m2;
+    m2 = m1;
+    m1 = swap;
+    transpose_r = 't';
+    r__ = r_;
+  }
+  else
+  {
+    transpose_r = 'n';
+
+    r__ = THClTensor_newWithSize2d(state, r_->size[1], r_->size[0]);
+    THClTensor_copy(state, r__, r_);
+    THClTensor_transpose(state, r__, NULL, 0, 1);
+  }
+
+  /* m1 */
+  if(m1->stride[(transpose_r == 'n' ? 0 : 1)] == 1)
+  {
+    transpose_m1 = 'n';
+    m1_ = m1;
+  }
+  else if(m1->stride[(transpose_r == 'n' ? 1 : 0)] == 1)
+  {
+    transpose_m1 = 't';
+    m1_ = m1;
+  }
+  else
+  {
+    transpose_m1 = (transpose_r == 'n' ? 't' : 'n');
+    m1_ = THClTensor_newContiguous(state, m1);
+  }
+
+  /* m2 */
+  if(m2->stride[(transpose_r == 'n' ? 0 : 1)] == 1)
+  {
+    transpose_m2 = 'n';
+    m2_ = m2;
+  }
+  else if(m2->stride[(transpose_r == 'n' ? 1 : 0)] == 1)
+  {
+    transpose_m2 = 't';
+    m2_ = m2;
+  }
+  else
+  {
+    transpose_m2 = (transpose_r == 'n' ? 't' : 'n');
+    m2_ = THClTensor_newContiguous(state, m2);
+  }
+
+  /* do the operation */
+  THClBlas_gemm(state,
+                  transpose_m1,
+                  transpose_m2,
+                  r__->size[(transpose_r == 'n' ? 0 : 1)],
+                  r__->size[(transpose_r == 'n' ? 1 : 0)],
+                  m1_->size[(transpose_r == 'n' ? 1 : 0)],
+                  alpha,
+                  THClTensor_wrapper(state, m1_),
+                  THClTensor_storageOffset(state, m1_),
+                  (transpose_m1 == 'n' ? m1_->stride[(transpose_r == 'n' ? 1 : 0)] : m1_->stride[(transpose_r == 'n' ? 0 : 1)]),
+                  THClTensor_wrapper(state, m2_),
+                  THClTensor_storageOffset(state, m2_),
+                  (transpose_m2 == 'n' ? m2_->stride[(transpose_r == 'n' ? 1 : 0)] : m2_->stride[(transpose_r == 'n' ? 0 : 1)]),
+                  beta,
+                  THClTensor_wrapper(state, r__),
+                  THClTensor_storageOffset(state, r__),
+                  r__->stride[(transpose_r == 'n' ? 1 : 0)]);
+
+  r__->storage->wrapper->markDeviceDirty();
+
+  /* free intermediate variables */
+  if(m1_ != m1)
+    THClTensor_free(state, m1_);
+
+  if(m2_ != m2)
+    THClTensor_free(state, m2_);
+
+  if(r__ != r_) {
+    cout << " calling THClTensor_freeCopyTo for r__ => r_" << endl;
+    THClTensor_freeCopyTo(state, r__, r_);
+  }
+
+   // DEBUGGING REMOVEME
+//  cout << "r_" << endl;
+//  r_->storage->wrapper->copyToHost();
+//  for( int i = 0; i < 4; i++ ) {
+//    cout << "r_[" << i << "]=" << ((float *)r_->storage->wrapper->getHostArray())[i] << endl;
 //  }
-
-//  /* r_ */
-//  if(r_->stride[0] == 1)
-//  {
-//    transpose_r = 'n';
-//    r__ = r_;
-//  }
-//  else if(r_->stride[1] == 1)
-//  {
-//    THClTensor *swap = m2;
-//    m2 = m1;
-//    m1 = swap;
-//    transpose_r = 't';
-//    r__ = r_;
-//  }
-//  else
-//  {
-//    transpose_r = 'n';
-
-//    r__ = THClTensor_newWithSize2d(state, r_->size[1], r_->size[0]);
-//    THClTensor_copy(state, r__, r_);
-//    THClTensor_transpose(state, r__, NULL, 0, 1);
-//  }
-
-//  /* m1 */
-//  if(m1->stride[(transpose_r == 'n' ? 0 : 1)] == 1)
-//  {
-//    transpose_m1 = 'n';
-//    m1_ = m1;
-//  }
-//  else if(m1->stride[(transpose_r == 'n' ? 1 : 0)] == 1)
-//  {
-//    transpose_m1 = 't';
-//    m1_ = m1;
-//  }
-//  else
-//  {
-//    transpose_m1 = (transpose_r == 'n' ? 't' : 'n');
-//    m1_ = THClTensor_newContiguous(state, m1);
-//  }
-
-//  /* m2 */
-//  if(m2->stride[(transpose_r == 'n' ? 0 : 1)] == 1)
-//  {
-//    transpose_m2 = 'n';
-//    m2_ = m2;
-//  }
-//  else if(m2->stride[(transpose_r == 'n' ? 1 : 0)] == 1)
-//  {
-//    transpose_m2 = 't';
-//    m2_ = m2;
-//  }
-//  else
-//  {
-//    transpose_m2 = (transpose_r == 'n' ? 't' : 'n');
-//    m2_ = THClTensor_newContiguous(state, m2);
-//  }
-
-//  /* do the operation */
-//  THClBlas_gemm(state,
-//                  transpose_m1,
-//                  transpose_m2,
-//                  r__->size[(transpose_r == 'n' ? 0 : 1)],
-//                  r__->size[(transpose_r == 'n' ? 1 : 0)],
-//                  m1_->size[(transpose_r == 'n' ? 1 : 0)],
-//                  alpha,
-//                  THClTensor_data(state, m1_),
-//                  (transpose_m1 == 'n' ? m1_->stride[(transpose_r == 'n' ? 1 : 0)] : m1_->stride[(transpose_r == 'n' ? 0 : 1)]),
-//                  THClTensor_data(state, m2_),
-//                  (transpose_m2 == 'n' ? m2_->stride[(transpose_r == 'n' ? 1 : 0)] : m2_->stride[(transpose_r == 'n' ? 0 : 1)]),
-//                  beta,
-//                  THClTensor_data(state, r__),
-//                  r__->stride[(transpose_r == 'n' ? 1 : 0)]);
-
-//  /* free intermediate variables */
-//  if(m1_ != m1)
-//    THClTensor_free(state, m1_);
-
-//  if(m2_ != m2)
-//    THClTensor_free(state, m2_);
-
-//  if(r__ != r_)
-//    THClTensor_freeCopyTo(state, r__, r_);
-    THError("Not implemented");
 }
 
 void THClTensor_addr(THClState *state, THClTensor *r_, float beta, THClTensor *t, float alpha, THClTensor *vec1, THClTensor *vec2)

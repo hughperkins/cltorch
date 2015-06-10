@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "THClBlas.h"
 #include "THClGeneral.h"
 
@@ -5,6 +7,7 @@
 #include "EasyCL.h"
 #include <clBLAS.h>
 
+using namespace std;
 
 void THClBlas_init(THClState *state, int devices, int device)
 {
@@ -205,56 +208,58 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha, float *x, long 
     THError("Not implemented");
 }
 
-//cublasOperation_t convertTransToCublasOperation(char trans) {
-//  if (trans == 't') return CUBLAS_OP_T;
-////  else if (trans == 'n') return CUBLAS_OP_N;
-////  else if (trans == 'c') return CUBLAS_OP_C;
-////  else {
-////    THError("trans must be one of: t, n, c");
-////    return CUBLAS_OP_T;
-////  }
-//    THError("Not implemented");
-//}
+clblasTranspose convertTransToClblasOperation(char trans) {
+  if (trans == 't') return clblasTrans;
+  else if (trans == 'n') return clblasNoTrans ;
+  else if (trans == 'c') return clblasConjTrans;
+  else {
+    THError("trans must be one of: t, n, c");
+    return clblasTrans;
+  }
+  THError("Not implemented");
+}
 
 void adjustLd(char transa, char transb, long m, long n, long k, long *lda, long *ldb, long *ldc)
 {
-//  int transa_ = ((transa == 't') || (transa == 'T'));
-//  int transb_ = ((transb == 't') || (transb == 'T'));
+  int transa_ = ((transa == 't') || (transa == 'T'));
+  int transb_ = ((transb == 't') || (transb == 'T'));
 
-//  if(n == 1)
-//    *ldc = m;
+  if(n == 1)
+    *ldc = m;
 
-//  if(transa_)
-//  {
-//    if(m == 1)
-//      *lda = k;
-//  }
-//  else
-//  {
-//    if(k == 1)
-//      *lda = m;
-//  }
+  if(transa_)
+  {
+    if(m == 1)
+      *lda = k;
+  }
+  else
+  {
+    if(k == 1)
+      *lda = m;
+  }
 
-//  if(transb_)
-//  {
-//    if(k == 1)
-//      *ldb = n;
-//  }
-//  else
-//  {
-//    if(n == 1)
-//      *ldb = k;
-//  }
-    THError("Not implemented");
+  if(transb_)
+  {
+    if(k == 1)
+      *ldb = n;
+  }
+  else
+  {
+    if(n == 1)
+      *ldb = k;
+  }
 }
 
 /* Level 3 */
-void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, long k, float alpha, CLWrapper *aWrapper, long lda, CLWrapper *bWrapper, long ldb, float beta, CLWrapper *cWrapper, long ldc)
+void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, long k, float alpha, CLWrapper *aWrapper, long offseta, long lda, CLWrapper *bWrapper, long offsetb, long ldb, float beta, CLWrapper *cWrapper, long offsetc, long ldc)
 {
   adjustLd(transa, transb, m, n, k, &lda, &ldb, &ldc);
-//  cublasOperation_t opa = convertTransToCublasOperation(transa);
-//  cublasOperation_t opb = convertTransToCublasOperation(transb);
+  clblasTranspose opa = convertTransToClblasOperation(transa);
+  clblasTranspose opb = convertTransToClblasOperation(transb);
 
+  cout << "INT_MAX " << INT_MAX << endl;
+  cout << "m=" << m << endl;
+  cout << "m <= INT_MAX " << (m <= INT_MAX ) << endl;
   if( (m <= INT_MAX) && (n <= INT_MAX) && (k <= INT_MAX) && (lda <= INT_MAX)  && (ldb <= INT_MAX) && (ldc <= INT_MAX) )
   {
     int i_m = (int)m;
@@ -282,11 +287,35 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
 //    size_t ldb = N;        /* i.e. ldb = N */
 //    size_t ldc = N;        /* i.e. ldc = N */
 
+    if( !aWrapper->isOnDevice() ) {
+      aWrapper->createOnDevice();
+    }
+    if( !bWrapper->isOnDevice() ) {
+      bWrapper->createOnDevice();
+    }
+    if( !cWrapper->isOnDevice() ) {
+      cWrapper->createOnDevice();
+    }
+
+    // DEBUG
+    aWrapper->copyToHost();
+    cout << "A:" << endl;
+    for( int i = 0; i < 6; i++ ) {
+      cout << "A[i]=" << ((float *)aWrapper->getHostArray())[i] << endl;
+    }
+    bWrapper->copyToHost();
+    cout << "B:" << endl;
+    for( int i = 0; i < 6; i++ ) {
+      cout << "B[i]=" << ((float *)bWrapper->getHostArray())[i] << endl;
+    }
+
     cl_event event = NULL;
-    err = clblasSgemm(clblasRowMajor, clblasNoTrans, clblasNoTrans, i_m, i_n, i_k,
-                         1, aWrapper->getBuffer(), 0, i_lda,
-                         bWrapper->getBuffer(), 0, i_ldb, 0,
-                         cWrapper->getBuffer(), 0, i_ldc,
+      cout << "m=" << i_m << " n=" << i_n << " k=" << i_k
+           << " lda=" << i_lda << " ldb=" << i_ldb << " ldc=" << i_ldc << endl;
+    err = clblasSgemm(clblasColumnMajor, opa, opb, i_m, i_n, i_k,
+                         alpha, aWrapper->getBuffer(), offseta, i_lda,
+                         bWrapper->getBuffer(), offsetb, i_ldb, beta,
+                         cWrapper->getBuffer(), offsetc, i_ldc,
                          1, state->cl->queue, 0, NULL, &event);
     if (err != CL_SUCCESS) {
         THError("clblasSgemm() failed with %d", err);
@@ -299,12 +328,19 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
     /* Finalize work with clblas. */
     clblasTeardown();
 
+    // DEBUG
+//    cWrapper->copyToHost();
+//    cout << "C:" << endl;
+//    for( int i = 0; i < 4; i++ ) {
+//      cout << "C[i]=" << ((float *)cWrapper->getHostArray())[i] << endl;
+//    }
+
+
 //    THCublasCheck(cublasSgemm(*state->blasState->current_handle, opa, opb, i_m, i_n, i_k, &alpha, a, i_lda, b, i_ldb, &beta, c, i_ldc));
-//    return;
+    return;
   }
   THError("Clblas_gemm only supports m, n, k, lda, ldb, ldc"
           "with the bound [val] <= %d", INT_MAX);
-    THError("Not implemented");
 }
 
 void THClBlas_gemmBatched(THClState *state, char transa, char transb, long m, long n, long k,

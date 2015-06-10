@@ -123,5 +123,13 @@ print(torch.cpow(c,d))
 print(torch.cdiv(c,d))
 print(-c)
 
-print(torch.mm(c,d))
+-- print(c:t())
+A = torch.ClTensor{{1,2,-1},
+                   {3,4,0}}
+B = torch.ClTensor{{0,1},
+                   {1,2},
+                   {4,5}}
+print('A\n', A)
+print('B\n', B)
+print(torch.mm(A,B))
 
