@@ -140,5 +140,7 @@ C:mm(A,B)
 print(C)
 
 print( A * B )
+C:fill(1.345)
+print('C\n', C)
 
 

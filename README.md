@@ -41,6 +41,10 @@ d:copy(c)
 c[1][2] = 2.123
 </pre></tr>
 
+<tr><td>Construction or extraction functions<td>Started<td><pre>
+c:fill(1.345)
+</tre></tr>
+
 <tr><td>Element-wise operations<td>Done<td><pre>
 c:abs()
 for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
