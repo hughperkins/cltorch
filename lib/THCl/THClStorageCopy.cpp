@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 #include "EasyCL.h"
-#include "DeepCL.h"
-#include "clmath/CopyBuffer.h"
 
 void THClStorage_rawCopy(THClState *state, THClStorage *self, float *src)
 {
