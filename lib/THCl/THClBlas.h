@@ -16,7 +16,9 @@ THCL_API void THClBlas_swap(THClState *state, long n, float *x, long incx, float
 THCL_API void THClBlas_scal(THClState *state, long n, float a, float *x, long incx);
 THCL_API void THClBlas_copy(THClState *state, long n, float *x, long incx, float *y, long incy);
 THCL_API void THClBlas_axpy(THClState *state, long n, float a, float *x, long incx, float *y, long incy);
-THCL_API float THClBlas_dot(THClState *state, long n, float *x, long incx, float *y, long incy);
+THCL_API float THClBlas_dot(THClState *state, long n, 
+    CLWrapper *xwrapper, long xoffset, long incx, 
+    CLWrapper *ywrapper, long yoffset, long incy);
 
 /* Level 2 */
 THCL_API void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, float *a, long lda, float *x, long incx, float beta, float *y, long incy);

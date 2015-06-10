@@ -133,26 +133,64 @@ void THClBlas_axpy(THClState *state, long n, float a, float *x, long incx, float
     THError("Not implemented");
 }
 
-float THClBlas_dot(THClState *state, long n, float *x, long incx, float *y, long incy)
+float THClBlas_dot(THClState *state, long n, 
+    CLWrapper *xwrapper, long xoffset, long incx, 
+    CLWrapper *ywrapper, long yoffset, long incy)
 {
-//  if(n == 1)
-//  {
-//    incx = 1;
-//    incy = 1;
-//  }
+  if(n == 1)
+  {
+    incx = 1;
+    incy = 1;
+  }
 
-//  if( (n <= INT_MAX) && (incx <= INT_MAX) && (incy <= INT_MAX) )
-//  {
-//    int i_n = (int)n;
-//    int i_incx = (int)incx;
-//    int i_incy = (int)incy;
-//    float result;
+  if( (n <= INT_MAX) && (incx <= INT_MAX) && (incy <= INT_MAX) )
+  {
+    int i_n = (int)n;
+    int i_incx = (int)incx;
+    int i_incy = (int)incy;
+    float result;
+
+    cl_int err;
+
+    err = clblasSetup();
+    if (err != CL_SUCCESS) {
+        THError("clblasSetup() failed with %d", err);
+    }
+    
+    CLWrapper *resultWrapper = state->cl->wrap( 1, &result );
+    float *scratch = new float[i_n];
+    CLWrapper *scratchWrapper = state->cl->wrap(i_n, scratch);
+    scratchWrapper->createOnDevice();
+    resultWrapper->createOnDevice();
+
+    cl_event event = NULL;
+    err = clblasSdot( i_n, resultWrapper->getBuffer(), 0, 
+          xwrapper->getBuffer(), xoffset, i_incx, 
+          ywrapper->getBuffer(), yoffset, i_incy, 
+          scratchWrapper->getBuffer(),
+          1, state->cl->queue, 0, NULL, &event);
 //    THCublasCheck(cublasSdot(*state->blasState->current_handle, i_n, x, i_incx, y, i_incy, &result));
 //    ClDeviceSynchronize();
-//    return result;
-//  }
-//  THError("Cublas_dot only supports n, incx and incy "
-//          "upto signed integer limits: %d", INT_MAX);
+    if (err != CL_SUCCESS) {
+        THError("clblasSdot() failed with %d", err);
+    }
+    else {
+        /* Wait for calculations to be finished. */
+        err = clWaitForEvents(1, &event);
+    }
+    resultWrapper->copyToHost();
+
+    /* Finalize work with clblas. */
+    clblasTeardown();
+
+
+    delete resultWrapper;
+    delete scratchWrapper;
+    delete[] scratch;
+    return result;
+  }
+  THError("Cublas_dot only supports n, incx and incy "
+          "upto signed integer limits: %d", INT_MAX);
     THError("Not implemented");
   return -1;
 }

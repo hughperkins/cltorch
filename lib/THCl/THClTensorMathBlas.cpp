@@ -16,24 +16,28 @@ using namespace std;
 
 float THClTensor_dot(THClState *state, THClTensor *self, THClTensor *src)
 {
-//  THAssert(THClTensor_checkGPU(state, 2, self, src));
-//  THArgCheck(THClTensor_nElement(state, self) == THClTensor_nElement(state, src), 2, "sizes do not match");
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+  THArgCheck(THClTensor_nElement(state, self) == THClTensor_nElement(state, src), 2, "sizes do not match");
 
-//  {
-//    self = THClTensor_newContiguous(state, self);
-//    src = THClTensor_newContiguous(state, src);
+  {
+    self = THClTensor_newContiguous(state, self);
+    src = THClTensor_newContiguous(state, src);
 
-//    float result = THClBlas_dot(state,
-//                                  THClTensor_nElement(state, self),
-//                                  THClTensor_data(state, self), 1,
-//                                  THClTensor_data(state, src), 1);
-//    THClTensor_free(state, src);
-//    THClTensor_free(state, self);
+    float result = THClBlas_dot(state,
+                                  THClTensor_nElement(state, self),
+                                  THClTensor_wrapper(state, self), 
+                                  THClTensor_storageOffset(state, self), 
+                                  1,
+                                  THClTensor_wrapper(state, src), 
+                                  THClTensor_storageOffset(state, src), 
+                                  1);
+    THClTensor_free(state, src);
+    THClTensor_free(state, self);
 
-//    return result;
-//  }
-  THError("Not implemented");
-  return 0;
+    return result;
+  }
+//  THError("Not implemented");
+//  return 0;
 }
 
 void THClTensor_addmv(THClState *state, THClTensor *r_, float beta, THClTensor *t, float alpha, THClTensor *mat, THClTensor *vec)

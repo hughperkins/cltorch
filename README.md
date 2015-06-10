@@ -43,6 +43,7 @@ c[1][2] = 2.123
 
 <tr><td>Construction or extraction functions<td>Started<td><pre>
 c:fill(1.345)
+c:zero()
 </tre></tr>
 
 <tr><td>Element-wise operations<td>Done<td><pre>
@@ -91,13 +92,25 @@ C:mm(A,B)
 </pre></tr>
 
 <tr><td>Overloaded operators <td>80% done (no -matrix/- vector multiplication yet)<td><pre>
+d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
+c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
 c = c + d
 c = c - d
 c = c / 2
 c = c * 1.5
 c = c + 4
 c = c - 5
+
+A = torch.ClTensor{{1,2,-1},
+                   {3,4,0}}
+B = torch.ClTensor{{0,1},
+                   {1,2},
+                   {4,5}}
 print( A * B)
+
+v1 = torch.ClTensor{3,5,1}
+v2 = torch.ClTensor{2,4,8}
+print(v1 * v2)
 </pre></tr>
 
 </table>
@@ -119,7 +132,7 @@ By comparison with cutorch (and cunn etc) files.  Note that `.cpp` here could ha
 | THClTensorMath.cpp | 5% |
 | THClTensorIndex.cpp | 0% |
 | THClTensorMath2.cpp | 20% |
-| THClTensorMathBlas.cpp | 25% |
-| THClBlas.cpp | 33% |
+| THClTensorMathBlas.cpp | 30% |
+| THClBlas.cpp | 50% |
 
 

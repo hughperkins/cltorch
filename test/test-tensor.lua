@@ -143,4 +143,22 @@ print( A * B )
 C:fill(1.345)
 print('C\n', C)
 
+s = torch.LongStorage{3,2}
+print('s\n', s)
+--C = clnn.ones(s)
+--print('C\n', C)
+C:zero()
+print('C\n', C)
+
+--C:reshape({4,1})
+--print('C\n', C)
+
+v1 = torch.ClTensor{3,5,1}
+v2 = torch.ClTensor{2,4,8}
+print(v1 * v2)
+
+fv1 = torch.FloatTensor{3,5,1}
+fv2 = torch.FloatTensor{2,4,8}
+print(fv1*fv2)
+
 
