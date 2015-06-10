@@ -44,6 +44,7 @@ c[1][2] = 2.123
 <tr><td>Construction or extraction functions<td>Started<td><pre>
 c:fill(1.345)
 c:zero()
+print(torch.ClTensor.zeros(torch.ClTensor.new(), 3, 5))
 </tre></tr>
 
 <tr><td>Element-wise operations<td>Done<td><pre>

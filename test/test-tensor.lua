@@ -164,5 +164,6 @@ print(fv1*fv2)
 print(torch.dot(v1,v2))
 
 print(torch.ClTensor.zeros(torch.ClTensor.new(), 3, 5))
+print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
 
 
