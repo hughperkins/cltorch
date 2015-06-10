@@ -61,18 +61,12 @@ c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
 c:add(d)
 c:cmul(d)
 c:cdiv(d)
-for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
-  print(loadstring('return torch.' .. name .. '(c,d)')())
-end
 c:add(3)
 c:mul(3)
 c:div(2)
 c = torch.add(c,3)
 c = torch.mul(c, 4)
 c = torch.div(c, 3)
-for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
-  print(loadstring('return c:' .. name .. '(5)')())
-end
 torch.pow(2,c)
 c:pow(2)
 torch.cpow(c,d)
@@ -89,9 +83,13 @@ B = torch.ClTensor{{0,1},
                    {4,5}}
 print(torch.mm(A,B))
 C:mm(A,B)
+
+v1 = torch.ClTensor{3,5,1}
+v2 = torch.ClTensor{2,4,8}
+print(torch.dot(v1, v2))
 </pre></tr>
 
-<tr><td>Overloaded operators <td>80% done (no -matrix/- vector multiplication yet)<td><pre>
+<tr><td>Overloaded operators <td>80% done<td><pre>
 d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
 c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
 c = c + d
@@ -111,6 +109,17 @@ print( A * B)
 v1 = torch.ClTensor{3,5,1}
 v2 = torch.ClTensor{2,4,8}
 print(v1 * v2)
+</pre></tr>
+
+<tr><td>Logical operations <td>Done<td><pre>
+d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
+c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
+for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+  print(loadstring('return c:' .. name .. '(5)')())
+end
+for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+  print(loadstring('return torch.' .. name .. '(c,d)')())
+end
 </pre></tr>
 
 </table>

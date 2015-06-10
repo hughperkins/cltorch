@@ -161,4 +161,5 @@ fv1 = torch.FloatTensor{3,5,1}
 fv2 = torch.FloatTensor{2,4,8}
 print(fv1*fv2)
 
+print(torch.dot(v1,v2))
 
