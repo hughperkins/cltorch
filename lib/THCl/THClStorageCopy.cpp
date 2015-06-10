@@ -15,8 +15,10 @@ void THClStorage_rawCopy(THClState *state, THClStorage *self, float *src)
 void THClStorage_copy(THClState *state, THClStorage *self, THClStorage *src)
 {
   THArgCheck(self->size == src->size, 2, "size does not match");
-  CopyBuffer copyBuffer( state->cl );
-  copyBuffer.copy( src->size, src->wrapper, self->wrapper );
+  if( !self->wrapper->isOnDevice() ) {
+    self->wrapper->createOnDevice();
+  }
+  src->wrapper->copyTo( self->wrapper );
 }
 
 void THClStorage_copyCl(THClState *state, THClStorage *self, THClStorage *src)
