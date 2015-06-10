@@ -2,14 +2,6 @@ cmake_minimum_required( VERSION 2.8.12 )
 
 OPTION(DEV_RUN_COG "clnn maintainers only, otherwise set to 'OFF'." OFF)
 
-# remove unused options
-set(LIBPNGPP_AVAILABLE FALSE CACHE BOOL "libjpeg available" FORCE)
-mark_as_advanced(FORCE LIBPNGPP_AVAILABLE)
-set(LIBJPEG_AVAILABLE FALSE CACHE BOOL "libjpeg available" FORCE)
-mark_as_advanced(FORCE LIBJPEG_AVAILABLE)
-set(BUILD_LUA_WRAPPERS FALSE CACHE BOOL "libjpeg available" FORCE)
-mark_as_advanced(FORCE BUILD_LUA_WRAPPERS)
-
 if( "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" )
   set( ON_LINUX 1 )
 endif()
@@ -40,8 +32,6 @@ ADD_SUBDIRECTORY(lib)
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/lib/THCl")
 
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/torch")
-# INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/DeepCL")
-#INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/DeepCL/EasyCL")
 
 SET(src init.cpp torch/utils.c Storage.c Tensor.c TensorMath.c
   TensorOperator.c)
@@ -66,8 +56,6 @@ if( ON_LINUX )
         add_dependencies( clnn git_clnn_rec )
     endif()
 endif()
-
-# ADD_SUBDIRECTORY( DeepCL )
 
 TARGET_LINK_LIBRARIES(clnn luaT THCL )
 TARGET_LINK_LIBRARIES( clnn ${DEEPCL_LIBARIES} )

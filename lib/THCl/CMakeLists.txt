@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+
 OPTION(DEV_RUN_COG "clnn maintainers only, otherwise set to 'OFF'." OFF)
 
 SET(CMAKE_C_FLAGS "-std=c99")
@@ -10,10 +12,7 @@ SET(src
     THClTensorMathPairwise.cpp THClTensorMath2.cpp
     THClBlas.cpp )
 set(src-cl)
-# add_library( THCl SHARED THClStorage.c THClGeneral.c )
 
-# INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../../DeepCL/EasyCL)
-# INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../../DeepCL/src)
 message("CLBLAS_INCLUDE_DIRS ${CLBLAS_INCLUDE_DIRS}")
 INCLUDE_DIRECTORIES(${CLBLAS_INCLUDE_DIRS})
 
