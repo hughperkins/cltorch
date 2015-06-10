@@ -3,7 +3,7 @@
 #include "THClBlas.h"
 #include "THClTensorCopy.h"
 //#include "THClTensorRandom.h"
-#include "THClApply.cuh"
+#include "THClApply.h"
 //#include "THClReduce.cuh"
 
 #ifndef DIVUP

@@ -5,7 +5,7 @@ Experimental opencl module for torch
 
 <table>
 
-<tr><td>Component<td>Status<td>Examples</tr>
+<tr><td>Component<td>Status<td>Examples of what works now</tr>
 
 <tr><td><pre>require 'clnn'</pre> <td> works <td><pre>require 'clnn'</pre></tr>
 
@@ -28,7 +28,7 @@ d = torch.ClStorage(3)
 d:copy(c)
 </pre></tr>
 
-<tr><td>torch.ClTensor basic <td>works<td><pre>
+<tr><td>conversion to/from ClTensor <td>works<td><pre>
 c = torch.ClTensor{7,4,5}
 c = torch.ClTensor(3,2)
 c = torch.Tensor{2,6,9}:cl()
@@ -105,6 +105,7 @@ By comparison with cutorch (and cunn etc) files.  Note that `.cpp` here could ha
 | THClTensorCopy.cpp | 50% |
 | THClTensorMath.cpp | 5% |
 | THClTensorIndex.cpp | 0% |
-| THClTensorMath2.cpp | 5% |
+| THClTensorMath2.cpp | 20% |
+| THClTensorMathBlas.cpp | 0% |
 
 

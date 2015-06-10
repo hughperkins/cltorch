@@ -10,7 +10,7 @@ SET(src
     THClTensorMathPointwise.cpp THClReduceApplyUtils.cpp THClApply.cpp
     THClTensorMathCompare.cpp THClTensorMathCompareT.cpp
     THClTensorMathPairwise.cpp THClTensorMath2.cpp
-    THClBlas.cpp )
+    THClBlas.cpp THClTensorMathBlas.cpp )
 set(src-cl)
 
 message("CLBLAS_INCLUDE_DIRS ${CLBLAS_INCLUDE_DIRS}")

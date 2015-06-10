@@ -123,5 +123,5 @@ print(torch.cpow(c,d))
 print(torch.cdiv(c,d))
 print(-c)
 
-c:mul(d)
+print(torch.mm(c,d))
 
