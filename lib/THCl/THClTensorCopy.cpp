@@ -6,7 +6,6 @@
 #include "THClTensor.h"
 
 #include "EasyCL.h"
-#include "clmath/CopyBuffer.h"
 
 using namespace std;
 
@@ -144,8 +143,10 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
   bool memcpyEligible = (srcContig && dstContig) || (totalElements == 1);
 
   if (memcpyEligible) {
-    CopyBuffer copyBuffer(state->cl);
-    copyBuffer.copy( totalElements, src->storage->wrapper, dst->storage->wrapper);
+    if( !dst->storage->wrapper->isOnDevice() ) {
+      dst->storage->wrapper->createOnDevice();
+    }
+    src->storage->wrapper->copyTo( dst->storage->wrapper );
  } else {
 //    int oldDev = curGPU();
 //    int srcDev = THClTensor_getDevice(state, src);
