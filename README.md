@@ -1,7 +1,8 @@
-# clnn
-Experimental opencl module for torch
+# cltorch
 
-## Things that are working
+OpenCL module for torch, ported from the original cutorch CUDA module.
+
+## What's working
 
 <table>
 
@@ -130,7 +131,7 @@ end
 
 # Migration status by file
 
-By comparison with cutorch (and cunn etc) files.  Note that `.cpp` here could have been ported from `.c`, `.cpp`, or `.cu`.
+Porting status by file, compared with original cutorch files.  Note that `.cpp` here could have been ported from `.c`, `.cpp`, or `.cu`.
 
 | File | Migration status |
 |---|---|
