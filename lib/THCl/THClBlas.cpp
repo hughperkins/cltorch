@@ -9,6 +9,17 @@
 
 using namespace std;
 
+clblasTranspose convertTransToClblasOperation(char trans) {
+  if (trans == 't') return clblasTrans;
+  else if (trans == 'n') return clblasNoTrans ;
+  else if (trans == 'c') return clblasConjTrans;
+  else {
+    THError("trans must be one of: t, n, c");
+    return clblasTrans;
+  }
+  THError("Not implemented");
+}
+
 void THClBlas_init(THClState *state, int devices, int device)
 {
 //  THClBlasState *blas_state = state->blasState;
@@ -196,33 +207,59 @@ float THClBlas_dot(THClState *state, long n,
 }
 
 /* Level 2 */
-void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, float *a, long lda, float *x, long incx, float beta, float *y, long incy)
+void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, CLWrapper *awrapper, long aoffset, long lda, 
+    CLWrapper *xwrapper, long xoffset, long incx, 
+    float beta,
+     CLWrapper *ywrapper, long yoffset, long incy)
 {
-//  if(n == 1)
-//    lda = m;
+  if(n == 1)
+    lda = m;
 
-//  cublasOperation_t op;
-//  if (trans == 't') op = CUBLAS_OP_T;
-//  else if (trans == 'n') op = CUBLAS_OP_N;
-//  else if (trans == 'c') op = CUBLAS_OP_C;
+  clblasTranspose op = convertTransToClblasOperation(trans);
 
-//  if( (m <= INT_MAX) && (n <= INT_MAX) &&
-//      (lda > 0) && (lda <= INT_MAX) &&
-//      (incx > 0) && (incx <= INT_MAX) &&
-//      (incy > 0) && (incy <= INT_MAX) )
-//  {
-//    int i_m = (int)m;
-//    int i_n = (int)n;
-//    int i_lda = (int)lda;
-//    int i_incx = (int)incx;
-//    int i_incy = (int)incy;
+  if( (m <= INT_MAX) && (n <= INT_MAX) &&
+      (lda > 0) && (lda <= INT_MAX) &&
+      (incx > 0) && (incx <= INT_MAX) &&
+      (incy > 0) && (incy <= INT_MAX) )
+  {
+    int i_m = (int)m;
+    int i_n = (int)n;
+    int i_lda = (int)lda;
+    int i_incx = (int)incx;
+    int i_incy = (int)incy;
 
+    cl_int err;
+
+    err = clblasSetup();
+    if (err != CL_SUCCESS) {
+        THError("clblasSetup() failed with %d", err);
+    }
+
+    cl_event event = NULL;
+    err = clblasSgemv(clblasColumnMajor, op, i_m, i_n, alpha,
+          awrapper->getBuffer(), aoffset, i_lda, 
+          xwrapper->getBuffer(), xoffset, i_incx, 
+          beta,
+          ywrapper->getBuffer(), yoffset, i_incy, 
+          1, state->cl->queue, 0, NULL, &event);
 //    THCublasCheck(cublasSgemv(*state->blasState->current_handle, op, i_m, i_n, &alpha, a, i_lda, x, i_incx, &beta, y, i_incy));
-//    return;
-//  }
-//  THError("Cublas_gemv only supports m, n, lda, incx, incy"
-//          "in the range 0 < [val] <= %d", INT_MAX);
-    THError("Not implemented");
+    if (err != CL_SUCCESS) {
+        THError("clblasSdot() failed with %d", err);
+    }
+    else {
+        /* Wait for calculations to be finished. */
+        err = clWaitForEvents(1, &event);
+    }
+
+    /* Finalize work with clblas. */
+    clblasTeardown();
+
+    ywrapper->markDeviceDirty();
+    return;
+  }
+  THError("Cublas_gemv only supports m, n, lda, incx, incy"
+          "in the range 0 < [val] <= %d", INT_MAX);
+//    THError("Not implemented");
 }
 
 void THClBlas_ger(THClState *state, long m, long n, float alpha, float *x, long incx, float *y, long incy, float *a, long lda)
@@ -244,17 +281,6 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha, float *x, long 
 //  THError("Cublas_ger only supports m, n, lda, incx, incy"
 //          "with the bound [val] <= %d", INT_MAX);
     THError("Not implemented");
-}
-
-clblasTranspose convertTransToClblasOperation(char trans) {
-  if (trans == 't') return clblasTrans;
-  else if (trans == 'n') return clblasNoTrans ;
-  else if (trans == 'c') return clblasConjTrans;
-  else {
-    THError("trans must be one of: t, n, c");
-    return clblasTrans;
-  }
-  THError("Not implemented");
 }
 
 void adjustLd(char transa, char transb, long m, long n, long k, long *lda, long *ldb, long *ldc)

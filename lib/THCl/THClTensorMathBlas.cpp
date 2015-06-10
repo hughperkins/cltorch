@@ -42,51 +42,75 @@ float THClTensor_dot(THClState *state, THClTensor *self, THClTensor *src)
 
 void THClTensor_addmv(THClState *state, THClTensor *r_, float beta, THClTensor *t, float alpha, THClTensor *mat, THClTensor *vec)
 {
-//  THAssert(THClTensor_checkGPU(state, 4, r_, t, mat, vec));
-//  if( (mat->nDimension != 2) || (vec->nDimension != 1) )
-//    THError("matrix and vector expected");
+  THAssert(THClTensor_checkGPU(state, 4, r_, t, mat, vec));
+  if( (mat->nDimension != 2) || (vec->nDimension != 1) )
+    THError("matrix and vector expected");
 
-//  if( mat->size[1] != vec->size[0] )
-//    THError("size mismatch");
+  if( mat->size[1] != vec->size[0] )
+    THError("size mismatch");
 
-//  if(t->nDimension != 1)
-//    THError("size mismatch");
+  if(t->nDimension != 1)
+    THError("size mismatch");
 
-//  if(t->size[0] != mat->size[0])
-//    THError("size mismatch");
+  if(t->size[0] != mat->size[0])
+    THError("size mismatch");
 
-//  if(r_ != t)
-//  {
-//    THClTensor_resizeAs(state, r_, t);
-//    THClTensor_copy(state, r_, t);
-//  }
+  if(r_ != t)
+  {
+    THClTensor_resizeAs(state, r_, t);
+    THClTensor_copy(state, r_, t);
+  }
 
-//  if(mat->stride[0] == 1)
-//  {
-//    THClBlas_gemv(state, 'n', mat->size[0], mat->size[1],
-//                    alpha, THClTensor_data(state, mat), mat->stride[1],
-//                    THClTensor_data(state, vec), vec->stride[0],
-//                    beta, THClTensor_data(state, r_), r_->stride[0]);
-//  }
-//  else if(mat->stride[1] == 1)
-//  {
-//    THClBlas_gemv(state, 't',  mat->size[1], mat->size[0],
-//                    alpha, THClTensor_data(state, mat), mat->stride[0],
-//                    THClTensor_data(state, vec), vec->stride[0],
-//                    beta, THClTensor_data(state, r_), r_->stride[0]);
-//  }
-//  else
-//  {
-//    THClTensor *cmat = THClTensor_newContiguous(state, mat);
+  if(mat->stride[0] == 1)
+  {
+    THClBlas_gemv(state, 'n', mat->size[0], mat->size[1],
+                    alpha, 
+                    THClTensor_wrapper(state, mat), 
+                    THClTensor_storageOffset(state, mat), 
+                    mat->stride[1],
+                    THClTensor_wrapper(state, vec), 
+                    THClTensor_storageOffset(state, vec), 
+                    vec->stride[0],
+                    beta, 
+                    THClTensor_wrapper(state, r_),
+                    THClTensor_storageOffset(state, r_),
+                    r_->stride[0]);
+  }
+  else if(mat->stride[1] == 1)
+  {
+    THClBlas_gemv(state, 't',  mat->size[1], mat->size[0],
+                    alpha, 
+                    THClTensor_wrapper(state, mat),
+                    THClTensor_storageOffset(state, mat),
+                    mat->stride[0],
+                    THClTensor_wrapper(state, vec),
+                    THClTensor_storageOffset(state, vec),
+                    vec->stride[0],
+                    beta,
+                    THClTensor_wrapper(state, r_),
+                    THClTensor_storageOffset(state, r_),
+                    r_->stride[0]);
+  }
+  else
+  {
+    THClTensor *cmat = THClTensor_newContiguous(state, mat);
 
-//    THClBlas_gemv(state, 't',  mat->size[1], mat->size[0],
-//                    alpha, THClTensor_data(state, cmat), cmat->stride[0],
-//                    THClTensor_data(state, vec), vec->stride[0],
-//                    beta, THClTensor_data(state, r_), r_->stride[0]);
+    THClBlas_gemv(state, 't',  mat->size[1], mat->size[0],
+                    alpha, 
+                    THClTensor_wrapper(state, cmat),
+                    THClTensor_storageOffset(state, cmat),
+                    cmat->stride[0],
+                    THClTensor_wrapper(state, vec),
+                    THClTensor_storageOffset(state, vec),
+                    vec->stride[0],
+                    beta,
+                    THClTensor_wrapper(state, r_),
+                    THClTensor_storageOffset(state, r_),
+                    r_->stride[0]);
 
-//    THClTensor_free(state, cmat);
-//  }
-  THError("Not implemented");
+    THClTensor_free(state, cmat);
+  }
+//  THError("Not implemented");
 }
 
 void THClTensor_addmm(THClState *state, THClTensor *r_, float beta, THClTensor *t, float alpha, THClTensor *m1, THClTensor *m2)

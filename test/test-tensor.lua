@@ -165,5 +165,8 @@ print(torch.dot(v1,v2))
 
 print(torch.ClTensor.zeros(torch.ClTensor.new(), 3, 5))
 print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
+-- print(torch.ClTensor.eye(torch.ClTensor.new(), 3))
+-- print(torch.ClTensor.diag(torch.ClTensor{{3,5,4},{2,3,4},{7,6,5}}))
 
+print(torch.mv(A,v1))
 

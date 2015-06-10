@@ -21,7 +21,9 @@ THCL_API float THClBlas_dot(THClState *state, long n,
     CLWrapper *ywrapper, long yoffset, long incy);
 
 /* Level 2 */
-THCL_API void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, float *a, long lda, float *x, long incx, float beta, float *y, long incy);
+THCL_API void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, CLWrapper *awrapper, long aoffset, long lda, 
+     CLWrapper *xwrapper, long xoffset, long incx, 
+      float beta, CLWrapper *ywrapper, long yoffset, long incy);
 THCL_API void THClBlas_ger(THClState *state, long m, long n, float alpha, float *x, long incx, float *y, long incy, float *a, long lda);
 
 /* Level 3 */

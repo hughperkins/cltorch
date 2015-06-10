@@ -57,7 +57,7 @@ end
 </pre>
 </tr>
 
-<tr><td>basic operations <td>30% done<td><pre>
+<tr><td>basic operations <td>50% done<td><pre>
 d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
 c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
 c:add(d)
@@ -89,6 +89,8 @@ C:mm(A,B)
 v1 = torch.ClTensor{3,5,1}
 v2 = torch.ClTensor{2,4,8}
 print(torch.dot(v1, v2))
+
+print(torch.mv(A,v1))
 </pre></tr>
 
 <tr><td>Overloaded operators <td>80% done<td><pre>
