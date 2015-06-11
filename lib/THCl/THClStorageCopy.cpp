@@ -1,8 +1,12 @@
+#include <iostream>
+
 #include "THClStorageCopy.h"
 #include "THClGeneral.h"
 
 #include <stdio.h>
 #include "EasyCL.h"
+
+using namespace std;
 
 void THClStorage_rawCopy(THClState *state, THClStorage *self, float *src)
 {
@@ -28,6 +32,7 @@ void THClStorage_copyCl(THClState *state, THClStorage *self, THClStorage *src)
 
 void THClStorage_copyFloat(THClState *state, THClStorage *self, struct THFloatStorage *src)
 {
+//  cout << "THClStorgae_copyFloat()" << endl;
   THArgCheck(self->size == src->size, 2, "size does not match");
   for( int i = 0; i < self->size; i++ ) {
     self->data[i] = src->data[i];
@@ -39,7 +44,6 @@ void THClStorage_copyFloat(THClState *state, THClStorage *self, struct THFloatSt
 #define TH_CL_STORAGE_IMPLEMENT_COPY(TYPEC)                           \
   void THClStorage_copy##TYPEC(THClState *state, THClStorage *self, struct TH##TYPEC##Storage *src) \
   {                                                                     \
-    printf("THClStorage_copy_type\n");         \
     THFloatStorage *buffer;                                             \
     THArgCheck(self->size == src->size, 2, "size does not match");      \
     buffer = THFloatStorage_newWithSize(src->size);                     \
@@ -57,6 +61,7 @@ TH_CL_STORAGE_IMPLEMENT_COPY(Double)
 
 void THFloatStorage_copyCl(THClState *state, THFloatStorage *self, struct THClStorage *src)
 {
+//  cout << "THfloatStorage_copyCl" << endl;
   THArgCheck(self->size == src->size, 2, "size does not match");
   if( src->wrapper->isDeviceDirty() ) {
     src->wrapper->copyToHost();

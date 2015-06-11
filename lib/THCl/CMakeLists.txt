@@ -6,7 +6,7 @@ SET(CMAKE_C_FLAGS "-std=c99")
 #SET(src
 #    THCGeneral.c THCAllocator.c THCStorage.c THCStorageCopy.c THCTensor.c THCTensorCopy.c)
 SET(src
-    THClGeneral.cpp THClStorage.cpp THClStorageCopy.cpp THClStorageCopy.c THClTensor.cpp THClTensorCopy.cpp THClTensorMath.cpp 
+    THClGeneral.cpp THClStorage.cpp THClStorageCopy.cpp THClTensor.cpp THClTensorCopy.cpp THClTensorMath.cpp 
     THClTensorMathPointwise.cpp THClReduceApplyUtils.cpp THClApply.cpp
     THClTensorMathCompare.cpp THClTensorMathCompareT.cpp
     THClTensorMathPairwise.cpp THClTensorMath2.cpp
