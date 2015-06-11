@@ -5,7 +5,7 @@
 #include "THClTensorCopy.h"
 //#include "THClTensorRandom.h"
 #include "THClApply.h"
-//#include "THClReduce.cuh"
+#include "THClReduce.h"
 
 using namespace std;
 

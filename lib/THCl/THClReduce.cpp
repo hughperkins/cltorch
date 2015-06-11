@@ -1,182 +1,161 @@
-#include <string>
+#include <iostream>
 
-#include "EasyCL.h"
-#include "util/easycl_stringhelper.h"
-#include "templates/TemplatedKernel.h"
-#include "THClReduceApplyUtils.h"
 #include "THClReduce.h"
 
 using namespace std;
 
-std::string THClReduce_get_bakedTemplate();
-std::string THClReduce_get_finishTemplate();
+#define THCL_NONCONTIG_REDUCE_BLOCK_SIZE 32 * 16
 
-float THClReduce_reduce(THClState *state, CLWrapper *in, HasOperator2 *op)
-{
-  const int segmentSize = 16;
-  TemplatedKernel kernelBuilder(state->cl);
-  kernelBuilder.set("segment_length", segmentSize);
-  kernelBuilder.set("operation", op->operator2());
-  CLKernel *baked = kernelBuilder.buildKernel(
-    "THClReduce_baked_" + easycl::toString(segmentSize) + "_" + op->operator2(), "THClReduce_baked.cl",
-    THClReduce_get_bakedTemplate(), "reduce" );
-  CLKernel *finisher = kernelBuilder.buildKernel(
-    "THClReduce_finish_" + op->operator2(), "THClReduce_finish.cl",
-    THClReduce_get_finishTemplate(), "reduce" );
-  int N = in->size();
-  float *thisIn = 0;
-  CLWrapper *thisInWrapper = in;
-  CLWrapper *outWrapper = 0;
-  float *out = 0;
-  while( N > 1 ) {
-    int numSegments = N / segmentSize;
-    out = new float[numSegments];
-    outWrapper = state->cl->wrap(numSegments, out);
-    outWrapper->createOnDevice();
-    int remainder = N % segmentSize;
-    baked->in(numSegments)->out(outWrapper)->in(thisInWrapper);
-    int workgroupSize = 64;
-    int numWorkgroups = ( numSegments + workgroupSize - 1 ) / workgroupSize;
-    baked->run_1d(numSegments * numWorkgroups, workgroupSize);
-    state->cl->finish();
-    if(remainder > 0) {
-      finisher->in(N - remainder)->out(outWrapper)->in(thisInWrapper)->in(remainder);
-      finisher->run_1d(numSegments, numSegments);
-      state->cl->finish();
-    }
-    // now, the first numSegments values of thisOutWrapper need to be reduced
-    N = numSegments;
-    if( thisInWrapper != in ) {
-      delete thisInWrapper;
-      delete[] thisIn;
-    }
-    thisInWrapper = outWrapper;
-    thisIn = out;
+// since this is no longer a template, so move to .cpp
+
+// Performs a reduction out[..., 0, ...] = reduce_i(modify(in[..., i, ...])) for
+// all in where i and the out's 0 are indexed at dimension `dim`
+bool THClTensor_reduceDim(THClState* state,
+                            THClTensor* out,
+                            THClTensor* in,
+                            const HasOperator2 *modifyOp,
+                            const HasOperator3 *reduceOp,
+                            int dim) {
+  long inElements = THClTensor_nElement(state, in);
+
+  long reductionSize = THClTensor_size(state, in, dim);
+  long reductionStride = THClTensor_stride(state, in, dim);
+  long outElements = inElements / reductionSize;
+
+  if (THClTensor_nDimension(state, out) > MAX_CLTORCH_DIMS ||
+      THClTensor_nDimension(state, in) > MAX_CLTORCH_DIMS) {
+    return false;
   }
-  outWrapper->copyToHost();
-  float result = out[0];
-  delete outWrapper;
-  delete[] out;
-  return result;
-}
 
-std::string THClReduce_get_bakedTemplate()
-{
-  // [[[cog
-  // import stringify
-  // stringify.write_kernel( "kernel", "THClReduce_baked.cl" )
-  // ]]]
-  // generated using cog, from THClReduce_baked.cl:
-  const char * kernelSource =  
-  "\n" 
-  "\n" 
-  "void operation( float *out, *float in1 ) {\n" 
-  "  {{operation}};\n" 
-  "}\n" 
-  "\n" 
-  "// lets do this in pre-baked segments of 16\n" 
-  "// we'll separate out any left-over values each time\n" 
-  "// and process those at the end somehow\n" 
-  "kernel void reduce(int numSegments, global float *out, global float *in) {\n" 
-  "  const int globalId = get_global_id(0);\n" 
-  "  const int segmentId = globalId;\n" 
-  "\n" 
-  "  if( segmentId >= numSegments ) {\n" 
-  "      return;\n" 
-  "  }\n" 
-  "\n" 
-  "  global const float *segment = in + segmentId * {{segmentLength}};\n" 
-  "  float reduced = segment[0];\n" 
-  "\n" 
-  "  // this could be done with #pragma too, but then\n" 
-  "  // we have to check the doc for every vendor, to figure\n" 
-  "  // out how to make sure it works ok.  This way, below,\n" 
-  "  //  what you see is what you get :-)\n" 
-  "  {% for i=1,segment_length do %}\n" 
-  "    operation(&reduced, &(segment[i]));\n" 
-  "  {% end %}\n" 
-  "  out[segmentId] = reduced;\n" 
-  "}\n" 
-  "\n" 
-  "";
-  // [[[end]]]
-  return kernelSource;
-}
+  if (THClTensor_nDimension(state, in) == 0) {
+    // Zero-dim tensor; do nothing
+    return true;
+  }
 
-std::string THClReduce_get_finishTemplate()
-{
-  // [[[cog
-  // import stringify
-  // stringify.write_kernel( "kernel", "THClReduce_finish.cl" )
-  // ]]]
-  // generated using cog, from THClReduce_finish.cl:
-  const char * kernelSource =  
-  "\n" 
-  "\n" 
-  "void operation( float *out, *float in1 ) {\n" 
-  "  {{operation}};\n" 
-  "}\n" 
-  "\n" 
-  "// concept this takes the start and end indices\n" 
-  "// into the input array, reduces those with\n" 
-  "// the zeroth index of the output array\n" 
-  "// we use a few threads to retrieve the data\n" 
-  "// and then one thread to reduce them, so only need\n" 
-  "// one barrier ,but still get coallessced access\n" 
-  "// N is number of values to reduce, starting and including\n" 
-  "// startIndex\n" 
-  "// assume only one workgroup (should be <= 15 values to get)\n" 
-  "kernel void reduce( int startIndex, int N, global float *out, global float const*in, local float *_buffer)\n" 
-  "{\n" 
-  "  float reduced = out[0]; // request this now, so it's ready later\n" 
-  "  // I suppose?\n" 
-  "  int globalId = get_global_id(0);\n" 
-  "  if( globalId >= N ) {\n" 
-  "    return;\n" 
-  "  }\n" 
-  "  _buffer[i] = in[startIndex + globalId];\n" 
-  "  // barrier...\n" 
-  "  barrier(CLK_LOCAL_MEM_FENCE);\n" 
-  "  if( globalId == 0 ) {\n" 
-  "    for( int i = 0; i < N; i++ ) {\n" 
-  "      operation( &reducedd, &(_data[i]));\n" 
-  "    }\n" 
-  "    out[0] = reduced;\n" 
-  "  }\n" 
-  "}\n" 
-  "\n" 
-  "\n" 
-  "\n" 
-  "// this tidies up the values at the end\n" 
-  "// it takes in an array of ints, which are the indices\n" 
-  "// of the values to finish reducing\n" 
-  "//\n" 
-  "// concept: each thread fetches one value to local storage\n" 
-  "// then one thread sums them, and writes to global memory\n" 
-  "// we assume only one workgroup here (otherwise we'd\n" 
-  "// be uing the other kernel, right?)\n" 
-  "//kernel void reduce(int N, global int *indices, global float *data, local float *_data) {\n" 
-  "//  const int globalId = get_global_id(0);\n" 
-  "//  if( globalId >= N ) {\n" 
-  "//    return 0;\n" 
-  "//  }\n" 
-  "//  // this gives coallesced access I guess?\n" 
-  "//  _data[globalId] = data[indices[globalId]];\n" 
-  "//  // need one barrier, now\n" 
-  "//  barrier(CLK_LOCAL_MEM_FENCE);\n" 
-  "//  // poor last thread adds them up\n" 
-  "//  if( globalId == 0 ) {\n" 
-  "//    float value = _data[0];\n" 
-  "//    for( int i = 1; i < N; i++ ) {\n" 
-  "//      operation( &value, &(_data[i]) );\n" 
-  "//    }\n" 
-  "//    // save the result\n" 
-  "//    data[0] = value;\n" 
-  "//  }\n" 
-  "//}\n" 
-  "\n" 
-  "";
-  // [[[end]]]
-  return kernelSource;
+  // Is the reduction dimension contiguous? If so, then we can use a
+  // shared memory reduction kernel to increase performance.
+  bool contigReduction = (reductionStride == 1);
+
+  dim3 block;
+  dim3 grid;
+  int smemSize = 0; // contiguous reduction uses smem
+  if (contigReduction) {
+    if (!getContigReduceGrid(outElements, grid)) {
+      return false;
+    }
+
+    block = getContigReduceBlock(outElements, reductionSize);
+    smemSize = sizeof(float) * block.x();
+  } else {
+    if (!getNoncontigReduceGrid(outElements, grid)) {
+      return false;
+    }
+
+    block = getNoncontigReduceBlock();
+  }
+
+  // Resize out to correspond to the reduced size
+  THLongStorage* sizes = THClTensor_newSizeOf(state, in);
+  THLongStorage_set(sizes, dim, 1);
+  THClTensor_resize(state, out, sizes, NULL);
+  THLongStorage_free(sizes);
+
+  // It is possible that the tensor dimensions are able to be collapsed,
+  // and thus we can reduce the actual code complexity of the copy by
+  // exploiting this knowledge statically, since the div/mod is the
+  // most expensive part of the operation, more so than memory accesses.
+  // For instance, when copying a non-contiguous to a contiguous tensor
+  // (or vice versa), the contiguous tensor can be collapsed to one
+  // dimension, and the loop to translate the linear index to the array
+  // index can be similarly collapsed. That is what this unrolling is for.
+#define HANDLE_CASE(TYPE, OUT, IN)                                      \
+  if (contigReduction) {                                                \
+    kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+        outInfo, inInfo, (TYPE) reductionSize,                                 \
+        (TYPE) outElements, modifyOp, reduceOp);                  \
+    /* THClTensor_reduceContigDim<ModifyOp, ReduceOp, TYPE, OUT, IN>     \
+      <<<grid, block, smemSize, THClState_getCurrentStream(state)>>>(    \
+        outInfo, inInfo, (TYPE) reductionSize,                                 \
+        (TYPE) outElements, init, modifyOp, reduceOp);  */                \
+          THError("Not implemented");  \
+  } else {                                                              \
+     kernelLaunch_THClTensor_reduceNoncontigDim<TYPE, OUT, IN> (  \
+        outInfo, inInfo, (TYPE) reductionStride, (TYPE) reductionSize,                \
+        (TYPE) outElements, modifyOp, reduceOp);                   \
+    /* THClTensor_reduceNoncontigDim<ModifyOp, ReduceOp, TYPE, OUT, IN>  \
+      <<<grid, block, 0, THClState_getCurrentStream(state)>>>(           \
+        outInfo, inInfo, (TYPE) reductionStride, (TYPE) reductionSize,                \
+        (TYPE) outElements, init, modifyOp, reduceOp);  */                 \
+      THError("Not implemented");   \
+  }                                                                     \
+
+#define HANDLE_IN_CASE(TYPE, OUT, IN)                   \
+  {                                                     \
+    if (inInfo.isContiguous()) {                        \
+      HANDLE_CASE(TYPE, OUT, -2);                       \
+    } else {                                            \
+      switch (IN) {                                     \
+        case 1:                                         \
+          HANDLE_CASE(TYPE, OUT, 1);                    \
+          break;                                        \
+        case 2:                                         \
+          HANDLE_CASE(TYPE, OUT, 2);                    \
+          break;                                        \
+        case 3:                                         \
+          HANDLE_CASE(TYPE, OUT, 3);                    \
+          break;                                        \
+        default:                                        \
+          HANDLE_CASE(TYPE, OUT, -1);                   \
+          break;                                        \
+      }                                                 \
+    }                                                   \
+  }
+
+#define HANDLE_OUT_CASE(TYPE, OUT, IN)                \
+  {                                                   \
+    if (outInfo.isContiguous()) {                     \
+      HANDLE_IN_CASE(TYPE, -2, IN);                   \
+    } else {                                          \
+      switch (OUT) {                                  \
+        case 1:                                       \
+          HANDLE_IN_CASE(TYPE, 1, IN);                \
+          break;                                      \
+        case 2:                                       \
+          HANDLE_IN_CASE(TYPE, 2, IN);                \
+          break;                                      \
+        case 3:                                       \
+          HANDLE_IN_CASE(TYPE, 3, IN);                \
+          break;                                      \
+        default:                                      \
+          HANDLE_IN_CASE(TYPE, -1, IN);               \
+          break;                                      \
+      }                                               \
+    }                                                 \
+  }
+
+  if (THCL_canUse32BitIndexMath(state, out) &&
+      THCL_canUse32BitIndexMath(state, in)) {
+    TensorInfo<unsigned int> outInfo(state, out);
+    TensorInfo<unsigned int> inInfo(state, in, dim);
+
+    HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+  } else {
+    TensorInfo<unsigned long> outInfo(state, out);
+    TensorInfo<unsigned long> inInfo(state, in, dim);
+
+    // For large tensors, we only compile the completely contiguous
+    // version and the completely generic version, to reduce
+    // compilation time.
+    if (outInfo.isContiguous() && inInfo.isContiguous()) {
+      HANDLE_CASE(unsigned long, -2, -2);
+    } else {
+      HANDLE_CASE(unsigned long, -1, -1);
+    }
+  }
+#undef HANDLE_CASE
+#undef HANDLE_B_CASE
+#undef HANDLE_A_CASE
+
+  return true;
 }
 

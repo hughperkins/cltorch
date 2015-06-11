@@ -1,0 +1,1888 @@
+CMAKE_INSTALL_PREFIX /home/user/torch/install
+CMAKE_INSTALL_PREFIX /home/user/torch/install
+CLBLAS_INCLUDE_DIRS /home/user/torch/install/include
+DEEPCL_LIBRARIES /home/user/torch/install/lib/libEasyCL.so
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp: In function ‘bool THClTensor_reduceDim(THClState*, THClTensor*, THClTensor*, const HasOperator1*, const HasOperator2*, float, int)’:
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:26:43: error: ‘MAX_CUTORCH_DIMS’ was not declared in this scope
+   if (THClTensor_nDimension(state, out) > MAX_CUTORCH_DIMS ||
+                                           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:49:38: error: ‘class dim3’ has no member named ‘x’
+     smemSize = sizeof(float) * block.x;
+                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, -2, -2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, -2, 1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, -2, 2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, -2, 3>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, -2, -1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:118:7: note: in expansion of macro ‘HANDLE_IN_CASE’
+       HANDLE_IN_CASE(TYPE, -2, IN);                   \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 1, -2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 1, 1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 1, 2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 1, 3>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 1, -1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:122:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 1, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 2, -2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 2, 1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 2, 2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 2, 3>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 2, -1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:125:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 2, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 3, -2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 3, 1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 3, 2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 3, 3>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, 3, -1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:128:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, 3, IN);                \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, -1, -2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:96:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(TYPE, OUT, -2);                       \
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, -1, 1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:100:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 1);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, -1, 2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:103:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 2);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, -1, 3>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:106:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, 3);                    \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected primary-expression before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:21: error: expected ‘;’ before ‘unsigned’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+                     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<unsigned int, -1, -1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:109:11: note: in expansion of macro ‘HANDLE_CASE’
+           HANDLE_CASE(TYPE, OUT, -1);                   \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:131:11: note: in expansion of macro ‘HANDLE_IN_CASE’
+           HANDLE_IN_CASE(TYPE, -1, IN);               \
+           ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:142:5: note: in expansion of macro ‘HANDLE_OUT_CASE’
+     HANDLE_OUT_CASE(unsigned int, outInfo.dims, inInfo.dims);
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:151:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(unsigned long, -2, -2);
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:151:19: error: expected primary-expression before ‘unsigned’
+       HANDLE_CASE(unsigned long, -2, -2);
+                   ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:151:19: error: expected ‘;’ before ‘unsigned’
+       HANDLE_CASE(unsigned long, -2, -2);
+                   ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:151:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(unsigned long, -2, -2);
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<long unsigned int, -2, -2>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:151:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(unsigned long, -2, -2);
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:151:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(unsigned long, -2, -2);
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:5: error: ‘kernelLaunch_THClTensor_reduceContigDim’ was not declared in this scope
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+     ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:153:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(unsigned long, -1, -1);
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:153:19: error: expected primary-expression before ‘unsigned’
+       HANDLE_CASE(unsigned long, -1, -1);
+                   ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:153:19: error: expected ‘;’ before ‘unsigned’
+       HANDLE_CASE(unsigned long, -1, -1);
+                   ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:74:45: note: in definition of macro ‘HANDLE_CASE’
+     kernelLaunch_THClTensor_reduceContigDim<TYPE, OUT, IN> (    \
+                                             ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:84:9: error: expected ‘;’ before ‘outInfo’
+         outInfo, inInfo, reductionStride, reductionSize,                \
+         ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:153:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(unsigned long, -1, -1);
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement is a reference, not call, to function ‘kernelLaunch_THClTensor_reduceNoncontigDim<long unsigned int, -1, -1>’ [-Waddress]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:153:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(unsigned long, -1, -1);
+       ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:85:54: warning: statement has no effect [-Wunused-value]
+         (TYPE) outElements, init, modifyOp, reduceOp);                   \
+                                                      ^
+/home/user/git/cltorch/lib/THCl/THClReduce.cpp:153:7: note: in expansion of macro ‘HANDLE_CASE’
+       HANDLE_CASE(unsigned long, -1, -1);
+       ^
+make[2]: *** [lib/THCl/CMakeFiles/THCL.dir/THClReduce.cpp.o] Error 1
+make[1]: *** [lib/THCl/CMakeFiles/THCL.dir/all] Error 2
+make: *** [all] Error 2
+
+Error: Build error: Failed building.

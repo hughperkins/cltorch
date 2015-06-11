@@ -68,6 +68,15 @@ public:
         vec[1] = y;
         vec[2] = z;
     }
+    inline float x() {
+        return vec[0];
+    }
+    inline float y() {
+        return vec[1];
+    }
+    inline float z() {
+        return vec[2];
+    }
 //    size_t const *as_size_t() {
 //        for( int i = 0; i < 3; i++ ) {
 //            vec_size_t[i] = vec[i];
