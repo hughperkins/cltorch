@@ -1,15 +1,15 @@
-package = "clnn"
+package = "cltorch"
 version = "scm-1"
 
 source = {
-   url = "git://github.com/hughperkins/clnn.git",
+   url = "git://github.com/hughperkins/cltorch.git",
 }
 
 description = {
-   summary = "Torch OpenCL Implementation",
+   summary = "OpenCL backend for Torch",
    detailed = [[
    ]],
-   homepage = "https://github.com/hughperkins/clnn",
+   homepage = "https://github.com/hughperkins/cltorch",
    license = "BSD"
 }
 
