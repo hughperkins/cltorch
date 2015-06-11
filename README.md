@@ -1,6 +1,6 @@
 # cltorch
 
-OpenCL module for torch, ported from the original cutorch CUDA module.
+An OpenCL backend for torch.
 
 ## What's working
 
