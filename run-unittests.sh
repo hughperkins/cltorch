@@ -4,6 +4,9 @@
 
 source ~/torch/activate || exit 1
 luarocks make rocks/cltorch-scm-1.rockspec || exit 1
+# LUA_CPATH="$LUA_CPATH;build/?.so" LUA_PATH="$LUA_PATH;?.lua" luajit test/test.lua
+
+export LUA_PATH="$LUA_PATH;${PWD}/thirdparty/?.lua"
 
 if [[ ! -v LUAEXE ]]; then {
     LUAEXE=luajit
@@ -11,8 +14,8 @@ if [[ ! -v LUAEXE ]]; then {
 echo using luaexe: ${LUAEXE}
 
 if [[ x${RUNGDB} == x1 ]]; then {
-  rungdb.sh ${LUAEXE} test/test-tensor.lua
+  rungdb.sh ${LUAEXE} test/cltorch-tests.lua
 } else {
-  ${LUAEXE} test/test-tensor.lua
+  ${LUAEXE} test/cltorch-tests.lua
 } fi
 
