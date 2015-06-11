@@ -129,6 +129,14 @@ end
 
 </table>
 
+# Installation
+
+* First install torch distro, see [https://github.com/torch/distro](https://github.com/torch/distro).
+* Now, git clone the cltorch distro, cd into it, and run:
+```
+luarocks make rocks/cltorch-scm-1.rockspec
+```
+
 # Migration status by file
 
 Porting status by file, compared with original cutorch files.  Note that `.cpp` here could have been ported from `.c`, `.cpp`, or `.cu`.
@@ -151,9 +159,13 @@ Porting status by file, compared with original cutorch files.  Note that `.cpp` 
 
 # Dependencies
 
-cltorch has the following dependencies:
+cltorch has the following build dependencies:
 * [lua 5.1](http://www.lua.org/versions.html) libraries - used for runtime Kernel templating
 * [clBLAS](https://github.com/clMathLibraries/clBLAS) - provides GPU-based matrix operations, such as multiplication
 * [EasyCL](https://github.com/hughperkins/EasyCL) - provides an abstraction layer over the low-level OpenCL API
 * [clew](https://github.com/martijnberger/clew) - similar to glew, means that this module can be loaded without any OpenCL library/runtime being present
+
+At runtime, if you want to call any of the cltorch methods, you will also need:
+* OpenCL-compatible GPU
+* OpenCL library/driver (normally provided by the GPU vendor)
 
