@@ -4,7 +4,7 @@
 #include "THClTensorCopy.h"
 #include "THClReduceApplyUtils.h"
 #include "templates/TemplatedKernel.h"
-#include "util/stringhelper.h"
+#include "util/easycl_stringhelper.h"
 #include "EasyCL.h"
 #include "CLKernel_structs.h"
 
@@ -33,7 +33,7 @@ typedef struct TensorInfoCl {
   TensorInfoCl( TensorInfo<unsigned int> info ) {
     dims = info.dims;
     if( info.offset > ( 1l << 30 ) ) {
-      throw std::runtime_error("size " + toString(info.offset) + " out of bounds");
+      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
     }
     offset = (int)info.offset;
     for( int i = 0; i < dims; i++ ) {
@@ -44,12 +44,12 @@ typedef struct TensorInfoCl {
   TensorInfoCl( TensorInfo<unsigned long> info ) {
     dims = info.dims;
     if( info.offset > ( 1l << 30 ) ) {
-      throw std::runtime_error("size " + toString(info.offset) + " out of bounds");
+      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
     }
     offset = (int)info.offset;
     for( int i = 0; i < dims; i++ ) {
       if( info.sizes[i] > ( 1l << 31 ) ) {
-        throw std::runtime_error("size " + toString(info.sizes[i]) + " out of bounds");
+        throw std::runtime_error("size " + easycl::toString(info.sizes[i]) + " out of bounds");
       }
       sizes[i] = info.sizes[i];
       strides[i] = info.strides[i];
@@ -82,7 +82,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("num_tensor_inputs", numTensors);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("operation", operation);
-  std::string uniqueName = "applyDv2_1t" + toString(numScalars) + "s_" + toString(A) + "_" + op->operator1();
+  std::string uniqueName = "applyDv2_1t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + op->operator1();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyDv2.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
   // calculate workgroup sizes and stuff
   dim3 global_ws;
@@ -120,7 +120,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   }
 
   if( totalElements > ( 1l << 30 )) {
-    throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
+    throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   kernel->in( (int)totalElements );
   kernel->run(3, global_ws.vec, block.vec);
@@ -151,12 +151,12 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("operation", operation);
-  std::string uniqueName = "applyDv2_" + toString(numTensors) + "t" + toString(numScalars) + "s_" + toString(A) + "_" + toString(B) + "_" + op->operator2();
+  std::string uniqueName = "applyDv2_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
   CLKernel *kernel = 0;
   try {
     kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyDv2.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
   } catch( std::runtime_error &e ) {
-    std::cout << "Error building kernel in apply2 " << __FILE__ << ":" << toString( __LINE__ ) << ": " << e.what() << std::endl;
+    std::cout << "Error building kernel in apply2 " << __FILE__ << ":" << easycl::toString( __LINE__ ) << ": " << e.what() << std::endl;
     throw e;
   }
   // calculate workgroup sizes and stuff
@@ -203,7 +203,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   }
 
   if( totalElements > ( 1l << 30 )) {
-    throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
+    throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   kernel->in( (int)totalElements );
   kernel->run(3, global_ws.vec, block.vec);
@@ -238,7 +238,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("operation", operation);
-  std::string uniqueName = "applyDv2_3t" + toString(numScalars) + "s_" + toString(A) + "_" + toString(B) + "_" + toString(C) + "_" + op->operator3();
+  std::string uniqueName = "applyDv2_3t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + easycl::toString(C) + "_" + op->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyDv2.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
   // calculate workgroup sizes and stuff
   dim3 global_ws;
@@ -287,7 +287,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   }
 
   if( totalElements > ( 1l << 30 )) {
-    throw std::runtime_error("Error: out of bounds for totalelements=" + toString(totalElements));
+    throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   kernel->in( (int)totalElements );
   kernel->run(3, global_ws.vec, block.vec);

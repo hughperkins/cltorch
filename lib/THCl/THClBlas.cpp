@@ -3,7 +3,7 @@
 #include "THClBlas.h"
 #include "THClGeneral.h"
 
-#include "util/stringhelper.h"
+#include "util/easycl_stringhelper.h"
 #include "EasyCL.h"
 #include <clBLAS.h>
 

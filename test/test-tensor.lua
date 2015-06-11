@@ -170,5 +170,38 @@ print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
 
 print(torch.mv(A,v1))
 
+-------------------
 
+print(torch.Tensor.__eq)
+function torch.Tensor.__eq(self, b)
+  print('self', self)
+  diff = self:ne(b)
+  print('diff', diff)
+  sum = diff:sum()
+  print('sum', sum)
+  if sum == 0 then
+    return true
+  else
+    return false
+  end
+end
+
+function torch.ClTensor.__eq(self, b)
+  print('self', self)
+  diff = self:ne(b)
+  print('diff', diff)
+  sum = diff:sum()
+  print('sum', sum)
+  if sum == 0 then
+    return true
+  else
+    return false
+  end
+end
+
+--print(torch.Tensor({3,5,2}) == torch.Tensor({3,5,2}))
+--print(torch.Tensor({{3,5,2},{4,5,6}}) == torch.Tensor({{3,5,2},{4,5,6}}))
+
+print(torch.ClTensor({{3,5,2},{4,5,6}}) == torch.ClTensor({{3,5,2},{4,5,6}}))
+print('end')
 

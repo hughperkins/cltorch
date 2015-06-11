@@ -77,5 +77,6 @@ d = torch.ClStorage(3)
 d:copy(c)
 print('dddd\n', d)
 
+-- print(torch.Storage{3,5,2} == torch.Storage{3,5,2})
 
 

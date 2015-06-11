@@ -10,7 +10,8 @@ SET(src
     THClTensorMathPointwise.cpp THClReduceApplyUtils.cpp THClApply.cpp
     THClTensorMathCompare.cpp THClTensorMathCompareT.cpp
     THClTensorMathPairwise.cpp THClTensorMath2.cpp
-    THClBlas.cpp THClTensorMathBlas.cpp THClBlas.cpp )
+    THClBlas.cpp THClTensorMathBlas.cpp THClBlas.cpp
+    THClReduce.cpp )
 set(src-cl)
 
 message("CLBLAS_INCLUDE_DIRS ${CLBLAS_INCLUDE_DIRS}")
@@ -27,7 +28,7 @@ add_dependencies( THCL EasyCL )
 if(DEV_RUN_COG)
     add_custom_target(
         cog_thcl
-        python ${CMAKE_CURRENT_SOURCE_DIR}/../../DeepCL/thirdparty/cogapp/cog.py -q -I ${CMAKE_CURRENT_SOURCE_DIR}/../../DeepCL/cog-batteries -r ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+        python ${CMAKE_CURRENT_SOURCE_DIR}/../../EasyCL/thirdparty/cogapp/cog.py -q -I ${CMAKE_CURRENT_SOURCE_DIR}/../../EasyCL/cog-batteries -r ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
     add_dependencies( THCL cog_thcl )

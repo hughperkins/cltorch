@@ -234,14 +234,15 @@ float THClTensor_maxall(THClState *state, THClTensor *self)
 
 float THClTensor_sumall(THClState *state, THClTensor *self)
 {
-//  THAssert(THClTensor_checkGPU(state, 1, self));
-//  self = THClTensor_newContiguous(state, self);
+  THAssert(THClTensor_checkGPU(state, 1, self));
+  self = THClTensor_newContiguous(state, self);
 //  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
 
 //  float result = thrust::reduce(self_data, self_data+THClTensor_nElement(state, self), (float)(0), thrust::plus<float>());
 
 //  THClTensor_free(state, self);
 //  return result;
+
     THError("Not implemented");
     return 0;
 }
