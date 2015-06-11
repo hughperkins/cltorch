@@ -149,4 +149,11 @@ Porting status by file, compared with original cutorch files.  Note that `.cpp` 
 | THClTensorMathBlas.cpp | 30% |
 | THClBlas.cpp | 50% |
 
+# Dependencies
+
+cltorch has the following dependencies:
+* [lua 5.1](http://www.lua.org/versions.html) libraries - used for runtime Kernel templating
+* [clBLAS](https://github.com/clMathLibraries/clBLAS) - provides GPU-based matrix operations, such as multiplication
+* [EasyCL](https://github.com/hughperkins/EasyCL) - provides an abstraction layer over the low-level OpenCL API
+* [clew](https://github.com/martijnberger/clew) - similar to glew, means that this module can be loaded without any OpenCL library/runtime being present
 
