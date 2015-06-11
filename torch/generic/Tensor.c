@@ -57,7 +57,7 @@ static int torch_Tensor_(storage)(lua_State *L)
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   if(tensor->storage)
   {
-    THStorage_(retain)(clnn_getstate(L), tensor->storage);
+    THStorage_(retain)(cltorch_getstate(L), tensor->storage);
     luaT_pushudata(L, tensor->storage, torch_Storage);
   }
   else
@@ -75,8 +75,8 @@ static int torch_Tensor_(storageOffset)(lua_State *L)
 
 static int torch_Tensor_(new)(lua_State *L)
 {
-  //  printf("clnn/torch/generic/Tensor.c torch_Tensor_(new)\n");
-  THClState *state = clnn_getstate(L);
+  //  printf("cltorch/torch/generic/Tensor.c torch_Tensor_(new)\n");
+  THClState *state = cltorch_getstate(L);
   THTensor *tensor;
   long storageOffset;
   THLongStorage *size, *stride;
@@ -215,7 +215,7 @@ static int torch_Tensor_(set)(lua_State *L)
   torch_Tensor_(c_readTensorStorageSizeStride)(L, 2, 1, 1, 1, 1,
                                                &storage, &storageOffset, &size, &stride);
 
-  THTensor_(setStorage)(clnn_getstate(L), self, storage, storageOffset, size, stride);
+  THTensor_(setStorage)(cltorch_getstate(L), self, storage, storageOffset, size, stride);
 
   THLongStorage_free(size);
   THLongStorage_free(stride);
@@ -227,7 +227,7 @@ static int torch_Tensor_(set)(lua_State *L)
 static int torch_Tensor_(clone)(lua_State *L)
 {
   THTensor *self = luaT_checkudata(L, 1, torch_Tensor);
-  self = THTensor_(newClone)(clnn_getstate(L), self);
+  self = THTensor_(newClone)(cltorch_getstate(L), self);
   luaT_pushudata(L, self, torch_Tensor);
   return 1;
 }
@@ -235,7 +235,7 @@ static int torch_Tensor_(clone)(lua_State *L)
 static int torch_Tensor_(contiguous)(lua_State *L)
 {
   THTensor *self = luaT_checkudata(L, 1, torch_Tensor);
-  self = THTensor_(newContiguous)(clnn_getstate(L), self);
+  self = THTensor_(newContiguous)(cltorch_getstate(L), self);
   luaT_pushudata(L, self, torch_Tensor);
   return 1;
 }
@@ -245,7 +245,7 @@ static int torch_Tensor_(resizeAs)(lua_State *L)
 {
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   THTensor *src = luaT_checkudata(L, 2, torch_Tensor);
-  THTensor_(resizeAs)(clnn_getstate(L), tensor, src);
+  THTensor_(resizeAs)(cltorch_getstate(L), tensor, src);
   lua_settop(L, 1);
   return 1;
 }
@@ -257,7 +257,7 @@ static int torch_Tensor_(resize)(lua_State *L)
 
   torch_Tensor_(c_readSizeStride)(L, 2, 0, &size, &stride);
 
-  THTensor_(resize)(clnn_getstate(L), tensor, size, stride);
+  THTensor_(resize)(cltorch_getstate(L), tensor, size, stride);
 
   THLongStorage_free(size);
   THLongStorage_free(stride);
@@ -268,7 +268,7 @@ static int torch_Tensor_(resize)(lua_State *L)
 
 static int torch_Tensor_(narrow)(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   int dimension = luaL_checkint(L, 2)-1;
   long firstIndex = luaL_checklong(L, 3)-1;
@@ -286,7 +286,7 @@ static int torch_Tensor_(narrow)(lua_State *L)
 
 static int torch_Tensor_(sub)(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   long d0s = -1, d0e = -1, d1s = -1, d1e = -1, d2s = -1, d2e = -1, d3s = -1, d3e = -1;
 
@@ -357,7 +357,7 @@ static int torch_Tensor_(sub)(lua_State *L)
 
 static int torch_Tensor_(select)(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   int dimension = luaL_checkint(L, 2)-1;
   long sliceIndex = luaL_checklong(L, 3)-1;
@@ -384,7 +384,7 @@ static int torch_Tensor_(select)(lua_State *L)
 
 static int torch_Tensor_(indexSelect)(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   int narg = lua_gettop(L);
   THTensor *tensor, *src;
   THLongTensor *index;
@@ -434,7 +434,7 @@ static int torch_Tensor_(indexCopy)(lua_State *L)
     return 0;
   }
 
-  THTensor_(indexCopy)(clnn_getstate(L), tensor,dim,index,src);
+  THTensor_(indexCopy)(cltorch_getstate(L), tensor,dim,index,src);
 
   return 1;
 }
@@ -459,14 +459,14 @@ static int torch_Tensor_(indexFill)(lua_State *L)
     return 0;
   }
 
-  THTensor_(indexFill)(clnn_getstate(L), tensor,dim,index,val);
+  THTensor_(indexFill)(cltorch_getstate(L), tensor,dim,index,val);
 
   return 1;
 }
 
 static int torch_Tensor_(transpose)(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   int dimension1 = luaL_checkint(L, 2)-1;
   int dimension2 = luaL_checkint(L, 3)-1;
@@ -484,7 +484,7 @@ static int torch_Tensor_(transpose)(lua_State *L)
 
 static int torch_Tensor_(t)(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
 
   luaL_argcheck(L, tensor->nDimension == 2, 1, "Tensor must have 2 dimensions");
@@ -497,7 +497,7 @@ static int torch_Tensor_(t)(lua_State *L)
 
 static int torch_Tensor_(unfold)(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   int dimension = luaL_checkint(L, 2)-1;
   long size = luaL_checklong(L, 3);
@@ -519,7 +519,7 @@ static int torch_Tensor_(unfold)(lua_State *L)
 static int torch_Tensor_(isContiguous)(lua_State *L)
 {
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
-  lua_pushboolean(L, THTensor_(isContiguous)(clnn_getstate(L), tensor));
+  lua_pushboolean(L, THTensor_(isContiguous)(cltorch_getstate(L), tensor));
   return 1;
 }
 
@@ -527,20 +527,20 @@ static int torch_Tensor_(isSameSizeAs)(lua_State *L)
 {
   THTensor *self = luaT_checkudata(L, 1, torch_Tensor);
   THTensor *src = luaT_checkudata(L, 2, torch_Tensor);
-  lua_pushboolean(L, THTensor_(isSameSizeAs)(clnn_getstate(L), self, src));
+  lua_pushboolean(L, THTensor_(isSameSizeAs)(cltorch_getstate(L), self, src));
   return 1;
 }
 
 static int torch_Tensor_(nElement)(lua_State *L)
 {
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
-  lua_pushnumber(L, THTensor_(nElement)(clnn_getstate(L), tensor));
+  lua_pushnumber(L, THTensor_(nElement)(cltorch_getstate(L), tensor));
   return 1;
 }
 
 static int torch_Tensor_(copy)(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   void *src;
   if( (src = luaT_toudata(L, 2, torch_Tensor)) )
@@ -567,7 +567,7 @@ static int torch_Tensor_(copy)(lua_State *L)
 
 static int torch_Tensor_(__newindex__)(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   THLongStorage *idx = NULL;
   THByteTensor *mask;
@@ -781,7 +781,7 @@ static int torch_Tensor_(__newindex__)(lua_State *L)
 
 static int torch_Tensor_(__index__)(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   THLongStorage *idx = NULL;
   THByteTensor *mask;
@@ -917,7 +917,7 @@ static int torch_Tensor_(__index__)(lua_State *L)
 static int torch_Tensor_(free)(lua_State *L)
 {
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
-  THTensor_(free)(clnn_getstate(L), tensor);
+  THTensor_(free)(cltorch_getstate(L), tensor);
   return 0;
 }
 
@@ -980,7 +980,7 @@ static void torch_Tensor_(c_readSizeStride)(lua_State *L, int index, int allowSt
 static void torch_Tensor_(c_readTensorStorageSizeStride)(lua_State *L, int index, int allowNone, int allowTensor, int allowStorage, int allowStride,
                                                          THStorage **storage_, long *storageOffset_, THLongStorage **size_, THLongStorage **stride_)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THTensor *src = NULL;
   THStorage *storage = NULL;
 
@@ -1120,7 +1120,7 @@ static int torch_Tensor_(map2)(lua_State *L)
 
 static int torch_Tensor_(factory)(lua_State *L)
 {
-  THTensor *tensor = THTensor_(new)(clnn_getstate(L));
+  THTensor *tensor = THTensor_(new)(cltorch_getstate(L));
   luaT_pushudata(L, tensor, torch_Tensor);
   return 1;
 }
@@ -1140,7 +1140,7 @@ static int torch_Tensor_(write)(lua_State *L)
   /* the storage */
   if(tensor->storage)
   {
-    THStorage_(retain)(clnn_getstate(L), tensor->storage);
+    THStorage_(retain)(cltorch_getstate(L), tensor->storage);
     luaT_pushudata(L, tensor->storage, torch_Storage);
   }
   else
@@ -1170,7 +1170,7 @@ static int torch_Tensor_(read)(lua_State *L)
 
   tensor->storage = luaT_toudata(L, -1, torch_Storage);
   if(tensor->storage)
-    THStorage_(retain)(clnn_getstate(L), tensor->storage);
+    THStorage_(retain)(cltorch_getstate(L), tensor->storage);
 
   return 0;
 }

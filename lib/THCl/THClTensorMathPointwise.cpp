@@ -29,13 +29,13 @@ public:
     THAssert(THClTensor_checkGPU(state, 2, self_, src));                \
     if (self_ == src) {                                                 \
       if (!THClTensor_pointwiseApply1(state, self_, TensorGenOp(#CFUNC))) { \
-        THArgCheck(false, 2, CLNN_DIM_WARNING); \
+        THArgCheck(false, 2, CLTORCH_DIM_WARNING); \
       }                                                                 \
     } else {                                                            \
       THClTensor_resizeAs(state, self_, src);                         \
                                                                         \
       if (!THClTensor_pointwiseApply2(state, self_, src, TensorGenOp(#CFUNC))) { \
-        THArgCheck(false, 2, CLNN_DIM_WARNING); \
+        THArgCheck(false, 2, CLTORCH_DIM_WARNING); \
       }                                                                 \
     }                                                                   \
                                                                         \
@@ -96,12 +96,12 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
     if (value == 1.0f) {
       // self += src2
       if (!THClTensor_pointwiseApply2(state, self_, src2, TensorAddOp())) {
-        THArgCheck(false, 2, CLNN_DIM_WARNING);
+        THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     } else {
       // self += value * src2
       if (!THClTensor_pointwiseApply2(state, self_, src2, TensorCAddOp(value))) {
-        THArgCheck(false, 2, CLNN_DIM_WARNING);
+        THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     }
   } else {
@@ -110,12 +110,12 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
     if (value == 1.0f) {
       // self = src1 + src2
       if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorAddOp())) {
-        THArgCheck(false, 2, CLNN_DIM_WARNING);
+        THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     } else {
       // self = src1 + value * src2
       if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorCAddOp(value))) {
-        THArgCheck(false, 2, CLNN_DIM_WARNING);
+        THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     }
   }
@@ -140,14 +140,14 @@ void THClTensor_cmul(THClState *state, THClTensor *self_, THClTensor *src1, THCl
   if (self_ == src1) {
     // self *= src2
     if (!THClTensor_pointwiseApply2(state, self_, src2, TensorMulOp())) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src1);
 
     // self = src1 * src2
     if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorMulOp())) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
 }

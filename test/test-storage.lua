@@ -24,21 +24,21 @@ function table_to_str(table)
   return results
 end
 
-print("running require clnn...")
-require 'clnn'
-print("... require clnn done")
+print("running require cltorch...")
+require 'cltorch'
+print("... require cltorch done")
 
-for k,v in pairs(clnn) do
-  print('clnn k,v', k, v)
+for k,v in pairs(cltorch) do
+  print('cltorch k,v', k, v)
 end
 
-props = clnn.getDeviceProperties(1)
+props = cltorch.getDeviceProperties(1)
 print('props', props)
 for k,v in pairs(props) do
   print('props k,v', k, v)
 end
 
-print('num devices:', clnn.getDeviceCount())
+print('num devices:', cltorch.getDeviceCount())
 
 c = torch.ClStorage()
 print('c1\n', c)

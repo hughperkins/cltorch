@@ -32,8 +32,8 @@ typedef struct TensorInfoCl {
   // The optional `reduceDim` indicates a reduction dimension for the
   // given tensor, so that the output size for this dimension will be 1.
 
-  int sizes[{{MAX_CLNN_DIMS}}];
-  int strides[{{MAX_CLNN_DIMS}}];
+  int sizes[{{MAX_CLTORCH_DIMS}}];
+  int strides[{{MAX_CLTORCH_DIMS}}];
   int offset;
   int dims;
 } TensorInfoCl;

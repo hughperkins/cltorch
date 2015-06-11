@@ -2,12 +2,12 @@
 #include "luaT.h"
 #include "THCl.h"
 
-static int clnn_ClTensorOperator___add__(lua_State *L)
+static int cltorch_ClTensorOperator___add__(lua_State *L)
 {
   THClTensor *tensor1 = luaT_toudata(L, 1, "torch.ClTensor");
   THClTensor *tensor2 = luaT_toudata(L, 2, "torch.ClTensor");
   THClTensor *r;
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THAssert(THClTensor_checkGPU(state, 2, tensor1, tensor2));
 
   if(!tensor1 && !tensor2)
@@ -39,12 +39,12 @@ static int clnn_ClTensorOperator___add__(lua_State *L)
   return 1;
 }
 
-static int clnn_ClTensorOperator___sub__(lua_State *L)
+static int cltorch_ClTensorOperator___sub__(lua_State *L)
 {
   THClTensor *tensor1 = luaT_toudata(L, 1, "torch.ClTensor");
   THClTensor *tensor2 = luaT_toudata(L, 2, "torch.ClTensor");
   THClTensor *r;
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THAssert(THClTensor_checkGPU(state, 2, tensor1, tensor2));
 
   if(!tensor1 && !tensor2)
@@ -76,11 +76,11 @@ static int clnn_ClTensorOperator___sub__(lua_State *L)
   return 1;
 }
 
-static int clnn_ClTensorOperator___unm__(lua_State *L)
+static int cltorch_ClTensorOperator___unm__(lua_State *L)
 {
   THClTensor *tensor = luaT_checkudata(L, 1, "torch.ClTensor");
   THClTensor *r;
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THAssert(THClTensor_checkGPU(state, 1, tensor));
 
   r = THClTensor_new(state);
@@ -92,12 +92,12 @@ static int clnn_ClTensorOperator___unm__(lua_State *L)
   return 1;
 }
 
-static int clnn_ClTensorOperator___mul__(lua_State *L)
+static int cltorch_ClTensorOperator___mul__(lua_State *L)
 {
   THClTensor *tensor1 = luaT_toudata(L, 1, "torch.ClTensor");
   THClTensor *tensor2 = luaT_toudata(L, 2, "torch.ClTensor");
   THClTensor *r;
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THAssert(THClTensor_checkGPU(state, 2, tensor1, tensor2));
 
   if(!tensor1 && !tensor2)
@@ -145,11 +145,11 @@ static int clnn_ClTensorOperator___mul__(lua_State *L)
   return 1;
 }
 
-static int clnn_ClTensorOperator___div__(lua_State *L)
+static int cltorch_ClTensorOperator___div__(lua_State *L)
 {
   THClTensor *tensor = luaT_checkudata(L, 1, "torch.ClTensor");
   THClTensor *r;
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THAssert(THClTensor_checkGPU(state, 1, tensor));
 
   luaL_argcheck(L, lua_isnumber(L,2), 2, "number expected");
@@ -164,18 +164,18 @@ static int clnn_ClTensorOperator___div__(lua_State *L)
   return 1;
 }
 
-static const struct luaL_Reg clnn_ClTensorOperator__ [] = {
-  {"__add__", clnn_ClTensorOperator___add__},
-  {"__sub__", clnn_ClTensorOperator___sub__},
-  {"__unm__", clnn_ClTensorOperator___unm__},
-  {"__mul__", clnn_ClTensorOperator___mul__},
-  {"__div__", clnn_ClTensorOperator___div__},
+static const struct luaL_Reg cltorch_ClTensorOperator__ [] = {
+  {"__add__", cltorch_ClTensorOperator___add__},
+  {"__sub__", cltorch_ClTensorOperator___sub__},
+  {"__unm__", cltorch_ClTensorOperator___unm__},
+  {"__mul__", cltorch_ClTensorOperator___mul__},
+  {"__div__", cltorch_ClTensorOperator___div__},
   {NULL, NULL}
 };
 
-void clnn_ClTensorOperator_init(lua_State *L)
+void cltorch_ClTensorOperator_init(lua_State *L)
 {
   luaT_pushmetatable(L, "torch.ClTensor");
-  luaL_setfuncs(L, clnn_ClTensorOperator__, 0);
+  luaL_setfuncs(L, cltorch_ClTensorOperator__, 0);
   lua_pop(L, 1);
 }

@@ -9,16 +9,16 @@ extern "C" {
   #include "lua.h"
   #include "utils.h"
   #include "luaT.h"
-  int luaopen_libclnn( lua_State *L );
-  extern void clnn_ClStorage_init(lua_State* L);
-  extern void clnn_ClTensor_init(lua_State* L);
-  extern void clnn_ClTensorMath_init(lua_State* L);
-  extern void clnn_ClTensorOperator_init(lua_State* L);
+  int luaopen_libcltorch( lua_State *L );
+  extern void cltorch_ClStorage_init(lua_State* L);
+  extern void cltorch_ClTensor_init(lua_State* L);
+  extern void cltorch_ClTensorMath_init(lua_State* L);
+  extern void cltorch_ClTensorOperator_init(lua_State* L);
 }
 
 #include "THClGeneral.h"
 
-namespace clnn {
+namespace cltorch {
   void setProperty(lua_State *L, string name, int value)
   {
     lua_pushnumber(L, value);
@@ -29,15 +29,15 @@ namespace clnn {
     lua_pushstring(L, value.c_str());
     lua_setfield(L, -2, name.c_str());
   }
-  static int clnn_getDeviceCount(lua_State *L)
+  static int cltorch_getDeviceCount(lua_State *L)
   {
     int count = easycl::DevicesInfo::getNumDevices();
     lua_pushnumber(L, count);
     return 1;
   }
-  static int clnn_getDeviceProperties(lua_State *L)
+  static int cltorch_getDeviceProperties(lua_State *L)
   {
-    cout << "clnn_getDeviceProperties" << endl;
+    cout << "cltorch_getDeviceProperties" << endl;
 
     int device = (int)luaL_checknumber(L, 1)-1;
     cout << "device: " << device << endl;
@@ -80,20 +80,20 @@ namespace clnn {
   //  return 1;
   //}
 
-  static const struct luaL_Reg clnn_stuff__ [] = {
-    {"getDeviceCount", clnn_getDeviceCount},
-    {"getDeviceProperties", clnn_getDeviceProperties},
+  static const struct luaL_Reg cltorch_stuff__ [] = {
+    {"getDeviceCount", cltorch_getDeviceCount},
+    {"getDeviceProperties", cltorch_getDeviceProperties},
     {NULL, NULL}
   };
 }
 
-int luaopen_libclnn( lua_State *L ) {
-  printf("luaopen_libclnn called :-)\n");
+int luaopen_libcltorch( lua_State *L ) {
+  printf("luaopen_libcltorch called :-)\n");
   cout << " try cout" << endl;
 
   lua_newtable(L);
 
-  luaL_setfuncs(L, clnn::clnn_stuff__, 0);
+  luaL_setfuncs(L, cltorch::cltorch_stuff__, 0);
   cout << "setfuncs done" << endl;
 
   THClState* state = (THClState*)malloc(sizeof(THClState));
@@ -101,14 +101,14 @@ int luaopen_libclnn( lua_State *L ) {
   THClInit(state);
   cout << "THClInit done" << endl;
 
-  clnn_ClStorage_init(L);
-  clnn_ClTensor_init(L);
-  clnn_ClTensorMath_init(L);
-  clnn_ClTensorOperator_init(L);
+  cltorch_ClStorage_init(L);
+  cltorch_ClTensor_init(L);
+  cltorch_ClTensorMath_init(L);
+  cltorch_ClTensorOperator_init(L);
 
   lua_pushlightuserdata(L, state);
   lua_setfield(L, -2, "_state");
-  cout << "luaopen_libclnn done\n" << endl;
+  cout << "luaopen_libcltorch done\n" << endl;
 
   return 1;
 }

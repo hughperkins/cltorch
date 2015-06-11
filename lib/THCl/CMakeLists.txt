@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-OPTION(DEV_RUN_COG "clnn maintainers only, otherwise set to 'OFF'." OFF)
+OPTION(DEV_RUN_COG "cltorch maintainers only, otherwise set to 'OFF'." OFF)
 
 SET(CMAKE_C_FLAGS "-std=c99")
 #SET(src

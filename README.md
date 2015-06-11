@@ -8,11 +8,11 @@ An OpenCL backend for torch.
 
 <tr><td>Component<td>Status<td>Examples of what works now</tr>
 
-<tr><td><pre>require 'clnn'</pre> <td> works <td><pre>require 'clnn'</pre></tr>
+<tr><td><pre>require 'cltorch'</pre> <td> works <td><pre>require 'cltorch'</pre></tr>
 
 <tr><td>Device information<td>works<td><pre>
-print('num devices:', clnn.getDeviceCount())
-props = clnn.getDeviceProperties(1)
+print('num devices:', cltorch.getDeviceCount())
+props = cltorch.getDeviceProperties(1)
 </pre></tr>
 
 <tr><td> torch.ClStorage <td> works <td><pre>

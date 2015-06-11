@@ -16,7 +16,7 @@ std::string getApplyDv2_template();
 //
 // This file contains pointwise operation functions and kernels that
 // work on both contiguous and non-contiguous tensor arguments of
-// arbitrary (up to MAX_CLNN_DIMS) dimensioned arguments without
+// arbitrary (up to MAX_CLTORCH_DIMS) dimensioned arguments without
 // copying or temporary storage.
 //
 
@@ -55,8 +55,8 @@ typedef struct TensorInfoCl {
       strides[i] = info.strides[i];
     }
   }
-  unsigned int sizes[MAX_CLNN_DIMS];
-  unsigned int strides[MAX_CLNN_DIMS];
+  unsigned int sizes[MAX_CLTORCH_DIMS];
+  unsigned int strides[MAX_CLTORCH_DIMS];
   int offset;
   int dims;
 } TensorInfoCl;
@@ -80,7 +80,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("num_scalars", numScalars);
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("num_tensor_inputs", numTensors);
-  kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
+  kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("operation", operation);
   std::string uniqueName = "applyDv2_1t" + toString(numScalars) + "s_" + toString(A) + "_" + op->operator1();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyDv2.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
@@ -149,7 +149,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("num_tensors", numTensors);
   kernelBuilder.set("num_scalars", numScalars);
   kernelBuilder.set("dims", dims);
-  kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
+  kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("operation", operation);
   std::string uniqueName = "applyDv2_" + toString(numTensors) + "t" + toString(numScalars) + "s_" + toString(A) + "_" + toString(B) + "_" + op->operator2();
   CLKernel *kernel = 0;
@@ -236,7 +236,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("num_tensors", numTensors);
   kernelBuilder.set("num_scalars", numScalars);
   kernelBuilder.set("dims", dims);
-  kernelBuilder.set("MAX_CLNN_DIMS", MAX_CLNN_DIMS);
+  kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("operation", operation);
   std::string uniqueName = "applyDv2_3t" + toString(numScalars) + "s_" + toString(A) + "_" + toString(B) + "_" + toString(C) + "_" + op->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyDv2.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
@@ -329,7 +329,7 @@ bool THClTensor_pointwiseApply1(THClState* state,
                                   TensorArgType aType = ReadWrite) {
   long totalElements = THClTensor_nElement(state, a);
 
-  if (THClTensor_nDimension(state, a) > MAX_CLNN_DIMS) {
+  if (THClTensor_nDimension(state, a) > MAX_CLTORCH_DIMS) {
     return false;
   }
 
@@ -452,8 +452,8 @@ bool THClTensor_pointwiseApply2(THClState* state,
     return false;
   }
 
-  if (THClTensor_nDimension(state, a) > MAX_CLNN_DIMS ||
-      THClTensor_nDimension(state, b) > MAX_CLNN_DIMS) {
+  if (THClTensor_nDimension(state, a) > MAX_CLTORCH_DIMS ||
+      THClTensor_nDimension(state, b) > MAX_CLTORCH_DIMS) {
     return false;
   }
 
@@ -617,9 +617,9 @@ bool THClTensor_pointwiseApply3(THClState* state,
     return false;
   }
 
-  if (THClTensor_nDimension(state, a) > MAX_CLNN_DIMS ||
-      THClTensor_nDimension(state, b) > MAX_CLNN_DIMS ||
-      THClTensor_nDimension(state, c) > MAX_CLNN_DIMS) {
+  if (THClTensor_nDimension(state, a) > MAX_CLTORCH_DIMS ||
+      THClTensor_nDimension(state, b) > MAX_CLTORCH_DIMS ||
+      THClTensor_nDimension(state, c) > MAX_CLTORCH_DIMS) {
     return false;
   }
 

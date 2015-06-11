@@ -1,6 +1,6 @@
-print("running require clnn...")
-require 'clnn'
-print("... require clnn done")
+print("running require cltorch...")
+require 'cltorch'
+print("... require cltorch done")
 
 a = torch.Tensor{3,5,2}
 print('a\n', a)
@@ -145,7 +145,7 @@ print('C\n', C)
 
 s = torch.LongStorage{3,2}
 print('s\n', s)
---C = clnn.ones(s)
+--C = cltorch.ones(s)
 --print('C\n', C)
 C:zero()
 print('C\n', C)

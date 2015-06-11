@@ -33,13 +33,13 @@ void THClTensor_pow(THClState *state, THClTensor *self_, THClTensor *src, float 
   THAssert(THClTensor_checkGPU(state, 2, self_, src));
   if (self_ == src) {
     if (!THClTensor_pointwiseApply1(state, self_, TensorPowOp(value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src);
 
     if (!THClTensor_pointwiseApply2(state, self_, src, TensorPowOp(value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
 }
@@ -63,13 +63,13 @@ void THClTensor_tpow(THClState *state, THClTensor *self_, float value, THClTenso
   THAssert(THClTensor_checkGPU(state, 2, self_, src));
   if (self_ == src) {
     if (!THClTensor_pointwiseApply1(state, self_, TensorTPowOp(value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src);
 
     if (!THClTensor_pointwiseApply2(state, self_, src, TensorTPowOp(value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
 
@@ -90,7 +90,7 @@ void THClTensor_atan2(THClState *state, THClTensor *self_, THClTensor *tx, THClT
   THClTensor_resizeAs(state, self_, tx);
 
   if (!THClTensor_pointwiseApply3(state, self_, tx, ty, TensorATan2Op())) {
-    THArgCheck(false, 2, CLNN_DIM_WARNING);
+    THArgCheck(false, 2, CLTORCH_DIM_WARNING);
   }
 
   THClCheck(cudaGetLastError());
@@ -129,13 +129,13 @@ void THClTensor_clamp(THClState *state, THClTensor *self_, THClTensor *src, floa
   THAssert(THClTensor_checkGPU(state, 2, self_, src));
   if (self_ == src) {
     if (!THClTensor_pointwiseApply1(state, self_, TensorClampOp(min_value, max_value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src);
 
     if (!THClTensor_pointwiseApply2(state, self_, src, TensorClampOp(min_value, max_value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
 }
@@ -157,13 +157,13 @@ void THClTensor_sign(THClState *state, THClTensor *self_, THClTensor *src)
   THAssert(THClTensor_checkGPU(state, 2, self_, src));
   if (self_ == src) {
     if (!THClTensor_pointwiseApply1(state, self_, TensorSignOp())) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src);
 
     if (!THClTensor_pointwiseApply2(state, self_, src, TensorSignOp())) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
 

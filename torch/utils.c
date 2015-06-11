@@ -1,6 +1,6 @@
 #include "utils.h"
 
-THLongStorage* clnn_checklongargs(lua_State *L, int index)
+THLongStorage* cltorch_checklongargs(lua_State *L, int index)
 {
   THLongStorage *storage;
   int i;
@@ -28,7 +28,7 @@ THLongStorage* clnn_checklongargs(lua_State *L, int index)
   return storage;
 }
 
-int clnn_islongargs(lua_State *L, int index)
+int cltorch_islongargs(lua_State *L, int index)
 {
   int narg = lua_gettop(L)-index+1;
 
@@ -50,9 +50,9 @@ int clnn_islongargs(lua_State *L, int index)
   return 0;
 }
 
-struct THClState* clnn_getstate(lua_State* L)
+struct THClState* cltorch_getstate(lua_State* L)
 {
-  lua_getglobal(L, "clnn");
+  lua_getglobal(L, "cltorch");
   lua_getfield(L, -1, "_state");
   struct THClState *state = lua_touserdata(L, -1);
   lua_pop(L, 2);

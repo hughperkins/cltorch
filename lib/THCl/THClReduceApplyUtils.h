@@ -11,14 +11,14 @@
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-// Maximum number of dimensions allowed for clnn
-#define MAX_CLNN_DIMS 25
+// Maximum number of dimensions allowed for cltorch
+#define MAX_CLTORCH_DIMS 25
 
 // Warning string for tensor arguments that are too large or have too
 // many dimensions
-#define CLNN_STR(X) #X
-#define CLNN_DIM_WARNING "tensor too large or too many (>" \
-  CLNN_STR(MAX_CLNN_DIMS) ") dimensions"
+#define CLTORCH_STR(X) #X
+#define CLTORCH_DIM_WARNING "tensor too large or too many (>" \
+  CLTORCH_STR(MAX_CLTORCH_DIMS) ") dimensions"
 
 // Enum that indicates whether tensor arguments are read/write or
 // read-only
@@ -88,8 +88,8 @@ struct TensorInfo {
   CLWrapper *wrapper;
   long offset;
 //  float* data;
-  IndexType sizes[MAX_CLNN_DIMS];
-  IndexType strides[MAX_CLNN_DIMS];
+  IndexType sizes[MAX_CLTORCH_DIMS];
+  IndexType strides[MAX_CLTORCH_DIMS];
   int dims;
 };
 
@@ -99,7 +99,7 @@ TensorInfo<IndexType>::TensorInfo(THClState* state,
                                   int reduceDim)
     : wrapper(NULL), offset(0), dims(0) {
   int origDims = THClTensor_nDimension(state, t);
-  assert(origDims <= MAX_CLNN_DIMS);
+  assert(origDims <= MAX_CLTORCH_DIMS);
   assert(reduceDim < origDims);
 
   offset = THClTensor_storageOffset(state, t);

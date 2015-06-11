@@ -37,9 +37,9 @@
 
 /* now we overwrite some methods specific to ClStorage */
 
-static int clnn_ClStorage_copy(lua_State *L)
+static int cltorch_ClStorage_copy(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THClStorage *storage = luaT_checkudata(L, 1, "torch.ClStorage");
   void *src;
   if( (src = luaT_toudata(L, 2, "torch.ClStorage")) )
@@ -68,7 +68,7 @@ static int clnn_ClStorage_copy(lua_State *L)
 }
 
 #define CL_IMPLEMENT_STORAGE_COPY(TYPEC)                              \
-  static int clnn_##TYPEC##Storage_copy(lua_State *L)                \
+  static int cltorch_##TYPEC##Storage_copy(lua_State *L)                \
   {                                                                     \
     TH##TYPEC##Storage *storage = luaT_checkudata(L, 1, "torch." #TYPEC "Storage"); \
     void *src;                                                          \
@@ -89,7 +89,7 @@ static int clnn_ClStorage_copy(lua_State *L)
     else if( (src = luaT_toudata(L, 2, "torch.DoubleStorage")) )        \
       TH##TYPEC##Storage_copyDouble(storage, src);                      \
     else if( (src = luaT_toudata(L, 2, "torch.ClStorage")) )          \
-      TH##TYPEC##Storage_copyCl(clnn_getstate(L), storage, src);   \
+      TH##TYPEC##Storage_copyCl(cltorch_getstate(L), storage, src);   \
     else                                                                \
       luaL_typerror(L, 2, "torch.*Storage");                            \
                                                                         \
@@ -105,7 +105,7 @@ CL_IMPLEMENT_STORAGE_COPY(Long)
 CL_IMPLEMENT_STORAGE_COPY(Float)
 CL_IMPLEMENT_STORAGE_COPY(Double)
 
-void clnn_ClStorage_init(lua_State* L)
+void cltorch_ClStorage_init(lua_State* L)
 {
   /* the standard stuff */
   torch_ClStorage_init(L);
@@ -123,14 +123,14 @@ void clnn_ClStorage_init(lua_State* L)
                              "torch.DoubleStorage",
                              "torch.ClStorage"};
 
-    static int (*funcs[8])(lua_State*) = {clnn_ByteStorage_copy,
-                                          clnn_CharStorage_copy,
-                                          clnn_ShortStorage_copy,
-                                          clnn_IntStorage_copy,
-                                          clnn_LongStorage_copy,
-                                          clnn_FloatStorage_copy,
-                                          clnn_DoubleStorage_copy,
-                                          clnn_ClStorage_copy};
+    static int (*funcs[8])(lua_State*) = {cltorch_ByteStorage_copy,
+                                          cltorch_CharStorage_copy,
+                                          cltorch_ShortStorage_copy,
+                                          cltorch_IntStorage_copy,
+                                          cltorch_LongStorage_copy,
+                                          cltorch_FloatStorage_copy,
+                                          cltorch_DoubleStorage_copy,
+                                          cltorch_ClStorage_copy};
 
     for(i = 0; i < 8; i++)
     {

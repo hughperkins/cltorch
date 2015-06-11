@@ -33,13 +33,13 @@ void THClTensor_add(THClState *state, THClTensor *self_, THClTensor *src_, float
   THAssert(THClTensor_checkGPU(state, 2, self_, src_));
   if (self_ == src_) {
     if (!THClTensor_pointwiseApply1(state, self_, TensorAddConstantOp(value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src_);
 
     if (!THClTensor_pointwiseApply2(state, self_, src_, TensorAddConstantOp(value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
 
@@ -64,13 +64,13 @@ void THClTensor_mul(THClState *state, THClTensor *self_, THClTensor *src_, float
   THAssert(THClTensor_checkGPU(state, 2, self_, src_));
   if (self_ == src_) {
     if (!THClTensor_pointwiseApply1(state, self_, TensorMulConstantOp(value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src_);
 
     if (!THClTensor_pointwiseApply2(state, self_, src_, TensorMulConstantOp(value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
 
@@ -84,13 +84,13 @@ void THClTensor_div(THClState* state, THClTensor *self_, THClTensor *src_, float
 
   if (self_ == src_) {
     if (!THClTensor_pointwiseApply1(state, self_, TensorMulConstantOp(1.0f / value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src_);
 
     if (!THClTensor_pointwiseApply2(state, self_, src_, TensorMulConstantOp(1.0f / value))) {
-      THArgCheck(false, 2, CLNN_DIM_WARNING);
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
 

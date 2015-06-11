@@ -84,7 +84,7 @@ bool THCL_overlappingIndices(THClState* state, THClTensor* t) {
   // `dim`, or the innermost stride is 0.
 
   // Extract size/stride arrays; only consider size >1 dims.
-  SizeAndStride info[MAX_CLNN_DIMS];
+  SizeAndStride info[MAX_CLTORCH_DIMS];
 
   int dims = THClTensor_nDimension(state, t);
   int nonSize1Dims = 0;

@@ -14,8 +14,8 @@ if [[ ! -v LUAEXE ]]; then {
 echo using luaexe: ${LUAEXE}
 
 if [[ x${RUNGDB} == x1 ]]; then {
-  rungdb.sh ${LUAEXE} test/cltorch-tests.lua
+  rungdb.sh ${LUAEXE} test/cltorch-unit-storage.lua
 } else {
-  ${LUAEXE} test/cltorch-tests.lua
+  ${LUAEXE} test/cltorch-unit-storage.lua
 } fi
 

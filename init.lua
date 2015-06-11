@@ -1,5 +1,5 @@
 require "torch"
-clnn = paths.require("libclnn")
+cltorch = paths.require("libcltorch")
 
 torch.ClStorage.__tostring__ = torch.FloatStorage.__tostring__
 torch.ClTensor.__tostring__ = torch.FloatTensor.__tostring__
@@ -10,13 +10,13 @@ include('Tensor.lua')
 
 --local unpack = unpack or table.unpack
 
-local function Module__cl(self)
-   print("Module__cl")
-end
+--local function Module__cl(self)
+--   print("Module__cl")
+--end
 
-require 'nn'
+--require 'nn'
 
-rawset(torch.getmetatable('nn.Module'), 'cl', Module__cl)
+--rawset(torch.getmetatable('nn.Module'), 'cl', Module__cl)
 
-return clnn
+return cltorch
 

@@ -21,9 +21,9 @@
 #undef Real
 
 /* now we overwrite some methods specific to ClTensor */
-static int clnn_ClTensor_copy(lua_State *L)
+static int cltorch_ClTensor_copy(lua_State *L)
 {
-  THClState *state = clnn_getstate(L);
+  THClState *state = cltorch_getstate(L);
   THClTensor *storage = luaT_checkudata(L, 1, "torch.ClTensor");
   void *src;
   if( (src = luaT_toudata(L, 2, "torch.ClTensor")) )
@@ -52,7 +52,7 @@ static int clnn_ClTensor_copy(lua_State *L)
 }
 
 #define CL_IMPLEMENT_TENSOR_COPY(TYPEC)                               \
-  static int clnn_##TYPEC##Tensor_copy(lua_State *L)                 \
+  static int cltorch_##TYPEC##Tensor_copy(lua_State *L)                 \
   {                                                                     \
     TH##TYPEC##Tensor *storage = luaT_checkudata(L, 1, "torch." #TYPEC "Tensor"); \
     void *src;                                                          \
@@ -73,7 +73,7 @@ static int clnn_ClTensor_copy(lua_State *L)
     else if( (src = luaT_toudata(L, 2, "torch.DoubleTensor")) )         \
       TH##TYPEC##Tensor_copyDouble(storage, src);                       \
     else if( (src = luaT_toudata(L, 2, "torch.ClTensor")) )           \
-      TH##TYPEC##Tensor_copyCl(clnn_getstate(L), storage, src);    \
+      TH##TYPEC##Tensor_copyCl(cltorch_getstate(L), storage, src);    \
     else                                                                \
       luaL_typerror(L, 2, "torch.*Tensor");                             \
                                                                         \
@@ -173,13 +173,13 @@ static int cl_FloatTensor_fakecopy(lua_State *L)
   return 1;
 }
 
-static int clnn_ClTensor_getDevice(lua_State *L) {
+static int cltorch_ClTensor_getDevice(lua_State *L) {
   THClTensor *tensor = luaT_checkudata(L, 1, "torch.ClTensor");
-  lua_pushinteger(L, THClTensor_getDevice(clnn_getstate(L), tensor) + 1);
+  lua_pushinteger(L, THClTensor_getDevice(cltorch_getstate(L), tensor) + 1);
   return 1;
 }
 
-void clnn_ClTensor_init(lua_State* L)
+void cltorch_ClTensor_init(lua_State* L)
 {
   /* the standard stuff */
   torch_ClTensor_init(L);
@@ -203,14 +203,14 @@ void clnn_ClTensor_init(lua_State* L)
                              "torch.DoubleTensor",
                              "torch.ClTensor"};
 
-    static int (*funcs[8])(lua_State*) = {clnn_ByteTensor_copy,
-                                          clnn_CharTensor_copy,
-                                          clnn_ShortTensor_copy,
-                                          clnn_IntTensor_copy,
-                                          clnn_LongTensor_copy,
-                                          clnn_FloatTensor_copy,
-                                          clnn_DoubleTensor_copy,
-                                          clnn_ClTensor_copy};
+    static int (*funcs[8])(lua_State*) = {cltorch_ByteTensor_copy,
+                                          cltorch_CharTensor_copy,
+                                          cltorch_ShortTensor_copy,
+                                          cltorch_IntTensor_copy,
+                                          cltorch_LongTensor_copy,
+                                          cltorch_FloatTensor_copy,
+                                          cltorch_DoubleTensor_copy,
+                                          cltorch_ClTensor_copy};
 
     for(i = 0; i < 8; i++)
     {
@@ -222,7 +222,7 @@ void clnn_ClTensor_init(lua_State* L)
   }
 
   luaT_pushmetatable(L, "torch.ClTensor");
-  lua_pushcfunction(L, clnn_ClTensor_getDevice);
+  lua_pushcfunction(L, cltorch_ClTensor_getDevice);
   lua_setfield(L, -2, "getDevice");
 
   lua_pop(L, 1);

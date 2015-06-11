@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 2.8.12 )
 
-OPTION(DEV_RUN_COG "clnn maintainers only, otherwise set to 'OFF'." OFF)
+OPTION(DEV_RUN_COG "cltorch maintainers only, otherwise set to 'OFF'." OFF)
 
 if( "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" )
   set( ON_LINUX 1 )
@@ -37,11 +37,11 @@ SET(src init.cpp torch/utils.c Storage.c Tensor.c TensorMath.c
   TensorOperator.c)
 SET(luasrc init.lua Tensor.lua )
 
-ADD_TORCH_WRAP(clnntensormathwrap TensorMath.lua)
+ADD_TORCH_WRAP(cltorchtensormathwrap TensorMath.lua)
 
-ADD_TORCH_PACKAGE(clnn "${src}" "${luasrc}")
-ADD_DEPENDENCIES(clnn clBLAS)
-ADD_DEPENDENCIES(clnn EasyCL)
+ADD_TORCH_PACKAGE(cltorch "${src}" "${luasrc}")
+ADD_DEPENDENCIES(cltorch clBLAS)
+ADD_DEPENDENCIES(cltorch EasyCL)
 
 if( ON_LINUX ) 
     execute_process( COMMAND git --version RESULT_VARIABLE git_test ERROR_QUIET )
@@ -50,14 +50,14 @@ if( ON_LINUX )
     endif()
     if( GIT_FOUND )
         add_custom_target( 
-            git_clnn_rec
+            git_cltorch_rec
             git submodule update --init --force --recursive
         )
-        add_dependencies( clnn git_clnn_rec )
+        add_dependencies( cltorch git_cltorch_rec )
     endif()
 endif()
 
-TARGET_LINK_LIBRARIES(clnn luaT THCL )
-TARGET_LINK_LIBRARIES( clnn ${EASYCL_LIBARIES} )
-TARGET_LINK_LIBRARIES( clnn ${CLBLAS_LIBRARIES} )
+TARGET_LINK_LIBRARIES(cltorch luaT THCL )
+TARGET_LINK_LIBRARIES( cltorch ${EASYCL_LIBARIES} )
+TARGET_LINK_LIBRARIES( cltorch ${CLBLAS_LIBRARIES} )
 

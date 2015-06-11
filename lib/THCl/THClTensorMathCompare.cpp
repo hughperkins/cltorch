@@ -20,7 +20,7 @@ void THClTensor_logicalValue(THClState *state, THClTensor *self_, THClTensor *sr
   THClTensor_resizeAs(state, self_, src);
 
   if (!THClTensor_pointwiseApply2(state, self_, src, op)) {
-    THArgCheck(false, 2, CLNN_DIM_WARNING);
+    THArgCheck(false, 2, CLTORCH_DIM_WARNING);
   }
 }
 

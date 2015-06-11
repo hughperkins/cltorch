@@ -53,7 +53,7 @@ wrap.types.ClTensor = {
 
    init = function(arg)
       if type(arg.default) == 'boolean' then
-         return string.format('arg%d = TH%s_new(clnn_getstate(L));', arg.i, typename)
+         return string.format('arg%d = TH%s_new(cltorch_getstate(L));', arg.i, typename)
       elseif type(arg.default) == 'number' then
          return string.format('arg%d = %s;', arg.i, arg.args[arg.default]:carg())
       else
@@ -126,11 +126,11 @@ wrap.types.LongArg = {
    end,
 
    check = function(arg, idx)
-      return string.format("clnn_islongargs(L, %d)", idx)
+      return string.format("cltorch_islongargs(L, %d)", idx)
    end,
 
    read = function(arg, idx)
-      return string.format("arg%d = clnn_checklongargs(L, %d);", arg.i, idx)
+      return string.format("arg%d = cltorch_checklongargs(L, %d);", arg.i, idx)
    end,
 
    carg = function(arg, idx)
@@ -164,7 +164,7 @@ wrap.types.LongArg = {
 }
 
 function interface.luaname2wrapname(self, name)
-   return string.format('clnn_ClTensor_%s', name)
+   return string.format('cltorch_ClTensor_%s', name)
 end
 
 local function cname(name)
@@ -173,20 +173,20 @@ end
 
 local function lastdim(argn)
    return function(arg)
-      return string.format("THClTensor_nDimension(clnn_getstate(L), %s)", arg.args[argn]:carg())
+      return string.format("THClTensor_nDimension(cltorch_getstate(L), %s)", arg.args[argn]:carg())
    end
 end
 
-clnn_state_code = function(varname)
+cltorch_state_code = function(varname)
   local txt = {}
-  table.insert(txt, 'lua_getglobal(L, "clnn");')
+  table.insert(txt, 'lua_getglobal(L, "cltorch");')
   table.insert(txt, 'lua_getfield(L, -1, "_state");')
   table.insert(txt, string.format('THClState *%s = lua_touserdata(L, -1);', varname))
   table.insert(txt, 'lua_pop(L, 2);')
   return table.concat(txt, '\n');
 end
-interface:registerDefaultArgument(clnn_state_code)
-method:registerDefaultArgument(clnn_state_code)
+interface:registerDefaultArgument(cltorch_state_code)
+method:registerDefaultArgument(cltorch_state_code)
 
 local function wrap(...)
    local args = {...}
@@ -330,15 +330,15 @@ do
              return table.concat(
                 {
                    arg.__metatable.init(arg),
-                   string.format("TH%s_checkGPU(clnn_getstate(L), 1, %s);",
+                   string.format("TH%s_checkGPU(cltorch_getstate(L), 1, %s);",
                                  Tensor, arg.args[5]:carg()),
-                   string.format("TH%s_resize1d(clnn_getstate(L), %s, %s->size[0]);", Tensor, arg:carg(), arg.args[5]:carg())
+                   string.format("TH%s_resize1d(cltorch_getstate(L), %s, %s->size[0]);", Tensor, arg:carg(), arg.args[5]:carg())
                 }, '\n')
           end,
           precall=function(arg)
              return table.concat(
                 {
-                   string.format("TH%s_zero(clnn_getstate(L), %s);", Tensor, arg:carg()),
+                   string.format("TH%s_zero(cltorch_getstate(L), %s);", Tensor, arg:carg()),
                    arg.__metatable.precall(arg)
                 }, '\n')
           end
@@ -357,9 +357,9 @@ do
              return table.concat(
                 {
                    arg.__metatable.init(arg),
-                   string.format("TH%s_checkGPU(clnn_getstate(L), 2, %s, %s);",
+                   string.format("TH%s_checkGPU(cltorch_getstate(L), 2, %s, %s);",
                                  Tensor, arg.args[5]:carg(), arg.args[6]:carg()),
-                   string.format("TH%s_resize2d(clnn_getstate(L), %s, %s->size[0], %s->size[1]);",
+                   string.format("TH%s_resize2d(cltorch_getstate(L), %s, %s->size[0], %s->size[1]);",
                                  Tensor, arg:carg(), arg.args[5]:carg(), arg.args[6]:carg())
                 }, '\n')
           end,
@@ -378,9 +378,9 @@ do
              return table.concat(
                 {
                    arg.__metatable.init(arg),
-                   string.format("TH%s_checkGPU(clnn_getstate(L), 2, %s, %s);",
+                   string.format("TH%s_checkGPU(cltorch_getstate(L), 2, %s, %s);",
                                  Tensor, arg.args[5]:carg(), arg.args[6]:carg()),
-                   string.format("TH%s_resize3d(clnn_getstate(L), %s, %s->size[0], %s->size[1], %s->size[2]);",
+                   string.format("TH%s_resize3d(cltorch_getstate(L), %s, %s->size[0], %s->size[1], %s->size[2]);",
                                  Tensor, arg:carg(), arg.args[5]:carg(), arg.args[5]:carg(), arg.args[6]:carg())
                 }, '\n')
           end,
@@ -399,15 +399,15 @@ do
              return table.concat(
                 {
                    arg.__metatable.init(arg),
-                   string.format("TH%s_checkGPU(clnn_getstate(L), 2, %s, %s);",
+                   string.format("TH%s_checkGPU(cltorch_getstate(L), 2, %s, %s);",
                                  Tensor, arg.args[5]:carg(), arg.args[6]:carg()),
-                   string.format("TH%s_resize2d(clnn_getstate(L), %s, %s->size[0], %s->size[0]);", Tensor, arg:carg(), arg.args[5]:carg(), arg.args[6]:carg())
+                   string.format("TH%s_resize2d(cltorch_getstate(L), %s, %s->size[0], %s->size[0]);", Tensor, arg:carg(), arg.args[5]:carg(), arg.args[6]:carg())
                 }, '\n')
           end,
           precall=function(arg)
              return table.concat(
                 {
-                   string.format("TH%s_zero(clnn_getstate(L), %s);", Tensor, arg:carg()),
+                   string.format("TH%s_zero(cltorch_getstate(L), %s);", Tensor, arg:carg()),
                    arg.__metatable.precall(arg)
                 }, '\n')
           end
@@ -651,7 +651,7 @@ wrap("squeeze",
           local txt = {}
           if arg.returned then
              table.insert(txt, string.format('if(arg%d->nDimension == 1 && arg%d->size[0] == 1)', arg.i, arg.i)) -- number
-             table.insert(txt, string.format('lua_pushnumber(L, (lua_Number)(THClTensor_get1d(clnn_getstate(L), arg%d, 0)));', arg.i))
+             table.insert(txt, string.format('lua_pushnumber(L, (lua_Number)(THClTensor_get1d(cltorch_getstate(L), arg%d, 0)));', arg.i))
           end
           return table.concat(txt, '\n')
      end},
@@ -663,7 +663,7 @@ wrap("squeeze",
              local txt = {}
              if arg.returned then
                 table.insert(txt, string.format('if(!hasdims && arg%d->nDimension == 1 && arg%d->size[0] == 1)', arg.i, arg.i)) -- number
-                table.insert(txt, string.format('lua_pushnumber(L, (lua_Number)(THClTensor_get1d(clnn_getstate(L), arg%d, 0)));}', arg.i))
+                table.insert(txt, string.format('lua_pushnumber(L, (lua_Number)(THClTensor_get1d(cltorch_getstate(L), arg%d, 0)));}', arg.i))
              end
              return table.concat(txt, '\n')
           end},
@@ -675,23 +675,23 @@ wrap("squeeze",
           end},
       {name="index"}})
 
-method:register("m_clnn_ClTensorMath__")
+method:register("m_cltorch_ClTensorMath__")
 interface:print(method:tostring())
 method:clearhistory()
-interface:register("clnn_ClTensorMath__")
+interface:register("cltorch_ClTensorMath__")
 
 interface:print([[
-void clnn_ClTensorMath_init(lua_State *L)
+void cltorch_ClTensorMath_init(lua_State *L)
 {
   luaT_pushmetatable(L, "torch.ClTensor");
 
   /* register methods */
-  luaL_setfuncs(L, m_clnn_ClTensorMath__, 0);
+  luaL_setfuncs(L, m_cltorch_ClTensorMath__, 0);
 
   /* register functions into the "torch" field of the tensor metaclass */
   lua_pushstring(L, "torch");
   lua_newtable(L);
-  luaL_setfuncs(L, clnn_ClTensorMath__, 0);
+  luaL_setfuncs(L, cltorch_ClTensorMath__, 0);
   lua_rawset(L, -3);
   lua_pop(L, 1);
 }
