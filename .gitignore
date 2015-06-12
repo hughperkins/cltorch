@@ -4,6 +4,8 @@
 *.o
 *.obj
 
+port/
+
 # Precompiled Headers
 *.gch
 *.pch
