@@ -13,24 +13,9 @@
 -- c = torch.ClStorage(3)
 -- print(c)
 
--- this function doesnt work
-function table_to_str(table)
-  results = '{'
-  for k,v in pairs(table) do
-    results = results .. k .. '=' .. v .. ' '
-    -- print(k, ':', v)
-  end
-  results = results .. '}'
-  return results
-end
-
 print("running require cltorch...")
 require 'cltorch'
 print("... require cltorch done")
-
-for k,v in pairs(cltorch) do
-  print('cltorch k,v', k, v)
-end
 
 props = cltorch.getDeviceProperties(1)
 print('props', props)

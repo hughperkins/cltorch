@@ -49,7 +49,7 @@ THClStorage* THClStorage_newWithSize(THClState *state, long size)
   {
     THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
     float *data = new float[size];
-    EasyCL *cl = state->cl;
+    EasyCL *cl = THClState_getCl(state);
     CLWrapper *wrapper = cl->wrap( size, data );
     wrapper->createOnDevice();
     storage->data = data;
@@ -162,7 +162,7 @@ void THClStorage_resize(THClState *state, THClStorage *self, long size)
   delete self->wrapper;
   delete[] self->data;
   self->data = new float[size];
-  self->wrapper = state->cl->wrap( size, self->data );
+  self->wrapper = THClState_getCl(state)->wrap( size, self->data );
   self->size = size;
 }
 

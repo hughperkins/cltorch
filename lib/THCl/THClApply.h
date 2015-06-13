@@ -63,7 +63,7 @@ typedef struct TensorInfoCl {
 
 template< typename IndexType >
 void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int A, TensorInfo<IndexType> aInfo, IndexType totalElements, HasOperator1 const * op ) {
-  TemplatedKernel kernelBuilder( state->cl );
+  TemplatedKernel kernelBuilder( THClState_getCl(state) );
   kernelBuilder.set("dim1", A);
   std::vector<int> dims;
   if( A >= 0 ) {
@@ -124,12 +124,12 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   }
   kernel->in( (int)totalElements );
   kernel->run(3, global_ws.vec, block.vec);
-  state->cl->finish();
+  THClState_getCl(state)->finish();
 }
 
 template< typename IndexType >
 void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, HasOperator2 const*op ) {
-  TemplatedKernel kernelBuilder( state->cl );
+  TemplatedKernel kernelBuilder( THClState_getCl(state) );
   kernelBuilder.set("dim1", A);
   kernelBuilder.set("dim2", B);
   std::vector<int> dims;
@@ -207,12 +207,12 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   }
   kernel->in( (int)totalElements );
   kernel->run(3, global_ws.vec, block.vec);
-  state->cl->finish();
+  THClState_getCl(state)->finish();
 }
 
 template< typename IndexType >
 void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, HasOperator3 const*op ) {
-  TemplatedKernel kernelBuilder( state->cl );
+  TemplatedKernel kernelBuilder( THClState_getCl(state) );
   kernelBuilder.set("dim1", A);
   kernelBuilder.set("dim2", B);
   kernelBuilder.set("dim3", C);
@@ -291,7 +291,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   }
   kernel->in( (int)totalElements );
   kernel->run(3, global_ws.vec, block.vec);
-  state->cl->finish();
+  THClState_getCl(state)->finish();
 }
 
 inline dim3 getApplyBlock() {

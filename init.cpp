@@ -35,11 +35,32 @@ namespace cltorch {
     lua_pushnumber(L, count);
     return 1;
   }
+  static int cltorch_getDevice(lua_State *L)
+  {
+    THClState *state = cltorch_getstate(L);
+    int device = state->currentDevice;
+    lua_pushnumber(L, device+1);
+    return 1;
+  }
+  static int cltorch_setDevice(lua_State *L)
+  {
+    THClState *state = cltorch_getstate(L);
+    int device = luaL_checknumber(L, 1) - 1;
+    if(device < 0 || device >= state->allocatedDevices) {
+       THError("Device doesnt exist");
+    }
+    state->currentDevice = device;
+    return 0;
+  }
   static int cltorch_getDeviceProperties(lua_State *L)
   {
     cout << "cltorch_getDeviceProperties" << endl;
 
+    THClState *state = cltorch_getstate(L);
     int device = (int)luaL_checknumber(L, 1)-1;
+    if(device < 0 || device >= state->allocatedDevices) {
+       THError("Device doesnt exist");
+    }
     cout << "device: " << device << endl;
 
     easycl::DeviceInfo deviceInfo = easycl::DevicesInfo::getDeviceInfo( device );
@@ -81,6 +102,8 @@ namespace cltorch {
   //}
 
   static const struct luaL_Reg cltorch_stuff__ [] = {
+    {"getDevice", cltorch_getDevice},
+    {"setDevice", cltorch_setDevice},
     {"getDeviceCount", cltorch_getDeviceCount},
     {"getDeviceProperties", cltorch_getDeviceProperties},
     {NULL, NULL}
@@ -88,7 +111,7 @@ namespace cltorch {
 }
 
 int luaopen_libcltorch( lua_State *L ) {
-  printf("luaopen_libcltorch called :-)\n");
+  printf("luaopen_libcltorch called\n");
   cout << " try cout" << endl;
 
   lua_newtable(L);

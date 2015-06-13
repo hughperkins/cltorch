@@ -21,24 +21,59 @@
 # define THCL_API THCL_EXTERNC
 #endif
 
-//#define THClCheck(err)  __THClCheck(err, __FILE__, __LINE__)
-//THCL_API void __THClCheck(clError_t err, const char *file, const int line);
-
 struct EasyCL;
 
 #ifdef __cplusplus
 #include <iostream>
 #endif // __cplusplus
 
-/* Global state to be held in the cutorch table. */
+/* Global state to be held in the cltorch table. */
 typedef struct THClState
 {
-  struct EasyCL *cl;
+  int allocatedDevices;
+  int currentDevice;
+  struct EasyCL **clByDevice;
+ // EasyCL *getCl();
 } THClState;
 
 THCL_API void THClInit(THClState* state);
 THCL_API void THClShutdown(THClState* state);
+//THCL_API void THClEnablePeerToPeerAccess(THClState* state);
 
+/* State manipulators and accessors */
+THCL_API int THClState_getNumDevices(THClState* state);
+THCL_API void THClState_setDevice(THClState* state, int device);
+THCL_API int THClState_getDevice(THClState* state);
+THCL_API struct EasyCL *THClState_getCl(THClState* state);
+//THCL_API void THClState_reserveStreams(THClState* state, int numStreams);
+//THCL_API int THClState_getNumStreams(THClState* state);
+
+//THCL_API cudaStream_t THClState_getDeviceStream(THClState *state, int device, int stream);
+//THCL_API cudaStream_t THClState_getCurrentStream(THClState *state);
+//THCL_API int THClState_getCurrentStreamIndex(THClState *state);
+//THCL_API void THClState_setStream(THClState *state, int device, int stream);
+//THCL_API void THClState_setStreamForCurrentDevice(THClState *state, int stream);
+
+//THCL_API void THClState_reserveBlasHandles(THClState* state, int numHandles);
+//THCL_API int THClState_getNumBlasHandles(THClState* state);
+
+//THCL_API clblasHandle_t THClState_getDeviceBlasHandle(THClState *state, int device, int handle);
+//THCL_API clblasHandle_t THClState_getCurrentBlasHandle(THClState *state);
+//THCL_API int THClState_getCurrentBlasHandleIndex(THClState *state);
+//THCL_API void THClState_setBlasHandle(THClState *state, int device, int handle);
+//THCL_API void THClState_setBlasHandleForCurrentDevice(THClState *state, int handle);
+
+/* For the current device and stream, returns the allocated scratch space */
+//THCL_API void* THClState_getCurrentDeviceScratchSpace(THClState* state);
+//THCL_API void* THClState_getDeviceScratchSpace(THClState* state, int device, int stream);
+//THCL_API size_t THClState_getCurrentDeviceScratchSpaceSize(THClState* state);
+//THCL_API size_t THClState_getDeviceScratchSpaceSize(THClState* state, int device);
+
+//#define THClCheck(err)  __THClCheck(err, __FILE__, __LINE__)
+//#define THCublasCheck(err)  __THCublasCheck(err,  __FILE__, __LINE__)
+
+//THCL_API void __THClCheck(cudaError_t err, const char *file, const int line);
+//THCL_API void __THCublasCheck(clblasStatus_t status, const char *file, const int line);
 
 typedef unsigned long ulong;
 
