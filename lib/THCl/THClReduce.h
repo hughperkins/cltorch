@@ -10,6 +10,8 @@
 #include "templates/TemplatedKernel.h"
 #include "util/easycl_stringhelper.h"
 #include "EasyCL.h"
+#include "THClTypeParseTraits.h"
+
 
 std::string getKernelSource();
 
@@ -44,7 +46,7 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
   HasOperator3 const*reduceOp) {
 
   // launch kernel here....
-  TemplatedKernel kernelBuilder(state->cl);
+  TemplatedKernel kernelBuilder(THClState_getCl(state));
 
   std::set<int> dims_set;
   if(ADims >= 0) {

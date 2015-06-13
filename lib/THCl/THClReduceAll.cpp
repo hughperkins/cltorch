@@ -1,16 +1,73 @@
 #include "THClTensorInfoCl.h"
+#include "EasyCL.h"
+#include "THClReduceAll.h"
 
 #include <iostream>
 using namespace std;
+
+void kernelLaunch_THClTensor_reduceAllPass1(
+                     THClState* state,
+                     int ADims,
+                     const TensorInfoCl& inCl,
+                     CLWrapper *in_data,
+                     long totalElements,
+                     float init,
+                     const HasOperator2 *modifyOp,
+                     const HasOperator3 *reduceOp,
+                     CLWrapper* scratch
+    ){
+  EasyCL *cl = THClState_getCl(state);
+  TemplatedKernel kernelBuilder(cl);
+  kernelBuilder
+      .set("include_THClDeviceutils", THClDeviceUtils_getKernelTemplate())
+  ;
+
+  THError("Not implemented");
+}
+
+void kernelLaunch_THClTensor_reduceAllPass2(
+                     THClState* state,
+                     int numPass1Blocks,
+                     float init,
+                     const HasOperator3 *reduceOp,
+                     CLWrapper *scratch,
+                     CLWrapper* devOut
+    ){
+  TemplatedKernel kernelBuilder(THClState_getCl(state));
+  kernelBuilder
+      .set("include_THClDeviceutils", THClDeviceUtils_getKernelTemplate())
+  ;
+
+  THError("Not implemented");
+}
+
+void kernelLaunch_THClTensor_reduceAll(
+                     THClState* state,
+                     int ADims,
+                     const TensorInfoCl& inCl,
+                     CLWrapper *in_data,
+                     long totalElements,
+                     float init,
+                     const HasOperator2 *modifyOp,
+                     const HasOperator3 *reduceOp,
+                     CLWrapper* devOut
+    ){
+  TemplatedKernel kernelBuilder(THClState_getCl(state));
+  kernelBuilder
+      .set("include_THClDeviceutils", THClDeviceUtils_getKernelTemplate())
+  ;
+
+  THError("Not implemented");
+}
 
 // Reduces the entire tensor to one floating-point value. `out` points
 // to host-resident memory.
 bool THClTensor_reduceAll(THClState* state,
                             THClTensor* in,
-                            const ModifyOp& modifyOp,
-                            const ReduceOp& reduceOp,
+                            const HasOperator2 *modifyOp,
+                            const HasOperator3 *reduceOp,
                             float init,
-                            float* out,
+                            CLWrapper* out,
                             int outOnDevice) {
   long inElements = THClTensor_nElement(state, in);
 
@@ -20,15 +77,17 @@ bool THClTensor_reduceAll(THClState* state,
 
   if (THClTensor_nDimension(state, in) == 0) {
     // Zero-dim tensor; do nothing
-    *out = init;
+    float *data = (float *)out->getHostArray();
+    data[0] = 0;
+    out->copyToDevice();
     return true;
   }
 
-  float* devOut = out;
+  CLWrapper* devOut = out;
   if (!outOnDevice) {
     // Use the stream-specific scratch space for the reduction kernel
     // to write out its value
-    devOut = (float*) THClState_getCurrentDeviceScratchSpace(state);
+    devOut = THClState_getCurrentDeviceScratchSpace(state);
   }
 
   // It is possible that the tensor dimensions are able to be collapsed,
@@ -40,8 +99,8 @@ bool THClTensor_reduceAll(THClState* state,
   // dimension, and the loop to translate the linear index to the array
   // index can be similarly collapsed. That is what this unrolling is for.
 #define HANDLE_CASE(TYPE, IN)                                           \
-  callReduceAll<ModifyOp, ReduceOp, TYPE, IN>(                          \
-    state, inInfo, inElements, init, modifyOp, reduceOp, devOut);
+  callReduceAll<TYPE>(                          \
+    state, IN, inInfo, inElements, init, modifyOp, reduceOp, devOut);
 
 #define HANDLE_IN_CASE(TYPE, IN)                    \
   {                                                 \
@@ -87,7 +146,8 @@ bool THClTensor_reduceAll(THClState* state,
   // If our destination is not on the device, copy the value back to
   // the host (synchronous!)
   if (!outOnDevice) {
-    cudaMemcpy(out, devOut, sizeof(float), cudaMemcpyDeviceToHost);
+    THError("Not implemented");
+//    cudaMemcpy(out, devOut, sizeof(float), cudaMemcpyDeviceToHost);
   }
 
   return true;
@@ -100,13 +160,10 @@ std::string THClReduceAll_getKernelTemplate() {
   // ]]]
   // generated using cog, from THClReduceAll.cl:
   const char * kernelSource =  
-  "IndexType getStartIndex(IndexType totalSize) {\n" 
-  "  IndexType sizePerBlock = THCCeilDiv(totalSize, (IndexType) gridDim.x);\n" 
-  "  return blockIdx.x * sizePerBlock;\n" 
-  "}\n" 
+  "{{include_THClDeviceUtils}}\n" 
   "\n" 
   "IndexType getEndIndex(IndexType totalSize) {\n" 
-  "  IndexType sizePerBlock = THCCeilDiv(totalSize, (IndexType) gridDim.x);\n" 
+  "  IndexType sizePerBlock = THClCeilDiv(totalSize, (IndexType) gridDim.x);\n" 
   "  return min((IndexType) ((blockIdx.x + 1) * sizePerBlock), totalSize);\n" 
   "}\n" 
   "\n" 

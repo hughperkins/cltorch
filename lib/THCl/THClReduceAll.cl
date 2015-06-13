@@ -1,10 +1,7 @@
-IndexType getStartIndex(IndexType totalSize) {
-  IndexType sizePerBlock = THCCeilDiv(totalSize, (IndexType) gridDim.x);
-  return blockIdx.x * sizePerBlock;
-}
+{{include_THClDeviceUtils}}
 
 IndexType getEndIndex(IndexType totalSize) {
-  IndexType sizePerBlock = THCCeilDiv(totalSize, (IndexType) gridDim.x);
+  IndexType sizePerBlock = THClCeilDiv(totalSize, (IndexType) gridDim.x);
   return min((IndexType) ((blockIdx.x + 1) * sizePerBlock), totalSize);
 }
 

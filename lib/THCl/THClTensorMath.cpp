@@ -239,21 +239,17 @@ float THClTensor_sumall(THClState *state, THClTensor *self)
 {
   THAssert(THClTensor_checkGPU(state, 1, self));
   float val = 0.0f;
+  CopyOp modifyOp;
+  TensorAddOp reduceOp;
   if (!THClTensor_reduceAll(state, self,
-//                               thrust::identity<float>(),
-//                               thrust::plus<float>(),
+          &modifyOp,
+          &reduceOp,
                               0.0f, &val, 0)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
-  THError("Not implemented");
   }
 
-//  float result = thrust::reduce(self_data, self_data+THClTensor_nElement(state, self), (float)(0), thrust::plus<float>());
-
-//  THClTensor_free(state, self);
-//  return result;
-
-    THError("Not implemented");
-    return 0;
+  THError("Not implemented");
+  return 0;
 }
 
 float THClTensor_prodall(THClState *state, THClTensor *self)

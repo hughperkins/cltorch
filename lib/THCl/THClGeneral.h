@@ -22,18 +22,26 @@
 #endif
 
 struct EasyCL;
+struct CLWrapper;
 
 #ifdef __cplusplus
 #include <iostream>
 #endif // __cplusplus
+
+typedef struct THClScratchSpace {
+  struct CLWrapper *wrapper;
+  float *data;
+} THClScratchSpace;
 
 /* Global state to be held in the cltorch table. */
 typedef struct THClState
 {
   int allocatedDevices;
   int currentDevice;
+  struct THClScratchSpace**scratchSpaceByDevice; // for now, do one 'stream' per device
+                                 // can improve later...
   struct EasyCL **clByDevice;
- // EasyCL *getCl();
+ // EasyCL *getCl();  
 } THClState;
 
 THCL_API void THClInit(THClState* state);
@@ -64,10 +72,10 @@ THCL_API struct EasyCL *THClState_getCl(THClState* state);
 //THCL_API void THClState_setBlasHandleForCurrentDevice(THClState *state, int handle);
 
 /* For the current device and stream, returns the allocated scratch space */
-//THCL_API void* THClState_getCurrentDeviceScratchSpace(THClState* state);
-//THCL_API void* THClState_getDeviceScratchSpace(THClState* state, int device, int stream);
-//THCL_API size_t THClState_getCurrentDeviceScratchSpaceSize(THClState* state);
-//THCL_API size_t THClState_getDeviceScratchSpaceSize(THClState* state, int device);
+THCL_API struct CLWrapper* THClState_getCurrentDeviceScratchSpace(THClState* state);
+THCL_API struct CLWrapper* THClState_getDeviceScratchSpace(THClState* state, int device, int stream);
+THCL_API size_t THClState_getCurrentDeviceScratchSpaceSize(THClState* state);
+THCL_API size_t THClState_getDeviceScratchSpaceSize(THClState* state, int device);
 
 //#define THClCheck(err)  __THClCheck(err, __FILE__, __LINE__)
 //#define THCublasCheck(err)  __THCublasCheck(err,  __FILE__, __LINE__)
