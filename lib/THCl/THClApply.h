@@ -4,13 +4,13 @@
 #include "THClTensorCopy.h"
 #include "THClReduceApplyUtils.h"
 #include "templates/TemplatedKernel.h"
+#include "THClTensorInfoCl.h"
 #include "util/easycl_stringhelper.h"
 #include "EasyCL.h"
 #include "CLKernel_structs.h"
 
 #include <string>
 
-std::string getApplyD_template();
 std::string getApplyDv2_template();
 
 //
@@ -28,38 +28,6 @@ std::string getApplyDv2_template();
 void THClTensor_copyIgnoringOverlaps(THClState* state,
                                        THClTensor* dst,
                                        THClTensor* src);
-
-typedef struct TensorInfoCl {
-  TensorInfoCl( TensorInfo<unsigned int> info ) {
-    dims = info.dims;
-    if( info.offset > ( 1l << 30 ) ) {
-      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
-    }
-    offset = (int)info.offset;
-    for( int i = 0; i < dims; i++ ) {
-      sizes[i] = info.sizes[i];
-      strides[i] = info.strides[i];
-    }
-  }
-  TensorInfoCl( TensorInfo<unsigned long> info ) {
-    dims = info.dims;
-    if( info.offset > ( 1l << 30 ) ) {
-      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
-    }
-    offset = (int)info.offset;
-    for( int i = 0; i < dims; i++ ) {
-      if( info.sizes[i] > ( 1l << 31 ) ) {
-        throw std::runtime_error("size " + easycl::toString(info.sizes[i]) + " out of bounds");
-      }
-      sizes[i] = info.sizes[i];
-      strides[i] = info.strides[i];
-    }
-  }
-  unsigned int sizes[MAX_CLTORCH_DIMS];
-  unsigned int strides[MAX_CLTORCH_DIMS];
-  int offset;
-  int dims;
-} TensorInfoCl;
 
 template< typename IndexType >
 void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int A, TensorInfo<IndexType> aInfo, IndexType totalElements, HasOperator1 const * op ) {
@@ -82,6 +50,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("num_tensor_inputs", numTensors);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("operation", operation);
+  kernelBuilder.set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate());
   std::string uniqueName = "applyDv2_1t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + op->operator1();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyDv2.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
   // calculate workgroup sizes and stuff
@@ -92,21 +61,6 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
 
   // set up tensorinfos
   TensorInfoCl aInfoCl(aInfo);
-
-  if( false ) {
-    std::cout << "numTensors " << numTensors << std::endl;
-    std::cout << "operation " << operation << std::endl;
-    std::cout << "totalElements " << totalElements << std::endl;
-    std::cout << "a offset " << aInfoCl.offset << std::endl;
-    std::cout << "adims " << aInfoCl.dims << std::endl;
-    for( int i = 0; i < aInfoCl.dims; i++ ) {
-      std::cout << "a dim" << i << " size=" << aInfoCl.sizes[i] << 
-        " stride=" << aInfoCl.strides[i] << std::endl;
-    }
-    std::cout<< "block " << block << std::endl;
-    std::cout<< "grid " << grid << std::endl;
-    std::cout<< "global_ws " << global_ws << std::endl;
-  }
 
   if( !aInfo.wrapper->isOnDevice() ) {
     aInfo.wrapper->createOnDevice();
@@ -151,6 +105,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("operation", operation);
+  kernelBuilder.set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate());
   std::string uniqueName = "applyDv2_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
   CLKernel *kernel = 0;
   try {
@@ -168,25 +123,6 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   // set up tensorinfos
   TensorInfoCl aInfoCl(aInfo);
   TensorInfoCl bInfoCl(bInfo);
-
-  if( false ) {
-    std::cout << "numTensors " << numTensors << std::endl;
-    std::cout << "operation " << operation << std::endl;
-    std::cout << "totalElements " << totalElements << std::endl;
-    std::cout << "a offset " << aInfoCl.offset << 
-      " b offset " << bInfoCl.offset << std::endl;
-    std::cout << "adims " << aInfoCl.dims << " bdims " << bInfoCl.dims
-      << std::endl;
-    for( int i = 0; i < aInfoCl.dims; i++ ) {
-      std::cout << "a dim" << i << " size=" << aInfoCl.sizes[i] << 
-        " stride=" << aInfoCl.strides[i] << std::endl;
-      std::cout << "b dim" << i << " size=" << bInfoCl.sizes[i] << 
-        " stride=" << bInfoCl.strides[i] << std::endl;
-    }
-    std::cout<< "block " << block << std::endl;
-    std::cout<< "grid " << grid << std::endl;
-    std::cout<< "global_ws " << global_ws << std::endl;
-  }
 
   if( !aInfo.wrapper->isOnDevice() ) {
     aInfo.wrapper->createOnDevice();
@@ -237,6 +173,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("num_scalars", numScalars);
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
+  kernelBuilder.set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate());
   kernelBuilder.set("operation", operation);
   std::string uniqueName = "applyDv2_3t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + easycl::toString(C) + "_" + op->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyDv2.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
@@ -250,25 +187,6 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   TensorInfoCl aInfoCl(aInfo);
   TensorInfoCl bInfoCl(bInfo);
   TensorInfoCl cInfoCl(cInfo);
-
-  if( false ) {
-    std::cout << "numTensors " << numTensors << std::endl;
-    std::cout << "operation " << operation << std::endl;
-    std::cout << "totalElements " << totalElements << std::endl;
-    std::cout << "a offset " << aInfoCl.offset << 
-      " b offset " << bInfoCl.offset << std::endl;
-    std::cout << "adims " << aInfoCl.dims << " bdims " << bInfoCl.dims
-      << std::endl;
-    for( int i = 0; i < aInfoCl.dims; i++ ) {
-      std::cout << "a dim" << i << " size=" << aInfoCl.sizes[i] << 
-        " stride=" << aInfoCl.strides[i] << std::endl;
-      std::cout << "b dim" << i << " size=" << bInfoCl.sizes[i] << 
-        " stride=" << bInfoCl.strides[i] << std::endl;
-    }
-    std::cout<< "block " << block << std::endl;
-    std::cout<< "grid " << grid << std::endl;
-    std::cout<< "global_ws " << global_ws << std::endl;
-  }
 
   if( !aInfo.wrapper->isOnDevice() ) {
     aInfo.wrapper->createOnDevice();

@@ -1,3 +1,10 @@
+"""
+This does a first cut port from cutorch, into the `port` subdirectory.
+I've never actually used it for porting whole files yet, but 
+it does make using `meld` against newer cutorch branches, such as 
+`goodies2` much more possible.
+"""
+
 from __future__ import print_function
 import sys
 import os
@@ -45,7 +52,11 @@ for filename in os.listdir(cutorch_thc):
     contents = contents.replace('Cuda', 'Cl')
     contents = contents.replace('#include "THC', '#include "THCl')
     contents = contents.replace('THC_', 'THCL_')
-    contents = contents.replace('THCLState', 'THClState')
+    contents = contents.replace('THCState', 'THClState')
+    contents = contents.replace('CUTORCH', 'CLTORCH')
+    contents = contents.replace('THCBlasState', 'THClBlasState')
+    contents = contents.replace('cublasOperation_t', 'clblasTranspose')
+    contents = contents.replace('cublas', 'clblas')
  
     # line by line:
     new_contents = ''
@@ -59,6 +70,10 @@ for filename in os.listdir(cutorch_thc):
             scope_dead = True
         if line.find('{') >= 0:
             depth += 1
+        if line.find('#include <cuda') >= 0:
+            line = ''
+        if line.strip() == 'THClCheck(cudaGetLastError());':
+            line = ''
         if scope_dead and line.find('return') >= 0:
             line = ('  THError("Not implemented");\n' +
                     '  return 0;\n  // ' +

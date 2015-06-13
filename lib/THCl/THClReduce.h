@@ -1,5 +1,18 @@
+#pragma once
+
 #ifndef THCL_REDUCE_INC
 #define THCL_REDUCE_INC
+
+#include <string>
+#include <vector>
+#include <set>
+#include "THClTensorInfoCl.h"
+#include "templates/TemplatedKernel.h"
+#include "util/easycl_stringhelper.h"
+#include "EasyCL.h"
+
+std::string getKernelSource();
+
 
 //
 // This file contains dimension reduction operation functions and
@@ -16,28 +29,68 @@ inline dim3 getNoncontigReduceBlock() {
   return dim3(THCL_NONCONTIG_REDUCE_BLOCK_SIZE);
 }
 
+// from http://stackoverflow.com/questions/1055452/c-get-name-of-type-in-template
+template<typename T>
+struct TypeParseTraits;
 
-template<typename IndexType, int ADims, int BDims>
+template<typename IndexType>
 void kernelLaunch_THClTensor_reduceNoncontigDim(
+  THClState *state,
+  int ADims,
+  int BDims,
   TensorInfo<IndexType> out,
   TensorInfo<IndexType> in,
   IndexType reductionStride,
   IndexType reductionSize,
   IndexType totalSlices,
+  float init,
   HasOperator2 const*modifyOp,
   HasOperator3 const*reduceOp) {
 
   // launch kernel here....
+  TemplatedKernel kernelBuilder(state->cl);
+
+  std::set<int> dims_set;
+  if(ADims >= 0) {
+    dims_set.insert(ADims);
+  }
+  if(BDims >= 0) {
+    dims_set.insert(BDims);
+  }
+  std::vector<int> dims;
+  for( std::set<int>::iterator it = dims_set.begin(); it != dims_set.end(); it++ ) {
+    dims.push_back(*it);
+  }
+
+  kernelBuilder
+    .set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate())
+    .set("dims", dims)
+    .set("dim1", ADims)
+    .set("dim2", BDims)
+    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+    .set("index_type", TypeParseTraits<IndexType>::name)
+    .set("modify_operation", modifyOp->operator2())
+    .set("reduce_operation", reduceOp->operator3())
+  ;
+
+  std::string uniqueName = "THClTensor_reduceNoncontigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
+    TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
+  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClReduce.cl", getKernelSource(), "THClTensor_reduceNoncontigDim");
+//  kernel->in();
 
   THError("Not implemented");
 }
 
-template<typename IndexType, int ADims, int BDims>
+template<typename IndexType>
 void kernelLaunch_THClTensor_reduceContigDim(
+  THClState *state,
+  int ADims,
+  int BDims,
   TensorInfo<IndexType> out,
   TensorInfo<IndexType> in,
   IndexType reductionSize,
   IndexType totalSlices,
+  float init,
   HasOperator2 const*modifyOp,
   HasOperator3 const*reduceOp) {
 
@@ -83,8 +136,9 @@ inline bool getContigReduceGrid(long elements, dim3& grid) {
 bool THClTensor_reduceDim(THClState* state,
                           THClTensor* out,
                           THClTensor* in,
-                          const HasOperator1 *modifyOp,
-                          const HasOperator2 *reduceOp,
+                          float init,
+                          const HasOperator2 *modifyOp,
+                          const HasOperator3 *reduceOp,
                           int dim);
 
 #undef THCL_NONCONTIG_REDUCE_BLOCK_SIZE

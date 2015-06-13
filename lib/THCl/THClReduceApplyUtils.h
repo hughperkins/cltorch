@@ -6,6 +6,7 @@
 #include "THGeneral.h"
 #include "THClGeneral.h"
 #include "THClTensor.h"
+#include "THClOperators.h"
 
 #ifndef DIVUP
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
@@ -24,45 +25,11 @@
 // read-only
 enum TensorArgType { ReadWrite, ReadOnly };
 
-#ifdef __cplusplus
-class OpBase {
-public:
-};
-
-class HasScalars : public OpBase {
-public:
-    virtual int getNumScalars() const = 0;
-    virtual float getScalar(int index) const = 0;
-};
-
-class HasOperator1 : public OpBase {
-public:
-    virtual std::string operator1() const = 0;
-};
-
-class HasOperator2 : public OpBase {
-public:
-    virtual std::string operator2() const = 0;
-};
-
-class HasOperator3 : public OpBase {
-public:
-    virtual std::string operator3() const = 0;
-};
-
-
-//class HasScalar2 {
-//public:
-////    float getScalar1() = 0;
-//    virtual float getVal2() = 0;
-//};
-#endif // __cplusplus
-
 // Copy operator for the pointwise apply kernel
 class CopyOp : public HasOperator2 {
 public:
     std::string operator2() const {
-        return "*out += *in1";
+        return "*out = *in1";
     }
 };
 

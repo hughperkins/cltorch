@@ -6,6 +6,8 @@
 //#include "THClTensorRandom.h"
 #include "THClApply.h"
 #include "THClReduce.h"
+#include "THClReduceApplyUtils.h"
+#include "THClTensorMathPointwise.h"
 
 using namespace std;
 
@@ -273,14 +275,16 @@ float THClTensor_prodall(THClState *state, THClTensor *self)
 
 void THClTensor_sum(THClState* state, THClTensor *self, THClTensor *src, long dimension)
 {
-//  THAssert(THClTensor_checkGPU(state, 2, self, src));
-//  THClTensor_reduceDim(
-//    state, self, src,
-//    thrust::identity<float>(), thrust::plus<float>(), 0.0f, dimension);
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+  CopyOp modifyOp;
+  TensorAddOp reduceOp;
+  THClTensor_reduceDim(
+    state, self, src,
+      0.0f, 
+     &modifyOp, &reduceOp, dimension);
 
-//  THClCheck(cudaGetLastError());
-    THError("Not implemented");
-//    return 0;
+
+  THError("Not implemented");
 }
 
 void THClTensor_prod(THClState* state, THClTensor *self, THClTensor *src, long dimension)

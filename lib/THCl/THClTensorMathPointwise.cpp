@@ -5,24 +5,11 @@
 //#include "THClTensorRandom.h"
 #include "THClApply.h"
 //#include "THClReduce.cuh"
+#include "THClTensorMathPointwise.h"
 
 #ifndef DIVUP
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
-
-class TensorGenOp : public HasOperator1, public HasOperator2 {
-public:
-  std::string cfun;
-  TensorGenOp( std::string cfun ) {
-     this->cfun = cfun;
-  }
-  std::string operator1() const {
-    return "*out =" + cfun + "( *out )";
-  }
-  std::string operator2() const {
-    return "*out = " + cfun + "( *in1 )";
-  }
-};
 
 #define IMPLEMENT_CL_TENSOR_BASIC_FUNC(NAME, CFUNC)                   \
   void THClTensor_##NAME(THClState* state, THClTensor* self_, THClTensor* src) { \
@@ -62,30 +49,6 @@ IMPLEMENT_CL_TENSOR_BASIC_FUNC(round, round)
 
 #undef IMPLEMENT_CL_TENSOR_BASIC_FUNC
 
-class TensorAddOp : public HasOperator2, public HasOperator3 {
-public:
-    std::string operator2() const {
-        return "*out += *in1";
-    }
-    std::string operator3() const {
-        return "*out = *in1 + *in2";
-    }
-};
-
-class TensorCAddOp : public HasOperator2, public HasOperator3, public HasScalars {
-public:
-  int getNumScalars() const { return 1; }
-  float getScalar(int index) const { return val; }
-  TensorCAddOp(float v) : val(v) {}
-    std::string operator2() const {
-        return "*out += val1 * *in1";
-    }
-    std::string operator3() const {
-        return "*out += *in1 + val1 * *in2";
-    }
-  float val;
-};
-
 void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, float value, THClTensor *src2)
 {
   THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));
@@ -120,16 +83,6 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
     }
   }
 }
-
-class TensorMulOp : public HasOperator2, public HasOperator3 {
-public:
-    std::string operator2() const {
-        return "*out *= *in1";
-    }
-    std::string operator3() const {
-        return "*out = *in1 * *in2";
-    }
-};
 
 void THClTensor_cmul(THClState *state, THClTensor *self_, THClTensor *src1, THClTensor *src2)
 {
