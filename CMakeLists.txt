@@ -42,6 +42,7 @@ ADD_TORCH_WRAP(cltorchtensormathwrap TensorMath.lua)
 ADD_TORCH_PACKAGE(cltorch "${src}" "${luasrc}")
 ADD_DEPENDENCIES(cltorch clBLAS)
 ADD_DEPENDENCIES(cltorch EasyCL)
+ADD_DEPENDENCIES(cltorchtensormathwrap EasyCL)
 
 if( ON_LINUX ) 
     execute_process( COMMAND git --version RESULT_VARIABLE git_test ERROR_QUIET )

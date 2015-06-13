@@ -2,6 +2,7 @@ print("running require cltorch...")
 require 'cltorch'
 print("... require cltorch done")
 
+if false then
 a = torch.Tensor{3,5,2}
 print('a\n', a)
 
@@ -124,6 +125,8 @@ print(torch.cdiv(c,d))
 print(-c)
 
 -- print(c:t())
+end
+if false then
 A = torch.ClTensor{{1,2,-1},
                    {3,4,0}}
 B = torch.ClTensor{{0,1},
@@ -132,7 +135,8 @@ B = torch.ClTensor{{0,1},
 print('A\n', A)
 print('B\n', B)
 print(torch.mm(A,B))
-
+end
+if false then
 print(torch.mm(A:float(), B:float()))
 
 C = torch.ClTensor{{0,0},{0,0}}
@@ -143,6 +147,7 @@ print( A * B )
 C:fill(1.345)
 print('C\n', C)
 
+
 s = torch.LongStorage{3,2}
 print('s\n', s)
 --C = cltorch.ones(s)
@@ -150,25 +155,38 @@ print('s\n', s)
 C:zero()
 print('C\n', C)
 
+
 --C:reshape({4,1})
 --print('C\n', C)
 
+end
+
+if true then
 v1 = torch.ClTensor{3,5,1}
 v2 = torch.ClTensor{2,4,8}
-print(v1 * v2)
+--print(v1 * v2)
+print(torch.dot(v1,v2))
+end
+
+if false then
+
 
 fv1 = torch.FloatTensor{3,5,1}
 fv2 = torch.FloatTensor{2,4,8}
 print(fv1*fv2)
 
+
 print(torch.dot(v1,v2))
+
 
 print(torch.ClTensor.zeros(torch.ClTensor.new(), 3, 5))
 print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
 -- print(torch.ClTensor.eye(torch.ClTensor.new(), 3))
 -- print(torch.ClTensor.diag(torch.ClTensor{{3,5,4},{2,3,4},{7,6,5}}))
 
+
 print(torch.mv(A,v1))
+
 
 -------------------
 
@@ -204,4 +222,5 @@ end
 
 print(torch.ClTensor({{3,5,2},{4,5,6}}) == torch.ClTensor({{3,5,2},{4,5,6}}))
 --print('end')
+end
 

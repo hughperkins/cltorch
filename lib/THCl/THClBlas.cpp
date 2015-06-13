@@ -168,9 +168,9 @@ float THClBlas_dot(THClState *state, long n,
         THError("clblasSetup() failed with %d", err);
     }
     
-    CLWrapper *resultWrapper = state->cl->wrap( 1, &result );
+    CLWrapper *resultWrapper = THClState_getCl(state)->wrap( 1, &result );
     float *scratch = new float[i_n];
-    CLWrapper *scratchWrapper = state->cl->wrap(i_n, scratch);
+    CLWrapper *scratchWrapper = THClState_getCl(state)->wrap(i_n, scratch);
     scratchWrapper->createOnDevice();
     resultWrapper->createOnDevice();
 
@@ -179,7 +179,7 @@ float THClBlas_dot(THClState *state, long n,
           xwrapper->getBuffer(), xoffset, i_incx, 
           ywrapper->getBuffer(), yoffset, i_incy, 
           scratchWrapper->getBuffer(),
-          1, state->cl->queue, 0, NULL, &event);
+          1, THClState_getCl(state)->queue, 0, NULL, &event);
 //    THCublasCheck(cublasSdot(*state->blasState->current_handle, i_n, x, i_incx, y, i_incy, &result));
 //    ClDeviceSynchronize();
     if (err != CL_SUCCESS) {
@@ -241,7 +241,7 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, CL
           xwrapper->getBuffer(), xoffset, i_incx, 
           beta,
           ywrapper->getBuffer(), yoffset, i_incy, 
-          1, state->cl->queue, 0, NULL, &event);
+          1, THClState_getCl(state)->queue, 0, NULL, &event);
 //    THCublasCheck(cublasSgemv(*state->blasState->current_handle, op, i_m, i_n, &alpha, a, i_lda, x, i_incx, &beta, y, i_incy));
     if (err != CL_SUCCESS) {
         THError("clblasSdot() failed with %d", err);
@@ -352,7 +352,7 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
                          alpha, aWrapper->getBuffer(), offseta, i_lda,
                          bWrapper->getBuffer(), offsetb, i_ldb, beta,
                          cWrapper->getBuffer(), offsetc, i_ldc,
-                         1, state->cl->queue, 0, NULL, &event);
+                         1, THClState_getCl(state)->queue, 0, NULL, &event);
     if (err != CL_SUCCESS) {
         THError("clblasSgemm() failed with %d", err);
     }

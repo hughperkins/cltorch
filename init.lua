@@ -10,13 +10,5 @@ include('Tensor.lua')
 
 --local unpack = unpack or table.unpack
 
---local function Module__cl(self)
---   print("Module__cl")
---end
-
---require 'nn'
-
---rawset(torch.getmetatable('nn.Module'), 'cl', Module__cl)
-
 return cltorch
 
