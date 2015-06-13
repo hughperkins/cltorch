@@ -8,6 +8,7 @@
 #include "THClReduce.h"
 #include "THClReduceApplyUtils.h"
 #include "THClTensorMathPointwise.h"
+#include "THClReduceAll.h"
 
 using namespace std;
 
@@ -237,8 +238,14 @@ float THClTensor_maxall(THClState *state, THClTensor *self)
 float THClTensor_sumall(THClState *state, THClTensor *self)
 {
   THAssert(THClTensor_checkGPU(state, 1, self));
-  self = THClTensor_newContiguous(state, self);
-//  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
+  float val = 0.0f;
+  if (!THClTensor_reduceAll(state, self,
+//                               thrust::identity<float>(),
+//                               thrust::plus<float>(),
+                              0.0f, &val, 0)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  THError("Not implemented");
+  }
 
 //  float result = thrust::reduce(self_data, self_data+THClTensor_nElement(state, self), (float)(0), thrust::plus<float>());
 

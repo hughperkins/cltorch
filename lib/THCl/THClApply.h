@@ -8,6 +8,7 @@
 #include "util/easycl_stringhelper.h"
 #include "EasyCL.h"
 #include "CLKernel_structs.h"
+#include "THClTypeParseTraits.h"
 
 #include <string>
 
@@ -48,6 +49,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("num_scalars", numScalars);
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("num_tensor_inputs", numTensors);
+  kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("operation", operation);
   kernelBuilder.set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate());
@@ -104,6 +106,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("num_scalars", numScalars);
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
+  kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
   kernelBuilder.set("operation", operation);
   kernelBuilder.set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate());
   std::string uniqueName = "applyDv2_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
@@ -172,6 +175,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("num_tensors", numTensors);
   kernelBuilder.set("num_scalars", numScalars);
   kernelBuilder.set("dims", dims);
+  kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate());
   kernelBuilder.set("operation", operation);

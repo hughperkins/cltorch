@@ -7,9 +7,9 @@ typedef struct TensorInfoCl {
   // The optional `reduceDim` indicates a reduction dimension for the
   // given tensor, so that the output size for this dimension will be 1.
 
-  int sizes[{{MAX_CLTORCH_DIMS}}];
-  int strides[{{MAX_CLTORCH_DIMS}}];
-  int offset;
+  {{IndexType}} sizes[{{MAX_CLTORCH_DIMS}}];
+  {{IndexType}} strides[{{MAX_CLTORCH_DIMS}}];
+  {{IndexType}} offset;
   int dims;
 } TensorInfoCl;
 // Contiguous tensors of more than one dimension are collapsed down
@@ -21,13 +21,13 @@ bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
 // Translate a linear index for the apply to a float* offset;
 // specialized on `Dims` to reduce nvcc compilation time
 {% for _,dim in ipairs(dims) do %}
-int IndexToOffset_{{1000 + dim}}_get( int linearId, TensorInfoCl info) {
-  int offset = 0;
+{{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, TensorInfoCl info) {
+  {{IndexType}} offset = 0;
 
   // Use static dims
   for (int i = {{dim}} - 1; i >= 0; --i) {
-    int curDimIndex = linearId % info.sizes[i];
-    int curDimOffset = curDimIndex * info.strides[i];
+    {{IndexType}} curDimIndex = linearId % info.sizes[i];
+    {{IndexType}} curDimOffset = curDimIndex * info.strides[i];
     offset += curDimOffset;
 
     if (i > 0) {
@@ -39,17 +39,17 @@ int IndexToOffset_{{1000 + dim}}_get( int linearId, TensorInfoCl info) {
 }
 {% end %}
 
-int IndexToOffset_998_get(int linearId, const TensorInfoCl info) {
+{{IndexType}} IndexToOffset_998_get({{IndexType}} linearId, const TensorInfoCl info) {
     return linearId;
 }
 
-int IndexToOffset_999_get(int linearId, const TensorInfoCl info) {
-  int offset = 0;
+{{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, const TensorInfoCl info) {
+  {{IndexType}} offset = 0;
 
   // Use dynamic dims
   for (int i = info.dims - 1; i >= 0; --i) {
-    int curDimIndex = linearId % info.sizes[i];
-    int curDimOffset = curDimIndex * info.strides[i];
+    {{IndexType}} curDimIndex = linearId % info.sizes[i];
+    {{IndexType}} curDimOffset = curDimIndex * info.strides[i];
     offset += curDimOffset;
 
     linearId /= info.sizes[i];

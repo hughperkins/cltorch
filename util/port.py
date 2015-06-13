@@ -9,7 +9,7 @@ from __future__ import print_function
 import sys
 import os
 
-cutorch_dir = '../cutorch'
+cutorch_dir = '../cutorch-goodies2'
 
 cutorch_thc = '{cutorch_dir}/lib/THC'.format(
     cutorch_dir=cutorch_dir)

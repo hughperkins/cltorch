@@ -29,10 +29,6 @@ inline dim3 getNoncontigReduceBlock() {
   return dim3(THCL_NONCONTIG_REDUCE_BLOCK_SIZE);
 }
 
-// from http://stackoverflow.com/questions/1055452/c-get-name-of-type-in-template
-template<typename T>
-struct TypeParseTraits;
-
 template<typename IndexType>
 void kernelLaunch_THClTensor_reduceNoncontigDim(
   THClState *state,
