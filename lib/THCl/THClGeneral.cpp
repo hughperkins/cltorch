@@ -18,6 +18,7 @@ void THClInit(THClState* state)
   printf("THClInit()\n");
   state->allocatedDevices = easycl::DevicesInfo::getNumDevices();
   state->clByDevice = new EasyCL *[state->allocatedDevices];
+  state->scratchSpaceByDevice = new THClScratchSpace *[state->allocatedDevices];
   for(int i = 0; i < state->allocatedDevices; i++) {
     state->clByDevice[i] = 0;
     state->scratchSpaceByDevice[i] = 0;
@@ -28,16 +29,17 @@ void THClInit(THClState* state)
 
 void THClShutdown(THClState* state)
 {
-  for(int i = 0; i < state->allocatedDevices; i++) {
-    delete state->clByDevice[i];
-    if( state->scratchSpaceByDevice[i] != 0 ) {
-      delete state->scratchSpaceByDevice[i]->wrapper;
-      delete state->scratchSpaceByDevice[i]->data;
-      delete state->scratchSpaceByDevice[i];
-    }
-  }
-  delete state->clByDevice;
-  printf("THClShutdown()\n");
+  printf("THClShutdown() start...\n");
+//  for(int i = 0; i < state->allocatedDevices; i++) {
+//    delete state->clByDevice[i];
+//    if( state->scratchSpaceByDevice[i] != 0 ) {
+//      delete state->scratchSpaceByDevice[i]->wrapper;
+//      delete state->scratchSpaceByDevice[i]->data;
+//      delete state->scratchSpaceByDevice[i];
+//    }
+//  }
+//  delete state->clByDevice;
+  printf("THClShutdown() done\n");
   printf("*******************************************\n");
 }
 
@@ -56,16 +58,17 @@ int THClState_getDevice(THClState* state) {
   return state->currentDevice;
 }
 EasyCL *THClState_getCl(THClState* state) {
-  if( state->clByDevice[state->currentDevice] == 0 ) {
-    state->clByDevice[state->currentDevice] = EasyCL::createForIndexedDevice(state->currentDevice);
+  int device = state->currentDevice;
+  if( state->clByDevice[device] == 0 ) {
+    EasyCL *cl = EasyCL::createForIndexedDevice(device);
+    state->clByDevice[device] = cl;
     THClScratchSpace *scratch = new THClScratchSpace();
     scratch->data = new float[FLOATS_PER_SCRATCH_SPACE];
-    EasyCL *cl = THClState_getCl(state);
     scratch->wrapper = cl->wrap(FLOATS_PER_SCRATCH_SPACE, scratch->data);
     scratch->wrapper->createOnDevice();
-    state->scratchSpaceByDevice[state->currentDevice] = scratch;
+    state->scratchSpaceByDevice[device] = scratch;
   }
-  return state->clByDevice[state->currentDevice];
+  return state->clByDevice[device];
 }
 
 CLWrapper* THClState_getCurrentDeviceScratchSpace(THClState* state)

@@ -161,7 +161,7 @@ print('C\n', C)
 
 end
 
-if true then
+if false then
 v1 = torch.ClTensor{3,5,1}
 v2 = torch.ClTensor{2,4,8}
 --print(v1 * v2)
