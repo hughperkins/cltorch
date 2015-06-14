@@ -183,7 +183,7 @@ Porting status by file, compared with original cutorch files.  Note that `.cpp` 
 | THClTensorMath.h | Done |
 | THClTensor.cpp | 90% |
 | THClTensorCopy.cpp | 50% |
-| THClTensorMath.cpp | 5% |
+| THClTensorMath.cpp | 50% |
 | THClTensorIndex.cpp | 0% |
 | THClTensorMath2.cpp | 20% |
 | THClTensorMathBlas.cpp | 30% |
