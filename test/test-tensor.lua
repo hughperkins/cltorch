@@ -189,7 +189,7 @@ end
 
 -------------------
 
-if false then
+if os.getenv('PROTOTYPING') ~= nil then
 
 print(torch.Tensor.__eq)
 function torch.Tensor.__eq(self, b)

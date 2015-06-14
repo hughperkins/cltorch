@@ -12,9 +12,9 @@ void THClTensor_copyIgnoringOverlaps(THClState* state,
 std::string getApplyDv2_template() {
   // [[[cog
   // import stringify
-  // stringify.write_kernel( "kernel", "THClApplyDv2.cl" )
+  // stringify.write_kernel( "kernel", "THClApply.cl" )
   // ]]]
-  // generated using cog, from THClApplyDv2.cl:
+  // generated using cog, from THClApply.cl:
   const char * kernelSource =  
   "// OpenCL kernels....\n" 
   "\n" 
@@ -40,6 +40,11 @@ std::string getApplyDv2_template() {
   "// Enum that indicates whether tensor arguments are read/write or\n" 
   "// read-only\n" 
   "//enum TensorArgType { ReadWrite, ReadOnly };\n" 
+  "\n" 
+  "// not used by this kernel, but used by THClReduceApplyUtils...\n" 
+  "float reduceOp(float _in1, float _in2) {\n" 
+  "  return 0;\n" 
+  "}\n" 
   "\n" 
   "{{include_THClReduceApplyUtils}}\n" 
   "\n" 

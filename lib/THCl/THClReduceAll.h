@@ -132,6 +132,7 @@ void kernelLaunch_THClTensor_reduceAll(
   kernelBuilder
     .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
     .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
+    .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
     .set("dims", dims)
     .set("dim1", ADims)
     .set("modify_operation", modifyOp->operator2())

@@ -57,6 +57,13 @@ for filename in os.listdir(cutorch_thc):
     contents = contents.replace('THCBlasState', 'THClBlasState')
     contents = contents.replace('cublasOperation_t', 'clblasTranspose')
     contents = contents.replace('cublas', 'clblas')
+    contents = contents.replace('gridDim.x', '/*gridDim.x*/ get_num_groups(0)')
+    contents = contents.replace('blockDim.x', '/*blockDim.x*/ get_local_size(0)')
+    contents = contents.replace('blockIdx.x', '/*blockIdx.x*/ get_group_id(0)')
+    contents = contents.replace('threadIdx.x', '/*threadIdx.x*/ get_local_id(0)')
+    contents = contents.replace('__global__', 'kernel')
+    contents = contents.replace('__syncthreads()', 'barrier(CLK_LOCAL_MEM_FENCE)')
+    contents = contents.replace('warpSize', '{{WarpSize}}')
  
     # line by line:
     new_contents = ''
