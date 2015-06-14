@@ -106,6 +106,12 @@ c:fill(1.345)
 c:zero()
 </pre></tr>
 
+<tr><td>Resizing<td>Done<td><pre>
+c:resize(3,2)
+l = torch.LongStorage{3,3}
+c:resize(l)
+d = torch.ClTensor(2,2)
+d:resizeAs(c)
 </table>
 
 ### From [maths.md](https://github.com/torch/torch7/blob/master/doc/maths.md)

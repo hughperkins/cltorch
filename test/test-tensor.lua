@@ -265,6 +265,19 @@ if true then
   print('c\n', c)
   c:zero()
   print('c\n', c)
+  c:resize(3,2)
+  print('c\n', c)
+  c:resize(2,2)
+  print('c\n', c)
+  c:resize(2,4)
+  print('c\n', c)
+  l = torch.LongStorage{3,3}
+  c:resize(l)
+  print('c\n', c)
+  d = torch.ClTensor(2,2)
+  print('d\n', d)
+  d:resizeAs(c)
+  print('d\n', d)
 end
 
 if os.getenv('PROTOTYPING') ~= nil then
