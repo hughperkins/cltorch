@@ -1,8 +1,14 @@
 """
-This does a first cut port from cutorch, into the `port` subdirectory.
+This does a first cut port from `../cutorch-goodies2` directory,
+into the `port` subdirectory.
 I've never actually used it for porting whole files yet, but 
 it does make using `meld` against newer cutorch branches, such as 
 `goodies2` much more possible.
+
+Possible future enhancements:
+- make it automatically move kernels and device functions into a '.cl'
+  file (plausibly anything with host goes both into the .h/.cpp, and also
+  into the .cl)
 """
 
 from __future__ import print_function
