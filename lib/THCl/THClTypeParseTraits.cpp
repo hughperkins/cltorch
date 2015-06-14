@@ -9,5 +9,6 @@
 
 REGISTER_PARSE_TYPE_DEFINITION(unsigned int);
 REGISTER_PARSE_TYPE_DEFINITION(unsigned long);
+REGISTER_PARSE_TYPE_DEFINITION(unsigned long long);
 
 

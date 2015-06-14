@@ -1,64 +1,10 @@
 #include "THClTensorInfoCl.h"
 #include "EasyCL.h"
 #include "THClReduceAll.h"
+#include "THClTypeParseTraits.h"
 
 #include <iostream>
 using namespace std;
-
-void kernelLaunch_THClTensor_reduceAllPass1(
-                     THClState* state,
-                     int ADims,
-                     const TensorInfoCl& inCl,
-                     CLWrapper *in_data,
-                     long totalElements,
-                     float init,
-                     const HasOperator2 *modifyOp,
-                     const HasOperator3 *reduceOp,
-                     CLWrapper* scratch
-    ){
-  EasyCL *cl = THClState_getCl(state);
-  TemplatedKernel kernelBuilder(cl);
-  kernelBuilder
-      .set("include_THClDeviceutils", THClDeviceUtils_getKernelTemplate())
-  ;
-
-  THError("Not implemented");
-}
-
-void kernelLaunch_THClTensor_reduceAllPass2(
-                     THClState* state,
-                     int numPass1Blocks,
-                     float init,
-                     const HasOperator3 *reduceOp,
-                     CLWrapper *scratch,
-                     CLWrapper* devOut
-    ){
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-  kernelBuilder
-      .set("include_THClDeviceutils", THClDeviceUtils_getKernelTemplate())
-  ;
-
-  THError("Not implemented");
-}
-
-void kernelLaunch_THClTensor_reduceAll(
-                     THClState* state,
-                     int ADims,
-                     const TensorInfoCl& inCl,
-                     CLWrapper *in_data,
-                     long totalElements,
-                     float init,
-                     const HasOperator2 *modifyOp,
-                     const HasOperator3 *reduceOp,
-                     CLWrapper* devOut
-    ){
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-  kernelBuilder
-      .set("include_THClDeviceutils", THClDeviceUtils_getKernelTemplate())
-  ;
-
-  THError("Not implemented");
-}
 
 // Reduces the entire tensor to one floating-point value. `out` points
 // to host-resident memory.
@@ -160,29 +106,47 @@ std::string THClReduceAll_getKernelTemplate() {
   const char * kernelSource =  
   "{{include_THClDeviceUtils}}\n" 
   "\n" 
-  "IndexType getEndIndex(IndexType totalSize) {\n" 
-  "  IndexType sizePerBlock = THClCeilDiv(totalSize, (IndexType) gridDim.x);\n" 
-  "  return min((IndexType) ((blockIdx.x + 1) * sizePerBlock), totalSize);\n" 
+  "float modifyOp(float _in1) {\n" 
+  "  float _out;\n" 
+  "  float *in1 = &_in1;\n" 
+  "  float *out = &_out;\n" 
+  "  {{modify_operation}};\n" 
+  "  return _out;\n" 
+  "}\n" 
+  "\n" 
+  "float reduceOp(float _in1, float _in2) {\n" 
+  "  // I guess the compiler can sort this stuff out :-P\n" 
+  "  float _out;\n" 
+  "  float *in1 = &_in1;\n" 
+  "  float *in2 = &_in2;\n" 
+  "  float *out = &_out;\n" 
+  "  {{reduce_operation}};\n" 
+  "  return _out;\n" 
+  "}\n" 
+  "\n" 
+  "{{IndexType}} getEndIndex({{IndexType}} totalSize) {\n" 
+  "  {{IndexType}} sizePerBlock = THClCeilDiv(totalSize, ({{IndexType}}) gridDim.x);\n" 
+  "  return min(({{IndexType}}) ((blockIdx.x + 1) * sizePerBlock), totalSize);\n" 
   "}\n" 
   "\n" 
   "// Kernel that handles an entire reduction of a tensor in one pass\n" 
   "kernel void\n" 
   "THClTensor_reduceAll(global TensorInfoCl *in,\n" 
   "                     global float *in_data,\n" 
-  "                     IndexType totalElements,\n" 
+  "                     {{IndexType}} totalElements,\n" 
   "                     float init,\n" 
   "                     global float* out,\n" 
   "                     local float *smem) {\n" 
   "  // With a block-wide stride, have each thread perform its own reduction.\n" 
   "  float r = init;\n" 
-  "  for (IndexType i = threadIdx.x; i < totalElements; i += blockDim.x) {\n" 
-  "    const IndexType inOffset = IndexToOffset<IndexType, ADims>::get(i, in);\n" 
+  "  for ({{IndexType}} i = threadIdx.x; i < totalElements; i += blockDim.x) {\n" 
+  "    const {{IndexType}} inOffset = IndexToOffset_{{1000 + dim1}}_get(i, in);\n" 
   "    r = reduceOp(r, modifyOp(in.data[inOffset]));\n" 
   "  }\n" 
   "\n" 
   "  // Reduce within the block\n" 
   "//  extern __shared__ float smem[];\n" 
-  "  r = reduceBlock<float, ReduceOp>(smem, blockDim.x, r, reduceOp, init);\n" 
+  "  r = reduceBlock(smem, blockDim.x, r, reduceOp, init);\n" 
   "\n" 
   "  if (threadIdx.x == 0) {\n" 
   "    // Write out reduced value\n" 
@@ -194,23 +158,23 @@ std::string THClReduceAll_getKernelTemplate() {
   "kernel void\n" 
   "THClTensor_reduceAllPass1(global TensorInfoCl *in,\n" 
   "                          global float *in_data,\n" 
-  "                          IndexType totalElements,\n" 
+  "                          {{IndexType}} totalElements,\n" 
   "                          float init,\n" 
   "                          global float* scratchSpace,\n" 
   "                          local float *smem) {\n" 
-  "  const IndexType startIndex = getStartIndex<IndexType>(totalElements);\n" 
-  "  const IndexType endIndex = getEndIndex<IndexType>(totalElements);\n" 
+  "  const {{IndexType}} startIndex = getStartIndex<{{IndexType}}>(totalElements);\n" 
+  "  const {{IndexType}} endIndex = getEndIndex<{{IndexType}}>(totalElements);\n" 
   "\n" 
   "  // With a block-wide stride, have each thread perform its own reduction.\n" 
   "  float r = init;\n" 
-  "  for (IndexType i = startIndex + threadIdx.x; i < endIndex; i += blockDim.x) {\n" 
-  "    const IndexType inOffset = IndexToOffset<IndexType, ADims>::get(i, in);\n" 
+  "  for ({{IndexType}} i = startIndex + threadIdx.x; i < endIndex; i += blockDim.x) {\n" 
+  "    const {{IndexType}} inOffset = IndexToOffset_{{1000 + dim1}}_get(i, in);\n" 
   "    r = reduceOp(r, modifyOp(in.data[inOffset]));\n" 
   "  }\n" 
   "\n" 
   "  // Reduce within the block\n" 
   "//  extern __shared__ float smem[];\n" 
-  "  r = reduceBlock<float, ReduceOp>(smem, blockDim.x, r, reduceOp, init);\n" 
+  "  r = reduceBlock(smem, blockDim.x, r, init);\n" 
   "\n" 
   "  if (threadIdx.x == 0) {\n" 
   "    // Write out block-wide reduced value\n" 
@@ -218,24 +182,23 @@ std::string THClReduceAll_getKernelTemplate() {
   "  }\n" 
   "}\n" 
   "\n" 
-  "template <typename ReduceOp, typename IndexType>\n" 
-  "__global__ void\n" 
-  "THClTensor_reduceAllPass2(int numPass1Blocks,\n" 
+  "template <typename ReduceOp, typename {{IndexType}}>\n" 
+  "kernel THClTensor_reduceAllPass2(int numPass1Blocks,\n" 
   "                            float init,\n" 
-  "                            ReduceOp reduceOp,\n" 
-  "                            float* scratchSpace,\n" 
-  "                            float* out) {\n" 
+  "                            global float* scratchSpace,\n" 
+  "                            global float* out,\n" 
+  "                            local float *smem) {\n" 
   "  float r = init;\n" 
   "  if (threadIdx.x < numPass1Blocks) {\n" 
   "    r = scratchSpace[threadIdx.x];\n" 
   "  }\n" 
   "\n" 
   "  // Reduce within the block\n" 
-  "  extern __shared__ float smem[];\n" 
-  "  r = reduceBlock<float, ReduceOp>(smem, numPass1Blocks, r, reduceOp, init);\n" 
+  "//  extern __shared__ float smem[];\n" 
+  "  r = reduceBlock(smem, numPass1Blocks, r, init);\n" 
   "\n" 
   "  if (threadIdx.x == 0) {\n" 
-  "    *out = r;\n" 
+  "    out[0] = r;\n" 
   "  }\n" 
   "}\n" 
   "\n" 

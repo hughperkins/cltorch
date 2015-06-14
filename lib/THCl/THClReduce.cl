@@ -78,7 +78,8 @@ THClTensor_reduceContigDim(TensorInfoCl<{{index_type}}> out,
                            global float *in_data,
                            {{index_type}} reductionSize,
                            {{index_type}} totalSlices,
-                           float init) {
+                           float init,
+                           local float *smem) {
   const {{index_type}} sliceIndex = getReduceContigDimSliceIndex<{{index_type}}>();
 
   if (sliceIndex >= totalSlices) {
@@ -102,11 +103,12 @@ THClTensor_reduceContigDim(TensorInfoCl<{{index_type}}> out,
   }
 
   // Reduce within the block
-  extern __shared__ float smem[];
+//  extern __shared__ float smem[];
   smem[threadIdx.x] = r;
 
   // First warp will perform reductions across warps
-  __syncthreads();
+  //__syncthreads();
+  barrier(CLK_LOCAL_MEM_FENCE);
   if ((threadIdx.x / 32) == 0) {
     float r = {{init}};
     for (int i = 0; i < blockDim.x; i += 32) {
@@ -118,11 +120,12 @@ THClTensor_reduceContigDim(TensorInfoCl<{{index_type}}> out,
   }
 
   // First thread will perform reductions across the block
-  __syncthreads();
+//  __syncthreads();
+  barrier(CLK_LOCAL_MEM_FENCE);
   if (threadIdx.x == 0) {
     r = init;
     #pragma unroll
-    {% for 0=1,32 do %}
+    {% for i=0,31 do %}
       r = reduceOp(r, smem[i]);
     {% end %}
 

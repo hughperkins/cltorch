@@ -10,4 +10,5 @@ struct TypeParseTraits;
 
 REGISTER_PARSE_TYPE_DECLARATION(unsigned int);
 REGISTER_PARSE_TYPE_DECLARATION(unsigned long);
+REGISTER_PARSE_TYPE_DECLARATION(unsigned long long);
 
