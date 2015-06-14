@@ -242,7 +242,21 @@ end
 
 if true then
   c = torch.ClTensor{3,5,2}
-  print('istensor', torch.isTensor(c))
+  print('torch.isTensor(c)', torch.isTensor(c))
+  print('c:nDimension()', c:nDimension())
+  C = torch.ClTensor{{3,2,4},{9,7,5}}
+  print('C:nDimension()', C:nDimension())
+  print('c:dim()', C:dim())
+  print('C:size()', C:size())
+  print('C:size(1)', C:size(1))
+  print('C:size(2)', C:size(2))
+  print('#C', #C)
+  print('C:stride()', C:stride())
+  print('C:stride(1)', C:stride(1))
+  print('C:stride(2)', C:stride(2))
+  print('C:storage()', C:storage())
+  print('C:nElement()', C:nElement())
+  print('C:storageOffset()', C:storageOffset())
 end
 
 if os.getenv('PROTOTYPING') ~= nil then
