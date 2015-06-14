@@ -219,11 +219,8 @@ void kernelLaunch_THClTensor_reduceContigDim(
     .set("reduce_operation", reduceOp->operator3())
   ;
 
-  std::cout << "rendered kernel: " << kernelBuilder.getRenderedKernel(THClReduce_getKernelSource()) << std::endl; 
-
   std::string uniqueName = "THClTensor_reduceContigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
     TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
-  std::cout << "uniquename " << uniqueName << std::endl;
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClReduce.cl", THClReduce_getKernelSource(), "THClTensor_reduceContigDim");
   // calculate workgroup sizes and stuff
   dim3 global_ws;
@@ -248,11 +245,11 @@ void kernelLaunch_THClTensor_reduceContigDim(
   kernel->in(init);
   kernel->localFloats(smemSize / sizeof(float));
 
-  std::cout << "reductionsize " << reductionSize << std::endl;
-  std::cout << "totalSlices " << totalSlices << std::endl;
-  std::cout << "grid " << grid << std::endl;
-  std::cout << "block " << block << std::endl;
-  std::cout << "smemSize " << smemSize << std::endl;
+//  std::cout << "reductionsize " << reductionSize << std::endl;
+//  std::cout << "totalSlices " << totalSlices << std::endl;
+//  std::cout << "grid " << grid << std::endl;
+//  std::cout << "block " << block << std::endl;
+//  std::cout << "smemSize " << smemSize << std::endl;
 
   kernel->run(3, global_ws.vec, block.vec);
   THClState_getCl(state)->finish();

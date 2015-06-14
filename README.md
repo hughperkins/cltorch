@@ -132,6 +132,8 @@ print(v1 * v2)
 <tr><td>Column or row-wise operations<td>5% done<td><pre>
 A = torch.ClTensor{{3,5,2},{4,5,6}}
 A:sum()
+A:sum(2)
+A:sum(1)
 
 </pre></tr>
 
@@ -200,6 +202,7 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 
 * 14th June:
   * ReduceAll working :-)  For now means: sometensor:sum() works
+  * sometensor:sum(1) and sometensor:sum(2) working too now :-)
 * 13th June:
   * added `cltorch.setDevice`/`cltorch.getDevice`, see [test-device.lua](test/test-device.lua) for an example
   * added EasyCL includes to EasyCL install section, to remove build errors with "EasyCL.h" not found, etc

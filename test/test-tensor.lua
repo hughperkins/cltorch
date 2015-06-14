@@ -229,10 +229,15 @@ print(torch.ClTensor({{3,5,2},{4,5,6}}) == torch.ClTensor({{3,5,2},{4,5,6}}))
 --print('end')
 end
 
-if os.getenv('PROTOTYPING') ~= nil then
+if true then
 A = torch.ClTensor{{3,2,4},{9,7,5}}
 print('A\n', A)
 print('A:sum(2)', A:sum(2))
--- print('A:sum(1)', A:sum(1))
+end
+
+if os.getenv('PROTOTYPING') ~= nil then
+A = torch.ClTensor{{3,2,4},{9,7,5}}
+print('A\n', A)
+print('A:sum(1)', A:sum(1))
 end
 
