@@ -2,6 +2,8 @@ print("running require cltorch...")
 require 'cltorch'
 print("... require cltorch done")
 
+print(cltorch.getDeviceProperties(cltorch.getDevice()).deviceName)
+
 if true then
 a = torch.Tensor{3,5,2}
 print('a\n', a)
@@ -166,10 +168,6 @@ v1 = torch.ClTensor{3,5,1}
 v2 = torch.ClTensor{2,4,8}
 --print(v1 * v2)
 print(torch.dot(v1,v2))
-end
-
-if true then
-
 
 fv1 = torch.FloatTensor{3,5,1}
 fv2 = torch.FloatTensor{2,4,8}
