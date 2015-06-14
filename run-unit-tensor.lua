@@ -14,8 +14,8 @@ if [[ ! -v LUAEXE ]]; then {
 echo using luaexe: ${LUAEXE}
 
 if [[ x${RUNGDB} == x1 ]]; then {
-  rungdb.sh ${LUAEXE} test/cltorch-unit-tensor.lua
+  rungdb.sh ${LUAEXE} test/cltorch-unit-tensor.lua $2 $3 $4 $5 $6 $7
 } else {
-  ${LUAEXE} test/cltorch-unit-tensor.lua
+  ${LUAEXE} test/cltorch-unit-tensor.lua $2 $3 $4 $5 $6 $7
 } fi
 
