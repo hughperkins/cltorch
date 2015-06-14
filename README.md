@@ -63,9 +63,13 @@ c:resize(5)
 
 <tr><td>Component<td>Status<td>Examples of what works now</tr>
 
-<tr><td>conversion to/from ClTensor <td>works<td><pre>
+<tr><td>torch.ClTensor constructors<td>works<td><pre>
+c = torch.ClTensor()
 c = torch.ClTensor{7,4,5}
 c = torch.ClTensor(3,2)
+</pre></tr>
+
+<tr><td>Cloning <td>works<td><pre>
 c = torch.Tensor{2,6,9}:cl()
 b = c:float()
 c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
@@ -73,7 +77,7 @@ b:copy(c)
 c:copy(b)
 d = torch.ClTensor(2,3)
 d:copy(c)
-c[1][2] = 2.123
+d = c:clone()
 </pre></tr>
 
 </table>

@@ -79,6 +79,17 @@ function test_basic()
   luaunit.assertEquals(' 3.0000  2.1230  6.0000\n 2.1000  5.2000  3.9000\n[torch.ClTensor of size 2x3]\n', tostring(c))
 end
 
+function test_clone()
+  c = torch.ClTensor{{7,4,5},{3,1,4}}
+  luaunit.assertEquals(tostring(c), ' 7  4  5\n 3  1  4\n[torch.ClTensor of size 2x3]\n')
+  d = c:clone()  
+  luaunit.assertEquals(tostring(d), ' 7  4  5\n 3  1  4\n[torch.ClTensor of size 2x3]\n')
+  d[1][2] = 9
+  -- should only change d, not c
+  luaunit.assertEquals(tostring(c), ' 7  4  5\n 3  1  4\n[torch.ClTensor of size 2x3]\n')
+  luaunit.assertEquals(tostring(d), ' 7  9  5\n 3  1  4\n[torch.ClTensor of size 2x3]\n')
+end
+
 function test_equals()
   c = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
   d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
