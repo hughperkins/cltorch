@@ -58,6 +58,12 @@ bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
   return offset;
 }
 
+/*__device__*/ /*__forceline__*/ {{IndexType}} getLinearBlockId() {
+  return get_num_groups(2) * get_num_groups(1) * /*gridDim.x*/ get_num_groups(0) +
+    get_group_id(1) * /*gridDim.x*/ get_num_groups(0) +
+    /*blockIdx.x*/ get_group_id(0);
+}
+
 // Block-wide reduction in shared memory helper; only /*threadIdx.x*/ get_local_id(0) == 0 will
 // return the reduced value
 float reduceBlock(local float* smem,

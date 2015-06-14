@@ -33,6 +33,8 @@ inline dim3 getNoncontigReduceBlock() {
 template<typename IndexType>
 void kernelLaunch_THClTensor_reduceNoncontigDim(
   THClState *state,
+  dim3 &grid,
+  dim3 &block,
   int ADims,
   int BDims,
   TensorInfo<IndexType> out,
@@ -59,13 +61,16 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
     dims.push_back(*it);
   }
 
+  std::string indexType = TypeParseTraits<IndexType>::name;
+//  indexType = easycl::replace(indexType, " ", "");
   kernelBuilder
     .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
     .set("dims", dims)
     .set("dim1", ADims)
     .set("dim2", BDims)
+    .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
     .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-    .set("index_type", TypeParseTraits<IndexType>::name)
+    .set("IndexType", indexType)
     .set("modify_operation", modifyOp->operator2())
     .set("reduce_operation", reduceOp->operator3())
   ;
@@ -73,14 +78,70 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
   std::string uniqueName = "THClTensor_reduceNoncontigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
     TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClReduce.cl", THClReduce_getKernelSource(), "THClTensor_reduceNoncontigDim");
-//  kernel->in();
+  // calculate workgroup sizes and stuff
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = grid.vec[i] * block.vec[i];
+  }
 
-  THError("Not implemented");
+  // set up tensorinfos
+  TensorInfoCl outCl(out);
+  TensorInfoCl inCl(in);
+
+  if( !out.wrapper->isOnDevice() ) {
+    out.wrapper->createOnDevice();
+  }
+  // debugging
+  in.wrapper->copyToHost();
+  for( int i = 0; i < 3; i++ ) {
+    float *indata = (float *)in.wrapper->getHostArray();
+    std::cout << "in[" << i << "]=" << indata[i] << std::endl;
+  }
+
+  kernel->in(1, &outCl);
+  kernel->out( out.wrapper );
+  kernel->in(1, &inCl);
+  kernel->in( in.wrapper );
+  kernel->in((int)reductionStride);
+  kernel->in((int)reductionSize);
+  kernel->in((int)totalSlices);
+  kernel->in(init);
+
+  std::cout << "reductionstride " << reductionStride << std::endl;
+  std::cout << "reductionsize " << reductionSize << std::endl;
+  std::cout << "totalSlices " << totalSlices << std::endl;
+  std::cout << "grid " << grid << std::endl;
+  std::cout << "block " << block << std::endl;
+
+  kernel->run(3, global_ws.vec, block.vec);
+  THClState_getCl(state)->finish();
+
+  // debugging
+  out.wrapper->copyToHost();
+  for( int i = 0; i < 3; i++ ) {
+    float *outdata = (float *)out.wrapper->getHostArray();
+    std::cout << "out[" << i << "]=" << outdata[i] << std::endl;
+  }
+
+//  THError("Not implemented");
 }
+
+//THClTensor_reduceNoncontigDim(global TensorInfoCl *out_info,
+//                              global float *out_data,
+//                              global TensorInfoCl *in_info,
+//                              global float *in_data,
+//                              {{IndexType}} reductionStride,
+//                              {{IndexType}} reductionSize,
+//                              {{IndexType}} totalSlices,
+//                              float init) {
+
 
 template<typename IndexType>
 void kernelLaunch_THClTensor_reduceContigDim(
   THClState *state,
+  dim3 &grid,
+  dim3 &block,
+  size_t smemSize,
   int ADims,
   int BDims,
   TensorInfo<IndexType> out,
@@ -93,8 +154,92 @@ void kernelLaunch_THClTensor_reduceContigDim(
 
   // launch kernel here....
 
-  THError("Not implemented");
+  TemplatedKernel kernelBuilder(THClState_getCl(state));
+
+  std::set<int> dims_set;
+  if(ADims >= 0) {
+    dims_set.insert(ADims);
+  }
+  if(BDims >= 0) {
+    dims_set.insert(BDims);
+  }
+  std::vector<int> dims;
+  for( std::set<int>::iterator it = dims_set.begin(); it != dims_set.end(); it++ ) {
+    dims.push_back(*it);
+  }
+
+  std::string indexType = TypeParseTraits<IndexType>::name;
+//  indexType = easycl::replace(indexType, " ", "");
+  kernelBuilder
+    .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
+    .set("dims", dims)
+    .set("dim1", ADims)
+    .set("dim2", BDims)
+    .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+    .set("IndexType", indexType)
+    .set("modify_operation", modifyOp->operator2())
+    .set("reduce_operation", reduceOp->operator3())
+  ;
+
+  std::string uniqueName = "THClTensor_reduceContigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
+    TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
+  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClReduce.cl", THClReduce_getKernelSource(), "THClTensor_reduceContigDim");
+  // calculate workgroup sizes and stuff
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = grid.vec[i] * block.vec[i];
+  }
+
+  // set up tensorinfos
+  TensorInfoCl outCl(out);
+  TensorInfoCl inCl(in);
+
+  if( !out.wrapper->isOnDevice() ) {
+    out.wrapper->createOnDevice();
+  }
+  // debugging
+  in.wrapper->copyToHost();
+  for( int i = 0; i < 3; i++ ) {
+    float *indata = (float *)in.wrapper->getHostArray();
+    std::cout << "in[" << i << "]=" << indata[i] << std::endl;
+  }
+
+  kernel->in(1, &outCl);
+  kernel->out( out.wrapper );
+  kernel->in(1, &inCl);
+  kernel->in( in.wrapper );
+  kernel->in((int)reductionSize);
+  kernel->in((int)totalSlices);
+  kernel->in(init);
+  kernel->localFloats(smemSize / sizeof(float));
+
+  std::cout << "reductionsize " << reductionSize << std::endl;
+  std::cout << "totalSlices " << totalSlices << std::endl;
+  std::cout << "grid " << grid << std::endl;
+  std::cout << "block " << block << std::endl;
+  std::cout << "smemSize " << smemSize << std::endl;
+
+  kernel->run(3, global_ws.vec, block.vec);
+  THClState_getCl(state)->finish();
+
+  // debugging
+  out.wrapper->copyToHost();
+  for( int i = 0; i < 3; i++ ) {
+    float *outdata = (float *)out.wrapper->getHostArray();
+    std::cout << "out[" << i << "]=" << outdata[i] << std::endl;
+  }
+
+//  THError("Not implemented");
 }
+//THClTensor_reduceContigDim(global TensorInfoCl *out_info,
+//                           global float *out_data,
+//                           global TensorInfoCl *in_info,
+//                           global float *in_data,
+//                           int reductionSize,
+//                           int totalSlices,
+//                           float init,
+//                           local float *smem) {
 
 inline dim3 getContigReduceBlock(long numSlices, long reductionSize) {
   // If the number of slices is low but the reduction dimension size

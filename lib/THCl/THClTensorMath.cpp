@@ -287,7 +287,7 @@ void THClTensor_sum(THClState* state, THClTensor *self, THClTensor *src, long di
      &modifyOp, &reduceOp, dimension);
 
 
-  THError("Not implemented");
+//  THError("Not implemented");
 }
 
 void THClTensor_prod(THClState* state, THClTensor *self, THClTensor *src, long dimension)

@@ -20,6 +20,22 @@ cutorch_dir = '../cutorch-goodies2'
 cutorch_thc = '{cutorch_dir}/lib/THC'.format(
     cutorch_dir=cutorch_dir)
 
+def process_block(block):
+    if block.find('__global__') >= 0 or block.find('__device__') >= 0:
+        # kernel method, probably
+        block = block.replace('gridDim.x', '/*gridDim.x*/ get_num_groups(0)')
+        block = block.replace('blockDim.x', '/*blockDim.x*/ get_local_size(0)')
+        block = block.replace('blockIdx.x', '/*blockIdx.x*/ get_group_id(0)')
+        block = block.replace('threadIdx.x', '/*threadIdx.x*/ get_local_id(0)')
+        block = block.replace('__global__', 'kernel')
+        block = block.replace('__syncthreads()', 'barrier(CLK_LOCAL_MEM_FENCE)')
+        block = block.replace('warpSize', '{{WarpSize}}')
+        block = block.replace('IndexType', '{{IndexType}}')
+        block = block.replace('__device__', '/*__device__*/')
+        block = block.replace('__forceinline__', '/*__forceline__*/')
+        return (block, True)
+    return (block, False)
+
 port_dir = 'port'
 port_thc = '{port_dir}/lib/THCl'.format(
     port_dir=port_dir)
@@ -50,10 +66,6 @@ for filename in os.listdir(cutorch_thc):
     if filename in out_filenames:
         print('warning: filename conflict: {filename}'.format(
             filename=filename))
-    f = open('port/lib/THCl/{filename}'.format(
-        filename=filename), 'a')
-    f.write('// from lib/THC/{filename}:\n\n'.format(
-        filename=original_filename))
     contents = contents.replace('CUDA', 'CL')
     contents = contents.replace('Cuda', 'Cl')
     contents = contents.replace('#include "THC', '#include "THCl')
@@ -63,18 +75,13 @@ for filename in os.listdir(cutorch_thc):
     contents = contents.replace('THCBlasState', 'THClBlasState')
     contents = contents.replace('cublasOperation_t', 'clblasTranspose')
     contents = contents.replace('cublas', 'clblas')
-    contents = contents.replace('gridDim.x', '/*gridDim.x*/ get_num_groups(0)')
-    contents = contents.replace('blockDim.x', '/*blockDim.x*/ get_local_size(0)')
-    contents = contents.replace('blockIdx.x', '/*blockIdx.x*/ get_group_id(0)')
-    contents = contents.replace('threadIdx.x', '/*threadIdx.x*/ get_local_id(0)')
-    contents = contents.replace('__global__', 'kernel')
-    contents = contents.replace('__syncthreads()', 'barrier(CLK_LOCAL_MEM_FENCE)')
-    contents = contents.replace('warpSize', '{{WarpSize}}')
  
     # line by line:
     new_contents = ''
+    new_cl = ''
     scope_dead = False
     depth = 0
+    block = ''
     for line in contents.split('\n'):
         if line.startswith('#include <thrust'):
             line = '// ' + line
@@ -98,11 +105,36 @@ for filename in os.listdir(cutorch_thc):
                     line)
                 scope_dead = False
             depth -= 1
-        new_contents += line + '\n'
-    contents = new_contents
-
-    f.write(contents)
-    f.close()
-    out_filenames.append(filename)
-
+        block += line + '\n'
+        if line.strip() == '' and depth == 0:
+            block, is_cl = process_block(block)
+            if is_cl:
+                new_cl += block
+            else:
+                new_contents += block
+            block = ''
+    block, is_cl = process_block(block)
+    if is_cl:
+        new_cl += block
+    else:
+        new_contents += block
+    block = ''
+    if new_contents.strip() != "":
+        f = open('port/lib/THCl/{filename}'.format(
+            filename=filename), 'a')
+        f.write('// from lib/THC/{filename}:\n\n'.format(
+            filename=original_filename))
+        f.write(new_contents)
+        f.close()
+        out_filenames.append(filename)
+    if new_cl.strip() != '':
+        clfilename = original_filename.replace('.cuh', '.cl')
+        clfilename = clfilename.replace('.cu', '.cl')
+        clfilename = clfilename.replace('THC', 'THCl')
+        f = open('port/lib/THCl/{filename}'.format(
+            filename=clfilename), 'a')
+        f.write('// from lib/THC/{filename}:\n\n'.format(
+        filename=original_filename))
+        f.write(new_cl)
+        f.close()
 
