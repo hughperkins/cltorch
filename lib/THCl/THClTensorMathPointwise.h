@@ -25,6 +25,17 @@ public:
     }
 };
 
+// used for minall etc
+class MinOp : public HasOperator2, public HasOperator3 {
+public:
+    std::string operator2() const {
+        return "*out = fmin(*out, *in1)";
+    }
+    std::string operator3() const {
+        return "*out = fmin(*in1, *in2)";
+    }
+};
+
 class TensorAddOp : public HasOperator2, public HasOperator3 {
 public:
     std::string operator2() const {
