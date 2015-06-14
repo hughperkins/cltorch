@@ -59,14 +59,14 @@ bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
 }
 
 /*__device__*/ /*__forceline__*/ {{IndexType}} getLinearBlockId() {
-  return get_num_groups(2) * get_num_groups(1) * /*gridDim.x*/ get_num_groups(0) +
+  return get_group_id(2) * get_num_groups(1) * /*gridDim.x*/ get_num_groups(0) +
     get_group_id(1) * /*gridDim.x*/ get_num_groups(0) +
     /*blockIdx.x*/ get_group_id(0);
 }
 
 // Block-wide reduction in shared memory helper; only /*threadIdx.x*/ get_local_id(0) == 0 will
 // return the reduced value
-float reduceBlock(local float* smem,
+float reduceBlock( local float* smem,
                    int numVals,
                    float threadVal,
                    float init) {
@@ -103,7 +103,7 @@ float reduceBlock(local float* smem,
       // Unroll for {{WarpSize}} == 32 and numVals >= 32
       // #pragma unroll
       // unrolling by hand, so compiler-independent
-      {% for i=1,32 do %}
+      {% for i=1,31 do %}
         r = reduceOp(r, smem[{{i}}]);
       {% end %}
     } else {

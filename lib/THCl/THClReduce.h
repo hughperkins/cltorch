@@ -11,6 +11,7 @@
 #include "util/easycl_stringhelper.h"
 #include "EasyCL.h"
 #include "THClTypeParseTraits.h"
+#include "THClDeviceUtils.h"
 
 
 std::string THClReduce_getKernelSource();
@@ -22,12 +23,47 @@ std::string THClReduce_getKernelSource();
 // arguments without copying or temporary storage.
 //
 
-#include "THClReduceApplyUtils.h"
-
 #define THCL_NONCONTIG_REDUCE_BLOCK_SIZE 32 * 16
 
 inline dim3 getNoncontigReduceBlock() {
   return dim3(THCL_NONCONTIG_REDUCE_BLOCK_SIZE);
+}
+
+inline dim3 getContigReduceBlock(long numSlices, long reductionSize) {
+  // If the number of slices is low but the reduction dimension size
+  // is high, then we should increase block size for greater parallelism.
+  // Aim for at least 32 warps per SM (assume 15 SMs; don't bother
+  // inquiring the real number for now).
+  int maxWarps = 4; // better occupancy if many blocks are around
+  // For numSlices > 15 * 8, there are > 32 warps active per SM.
+  if (numSlices < 15 * 8) {
+    maxWarps = 8;
+    if (numSlices < 15 * 4) {
+      maxWarps = 16;
+      if (numSlices < 15 * 2) {
+        maxWarps = 32;
+      }
+    }
+  }
+
+  // Scale up block size based on the reduction dimension size
+  long warpsInReductionSize = THClCeilDiv(reductionSize, 32L);
+//  long warpsInReductionSize = DIVUP(reductionSize, 32L);
+  int numWarps =
+    warpsInReductionSize > (long) maxWarps ? maxWarps : (int) warpsInReductionSize;
+//    warpsInReductionSize > (long) maxWarps ? maxWarps : (int) warpsInReductionSize;
+  return dim3(numWarps * 32);
+}
+
+inline bool getNoncontigReduceGrid(long elements, dim3& grid) {
+  // One output point per thread
+  return THCL_getGridFromTiles(THClCeilDiv(elements, (long) THCL_NONCONTIG_REDUCE_BLOCK_SIZE), grid);
+//  return THCL_getGridFromTiles(DIVUP(elements, THCL_NONCONTIG_REDUCE_BLOCK_SIZE), grid);
+}
+
+inline bool getContigReduceGrid(long elements, dim3& grid) {
+  // One output point per block
+  return THCL_getGridFromTiles(elements, grid);
 }
 
 template<typename IndexType>
@@ -177,13 +213,17 @@ void kernelLaunch_THClTensor_reduceContigDim(
     .set("dim2", BDims)
     .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
     .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-    .set("IndexType", indexType)
+//    .set("IndexType", indexType)
+    .set("IndexType", "int")
     .set("modify_operation", modifyOp->operator2())
     .set("reduce_operation", reduceOp->operator3())
   ;
 
+  std::cout << "rendered kernel: " << kernelBuilder.getRenderedKernel(THClReduce_getKernelSource()) << std::endl; 
+
   std::string uniqueName = "THClTensor_reduceContigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
     TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
+  std::cout << "uniquename " << uniqueName << std::endl;
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClReduce.cl", THClReduce_getKernelSource(), "THClTensor_reduceContigDim");
   // calculate workgroup sizes and stuff
   dim3 global_ws;
@@ -197,12 +237,6 @@ void kernelLaunch_THClTensor_reduceContigDim(
 
   if( !out.wrapper->isOnDevice() ) {
     out.wrapper->createOnDevice();
-  }
-  // debugging
-  in.wrapper->copyToHost();
-  for( int i = 0; i < 3; i++ ) {
-    float *indata = (float *)in.wrapper->getHostArray();
-    std::cout << "in[" << i << "]=" << indata[i] << std::endl;
   }
 
   kernel->in(1, &outCl);
@@ -223,14 +257,6 @@ void kernelLaunch_THClTensor_reduceContigDim(
   kernel->run(3, global_ws.vec, block.vec);
   THClState_getCl(state)->finish();
 
-  // debugging
-  out.wrapper->copyToHost();
-  for( int i = 0; i < 3; i++ ) {
-    float *outdata = (float *)out.wrapper->getHostArray();
-    std::cout << "out[" << i << "]=" << outdata[i] << std::endl;
-  }
-
-//  THError("Not implemented");
 }
 //THClTensor_reduceContigDim(global TensorInfoCl *out_info,
 //                           global float *out_data,
@@ -240,40 +266,6 @@ void kernelLaunch_THClTensor_reduceContigDim(
 //                           int totalSlices,
 //                           float init,
 //                           local float *smem) {
-
-inline dim3 getContigReduceBlock(long numSlices, long reductionSize) {
-  // If the number of slices is low but the reduction dimension size
-  // is high, then we should increase block size for greater parallelism.
-  // Aim for at least 32 warps per SM (assume 15 SMs; don't bother
-  // inquiring the real number for now).
-  int maxWarps = 4; // better occupancy if many blocks are around
-  // For numSlices > 15 * 8, there are > 32 warps active per SM.
-  if (numSlices < 15 * 8) {
-    maxWarps = 8;
-    if (numSlices < 15 * 4) {
-      maxWarps = 16;
-      if (numSlices < 15 * 2) {
-        maxWarps = 32;
-      }
-    }
-  }
-
-  // Scale up block size based on the reduction dimension size
-  long warpsInReductionSize = DIVUP(reductionSize, 32L);
-  int numWarps =
-    warpsInReductionSize > (long) maxWarps ? maxWarps : (int) warpsInReductionSize;
-  return dim3(numWarps * 32);
-}
-
-inline bool getNoncontigReduceGrid(long elements, dim3& grid) {
-  // One output point per thread
-  return THCL_getGridFromTiles(DIVUP(elements, THCL_NONCONTIG_REDUCE_BLOCK_SIZE), grid);
-}
-
-inline bool getContigReduceGrid(long elements, dim3& grid) {
-  // One output point per block
-  return THCL_getGridFromTiles(elements, grid);
-}
 
 bool THClTensor_reduceDim(THClState* state,
                           THClTensor* out,
