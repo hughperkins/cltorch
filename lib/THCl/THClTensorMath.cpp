@@ -223,16 +223,18 @@ float THClTensor_minall(THClState *state, THClTensor *self)
 
 float THClTensor_maxall(THClState *state, THClTensor *self)
 {
-//  THAssert(THClTensor_checkGPU(state, 1, self));
-//  self = THClTensor_newContiguous(state, self);
-//  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
+  THAssert(THClTensor_checkGPU(state, 1, self));
+  float val = (float) -THInf;
+  CopyOp modifyOp;
+  MaxOp reduceOp;
+  if (!THClTensor_reduceAll(state, self,
+          &modifyOp,
+          &reduceOp,
+          (float) -THInf, &val)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
 
-//  float result = thrust::reduce(self_data, self_data+THClTensor_nElement(state, self), (float)(-THInf), thrust::maximum<float>());
-
-//  THClTensor_free(state, self);
-//  return result;
-    THError("Not implemented");
-    return 0;
+  return val;
 }
 
 float THClTensor_sumall(THClState *state, THClTensor *self)
@@ -248,7 +250,6 @@ float THClTensor_sumall(THClState *state, THClTensor *self)
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
 
-//  THError("Not implemented");
   return val;
 }
 

@@ -14,6 +14,17 @@ public:
   }
 };
 
+// used for maxall etc
+class MaxOp : public HasOperator2, public HasOperator3 {
+public:
+    std::string operator2() const {
+        return "*out = fmax(*out, *in1)";
+    }
+    std::string operator3() const {
+        return "*out = fmax(*in1, *in2)";
+    }
+};
+
 class TensorAddOp : public HasOperator2, public HasOperator3 {
 public:
     std::string operator2() const {

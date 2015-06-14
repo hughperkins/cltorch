@@ -134,6 +134,7 @@ A = torch.ClTensor{{3,5,2},{4,5,6}}
 A:sum()
 A:sum(2)
 A:sum(1)
+A:max()
 
 </pre></tr>
 
