@@ -57,7 +57,7 @@ c:resize(5)
 
 </table>
 
-### From [tensor.md(https://github.com/torch/torch7/blob/master/doc/tensor.md)
+### From [tensor.md](https://github.com/torch/torch7/blob/master/doc/tensor.md)
 
 <table>
 
