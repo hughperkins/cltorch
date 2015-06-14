@@ -333,7 +333,13 @@ function test_fills()
 end
 
 function test_matrixwide()
-  
+  C = torch.ClTensor{{3,2,4},{9,7,5}}
+  A = C:float()
+  luaunit.assertEquals(A:max(), C:max())
+  luaunit.assertEquals(A:min(), C:min())
+  luaunit.assertEquals(A:sum(), C:sum())
+  luaunit.assertEquals(A:sum(1), C:sum(1):float())
+  luaunit.assertEquals(A:sum(2), C:sum(2):float())
 end
 
 os.exit( luaunit.LuaUnit.run() )
