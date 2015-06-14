@@ -27,7 +27,7 @@ for k,v in props do
     print(k, v)
 end
 cltorch.setDevice(1)
-print('current device: ' .. cltorch.getDevice())
+print('current device: ', cltorch.getDevice())
 
 </pre></tr>
 </table>
@@ -50,8 +50,8 @@ c[2] = 21
 a:copy(c)
 d = torch.ClStorage(3)
 d:copy(c)
-print('size:' .. #d)
-print('size:' .. d:size())
+print('size:', #d)
+print('size:', d:size())
 c:resize(5)
 </pre></tr>
 
@@ -78,6 +78,7 @@ c:copy(b)
 d = torch.ClTensor(2,3)
 d:copy(c)
 d = c:clone()
+print('isTensor', torch.isTensor(c))
 </pre></tr>
 
 </table>

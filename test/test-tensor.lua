@@ -240,6 +240,11 @@ print('torch.max(A,1)', torch.max(A,1))
 print('torch.max(A,2)', torch.max(A,2))
 end
 
+if true then
+  c = torch.ClTensor{3,5,2}
+  print('istensor', torch.isTensor(c))
+end
+
 if os.getenv('PROTOTYPING') ~= nil then
 C = torch.ClTensor{{3,2,4},{9,7,5}}
 A = C:float()
