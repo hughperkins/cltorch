@@ -211,6 +211,7 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
   * ReduceAll working :-)  For now means: sometensor:sum() works
   * sometensor:sum(1) and sometensor:sum(2) working too now :-)
   * A:min(), A:max() added
+  * created unit tests, in [test](test) directory, [cltorch-unit-tensor.lua](test/cltorch-unit-tensor.lua) which pass
 * 13th June:
   * added `cltorch.setDevice`/`cltorch.getDevice`, see [test-device.lua](test/test-device.lua) for an example
   * added EasyCL includes to EasyCL install section, to remove build errors with "EasyCL.h" not found, etc
