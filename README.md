@@ -160,6 +160,7 @@ Porting status by file, compared with original cutorch files.  Note that `.cpp` 
 | THClBlas.cpp | 50% |
 | THClReduce.* | In progress |
 | THClReduceAll.* | Ouch. Pain! |
+| THClGeneral.* | 30% |
 
 # Dependencies
 
