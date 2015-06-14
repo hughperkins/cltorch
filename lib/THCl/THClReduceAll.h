@@ -158,15 +158,18 @@ void kernelLaunch_THClTensor_reduceAll(
 
   kernel->in(1, &inCl);
   kernel->inout( in.wrapper );
-
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
-  kernel->in( (int)totalElements );
+  kernel->in((int)totalElements);
+  kernel->in(init);
+  kernel->out(devOut);
+  kernel->localFloats(smemSize / sizeof(float));
+
   kernel->run(3, global_ws.vec, block.vec);
   THClState_getCl(state)->finish();
 
-  THError("Not implemented");
+//  THError("Not implemented");
 }
 
 template <typename IndexType>

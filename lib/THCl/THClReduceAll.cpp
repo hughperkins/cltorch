@@ -92,7 +92,7 @@ bool THClTensor_reduceAll(THClState* state,
 //    cudaMemcpy(out, devOut, sizeof(float), cudaMemcpyDeviceToHost);
 //  }
 
-  THError("Not implemented");
+//  THError("Not implemented");
   return true;
 }
 

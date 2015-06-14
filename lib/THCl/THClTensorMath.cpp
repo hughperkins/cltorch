@@ -248,8 +248,8 @@ float THClTensor_sumall(THClState *state, THClTensor *self)
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
 
-  THError("Not implemented");
-  return 0;
+//  THError("Not implemented");
+  return val;
 }
 
 float THClTensor_prodall(THClState *state, THClTensor *self)
