@@ -139,6 +139,22 @@ end
 luarocks make rocks/cltorch-scm-1.rockspec
 ```
 
+# Updating
+
+* Sometimes you might want to do `git pull` to pull in new updates
+* If you try this, you might see build errors about EasyCL
+* In the future, these might be handled automatically by the build script :-)
+* For now, note that two possible issues after a `git pull` are
+  * the EasyCL submodule may not have been updated
+  * the EasyCL subproject may not have been rebuilt
+* To solve these issues, after doing `git pull`, you can do the following, which will ensure the EasyCL submodule is up to date, and will be fully rebuilt, and installed:
+```
+git submodule update
+rm -Rf build/EasyCL
+```
+* Now you can run the luarocks make command, as above, and hopefully it will work this time :-)
+  * if it doesnt, please raise an issue.  It might be easy to fix, but I cant help to fix it, if I dont know about it :-)
+
 # Migration status by file
 
 Porting status by file, compared with original cutorch files.  Note that `.cpp` here could have been ported from `.c`, `.cpp`, or `.cu`.
