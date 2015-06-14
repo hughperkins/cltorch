@@ -189,7 +189,7 @@ end
 
 -------------------
 
-if false then
+if true then
 
 print(torch.Tensor.__eq)
 function torch.Tensor.__eq(self, b)

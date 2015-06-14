@@ -67,8 +67,7 @@ bool THClTensor_reduceAll(THClState* state,
                             const HasOperator2 *modifyOp,
                             const HasOperator3 *reduceOp,
                             float init,
-                            CLWrapper* out,
-                            int outOnDevice) {
+                            float *p_result) {
   long inElements = THClTensor_nElement(state, in);
 
   if (THClTensor_nDimension(state, in) > MAX_CLTORCH_DIMS) {
@@ -77,18 +76,17 @@ bool THClTensor_reduceAll(THClState* state,
 
   if (THClTensor_nDimension(state, in) == 0) {
     // Zero-dim tensor; do nothing
-    float *data = (float *)out->getHostArray();
-    data[0] = 0;
-    out->copyToDevice();
+    *p_result = init;
     return true;
   }
 
-  CLWrapper* devOut = out;
-  if (!outOnDevice) {
+//  CLWrapper* devOut = out;
+//  float *devOut 
+//  if (!outOnDevice) {
     // Use the stream-specific scratch space for the reduction kernel
     // to write out its value
-    devOut = THClState_getCurrentDeviceScratchSpace(state);
-  }
+   CLWrapper *devOut = THClState_getCurrentDeviceScratchSpace(state);
+//  }
 
   // It is possible that the tensor dimensions are able to be collapsed,
   // and thus we can reduce the actual code complexity of the copy by
@@ -145,11 +143,11 @@ bool THClTensor_reduceAll(THClState* state,
 
   // If our destination is not on the device, copy the value back to
   // the host (synchronous!)
-  if (!outOnDevice) {
-    THError("Not implemented");
+//  if (!outOnDevice) {
 //    cudaMemcpy(out, devOut, sizeof(float), cudaMemcpyDeviceToHost);
-  }
+//  }
 
+  THError("Not implemented");
   return true;
 }
 

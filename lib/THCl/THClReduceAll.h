@@ -27,8 +27,7 @@ bool THClTensor_reduceAll(THClState* state,
                             const HasOperator2 *modifyOp,
                             const HasOperator3 *reduceOp,
                             float init,
-                            float* out,
-                            int outOnDevice);
+                            float* p_result);
 
 // Perform a two-pass reduction if the tensor is large enough to
 // warrant it.

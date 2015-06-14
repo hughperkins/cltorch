@@ -244,7 +244,7 @@ float THClTensor_sumall(THClState *state, THClTensor *self)
   if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-                              0.0f, &val, 0)) {
+          0.0f, &val)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
 
