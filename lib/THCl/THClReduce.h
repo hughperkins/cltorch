@@ -127,12 +127,6 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
   if( !out.wrapper->isOnDevice() ) {
     out.wrapper->createOnDevice();
   }
-  // debugging
-  in.wrapper->copyToHost();
-  for( int i = 0; i < 3; i++ ) {
-    float *indata = (float *)in.wrapper->getHostArray();
-    std::cout << "in[" << i << "]=" << indata[i] << std::endl;
-  }
 
   kernel->in(1, &outCl);
   kernel->out( out.wrapper );
@@ -143,34 +137,9 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
   kernel->in((int)totalSlices);
   kernel->in(init);
 
-  std::cout << "reductionstride " << reductionStride << std::endl;
-  std::cout << "reductionsize " << reductionSize << std::endl;
-  std::cout << "totalSlices " << totalSlices << std::endl;
-  std::cout << "grid " << grid << std::endl;
-  std::cout << "block " << block << std::endl;
-
   kernel->run(3, global_ws.vec, block.vec);
   THClState_getCl(state)->finish();
-
-  // debugging
-  out.wrapper->copyToHost();
-  for( int i = 0; i < 3; i++ ) {
-    float *outdata = (float *)out.wrapper->getHostArray();
-    std::cout << "out[" << i << "]=" << outdata[i] << std::endl;
-  }
-
-//  THError("Not implemented");
 }
-
-//THClTensor_reduceNoncontigDim(global TensorInfoCl *out_info,
-//                              global float *out_data,
-//                              global TensorInfoCl *in_info,
-//                              global float *in_data,
-//                              {{IndexType}} reductionStride,
-//                              {{IndexType}} reductionSize,
-//                              {{IndexType}} totalSlices,
-//                              float init) {
-
 
 template<typename IndexType>
 void kernelLaunch_THClTensor_reduceContigDim(
@@ -245,24 +214,10 @@ void kernelLaunch_THClTensor_reduceContigDim(
   kernel->in(init);
   kernel->localFloats(smemSize / sizeof(float));
 
-//  std::cout << "reductionsize " << reductionSize << std::endl;
-//  std::cout << "totalSlices " << totalSlices << std::endl;
-//  std::cout << "grid " << grid << std::endl;
-//  std::cout << "block " << block << std::endl;
-//  std::cout << "smemSize " << smemSize << std::endl;
-
   kernel->run(3, global_ws.vec, block.vec);
   THClState_getCl(state)->finish();
 
 }
-//THClTensor_reduceContigDim(global TensorInfoCl *out_info,
-//                           global float *out_data,
-//                           global TensorInfoCl *in_info,
-//                           global float *in_data,
-//                           int reductionSize,
-//                           int totalSlices,
-//                           float init,
-//                           local float *smem) {
 
 bool THClTensor_reduceDim(THClState* state,
                           THClTensor* out,
