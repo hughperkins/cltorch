@@ -114,11 +114,11 @@ void THClTensor_copyCl(THClState *state, THClTensor *self, THClTensor *src)
 
 // ============ from cu:
 
-//static inline int curGPU() {
+static inline int curGPU(THClState *state) {
 //  int curDev;
 //  THClCheck(cudaGetDevice(&curDev));
-//  return curDev;
-//}
+  return state->currentDevice;
+}
 
 THCL_API void
 THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
@@ -148,19 +148,21 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
     }
     src->storage->wrapper->copyTo( dst->storage->wrapper );
  } else {
-//    int oldDev = curGPU();
-//    int srcDev = THClTensor_getDevice(state, src);
-//    int dstDev = THClTensor_getDevice(state, dst);
+    int oldDev = curGPU(state);
+    int srcDev = THClTensor_getDevice(state, src);
+    int dstDev = THClTensor_getDevice(state, dst);
 
-//    if (srcDev == dstDev) {
-//      if (oldDev != srcDev) {
+    if (srcDev == dstDev) {
+      if (oldDev != srcDev) {
+        THError("Not implemented");
 //        THClCheck(cudaSetDevice(srcDev));
-//      }
+      }
 
-//      bool succ =
-//        THClTensor_pointwiseApply2(state, dst, src, CopyOp<float>());
-//      THArgCheck(succ, 2, CUTORCH_DIM_WARNING);
-//    } else { // multi-gpu
+      CopyOp copyOp;
+      bool succ =
+        THClTensor_pointwiseApply2(state, dst, src, *&copyOp );
+      THArgCheck(succ, 2, CLTORCH_DIM_WARNING);
+    } else { // multi-gpu
 //      // empirically, running the kernel on the device that holds the
 //      // non-contiguous tensor is faster by 5-10x
 //      int copyDev   = dstContig ? srcDev : dstDev;
@@ -181,7 +183,7 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
 
 //      bool succ =
 //        THClTensor_pointwiseApply2(state, dst, src, CopyOp<float>());
-//      THArgCheck(succ, 2, CUTORCH_DIM_WARNING);
+//      THArgCheck(succ, 2, CLTORCH_DIM_WARNING);
 
 //      // synchronize remote device after copy
 //      cudaEvent_t doneCopying;
@@ -194,12 +196,14 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
 //                    THClState_getDeviceStream(state, remoteDev, THClState_getCurrentStreamIndex(state)),
 //                    doneCopying, 0));
 //      THClCheck(cudaEventDestroy(doneCopying));
-//    }
+    }
 
-//    if (curGPU() != oldDev) {
+    if (curGPU(state) != oldDev) {
+      state->currentDevice = oldDev;
 //      THClCheck(cudaSetDevice(oldDev));
-//    }
-    throw runtime_error("not implemented");
+//      THError("Not implemented");
+    }
+//    throw runtime_error("not implemented");
     THError("Not implemented");
   }
 }

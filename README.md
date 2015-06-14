@@ -4,18 +4,39 @@ An OpenCL backend for torch.
 
 ## What's working
 
+### Import
+
 <table>
 
 <tr><td>Component<td>Status<td>Examples of what works now</tr>
 
 <tr><td><pre>require 'cltorch'</pre> <td> works <td><pre>require 'cltorch'</pre></tr>
 
+</table>
+
+### Device information and control
+
+<table>
+
+<tr><td>Component<td>Status<td>Examples of what works now</tr>
+
 <tr><td>Device information<td>works<td><pre>
-print('num devices:', cltorch.getDeviceCount())
+print('num devices: ' .. cltorch.getDeviceCount())
 props = cltorch.getDeviceProperties(1)
+for k,v in props do
+    print(k, v)
+end
 cltorch.setDevice(1)
-cltorch.getDevice()
+print('current device: ' .. cltorch.getDevice())
+
 </pre></tr>
+</table>
+
+### From [storage.md](https://github.com/torch/torch7/blob/master/doc/storage.md)
+
+<table>
+
+<tr><td>Component<td>Status<td>Examples of what works now</tr>
 
 <tr><td> torch.ClStorage <td> works <td><pre>
 c = torch.ClStorage()
@@ -31,6 +52,14 @@ d = torch.ClStorage(3)
 d:copy(c)
 </pre></tr>
 
+</table>
+
+### From [tensor.md(https://github.com/torch/torch7/blob/master/doc/tensor.md)
+
+<table>
+
+<tr><td>Component<td>Status<td>Examples of what works now</tr>
+
 <tr><td>conversion to/from ClTensor <td>works<td><pre>
 c = torch.ClTensor{7,4,5}
 c = torch.ClTensor(3,2)
@@ -43,6 +72,15 @@ d = torch.ClTensor(2,3)
 d:copy(c)
 c[1][2] = 2.123
 </pre></tr>
+
+</table>
+
+### From [maths.md](https://github.com/torch/torch7/blob/master/doc/maths.md)
+
+<table>
+
+<tr><td>Component<td>Status<td>Examples of what works now</tr>
+
 
 <tr><td>Construction or extraction functions<td>Started<td><pre>
 c:fill(1.345)

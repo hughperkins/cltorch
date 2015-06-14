@@ -248,5 +248,6 @@ D = C:reshape(3,2)
 print('D\n', D)
 B = A:reshape(3,2)
 print('B\n', B)
+print(C:t())
 end
 
