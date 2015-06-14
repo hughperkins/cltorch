@@ -135,11 +135,11 @@ A:sum()
 A:sum(2)
 A:sum(1)
 A:max()
-A:max(1)
-A:max(2)
+A:max(1) -- only returns the result, not the indices
+A:max(2) -- only returns the result, not the indices
 A:min()
-A:min(1)
-A:min(2)
+A:min(1) -- only returns the result, not the indices
+A:min(2) -- only returns the result, not the indices
 
 </pre></tr>
 
