@@ -50,6 +50,9 @@ c[2] = 21
 a:copy(c)
 d = torch.ClStorage(3)
 d:copy(c)
+print('size:' .. #d)
+print('size:' .. d:size())
+c:resize(5)
 </pre></tr>
 
 </table>

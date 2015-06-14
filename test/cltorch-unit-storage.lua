@@ -28,6 +28,13 @@ function test_basic()
   d = torch.ClStorage(3)
   d:copy(c)
   luaunit.assertEquals(tostring(d), '\n 4\n 9\n 2\n[torch.ClStorage of size 3]\n')
+  luaunit.assertEquals(3, #d)
+  luaunit.assertEquals(3, d:size())
+
+  c:resize(5)
+  luaunit.assertEquals(5, #c)
+  c:fill(1)
+  luaunit.assertEquals(tostring(c), '\n 1\n 1\n 1\n 1\n 1\n[torch.ClStorage of size 5]\n')
 end
 
 os.exit( luaunit.LuaUnit.run() )
