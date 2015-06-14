@@ -174,8 +174,8 @@ Porting status by file, compared with original cutorch files.  Note that `.cpp` 
 | THClTensorMath2.cpp | 20% |
 | THClTensorMathBlas.cpp | 30% |
 | THClBlas.cpp | 50% |
-| THClReduce.* | In progress |
-| THClReduceAll.* | Ouch. Pain! |
+| THClReduce.* | 30% |
+| THClReduceAll.* | 30% |
 | THClGeneral.* | 30% |
 
 # Dependencies
@@ -192,6 +192,8 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 
 # Recent changes
 
+* 14th June:
+  * ReduceAll working :-)  For now means: sometensor:sumall() works
 * 13th June:
   * added `cltorch.setDevice`/`cltorch.getDevice`, see [test-device.lua](test/test-device.lua) for an example
   * added EasyCL includes to EasyCL install section, to remove build errors with "EasyCL.h" not found, etc
