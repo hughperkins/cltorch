@@ -262,6 +262,80 @@ function test_perelement()
   luaunit.assertEquals(a, c:float())
 end
 
+function test_blas()
+  C = torch.ClTensor{{1,2,-1},
+                   {3,4,0}}
+  D = torch.ClTensor{{0,1},
+                     {1,2},
+                     {4,5}}
+  A = C:float()
+  B = D:float()
+  A = torch.mm(A,B)
+  C = torch.mm(C,D)
+  print('A\n', A)
+  print('C\n', C)
+  luaunit.assertEquals(A, C:float())
+
+  C = torch.ClTensor{{1,2,-1},
+                   {3,4,0}}
+  D = torch.ClTensor{{0,1},
+                     {1,2},
+                     {4,5}}
+  A = C:float()
+  B = D:float()
+  A = A * B
+  C = C * D
+  print('A\n', A)
+  print('C\n', C)
+  luaunit.assertEquals(A, C:float())
+
+  c = torch.ClTensor{3,5,1}
+  d = torch.ClTensor{2,4,8}
+  a = c:float()
+  b = d:float()
+  a = torch.dot(a,b)
+  c = torch.dot(c,d)
+  luaunit.assertEquals(a, c)
+
+  c = torch.ClTensor{3,5,1}
+  d = torch.ClTensor{2,4,8}
+  a = c:float()
+  b = d:float()
+  a = a * b
+  c = c * d
+  luaunit.assertEquals(a, c)
+
+end
+
+function test_fills()
+  C = torch.ClTensor(3,2)
+  A = torch.FloatTensor(3,2)
+  C:fill(1.345)
+  A:fill(1.345)
+  luaunit.assertEquals(A, C:float())
+
+  C = torch.ClTensor(3,2)
+  A = torch.FloatTensor(3,2)
+  C:fill(1.345)
+  A:fill(1.345)
+  C:zero()
+  A:zero()
+  luaunit.assertEquals(A, C:float())
+  
+  A = torch.FloatTensor.zeros(torch.FloatTensor.new(), 3, 5)
+  C = torch.ClTensor.zeros(torch.ClTensor.new(), 3, 5)
+  luaunit.assertEquals(A, C:float())
+
+  A = torch.FloatTensor.ones(torch.FloatTensor.new(), 3, 5)
+  C = torch.ClTensor.ones(torch.ClTensor.new(), 3, 5)
+  luaunit.assertEquals(A, C:float())
+
+end
+
+function test_matrixwide()
+  
+end
+
 os.exit( luaunit.LuaUnit.run() )
 
 
