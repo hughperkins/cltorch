@@ -13,6 +13,8 @@ An OpenCL backend for torch.
 <tr><td>Device information<td>works<td><pre>
 print('num devices:', cltorch.getDeviceCount())
 props = cltorch.getDeviceProperties(1)
+cltorch.setDevice(1)
+cltorch.getDevice()
 </pre></tr>
 
 <tr><td> torch.ClStorage <td> works <td><pre>
@@ -168,4 +170,9 @@ cltorch has the following build dependencies:
 At runtime, if you want to call any of the cltorch methods, you will also need:
 * OpenCL-compatible GPU
 * OpenCL library/driver (normally provided by the GPU vendor)
+
+# Recent changes
+
+* added `cltorch.setDevice`/`cltorch.getDevice`, see [test-device.lua](test/test-device.lua) for an example
+
 
