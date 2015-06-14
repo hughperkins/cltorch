@@ -205,6 +205,10 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 * OpenCL-compatible GPU
 * OpenCL library/driver (normally provided by the GPU vendor)
 
+# Requests for additional operations etc
+
+* Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
+
 # Recent changes
 
 * 14th June:
