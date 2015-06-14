@@ -69,7 +69,7 @@ c = torch.ClTensor{7,4,5}
 c = torch.ClTensor(3,2)
 </pre></tr>
 
-<tr><td>Cloning <td>works<td><pre>
+<tr><td>Cloning <td>90%<td><pre>
 c = torch.Tensor{2,6,9}:cl()
 b = c:float()
 c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
