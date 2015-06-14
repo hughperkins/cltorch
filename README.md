@@ -208,6 +208,7 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 # Requests for additional operations etc
 
 * Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
+* (Ditto for any build errors)
 
 # Recent changes
 
