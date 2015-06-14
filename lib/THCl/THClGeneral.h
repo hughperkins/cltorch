@@ -72,8 +72,8 @@ THCL_API struct EasyCL *THClState_getCl(THClState* state);
 //THCL_API void THClState_setBlasHandleForCurrentDevice(THClState *state, int handle);
 
 /* For the current device and stream, returns the allocated scratch space */
-THCL_API struct CLWrapper* THClState_getCurrentDeviceScratchSpace(THClState* state);
-THCL_API struct CLWrapper* THClState_getDeviceScratchSpace(THClState* state, int device, int stream);
+THCL_API struct THClScratchSpace* THClState_getCurrentDeviceScratchSpace(THClState* state);
+THCL_API struct THClScratchSpace* THClState_getDeviceScratchSpace(THClState* state, int device, int stream);
 THCL_API size_t THClState_getCurrentDeviceScratchSpaceSize(THClState* state);
 THCL_API size_t THClState_getDeviceScratchSpaceSize(THClState* state, int device);
 

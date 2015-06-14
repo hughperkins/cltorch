@@ -71,7 +71,7 @@ EasyCL *THClState_getCl(THClState* state) {
   return state->clByDevice[device];
 }
 
-CLWrapper* THClState_getCurrentDeviceScratchSpace(THClState* state)
+THClScratchSpace* THClState_getCurrentDeviceScratchSpace(THClState* state)
 {
 //  int device = -1;
 //  THClCheck(cudaGetDevice(&device));
@@ -82,7 +82,7 @@ CLWrapper* THClState_getCurrentDeviceScratchSpace(THClState* state)
   return THClState_getDeviceScratchSpace(state, device, stream);
 }
 
-CLWrapper* THClState_getDeviceScratchSpace(THClState* state, int device, int stream)
+THClScratchSpace* THClState_getDeviceScratchSpace(THClState* state, int device, int stream)
 {
 //  THCClResourcesPerDevice* res =
 //    THClState_getDeviceResourcePtr(state, device);
@@ -95,7 +95,7 @@ CLWrapper* THClState_getDeviceScratchSpace(THClState* state, int device, int str
   if( stream != 0 ) {
     THError("%d is not a stream", stream);
   }
-  return state->scratchSpaceByDevice[state->currentDevice]->wrapper;
+  return state->scratchSpaceByDevice[state->currentDevice];
 //  return res->devScratchSpacePerStream[stream];
 }
 

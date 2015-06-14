@@ -191,6 +191,10 @@ end
 
 if os.getenv('PROTOTYPING') ~= nil then
 
+A = torch.ClTensor{{3,5,2},{4,5,6}}
+print('A\n', A)
+print('A:sum()', A:sum())
+
 print(torch.Tensor.__eq)
 function torch.Tensor.__eq(self, b)
   print('self', self)

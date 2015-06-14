@@ -30,7 +30,8 @@ bool THClTensor_reduceAll(THClState* state,
 //  if (!outOnDevice) {
     // Use the stream-specific scratch space for the reduction kernel
     // to write out its value
-   CLWrapper *devOut = THClState_getCurrentDeviceScratchSpace(state);
+  THClScratchSpace *scratch = THClState_getCurrentDeviceScratchSpace(state);
+  CLWrapper *devOut = scratch->wrapper;
 //  }
 
   // It is possible that the tensor dimensions are able to be collapsed,
@@ -93,6 +94,10 @@ bool THClTensor_reduceAll(THClState* state,
 //  }
 
 //  THError("Not implemented");
+
+  scratch->wrapper->copyToHost();
+  *p_result = scratch->data[0];
+
   return true;
 }
 

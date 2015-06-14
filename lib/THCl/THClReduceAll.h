@@ -157,7 +157,7 @@ void kernelLaunch_THClTensor_reduceAll(
   }
 
   kernel->in(1, &inCl);
-  kernel->inout( in.wrapper );
+  kernel->in( in.wrapper );
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
@@ -189,13 +189,14 @@ void callReduceAll(THClState* state,
     getPass1ReduceBlockGrid(state, totalElements, grid, block);
     size_t smemSize = block.x() * sizeof(float);
 
-    kernelLaunch_THClTensor_reduceAllPass1<IndexType>(
-        state,
-        grid, block, smemSize,
-        ADims,
-          in, /* in.wrapper,*/
-           (IndexType) totalElements, init, modifyOp, reduceOp,
-        THClState_getCurrentDeviceScratchSpace(state));
+    THError("not implemented");
+//    kernelLaunch_THClTensor_reduceAllPass1<IndexType>(
+//        state,
+//        grid, block, smemSize,
+//        ADims,
+//          in, /* in.wrapper,*/
+//           (IndexType) totalElements, init, modifyOp, reduceOp,
+//        THClState_getCurrentDeviceScratchSpace(state));
 //    THClTensor_reduceAllPass1<ModifyOp, ReduceOp, IndexType, ADims>
 //      <<<grid, block, smemSize, THClState_getCurrentStream(state)>>>(
 //        in, (IndexType) totalElements, init, modifyOp, reduceOp,
@@ -205,18 +206,19 @@ void callReduceAll(THClState* state,
     getPass2ReduceBlockGrid(state, totalElements, grid, block);
     smemSize = block.x() * sizeof(float);
 
-    kernelLaunch_THClTensor_reduceAllPass2<IndexType>(
-        state,
-        grid, block, smemSize,
-        numPass1Blocks, init, reduceOp,
-        THClState_getCurrentDeviceScratchSpace(state),
-        devOut);
+    THError("not implemented");
+//    kernelLaunch_THClTensor_reduceAllPass2<IndexType>(
+//        state,
+//        grid, block, smemSize,
+//        numPass1Blocks, init, reduceOp,
+//        THClState_getCurrentDeviceScratchSpace(state),
+//        devOut);
 //    THClTensor_reduceAllPass2<ReduceOp, IndexType>
 //      <<<grid, block, smemSize, THClState_getCurrentStream(state)>>>(
 //        numPass1Blocks, init, reduceOp,
 //        (float*) THClState_getCurrentDeviceScratchSpace(state),
 //        devOut);
-
+    THError("Not implemented");
   } else {
     getSinglePassReduceBlockGrid(totalElements, grid, block);
     size_t smemSize = block.x() * sizeof(float);
