@@ -259,6 +259,14 @@ if true then
   print('C:storageOffset()', C:storageOffset())
 end
 
+if true then
+  c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
+  c:fill(1.345)
+  print('c\n', c)
+  c:zero()
+  print('c\n', c)
+end
+
 if os.getenv('PROTOTYPING') ~= nil then
 C = torch.ClTensor{{3,2,4},{9,7,5}}
 A = C:float()

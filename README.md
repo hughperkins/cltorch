@@ -70,13 +70,7 @@ c = torch.ClTensor(3,2)
 </pre></tr>
 
 <tr><td>Cloning <td>90%<td><pre>
-c = torch.Tensor{2,6,9}:cl()
-b = c:float()
 c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
-b:copy(c)
-c:copy(b)
-d = torch.ClTensor(2,3)
-d:copy(c)
 d = c:clone()
 print('isTensor', torch.isTensor(c))
 </pre></tr>
@@ -98,6 +92,18 @@ print('C:stride(2)', C:stride(2))
 print('C:storage()', C:storage())
 print('C:nElement()', C:nElement())
 print('C:storageOffset()', C:storageOffset())
+</pre></tr>
+
+<tr><td>Copying and initializing<td>Done<td><pre>
+c = torch.Tensor{2,6,9}:cl()
+b = c:float()
+c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
+b:copy(c)
+c:copy(b)
+d = torch.ClTensor(2,3)
+d:copy(c)
+c:fill(1.345)
+c:zero()
 </pre></tr>
 
 </table>
