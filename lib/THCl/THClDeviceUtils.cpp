@@ -1,6 +1,6 @@
 #include <string>
 
-#include THClDeviceutils.h
+#include "THClDeviceUtils.h"
 
 std::string THClDeviceUtils_getKernelTemplate() {
   // [[[cog
