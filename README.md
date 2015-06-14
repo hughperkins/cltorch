@@ -49,6 +49,8 @@ c:fill(1.345)
 c:zero()
 print(torch.ClTensor.zeros(torch.ClTensor.new(), 3, 5))
 print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
+A = torch.ClTensor{{3,5,2},{4,5,6}}
+print(A:reshape(3,2))
 </tre></tr>
 
 <tr><td>Element-wise operations<td>Done<td><pre>

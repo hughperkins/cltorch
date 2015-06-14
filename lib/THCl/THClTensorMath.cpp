@@ -56,7 +56,6 @@ void THClTensor_zeros(THClState *state, THClTensor *r_, THLongStorage *size)
   THAssert(THClTensor_checkGPU(state, 1, r_));
   THClTensor_resize(state, r_, size, NULL);
   THClTensor_zero(state, r_);
-//    THError("Not implemented");
 }
 
 void THClTensor_ones(THClState *state, THClTensor *r_, THLongStorage *size)
@@ -64,15 +63,14 @@ void THClTensor_ones(THClState *state, THClTensor *r_, THLongStorage *size)
   THAssert(THClTensor_checkGPU(state, 1, r_));
   THClTensor_resize(state, r_, size, NULL);
   THClTensor_fill(state, r_, 1);
-//    THError("Not implemented");
 }
 
 void THClTensor_reshape(THClState *state, THClTensor *r_, THClTensor *t, THLongStorage *size)
 {
-//  THAssert(THClTensor_checkGPU(state, 2, r_, t));
-//  THClTensor_resize(state, r_, size, NULL);
-//  THClTensor_copy(state, r_, t);
-    THError("Not implemented");
+  THAssert(THClTensor_checkGPU(state, 2, r_, t));
+  THClTensor_resize(state, r_, size, NULL);
+  THClTensor_copy(state, r_, t);
+//    THError("Not implemented");
 //    return 0;
 }
 

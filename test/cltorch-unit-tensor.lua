@@ -342,6 +342,14 @@ function test_matrixwide()
   luaunit.assertEquals(A:sum(2), C:sum(2):float())
 end
 
+function test_reshape()
+  C = torch.ClTensor{{3,2,4},{9,7,5}}
+  A = C:float()
+  D = C:reshape(3,2)
+  B = A:reshape(3,2)
+  luaunit.assertEquals(B, D:float())
+end
+
 os.exit( luaunit.LuaUnit.run() )
 
 

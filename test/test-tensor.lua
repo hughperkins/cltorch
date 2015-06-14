@@ -241,7 +241,12 @@ print('torch.max(A,2)', torch.max(A,2))
 end
 
 if os.getenv('PROTOTYPING') ~= nil then
-A = torch.ClTensor{{3,2,4},{9,7,5}}
-print('A\n', A)
+C = torch.ClTensor{{3,2,4},{9,7,5}}
+A = C:float()
+print('C\n', C)
+D = C:reshape(3,2)
+print('D\n', D)
+B = A:reshape(3,2)
+print('B\n', B)
 end
 
