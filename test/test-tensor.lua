@@ -2,7 +2,7 @@ print("running require cltorch...")
 require 'cltorch'
 print("... require cltorch done")
 
-if false then
+if true then
 a = torch.Tensor{3,5,2}
 print('a\n', a)
 
@@ -126,7 +126,7 @@ print(-c)
 
 -- print(c:t())
 end
-if false then
+if true then
 A = torch.ClTensor{{1,2,-1},
                    {3,4,0}}
 B = torch.ClTensor{{0,1},
@@ -136,7 +136,7 @@ print('A\n', A)
 print('B\n', B)
 print(torch.mm(A,B))
 end
-if false then
+if true then
 print(torch.mm(A:float(), B:float()))
 
 C = torch.ClTensor{{0,0},{0,0}}
@@ -161,14 +161,14 @@ print('C\n', C)
 
 end
 
-if false then
+if true then
 v1 = torch.ClTensor{3,5,1}
 v2 = torch.ClTensor{2,4,8}
 --print(v1 * v2)
 print(torch.dot(v1,v2))
 end
 
-if false then
+if true then
 
 
 fv1 = torch.FloatTensor{3,5,1}
@@ -186,9 +186,12 @@ print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
 
 
 print(torch.mv(A,v1))
+end
 
 
 -------------------
+
+if false then
 
 print(torch.Tensor.__eq)
 function torch.Tensor.__eq(self, b)
