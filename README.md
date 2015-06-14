@@ -135,7 +135,11 @@ A:sum()
 A:sum(2)
 A:sum(1)
 A:max()
+A:max(1)
+A:max(2)
 A:min()
+A:min(1)
+A:min(2)
 
 </pre></tr>
 

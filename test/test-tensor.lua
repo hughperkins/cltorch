@@ -236,13 +236,12 @@ print('A:sum(2)', A:sum(2))
 print('A:sum(1)', A:sum(1))
 print('A:max()', A:max())
 print('A:min()', A:min())
+print('torch.max(A,1)', torch.max(A,1))
+print('torch.max(A,2)', torch.max(A,2))
 end
 
 if os.getenv('PROTOTYPING') ~= nil then
 A = torch.ClTensor{{3,2,4},{9,7,5}}
 print('A\n', A)
-print('A:min()', A:min())
-print('torch.max(A,1)', torch.max(A,1))
-print('torch.max(A,2)', torch.max(A,2))
 end
 

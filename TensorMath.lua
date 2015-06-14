@@ -487,17 +487,35 @@ wrap("prod",
         {name=Tensor},
         {name="index"}})
 
-for _,name in ipairs({"min", "max"}) do
-   wrap(name,
-        cname(name .. "all"),
-        {{name=Tensor},
-           {name=real, creturned=true}},
-        cname(name),
-        {{name=Tensor, default=true, returned=true},
-           {name=Tensor, default=true, returned=true},
-           {name=Tensor},
-           {name="index"}})
-end
+--for _,name in ipairs({"min", "max"}) do
+--   wrap(name,
+--        cname(name .. "all"),
+--        {{name=Tensor},
+--           {name=real, creturned=true}},
+--        cname(name),
+--        {{name=Tensor, default=true, returned=true},
+--           {name=Tensor, default=true, returned=true},
+--           {name=Tensor},
+--           {name="index"}})
+--end
+
+wrap("min",
+     cname("minall"),
+     {{name=Tensor},
+        {name=real, creturned=true}},
+     cname("min"),
+     {{name=Tensor, default=true, returned=true},
+        {name=Tensor},
+        {name="index"}})
+
+wrap("max",
+     cname("maxall"),
+     {{name=Tensor},
+        {name=real, creturned=true}},
+     cname("max"),
+     {{name=Tensor, default=true, returned=true},
+        {name=Tensor},
+        {name="index"}})
 
 for _,name in ipairs({"log", "log1p", "exp",
                       "cos", "acos", "cosh",
