@@ -180,4 +180,7 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
   * added `cltorch.setDevice`/`cltorch.getDevice`, see [test-device.lua](test/test-device.lua) for an example
   * added EasyCL includes to EasyCL install section, to remove build errors with "EasyCL.h" not found, etc
 
+# Known issues
+
+* On Broadwell U-Processor GT2, using beignet git-bd68d43, get display corruption after calling dot product.
 
