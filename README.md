@@ -158,6 +158,8 @@ Porting status by file, compared with original cutorch files.  Note that `.cpp` 
 | THClTensorMath2.cpp | 20% |
 | THClTensorMathBlas.cpp | 30% |
 | THClBlas.cpp | 50% |
+| THClReduce.* | In progress |
+| THClReduceAll.* | Ouch. Pain! |
 
 # Dependencies
 
