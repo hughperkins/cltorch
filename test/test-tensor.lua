@@ -189,7 +189,7 @@ end
 
 -------------------
 
-if os.getenv('PROTOTYPING') ~= nil then
+if true then
 
 A = torch.ClTensor{{3,5,2},{4,5,6}}
 print('A\n', A)
