@@ -96,6 +96,17 @@ print(torch.dot(v1, v2))
 print(torch.mv(A,v1))
 </pre></tr>
 
+<tr><td>Logical operations <td>Done<td><pre>
+d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
+c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
+for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+  print(loadstring('return c:' .. name .. '(5)')())
+end
+for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+  print(loadstring('return torch.' .. name .. '(c,d)')())
+end
+</pre></tr>
+
 <tr><td>Overloaded operators <td>80% done<td><pre>
 d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
 c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
@@ -118,15 +129,10 @@ v2 = torch.ClTensor{2,4,8}
 print(v1 * v2)
 </pre></tr>
 
-<tr><td>Logical operations <td>Done<td><pre>
-d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
-c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
-for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
-  print(loadstring('return c:' .. name .. '(5)')())
-end
-for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
-  print(loadstring('return torch.' .. name .. '(c,d)')())
-end
+<tr><td>Column or row-wise operations<td>5% done<td><pre>
+A = torch.ClTensor{{3,5,2},{4,5,6}}
+A:sum()
+
 </pre></tr>
 
 </table>
@@ -193,7 +199,7 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 # Recent changes
 
 * 14th June:
-  * ReduceAll working :-)  For now means: sometensor:sumall() works
+  * ReduceAll working :-)  For now means: sometensor:sum() works
 * 13th June:
   * added `cltorch.setDevice`/`cltorch.getDevice`, see [test-device.lua](test/test-device.lua) for an example
   * added EasyCL includes to EasyCL install section, to remove build errors with "EasyCL.h" not found, etc
