@@ -4,7 +4,6 @@
 #include "THClTensorCopy.h"
 #include "THClReduceApplyUtils.h"
 #include "templates/TemplatedKernel.h"
-#include "THClTensorInfoCl.h"
 #include "util/easycl_stringhelper.h"
 #include "EasyCL.h"
 #include "CLKernel_structs.h"
@@ -52,7 +51,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("operation", operation);
-  kernelBuilder.set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate());
+  kernelBuilder.set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate());
   std::string uniqueName = "applyDv2_1t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + op->operator1();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyDv2.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
   // calculate workgroup sizes and stuff
@@ -108,7 +107,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
   kernelBuilder.set("operation", operation);
-  kernelBuilder.set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate());
+  kernelBuilder.set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate());
   std::string uniqueName = "applyDv2_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
   CLKernel *kernel = 0;
   try {
@@ -177,7 +176,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("dims", dims);
   kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
-  kernelBuilder.set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate());
+  kernelBuilder.set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate());
   kernelBuilder.set("operation", operation);
   std::string uniqueName = "applyDv2_3t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + easycl::toString(C) + "_" + op->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApplyDv2.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );

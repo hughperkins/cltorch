@@ -71,39 +71,6 @@ inline void getSinglePassReduceBlockGrid(long elements,
   block = dim3(THCL_REDUCE_ALL_BLOCK_SIZE);
 }
 
-//void kernelLaunch_THClTensor_reduceAllPass1(
-//                     THClState* state,
-//                     int ADims,
-//                     const TensorInfoCl& inCl,
-//                     CLWrapper *in_data,
-//                     long totalElements,
-//                     float init,
-//                     const HasOperator2 *modifyOp,
-//                     const HasOperator3 *reduceOp,
-//                     CLWrapper* scratch
-//    );
-
-//void kernelLaunch_THClTensor_reduceAllPass2(
-//                     THClState* state,
-//                     int numPass1Blocks,
-//                     float init,
-//                     const HasOperator3 *reduceOp,
-//                     CLWrapper *scratch,
-//                     CLWrapper* devOut
-//    );
-
-//void kernelLaunch_THClTensor_reduceAll(
-//                     THClState* state,
-//                     int ADims,
-//                     const TensorInfoCl& inCl,
-//                     CLWrapper *in_data,
-//                     long totalElements,
-//                     float init,
-//                     const HasOperator2 *modifyOp,
-//                     const HasOperator3 *reduceOp,
-//                     CLWrapper* devOut
-//    );
-
 template< typename IndexType >
 void kernelLaunch_THClTensor_reduceAllPass1(
                      THClState* state,
@@ -163,12 +130,12 @@ void kernelLaunch_THClTensor_reduceAll(
   }
   TemplatedKernel kernelBuilder(THClState_getCl(state));
   kernelBuilder
-    .set("include_THClDeviceutils", THClDeviceUtils_getKernelTemplate())
-    .set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate())
+    .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
+    .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
     .set("dims", dims)
     .set("dim1", ADims)
-    .set("modifyOp", modifyOp->operator2())
-    .set("reduceOp", reduceOp->operator3())
+    .set("modify_operation", modifyOp->operator2())
+    .set("reduce_operation", reduceOp->operator3())
     .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
     .set("IndexType", TypeParseTraits<IndexType>::name)
   ;

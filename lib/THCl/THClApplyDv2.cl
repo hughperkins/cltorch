@@ -23,7 +23,7 @@
 // read-only
 //enum TensorArgType { ReadWrite, ReadOnly };
 
-{{include_TensorInfoCl}}
+{{include_THClReduceApplyUtils}}
 
 {%
  total_opsize = num_tensors

@@ -3,10 +3,13 @@
 
 #include <string>
 #include <assert.h>
+#include <stdexcept>
+
 #include "THGeneral.h"
 #include "THClGeneral.h"
 #include "THClTensor.h"
 #include "THClOperators.h"
+#include "util/easycl_stringhelper.h"
 
 #ifndef DIVUP
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
@@ -21,9 +24,12 @@
 #define CLTORCH_DIM_WARNING "tensor too large or too many (>" \
   CLTORCH_STR(MAX_CLTORCH_DIMS) ") dimensions"
 
+std::string THClReduceApplyUtils_getKernelTemplate();
+
 // Enum that indicates whether tensor arguments are read/write or
 // read-only
 enum TensorArgType { ReadWrite, ReadOnly };
+class CLWrapper;
 
 // Copy operator for the pointwise apply kernel
 class CopyOp : public HasOperator2 {
@@ -32,8 +38,6 @@ public:
         return "*out = *in1";
     }
 };
-
-class CLWrapper;
 
 // CL kernel argument that defines tensor layout
 template <typename IndexType>
@@ -164,6 +168,54 @@ TensorInfo<IndexType>::TensorInfo(THClState* state,
   // We must have filled all the dimensions we're looking for
   assert(collapsedIndex == 0);
 }
+
+
+typedef struct TensorInfoCl {
+  TensorInfoCl( TensorInfo<unsigned int> info ) {
+    dims = info.dims;
+    if( info.offset > ( 1l << 30 ) ) {
+      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
+    }
+    offset = (int)info.offset;
+    for( int i = 0; i < dims; i++ ) {
+      sizes[i] = info.sizes[i];
+      strides[i] = info.strides[i];
+    }
+  }
+  TensorInfoCl( TensorInfo<unsigned long> info ) {
+    dims = info.dims;
+    if( info.offset > ( 1l << 30 ) ) {
+      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
+    }
+    offset = (int)info.offset;
+    for( int i = 0; i < dims; i++ ) {
+      if( info.sizes[i] > ( 1l << 31 ) ) {
+        throw std::runtime_error("size " + easycl::toString(info.sizes[i]) + " out of bounds");
+      }
+      sizes[i] = info.sizes[i];
+      strides[i] = info.strides[i];
+    }
+  }
+  TensorInfoCl( TensorInfo<unsigned long long> info ) {
+    dims = info.dims;
+    if( info.offset > ( 1l << 30 ) ) {
+      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
+    }
+    offset = (int)info.offset;
+    for( int i = 0; i < dims; i++ ) {
+      if( info.sizes[i] > ( 1l << 31 ) ) {
+        throw std::runtime_error("size " + easycl::toString(info.sizes[i]) + " out of bounds");
+      }
+      sizes[i] = info.sizes[i];
+      strides[i] = info.strides[i];
+    }
+  }
+  unsigned int sizes[MAX_CLTORCH_DIMS];
+  unsigned int strides[MAX_CLTORCH_DIMS];
+  int offset;
+  int dims;
+} TensorInfoCl;
+
 
 // Translate a linear index for the apply to a float* offset;
 // specialized on `Dims` to reduce nvcc compilation time

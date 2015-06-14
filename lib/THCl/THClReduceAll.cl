@@ -1,4 +1,5 @@
 {{include_THClDeviceUtils}}
+{{include_THClReduceApplyUtils}}
 
 float modifyOp(float _in1) {
   float _out;
@@ -25,7 +26,7 @@ float reduceOp(float _in1, float _in2) {
 
 // Kernel that handles an entire reduction of a tensor in one pass
 kernel void
-THClTensor_reduceAll(global TensorInfoCl *in,
+THClTensor_reduceAll(global TensorInfoCl *in_info,
                      global float *in_data,
                      {{IndexType}} totalElements,
                      float init,
@@ -34,8 +35,8 @@ THClTensor_reduceAll(global TensorInfoCl *in,
   // With a block-wide stride, have each thread perform its own reduction.
   float r = init;
   for ({{IndexType}} i = threadIdx.x; i < totalElements; i += blockDim.x) {
-    const {{IndexType}} inOffset = IndexToOffset_{{1000 + dim1}}_get(i, in);
-    r = reduceOp(r, modifyOp(in.data[inOffset]));
+    const {{IndexType}} inOffset = IndexToOffset_{{1000 + dim1}}_get(i, in_info[0]);
+    r = reduceOp(r, modifyOp(in_data[inOffset]));
   }
 
   // Reduce within the block
@@ -50,7 +51,7 @@ THClTensor_reduceAll(global TensorInfoCl *in,
 
 // Kernel that handles an entire reduction of a tensor in two passes
 kernel void
-THClTensor_reduceAllPass1(global TensorInfoCl *in,
+THClTensor_reduceAllPass1(global TensorInfoCl *in_info,
                           global float *in_data,
                           {{IndexType}} totalElements,
                           float init,
@@ -62,8 +63,8 @@ THClTensor_reduceAllPass1(global TensorInfoCl *in,
   // With a block-wide stride, have each thread perform its own reduction.
   float r = init;
   for ({{IndexType}} i = startIndex + threadIdx.x; i < endIndex; i += blockDim.x) {
-    const {{IndexType}} inOffset = IndexToOffset_{{1000 + dim1}}_get(i, in);
-    r = reduceOp(r, modifyOp(in.data[inOffset]));
+    const {{IndexType}} inOffset = IndexToOffset_{{1000 + dim1}}_get(i, in_info[0]);
+    r = reduceOp(r, modifyOp(in_data[inOffset]));
   }
 
   // Reduce within the block

@@ -41,7 +41,7 @@ std::string getApplyDv2_template() {
   "// read-only\n" 
   "//enum TensorArgType { ReadWrite, ReadOnly };\n" 
   "\n" 
-  "{{include_TensorInfoCl}}\n" 
+  "{{include_THClReduceApplyUtils}}\n" 
   "\n" 
   "{%\n" 
   " total_opsize = num_tensors\n" 

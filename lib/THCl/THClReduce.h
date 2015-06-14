@@ -6,15 +6,14 @@
 #include <string>
 #include <vector>
 #include <set>
-#include "THClTensorInfoCl.h"
+#include "THClReduceApplyUtils.h"
 #include "templates/TemplatedKernel.h"
 #include "util/easycl_stringhelper.h"
 #include "EasyCL.h"
 #include "THClTypeParseTraits.h"
 
 
-std::string getKernelSource();
-
+std::string THClReduce_getKernelSource();
 
 //
 // This file contains dimension reduction operation functions and
@@ -61,7 +60,7 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
   }
 
   kernelBuilder
-    .set("include_TensorInfoCl", THClTensorInfoCl_getKernelTemplate())
+    .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
     .set("dims", dims)
     .set("dim1", ADims)
     .set("dim2", BDims)
@@ -73,7 +72,7 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
 
   std::string uniqueName = "THClTensor_reduceNoncontigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
     TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
-  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClReduce.cl", getKernelSource(), "THClTensor_reduceNoncontigDim");
+  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClReduce.cl", THClReduce_getKernelSource(), "THClTensor_reduceNoncontigDim");
 //  kernel->in();
 
   THError("Not implemented");

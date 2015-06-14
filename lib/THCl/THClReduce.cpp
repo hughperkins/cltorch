@@ -161,7 +161,7 @@ bool THClTensor_reduceDim(THClState* state,
   return true;
 }
 
-std::string getKernelSource() {
+std::string THClReduce_getKernelSource() {
   // [[[cog
   // import stringify
   // stringify.write_kernel( "kernel", "THClReduce.cl" )
@@ -171,7 +171,7 @@ std::string getKernelSource() {
   "// Threads per thread block\n" 
   "#define THCL_NONCONTIG_REDUCE_BLOCK_SIZE 32 * 16\n" 
   "\n" 
-  "{{include_TensorInfoCl}}\n" 
+  "{{include_THClReduceApplyUtils}}\n" 
   "\n" 
   "{{index_type}} getReduceNoncontigDimSliceIndex() {\n" 
   "  // Each thread handles one slice\n" 

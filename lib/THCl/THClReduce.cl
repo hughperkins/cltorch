@@ -1,7 +1,7 @@
 // Threads per thread block
 #define THCL_NONCONTIG_REDUCE_BLOCK_SIZE 32 * 16
 
-{{include_TensorInfoCl}}
+{{include_THClReduceApplyUtils}}
 
 {{index_type}} getReduceNoncontigDimSliceIndex() {
   // Each thread handles one slice
