@@ -175,6 +175,8 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 
 # Recent changes
 
-* added `cltorch.setDevice`/`cltorch.getDevice`, see [test-device.lua](test/test-device.lua) for an example
+* 13th June:
+  * added `cltorch.setDevice`/`cltorch.getDevice`, see [test-device.lua](test/test-device.lua) for an example
+  * added EasyCL includes to EasyCL install section, to remove build errors with "EasyCL.h" not found, etc
 
 
