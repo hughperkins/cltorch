@@ -191,6 +191,7 @@ Porting status by file, compared with original cutorch files.  Note that `.cpp` 
 | THClReduce.* | 90% |
 | THClReduceAll.* | 70% |
 | THClGeneral.* | 30% |
+| THClTensorMathTransformReduce.* | 0% |
 
 # Dependencies
 
