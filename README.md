@@ -112,6 +112,18 @@ l = torch.LongStorage{3,3}
 c:resize(l)
 d = torch.ClTensor(2,2)
 d:resizeAs(c)
+</pre></tr>
+
+<tr><td>Extracting sub-tensors<td>0%<td><pre>
+</pre></tr>
+
+
+<tr><td>Expanding/Replicating/Squeezing Tensors<td>0%<td><pre>
+</pre></tr>
+
+<tr><td>Manipulating the tensor view<td>0%<td><pre>
+</pre></tr>
+
 </table>
 
 ### From [maths.md](https://github.com/torch/torch7/blob/master/doc/maths.md)
