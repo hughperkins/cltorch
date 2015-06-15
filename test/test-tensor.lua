@@ -292,10 +292,18 @@ if true then
   print(C:t())
 end
 
-if os.getenv('PROTOTYPING') ~= nil then
+if true then
   C = torch.ClTensor{{3,2},{9,7}}
   D = torch.ClTensor{{3,1,7},{3,2,4}}
   E = torch.ClTensor{{3,1},{2,9},{3,2}}
   print(torch.addmm(C,D,E))
+
+  c = torch.ClTensor{3,2}
+  D = torch.ClTensor{{3,1,7},{3,2,4}}
+  e = torch.ClTensor{3,1,2}
+  print(torch.addmv(c,D,e))
+end
+
+if os.getenv('PROTOTYPING') ~= nil then
 end
 

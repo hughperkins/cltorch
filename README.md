@@ -198,6 +198,11 @@ D = torch.ClTensor{{3,1,7},{3,2,4}}
 E = torch.ClTensor{{3,1},{2,9},{3,2}}
 print(torch.addmm(C,D,E))
 
+c = torch.ClTensor{3,2}
+D = torch.ClTensor{{3,1,7},{3,2,4}}
+e = torch.ClTensor{3,1,2}
+print(torch.addmv(c,D,e))
+
 v1 = torch.ClTensor{3,5,1}
 v2 = torch.ClTensor{2,4,8}
 print(torch.dot(v1, v2))
