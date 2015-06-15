@@ -316,6 +316,11 @@ function test_blas()
   c = c * d
   luaunit.assertEquals(a, c)
 
+  C = torch.ClTensor{{3,1,7},{3,2,4},{8,5,3}}
+  d = torch.ClTensor{3,2,5}
+  e = torch.ClTensor{3,1,2}
+  
+  luaunit.assertEquals((torch.addr(C,d,e)):float(), torch.addr(C:float(), d:float(), e:float()))
 end
 
 function test_fills()

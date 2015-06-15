@@ -262,25 +262,56 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, CL
 //    THError("Not implemented");
 }
 
-void THClBlas_ger(THClState *state, long m, long n, float alpha, float *x, long incx, float *y, long incy, float *a, long lda)
+void THClBlas_ger(THClState *state, long m, long n, float alpha, 
+    CLWrapper *xwrap, long x_offset, long incx,
+    CLWrapper *ywrap, long y_offset, long incy,
+    CLWrapper *awrap, long a_offset, long lda)
 {
-//  if(n == 1)
-//    lda = m;
+  if(n == 1)
+    lda = m;
 
-//  if( (m <= INT_MAX) && (n <= INT_MAX) && (lda <= INT_MAX)  && (incx <= INT_MAX) && (incy <= INT_MAX) )
-//    {
-//      int i_m = (int)m;
-//      int i_n = (int)n;
-//      int i_lda = (int)lda;
-//      int i_incx = (int)incx;
-//      int i_incy = (int)incy;
+  if( (m <= INT_MAX) && (n <= INT_MAX) && (lda <= INT_MAX)  && (incx <= INT_MAX) && (incy <= INT_MAX) )
+    {
+      int i_m = (int)m;
+      int i_n = (int)n;
+      int i_lda = (int)lda;
+      int i_incx = (int)incx;
+      int i_incy = (int)incy;
+
+      cl_int err;
+
+      err = clblasSetup();
+      if (err != CL_SUCCESS) {
+          THError("clblasSetup() failed with %d", err);
+      }
+
+      if(!awrap->isOnDevice()) {
+        awrap->createOnDevice();
+      }
+
+      cl_event event = NULL;
+      err = clblasSger(clblasColumnMajor, i_m, i_n, alpha,
+                       xwrap->getBuffer(), x_offset, i_incx,
+                       ywrap->getBuffer(), y_offset, i_incy,
+                       awrap->getBuffer(), a_offset, i_lda,
+                       1, (THClState_getCl(state)->queue), 0, NULL, &event);
+      if (err != CL_SUCCESS) {
+          THError("clblasSger() failed with %d", err);
+      }
+      else {
+          /* Wait for calculations to be finished. */
+          err = clWaitForEvents(1, &event);
+      }
+      awrap->markDeviceDirty();
+
+      clblasTeardown();
 
 //      THCublasCheck(cublasSger(*state->blasState->current_handle, i_m, i_n, &alpha, x, i_incx, y, i_incy, a, i_lda));
-//      return;
-//    }
-//  THError("Cublas_ger only supports m, n, lda, incx, incy"
-//          "with the bound [val] <= %d", INT_MAX);
-    THError("Not implemented");
+      return;
+//      THError("Not implemented");
+    }
+  THError("Cublas_ger only supports m, n, lda, incx, incy"
+          "with the bound [val] <= %d", INT_MAX);
 }
 
 void adjustLd(char transa, char transb, long m, long n, long k, long *lda, long *ldb, long *ldc)
@@ -357,11 +388,9 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
         THError("clblasSgemm() failed with %d", err);
     }
     else {
-        /* Wait for calculations to be finished. */
         err = clWaitForEvents(1, &event);
     }
 
-    /* Finalize work with clblas. */
     clblasTeardown();
 
 //    THCublasCheck(cublasSgemm(*state->blasState->current_handle, opa, opb, i_m, i_n, i_k, &alpha, a, i_lda, b, i_ldb, &beta, c, i_ldc));

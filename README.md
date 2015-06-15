@@ -21,7 +21,7 @@ An OpenCL backend for [torch](http://torch.ch/).
 <tr><td>Component<td>Status<td>Examples of what works now</tr>
 
 <tr><td>Device information<td>works<td><pre>
-print('num devices: ' .. cltorch.getDeviceCount())
+print('num devices: ', cltorch.getDeviceCount())
 props = cltorch.getDeviceProperties(1)
 for k,v in props do
     print(k, v)
@@ -208,6 +208,11 @@ v2 = torch.ClTensor{2,4,8}
 print(torch.dot(v1, v2))
 
 print(torch.mv(A,v1))
+
+C = torch.ClTensor{{3,1,7},{3,2,4},{8,5,3}}
+d = torch.ClTensor{3,2,5}
+e = torch.ClTensor{3,1,2}
+print(torch.addr(C,d,e))
 </pre></tr>
 
 <tr><td>Logical operations <td>Done<td><pre>

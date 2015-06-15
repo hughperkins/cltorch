@@ -302,6 +302,12 @@ if true then
   D = torch.ClTensor{{3,1,7},{3,2,4}}
   e = torch.ClTensor{3,1,2}
   print(torch.addmv(c,D,e))
+
+  C = torch.ClTensor{{3,1,7},{3,2,4},{8,5,3}}
+  d = torch.ClTensor{3,2,5}
+  e = torch.ClTensor{3,1,2}
+  print(torch.addr(C,d,e))
+  print(torch.addr(C:float(), d:float(), e:float()))
 end
 
 if os.getenv('PROTOTYPING') ~= nil then

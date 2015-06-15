@@ -227,51 +227,72 @@ void THClTensor_addmm(THClState *state, THClTensor *r_, float beta, THClTensor *
 
 void THClTensor_addr(THClState *state, THClTensor *r_, float beta, THClTensor *t, float alpha, THClTensor *vec1, THClTensor *vec2)
 {
-//  THAssert(THClTensor_checkGPU(state, 4, r_, t, vec1, vec2));
-//  if( (vec1->nDimension != 1) || (vec2->nDimension != 1) )
-//    THError("vector and vector expected");
+  THAssert(THClTensor_checkGPU(state, 4, r_, t, vec1, vec2));
+  if( (vec1->nDimension != 1) || (vec2->nDimension != 1) )
+    THError("vector and vector expected");
 
-//  if(t->nDimension != 2)
-//    THError("size mismatch");
+  if(t->nDimension != 2)
+    THError("size mismatch");
 
-//  if( (t->size[0] != vec1->size[0]) || (t->size[1] != vec2->size[0]) )
-//    THError("size mismatch");
+  if( (t->size[0] != vec1->size[0]) || (t->size[1] != vec2->size[0]) )
+    THError("size mismatch");
 
-//  if(r_ != t)
-//  {
-//    THClTensor_resizeAs(state, r_, t);
-//    THClTensor_copy(state, r_, t);
-//  }
+  if(r_ != t)
+  {
+    THClTensor_resizeAs(state, r_, t);
+    THClTensor_copy(state, r_, t);
+  }
 
-//  if(beta != 1)
-//    THClTensor_mul(state, r_, r_, beta);
+  if(beta != 1)
+    THClTensor_mul(state, r_, r_, beta);
 
-//  if(r_->stride[0] == 1)
-//  {
-//    THClBlas_ger(state, vec1->size[0], vec2->size[0],
-//                   alpha, THClTensor_data(state, vec1), vec1->stride[0],
-//                   THClTensor_data(state, vec2), vec2->stride[0],
-//                   THClTensor_data(state, r_), r_->stride[1]);
-//  }
-//  else if(r_->stride[1] == 1)
-//  {
-//    THClBlas_ger(state, vec2->size[0], vec1->size[0],
-//                   alpha, THClTensor_data(state, vec2), vec2->stride[0],
-//                   THClTensor_data(state, vec1), vec1->stride[0],
-//                   THClTensor_data(state, r_), r_->stride[0]);
-//  }
-//  else
-//  {
-//    THClTensor *cr = THClTensor_newClone(state, r_);
+  if(r_->stride[0] == 1)
+  {
+    THClBlas_ger(state, vec1->size[0], vec2->size[0],
+                   alpha, 
+                  THClTensor_wrapper(state, vec1), 
+                  THClTensor_storageOffset(state, vec1), 
+                  vec1->stride[0],
+                   THClTensor_wrapper(state, vec2),
+                   THClTensor_storageOffset(state, vec2),
+                   vec2->stride[0],
+                   THClTensor_wrapper(state, r_), 
+                   THClTensor_storageOffset(state, r_), 
+                    r_->stride[1]);
+  }
+  else if(r_->stride[1] == 1)
+  {
+    THClBlas_ger(state, vec2->size[0], vec1->size[0],
+                   alpha, 
+                  THClTensor_wrapper(state, vec2),
+                  THClTensor_storageOffset(state, vec2),
+                   vec2->stride[0],
+                   THClTensor_wrapper(state, vec1),
+                   THClTensor_storageOffset(state, vec1),
+                    vec1->stride[0],
+                   THClTensor_wrapper(state, r_), 
+                   THClTensor_storageOffset(state, r_), 
+                    r_->stride[0]);
+  }
+  else
+  {
+    THClTensor *cr = THClTensor_newClone(state, r_);
 
-//    THClBlas_ger(state, vec2->size[0], vec1->size[0],
-//                   alpha, THClTensor_data(state, vec2), vec2->stride[0],
-//                   THClTensor_data(state, vec1), vec1->stride[0],
-//                   THClTensor_data(state, cr), cr->stride[0]);
+    THClBlas_ger(state, vec2->size[0], vec1->size[0],
+                   alpha, 
+                  THClTensor_wrapper(state, vec2),
+                  THClTensor_storageOffset(state, vec2),
+                  vec2->stride[0],
+                   THClTensor_wrapper(state, vec1),
+                   THClTensor_storageOffset(state, vec1),
+                    vec1->stride[0],
+                   THClTensor_wrapper(state, cr),
+                   THClTensor_storageOffset(state, cr),
+                    cr->stride[0]);
 
-//    THClTensor_freeCopyTo(state, cr, r_);
-//  }
-    THError("Not implemented");
+    THClTensor_freeCopyTo(state, cr, r_);
+  }
+//    THError("Not implemented");
 }
 
 void THClTensor_baddbmm(THClState *state, THClTensor *result, float beta, THClTensor *t,
