@@ -134,7 +134,8 @@ print(C:t())
 
 <tr><td>Component<td>Status<td>Examples of what works now</tr>
 
-<tr><td>uniform, etc <td>0%<td><pre>
+<tr><td>uniform, etc <td>0%<td><pre>For now, you would need to do for example:
+torch.Tensor(5,3):uniform():cl()
 </pre></tr>
 </table>
 
