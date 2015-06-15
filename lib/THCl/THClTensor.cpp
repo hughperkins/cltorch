@@ -795,8 +795,9 @@ float THClTensor_get4d(THClState *state, const THClTensor *tensor, long x0, long
 //}
 // from .cu
 THCL_API int THClTensor_getDevice(THClState* state, const THClTensor* thc) {
-  THError("THClTensor_getDevice Not implemented");
-  return 0;
+  return thc->storage->device;
+//  THError("THClTensor_getDevice Not implemented");
+//  return 0;
 //  if (!thc->storage) return -1;
 //  cudaPointerAttributes attr;
 //  THClCheck(cudaPointerGetAttributes(&attr, thc->storage->data));

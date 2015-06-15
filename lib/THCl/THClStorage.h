@@ -10,14 +10,16 @@
 
 typedef struct THClStorage
 {
-    float *data; // I know this seems a bit superfluous....
-    struct CLWrapper *wrapper;
-    long size;
-    int refcount;
-    char flag;
-    THAllocator *allocator;
-    void *allocatorContext;
-    struct THClStorage *view;
+  int device;
+  float *data; // I know this seems a bit superfluous....
+  struct EasyCL *cl;
+  struct CLWrapper *wrapper;
+  long size;
+  int refcount;
+  char flag;
+  THAllocator *allocator;
+  void *allocatorContext;
+  struct THClStorage *view;
 } THClStorage;
 
 

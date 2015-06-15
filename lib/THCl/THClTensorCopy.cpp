@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <iostream>
 
 #include "THClApply.h"
 #include "THClTensorCopy.h"
@@ -154,6 +155,7 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
 
     if (srcDev == dstDev) {
       if (oldDev != srcDev) {
+        cout << "srcDev=" << srcDev << " dstDev=" << dstDev << endl;
         THError("Not implemented");
 //        THClCheck(cudaSetDevice(srcDev));
       }
@@ -196,6 +198,7 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
 //                    THClState_getDeviceStream(state, remoteDev, THClState_getCurrentStreamIndex(state)),
 //                    doneCopying, 0));
 //      THClCheck(cudaEventDestroy(doneCopying));
+      THError("Not implemented");
     }
 
     if (curGPU(state) != oldDev) {
@@ -204,6 +207,5 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
 //      THError("Not implemented");
     }
 //    throw runtime_error("not implemented");
-    THError("Not implemented");
   }
 }

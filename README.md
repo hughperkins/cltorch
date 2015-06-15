@@ -121,7 +121,9 @@ d:resizeAs(c)
 <tr><td>Expanding/Replicating/Squeezing Tensors<td>0%<td><pre>
 </pre></tr>
 
-<tr><td>Manipulating the tensor view<td>0%<td><pre>
+<tr><td>Manipulating the tensor view<td>5%<td><pre>
+C = torch.ClTensor{{3,2,4},{9,7,5}}
+print(C:t())
 </pre></tr>
 
 </table>

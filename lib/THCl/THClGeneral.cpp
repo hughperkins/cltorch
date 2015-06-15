@@ -58,6 +58,9 @@ int THClState_getDevice(THClState* state) {
   return state->currentDevice;
 }
 EasyCL *THClState_getCl(THClState* state) {
+  return THClState_getClAndDevice(state, 0);
+}
+EasyCL *THClState_getClAndDevice(THClState* state, int *p_device) {
   int device = state->currentDevice;
   if( state->clByDevice[device] == 0 ) {
     EasyCL *cl = EasyCL::createForIndexedDevice(device);
@@ -67,6 +70,9 @@ EasyCL *THClState_getCl(THClState* state) {
     scratch->wrapper = cl->wrap(FLOATS_PER_SCRATCH_SPACE, scratch->data);
     scratch->wrapper->createOnDevice();
     state->scratchSpaceByDevice[device] = scratch;
+  }
+  if( p_device != 0 ) {
+        *p_device = device;
   }
   return state->clByDevice[device];
 }

@@ -33,6 +33,8 @@ float THClStorage_get(THClState *state, const THClStorage *self, long index)
 THClStorage* THClStorage_new(THClState *state)
 {
   THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
+  storage->cl = THClState_getClAndDevice(state, &storage->device);
+//  storage->device = -1;
   storage->data = NULL;
   storage->wrapper = 0;
   storage->size = 0;
@@ -49,8 +51,8 @@ THClStorage* THClStorage_newWithSize(THClState *state, long size)
   {
     THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
     float *data = new float[size];
-    EasyCL *cl = THClState_getCl(state);
-    CLWrapper *wrapper = cl->wrap( size, data );
+    storage->cl = THClState_getClAndDevice(state, &storage->device);
+    CLWrapper *wrapper = storage->cl->wrap( size, data );
     wrapper->createOnDevice();
     storage->data = data;
     storage->wrapper = wrapper;

@@ -53,6 +53,7 @@ THCL_API int THClState_getNumDevices(THClState* state);
 THCL_API void THClState_setDevice(THClState* state, int device);
 THCL_API int THClState_getDevice(THClState* state);
 THCL_API struct EasyCL *THClState_getCl(THClState* state);
+THCL_API struct EasyCL *THClState_getClAndDevice(THClState* state, int *p_device);
 //THCL_API void THClState_reserveStreams(THClState* state, int numStreams);
 //THCL_API int THClState_getNumStreams(THClState* state);
 
