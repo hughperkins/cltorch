@@ -315,6 +315,8 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 
 # Recent changes
 
+* 15th June:
+  * C:t() working
 * 14th June:
   * ReduceAll working :-)  For now means: sometensor:sum() works
   * sometensor:sum(1) and sometensor:sum(2) working too now :-)
