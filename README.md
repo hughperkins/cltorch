@@ -124,7 +124,7 @@ d:resizeAs(c)
   x[{ 2,{2,4} }] = 2 
   x[{ {},4 }] = -1
   x[{ {},2 }] = torch.range(1,5) 
-
+  x[torch.lt(x,0)] = -2
 </pre></tr>
 
 
