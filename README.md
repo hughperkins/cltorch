@@ -1,6 +1,6 @@
 # cltorch
 
-An OpenCL backend for torch.
+An OpenCL backend for [torch](http://torch.ch/).
 
 ## What's working
 
