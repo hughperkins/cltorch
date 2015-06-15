@@ -14,7 +14,7 @@
 
 void THClInit(THClState* state)
 {
-  printf("*******************************************\n");
+//  printf("*******************************************\n");
   printf("THClInit()\n");
   state->allocatedDevices = easycl::DevicesInfo::getNumDevices();
   state->clByDevice = new EasyCL *[state->allocatedDevices];
@@ -29,7 +29,7 @@ void THClInit(THClState* state)
 
 void THClShutdown(THClState* state)
 {
-  printf("THClShutdown() start...\n");
+//  printf("THClShutdown() start...\n");
 //  for(int i = 0; i < state->allocatedDevices; i++) {
 //    delete state->clByDevice[i];
 //    if( state->scratchSpaceByDevice[i] != 0 ) {
