@@ -280,15 +280,22 @@ if true then
   print('d\n', d)
 end
 
+if true then
+  C = torch.ClTensor{{3,2,4},{9,7,5}}
+  A = C:float()
+  print('C\n', C)
+  D = C:reshape(3,2)
+  print('D\n', D)
+  B = A:reshape(3,2)
+  print('B\n', B)
+  print('C\n', C)
+  print(C:t())
+end
+
 if os.getenv('PROTOTYPING') ~= nil then
-C = torch.ClTensor{{3,2,4},{9,7,5}}
-A = C:float()
-print('C\n', C)
-D = C:reshape(3,2)
-print('D\n', D)
-B = A:reshape(3,2)
-print('B\n', B)
-print('C\n', C)
-print(C:t())
+  C = torch.ClTensor{{3,2},{9,7}}
+  D = torch.ClTensor{{3,1,7},{3,2,4}}
+  E = torch.ClTensor{{3,1},{2,9},{3,2}}
+  print(torch.addmm(C,D,E))
 end
 
