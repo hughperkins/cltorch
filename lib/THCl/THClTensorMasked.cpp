@@ -61,9 +61,14 @@ public:
 //  float* maskPrefixSum;
 //};
 
-//struct TensorMaskedSelectOp {
+//class TensorMaskedSelectOp : public HasOperator3, public HasScalars {
+//public:
+//  int getNumScalars() const { return 1; }
+//  string operator3() const {
+//    return "if(*out != 0.0f){out[(int)*in1] = *in2; }";
+//  }
 //  TensorMaskedSelectOp(float* t) : out(t) {}
-//  /*__device__*/ /*__forceline__*/ void operator()(float* mask, float* maskPrefixSum, float* in) {
+//  void operator()(float* mask, float* maskPrefixSum, float* in) {
 //    // Really mask should be `0` or `1` but we can't propagate errors here.
 //    if (*mask != 0.0f) {
 //      out[(int) *maskPrefixSum] = *in;

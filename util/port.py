@@ -23,10 +23,12 @@ cutorch_thc = '{cutorch_dir}/lib/THC'.format(
 def process_block(block):
     if block.find('__global__') >= 0 or block.find('__device__') >= 0:
         # kernel method, probably
-        block = block.replace('gridDim.x', '/*gridDim.x*/ get_num_groups(0)')
-        block = block.replace('blockDim.x', '/*blockDim.x*/ get_local_size(0)')
-        block = block.replace('blockIdx.x', '/*blockIdx.x*/ get_group_id(0)')
-        block = block.replace('threadIdx.x', '/*threadIdx.x*/ get_local_id(0)')
+        block = block.replace('gridDim.x', 'get_num_groups(0)')
+        block = block.replace('blockDim.x', 'get_local_size(0)')
+        block = block.replace('blockDim.y', 'get_local_size(1)')
+        block = block.replace('blockIdx.x', 'get_group_id(0)')
+        block = block.replace('threadIdx.x', 'get_local_id(0)')
+        block = block.replace('threadIdx.y', 'get_local_id(1)')
         block = block.replace('__global__', 'kernel')
         block = block.replace('__syncthreads()', 'barrier(CLK_LOCAL_MEM_FENCE)')
         block = block.replace('warpSize', '{{WarpSize}}')

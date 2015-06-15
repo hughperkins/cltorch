@@ -333,9 +333,6 @@ if true then
   print('F\n', F)
   print('E\n', E)
 
-end
-
-if os.getenv('PROTOTYPING') ~= nil then
   x = torch.ClTensor(5, 6):zero()
   print('x\n', x)
   x[{ 1,3 }] = 1
@@ -349,27 +346,23 @@ if os.getenv('PROTOTYPING') ~= nil then
   x[torch.lt(x,0)] = -2
   print('x\n', x)
 
---  x = torch.rand(5,5)
---  print('x\n, x)
---   0.8020  0.7246  0.1204  0.3419  0.4385
---   0.0369  0.4158  0.0985  0.3024  0.8186
---   0.2746  0.9362  0.2546  0.8586  0.6674
---   0.7473  0.9028  0.1046  0.9085  0.6622
---   0.1412  0.6784  0.1624  0.8113  0.3949
---  [torch.DoubleTensor of dimension 5x5]
+end
 
---  y = x:index(1,torch.LongTensor{3,1})
---  > y
---   0.2746  0.9362  0.2546  0.8586  0.6674
---   0.8020  0.7246  0.1204  0.3419  0.4385
---  [torch.DoubleTensor of dimension 2x5]
+if os.getenv('PROTOTYPING') ~= nil then
+  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
+  F = torch.expand(E, 2)
+  print('F\n', F)
+  E[1][2] = 51
+  print('F\n', F)
 
---  y:fill(1)
---  > y
---   1  1  1  1  1
---   1  1  1  1  1
---  [torch.DoubleTensor of dimension 2x5]
-
---  > x
+--  x = torch.range(1,12):double():resize(3,4):cl()
+--  print('x\n', x)
+--  mask = torch.ByteTensor(2,6):bernoulli():cl()
+--  print('mask\n', mask)
+--  y = x:maskedSelect(mask)
+--  print('y\n', y)
+--  z = torch.ClTensor()
+--  z:maskedSelect(x, mask)
+--  print('z\n', z)
 end
 
