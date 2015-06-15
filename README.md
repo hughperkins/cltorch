@@ -126,6 +126,16 @@ d:resizeAs(c)
 
 </table>
 
+### From [random.md](https://github.com/torch/torch7/blob/master/doc/random.md)
+
+<table>
+
+<tr><td>Component<td>Status<td>Examples of what works now</tr>
+
+<tr><td>uniform, etc <td>0%<td><pre>
+</pre></tr>
+</table>
+
 ### From [maths.md](https://github.com/torch/torch7/blob/master/doc/maths.md)
 
 <table>
