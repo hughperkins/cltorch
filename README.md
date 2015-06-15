@@ -114,7 +114,17 @@ d = torch.ClTensor(2,2)
 d:resizeAs(c)
 </pre></tr>
 
-<tr><td>Extracting sub-tensors<td>0%<td><pre>
+<tr><td>Extracting sub-tensors<td>50%<td><pre>
+  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
+  F = E:narrow(1,2,3)
+  F = E:sub(2,3,2,2)
+  E:select(1,2):fill(99)
+  x = torch.Tensor(5, 6):zero()
+  x[{ 1,3 }] = 1
+  x[{ 2,{2,4} }] = 2 
+  x[{ {},4 }] = -1
+  x[{ {},2 }] = torch.range(1,5) 
+
 </pre></tr>
 
 
