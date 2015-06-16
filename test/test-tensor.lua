@@ -349,11 +349,20 @@ if true then
 end
 
 if os.getenv('PROTOTYPING') ~= nil then
-  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
-  F = torch.expand(E, 2)
-  print('F\n', F)
-  E[1][2] = 51
-  print('F\n', F)
+  input = torch.ClTensor{3,5,2}
+  output = torch.ClTensor()
+  weight = torch.ClTensor{{0.2, -0.2, 0.3},
+                        {0.4,-0.1, -0.5}}
+  bias = torch.ClTensor{0.1, -0.2}
+  output:resize(bias:size(1))
+  output:copy(bias)
+  output:addmv(1, weight, input)
+
+--  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
+--  F = torch.expand(E, 2)
+--  print('F\n', F)
+--  E[1][2] = 51
+--  print('F\n', F)
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x\n', x)

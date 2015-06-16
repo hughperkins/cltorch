@@ -35,6 +35,24 @@ if(DEV_RUN_COG)
     add_dependencies( THCL cog_thcl )
 endif(DEV_RUN_COG)
 
+INSTALL(FILES
+          THCl.h
+          THClGeneral.h
+          THClBlas.h
+          THClStorage.h
+	  THClStorageCopy.h
+          THClTensor.h
+	  THClTensorCopy.h
+#          THClTensorRandom.h
+          THClTensorMath.h
+#          THClTensorConv.h
+#          THClTensorSort.h
+          THClApply.h
+          THClReduce.h
+          THClReduceApplyUtils.h
+#	  THClAllocator.h
+          DESTINATION "${Torch_INSTALL_INCLUDE_SUBDIR}/THCl")
+
 INSTALL(TARGETS THCL
           RUNTIME DESTINATION "${Torch_INSTALL_BIN_SUBDIR}"
           LIBRARY DESTINATION "${Torch_INSTALL_LIB_SUBDIR}"
