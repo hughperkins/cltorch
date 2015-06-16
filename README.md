@@ -339,6 +339,10 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 * Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
 * (Ditto for any build errors)
 
+# Guidelines for contributors
+
+You might or might not find [ContributorGuidelines.md](doc/ContributorGuidelines.md) useful.  Anyway, it is there if you want to see my own thoughts and ideas on how to approach cltorch development, and cutorch-porting.
+
 # Recent changes
 
 * 15th-17th June:
