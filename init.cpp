@@ -90,19 +90,20 @@ namespace cltorch {
     return 1;
   }
 
-  //static int cutorch_getState(lua_State *L)
-  //{
-  //  lua_getglobal(L, "cutorch");
-  //  lua_getfield(L, -1, "_state");
-  //  lua_remove(L, -2);
-  //  return 1;
-  //}
+  static int cltorch_getState(lua_State *L)
+  {
+    lua_getglobal(L, "cltorch");
+    lua_getfield(L, -1, "_state");
+    lua_remove(L, -2);
+    return 1;
+  }
 
   static const struct luaL_Reg cltorch_stuff__ [] = {
     {"getDevice", cltorch_getDevice},
     {"setDevice", cltorch_setDevice},
     {"getDeviceCount", cltorch_getDeviceCount},
     {"getDeviceProperties", cltorch_getDeviceProperties},
+    {"getState", cltorch_getState},
     {NULL, NULL}
   };
 }
