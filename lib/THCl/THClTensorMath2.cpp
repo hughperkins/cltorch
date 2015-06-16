@@ -20,10 +20,10 @@ public:
   float getScalar( int index ) const { return val; }
   TensorPowOp(float v) : val(v) {}
   string operator2() const {
-    return "*out = native_powr(*in1, val1)";
+    return "*out = pow(*in1, val1)";
   }
   string operator1() const {
-    return "*out = native_powr(*out, val1)";
+    return "*out = pow(*out, val1)";
   }
   const float val;
 };
@@ -50,10 +50,10 @@ public:
   float getScalar( int index ) const { return val; }
   TensorTPowOp(float v) : val(v) {}
   string operator2() const {
-    return "*out = native_powr(val1, *in1)";
+    return "*out = pow(val1, *in1)";
   }
   string operator1() const {
-    return "*out = native_powr(val1, *out)";
+    return "*out = pow(val1, *out)";
   }
   const float val;
 };

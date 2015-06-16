@@ -82,10 +82,10 @@ long THClTensor_numel(THClState *state, THClTensor *t)
 class TensorCPowOp : public HasOperator2, public HasOperator3 {
 public:
   string operator2() const {
-    return "*out = native_powr(*out, *in1)";
+    return "*out = pow(*out, *in1)";
   }
   string operator3() const {
-    return "*out = native_powr(*in1, *in2)";
+    return "*out = pow(*in1, *in2)";
   }
 };
 
