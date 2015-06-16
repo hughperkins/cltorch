@@ -366,6 +366,22 @@ function test_reshape()
   luaunit.assertEquals(B, D:float())
 end
 
+function test_intpower()
+  C = torch.ClTensor{{3.3,-2.2,0},{9,7,5}}
+  Cpow = torch.pow(C,2)
+  A = C:float()
+  Apow = torch.pow(A,2)
+  luaunit.assertEquals(Apow, Cpow:float())
+end
+
+function test_powerofneg()
+  C = torch.ClTensor{{3.3,-2.2,0},{9,7,5}}
+  Cpow = torch.pow(C,2.4)
+  A = C:float()
+  Apow = torch.pow(A,2.4)
+  luaunit.assertEquals(Apow, Cpow:float())
+end
+
 os.exit( luaunit.LuaUnit.run() )
 
 

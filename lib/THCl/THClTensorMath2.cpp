@@ -20,10 +20,20 @@ public:
   float getScalar( int index ) const { return val; }
   TensorPowOp(float v) : val(v) {}
   string operator2() const {
-    return "*out = pow(*in1, val1)";
+    int valint = (int)val;
+    if( (float)valint == val ) {
+      return "*out = pown(*in1, val1)";
+    } else {
+      return "*out = pow(*in1, val1)";
+    }
   }
   string operator1() const {
-    return "*out = pow(*out, val1)";
+    int valint = (int)val;
+    if( (float)valint == val ) {
+      return "*out = pown(*out, val1)";
+    } else {
+      return "*out = pow(*out, val1)";
+    }
   }
   const float val;
 };
