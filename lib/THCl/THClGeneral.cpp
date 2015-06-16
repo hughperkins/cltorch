@@ -62,6 +62,12 @@ EasyCL *THClState_getCl(THClState* state) {
 }
 EasyCL *THClState_getClAndDevice(THClState* state, int *p_device) {
   int device = state->currentDevice;
+  if(state->allocatedDevices == 0) {
+    THError("No OpenCL-enabled devices available");
+  }
+  if(state->currentDevice >= state->allocatedDevices || state->currentDevice < 0) {
+    THError("Please use setDevice to choose an available device first");
+  }
   if( state->clByDevice[device] == 0 ) {
     EasyCL *cl = EasyCL::createForIndexedDevice(device);
     state->clByDevice[device] = cl;

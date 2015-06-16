@@ -341,6 +341,15 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 
 # Recent changes
 
+* 15th-17th June:
+  * pow(x,y) no longer returns undefined values for x containing, or being, negative
+  * pow(x,y) now uses `pown` when y is an exact integer scalar (ie where (float)((int)y) == y)
+  * when no opencl-enabled devices enabled, now raise a THError, with a clear error message, rather than throwing a C++ exception, with no error message output
+  * under the hood: added cltorch.getState()
+  * renamed libTHCL.so to libTHCl.so
+  * added THCl include files to `install` section
+  * masked fill works now
+  * torch.addr works now
 * 15th June:
   * C:t() working
 * 14th June:
