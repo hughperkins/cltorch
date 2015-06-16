@@ -31,3 +31,8 @@ port/
 
 build/
 
+generated/
+non-templated/
+templated-auto/
+templates.manual/
+
