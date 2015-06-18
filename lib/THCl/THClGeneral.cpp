@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "EasyCL.h"
+#include <clBLAS.h>
 
 //#include "THCTensorRandom.h"
 //#include "THCBlas.h"
@@ -25,6 +26,14 @@ void THClInit(THClState* state)
   }
   state->currentDevice = 0;
   //state->cl = EasyCL::createForFirstGpuOtherwiseCpu(); // obviously this should change...
+
+    cl_int err;
+
+    err = clblasSetup();
+    if (err != CL_SUCCESS) {
+        THError("clblasSetup() failed with %d", err);
+    }
+
 }
 
 void THClShutdown(THClState* state)
@@ -39,6 +48,8 @@ void THClShutdown(THClState* state)
 //    }
 //  }
 //  delete state->clByDevice;
+    clblasTeardown();
+
   printf("THClShutdown() done\n");
   printf("*******************************************\n");
 }

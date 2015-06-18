@@ -163,10 +163,10 @@ float THClBlas_dot(THClState *state, long n,
 
     cl_int err;
 
-    err = clblasSetup();
-    if (err != CL_SUCCESS) {
-        THError("clblasSetup() failed with %d", err);
-    }
+//    err = clblasSetup();
+//    if (err != CL_SUCCESS) {
+//        THError("clblasSetup() failed with %d", err);
+//    }
     
     CLWrapper *resultWrapper = THClState_getCl(state)->wrap( 1, &result );
     float *scratch = new float[i_n];
@@ -192,7 +192,7 @@ float THClBlas_dot(THClState *state, long n,
     resultWrapper->copyToHost();
 
     /* Finalize work with clblas. */
-    clblasTeardown();
+//    clblasTeardown();
 
 
     delete resultWrapper;
@@ -230,10 +230,10 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, CL
 
     cl_int err;
 
-    err = clblasSetup();
-    if (err != CL_SUCCESS) {
-        THError("clblasSetup() failed with %d", err);
-    }
+//    err = clblasSetup();
+//    if (err != CL_SUCCESS) {
+//        THError("clblasSetup() failed with %d", err);
+//    }
 
     cl_event event = NULL;
     err = clblasSgemv(clblasColumnMajor, op, i_m, i_n, alpha,
@@ -252,7 +252,7 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, CL
     }
 
     /* Finalize work with clblas. */
-    clblasTeardown();
+//    clblasTeardown();
 
     ywrapper->markDeviceDirty();
     return;
@@ -280,12 +280,12 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
 
       cl_int err;
 
-    THClState_getCl(state)->finish();
-      err = clblasSetup();
-      if (err != CL_SUCCESS) {
-          THError("clblasSetup() failed with %d", err);
-      }
-    THClState_getCl(state)->finish();
+//    THClState_getCl(state)->finish();
+//      err = clblasSetup();
+//      if (err != CL_SUCCESS) {
+//          THError("clblasSetup() failed with %d", err);
+//      }
+//    THClState_getCl(state)->finish();
 
       if(!awrap->isOnDevice()) {
         awrap->createOnDevice();
@@ -308,8 +308,8 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
 //    THClState_getCl(state)->finish();
       awrap->markDeviceDirty();
 
-      clblasTeardown();
-    THClState_getCl(state)->finish();
+//      clblasTeardown();
+//    THClState_getCl(state)->finish();
 
 //      THCublasCheck(cublasSger(*state->blasState->current_handle, i_m, i_n, &alpha, x, i_incx, y, i_incy, a, i_lda));
       return;
@@ -367,10 +367,10 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
 
     cl_int err;
 
-    err = clblasSetup();
-    if (err != CL_SUCCESS) {
-        THError("clblasSetup() failed with %d", err);
-    }
+//    err = clblasSetup();
+//    if (err != CL_SUCCESS) {
+//        THError("clblasSetup() failed with %d", err);
+//    }
 
     if( !aWrapper->isOnDevice() ) {
       aWrapper->createOnDevice();
@@ -395,7 +395,7 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
         err = clWaitForEvents(1, &event);
     }
 
-    clblasTeardown();
+//    clblasTeardown();
 
 //    THCublasCheck(cublasSgemm(*state->blasState->current_handle, opa, opb, i_m, i_n, i_k, &alpha, a, i_lda, b, i_ldb, &beta, c, i_ldc));
     return;
