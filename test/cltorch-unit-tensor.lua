@@ -413,6 +413,14 @@ function test_add()
   luaunit.assertEquals(A:clone():add(B), (A:clone():cl():add(B:clone():cl())):double())
 end
 
+function test_cmul()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform()
+  local B = torch.Tensor(s):uniform()
+  luaunit.assertEquals(torch.cmul(A,B), torch.cmul(A:clone():cl(), B:clone():cl()):double())
+  luaunit.assertEquals(A:clone():cmul(B), (A:clone():cl():cmul(B:clone():cl())):double())
+end
+
 -- this function doesnt exist in base torch
 function test_neg()
   -- no neg for Tensors, only for clTensor, but we can use '-' to 
