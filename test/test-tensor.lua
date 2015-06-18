@@ -405,6 +405,18 @@ if os.getenv('PROTOTYPING') ~= nil then
     Aclneg:neg()
     print('Aclneg', Aclneg)
 
+    print('torch.add(A,B)', torch.add(A,B))
+
+    Acladd = A:clone():cl()
+    Acladd:add(B:clone():cl())
+    print('Acladd', Acladd)
+
+     print('A-B', A - B)
+
+    Aclsub = A:clone():cl()
+    Aclsub:sub(B:clone():cl())
+    print('Aclsub', Aclsub)
+
 --  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
 --  F = torch.expand(E, 2)
 --  print('F\n', F)

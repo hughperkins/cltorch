@@ -85,6 +85,41 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
   }
 }
 
+void THClTensor_csub(THClState *state, THClTensor *self_, THClTensor* src1, float value, THClTensor *src2)
+{
+  THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));
+  THArgCheck(THClTensor_nElement(state, src1) ==
+             THClTensor_nElement(state, src2), 3, "sizes do not match");
+
+  if (self_ == src1) {
+    if (value == 1.0f) {
+      // self += src2
+      if (!THClTensor_pointwiseApply2(state, self_, src2, TensorSubOp())) {
+        THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+      }
+    } else {
+      // self += value * src2
+      if (!THClTensor_pointwiseApply2(state, self_, src2, TensorCSubOp(value))) {
+        THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+      }
+    }
+  } else {
+    THClTensor_resizeAs(state, self_, src1);
+
+    if (value == 1.0f) {
+      // self = src1 + src2
+      if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorSubOp())) {
+        THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+      }
+    } else {
+      // self = src1 + value * src2
+      if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorCSubOp(value))) {
+        THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+      }
+    }
+  }
+}
+
 void THClTensor_cmul(THClState *state, THClTensor *self_, THClTensor *src1, THClTensor *src2)
 {
   THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));

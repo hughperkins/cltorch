@@ -55,7 +55,31 @@ public:
         return "*out += val1 * *in1";
     }
     std::string operator3() const {
-        return "*out += *in1 + val1 * *in2";
+        return "*out = *in1 + val1 * *in2";
+    }
+  float val;
+};
+
+class TensorSubOp : public HasOperator2, public HasOperator3 {
+public:
+    std::string operator2() const {
+        return "*out -= *in1";
+    }
+    std::string operator3() const {
+        return "*out = *in1 - *in2";
+    }
+};
+
+class TensorCSubOp : public HasOperator2, public HasOperator3, public HasScalars {
+public:
+  int getNumScalars() const { return 1; }
+  float getScalar(int index) const { return val; }
+  TensorCSubOp(float v) : val(v) {}
+    std::string operator2() const {
+        return "*out -= val1 * *in1";
+    }
+    std::string operator3() const {
+        return "*out = *in1 - val1 * *in2";
     }
   float val;
 };

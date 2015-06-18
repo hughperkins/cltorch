@@ -42,6 +42,28 @@ function torch.FloatTensor.__eq(self, b)
   end
 end
 
+function torch.DoubleTensor.__eq(self, b)
+--  print('======= eq begin ====')
+--  print('self', self)
+  diff = self - b
+--  print('diff1\n', diff)
+  diff = torch.abs(diff) - 0.0001
+  diff = torch.gt(diff, 0)
+--  print('diff', diff)
+  sum = torch.sum(diff)
+--  print('sum', sum)
+  if sum == 0 then
+--    print('======= eq end TRUE ====')
+    return true
+  else
+    print('left\n', self)
+    print('right\n', b)
+    print('diff\n', self - b)
+--    print('======= eq end FALSE ====')
+    return false
+  end
+end
+
 function torch.ClTensor.__eq(self, b)
   print('self', self)
   diff = torch.ne(self, b)
@@ -66,7 +88,7 @@ function test_basic()
   luaunit.assertEquals(' 7\n 4\n 5\n[torch.ClTensor of size 3]\n', tostring(c))
 
   c = torch.ClTensor(3,2)
-  luaunit.assertEquals(' 0  0\n 0  0\n 0  0\n[torch.ClTensor of size 3x2]\n', tostring(c))
+  luaunit.assertEquals('\n 3\n 2\n[torch.LongStorage of size 2]\n', tostring(c:size()))
 
   c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
   luaunit.assertEquals(' 3.0000  1.0000  6.0000\n 2.1000  5.2000  3.9000\n[torch.ClTensor of size 2x3]\n', tostring(c))
@@ -380,6 +402,42 @@ function test_powerofneg()
   A = C:float()
   Apow = torch.pow(A,2.4)
   luaunit.assertEquals(Apow, Cpow:float())
+end
+
+function test_add()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform()
+  local B = torch.Tensor(s):uniform()
+  luaunit.assertEquals(torch.add(A,B), torch.add(A:clone():cl(), B:clone():cl()):double())
+  luaunit.assertEquals(A + B, (A:clone():cl() + B:clone():cl() ):double())
+  luaunit.assertEquals(A:clone():add(B), (A:clone():cl():add(B:clone():cl())):double())
+end
+
+-- this function doesnt exist in base torch
+function test_neg()
+  -- no neg for Tensors, only for clTensor, but we can use '-' to 
+  -- compare
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform()
+  local negA = - A:clone()
+  local negAcl1 = - A:clone():cl()
+  local negAcl2 = A:clone():cl():neg()
+  luaunit.assertEquals(negA, negAcl1:double())
+  luaunit.assertEquals(negA, negAcl2:double())
+end
+
+-- this function doesnt exist in base torch
+function test_sub()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform()
+  local B = torch.Tensor(s):uniform()
+  AsubB = A - B
+  AsubBcl = A:clone():cl() - B:clone():cl()
+  AsubBcl2 = A:clone():cl():sub(B:clone():cl())
+--  AsubBcl3 = torch.sub(A:clone():cl(), B:clone():cl())
+  luaunit.assertEquals(AsubB, AsubBcl:double())
+  luaunit.assertEquals(AsubB, AsubBcl2:double())
+--  luaunit.assertEquals(AsubB, AsubBcl3:double())
 end
 
 os.exit( luaunit.LuaUnit.run() )
