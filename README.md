@@ -349,6 +349,9 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 # Recent changes
 
+* 18th June:
+  * fixed a bug in clBLAS sger that meant that sger crashed on even tiny 5x5 matrices on nvidia, using either rowmajor or columnmajor :-)  https://github.com/clMathLibraries/clBLAS/pull/109
+  * note that you will need to `git submodule update`, and `rm -Rf build/clBLAS`, in order to pick up the new version of clBLAS
 * 15th-17th June:
   * pow(x,y) no longer returns undefined values for x containing, or being, negative
   * pow(x,y) now uses `pown` when y is an exact integer scalar (ie where (float)((int)y) == y)

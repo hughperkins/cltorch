@@ -280,14 +280,26 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
 
       cl_int err;
 
+    THClState_getCl(state)->finish();
       err = clblasSetup();
       if (err != CL_SUCCESS) {
           THError("clblasSetup() failed with %d", err);
       }
+    THClState_getCl(state)->finish();
 
+      cout << "xwrap->isOnDevice() " << xwrap->isOnDevice() << endl;
+      cout << "ywrap->isOnDevice() " << ywrap->isOnDevice() << endl;
+      cout << "awrap->isOnDevice() " << awrap->isOnDevice() << endl;
       if(!awrap->isOnDevice()) {
         awrap->createOnDevice();
       }
+      cout << "awrap->isOnDevice() " << awrap->isOnDevice() << endl;
+    THClState_getCl(state)->finish();
+    cout << "xwrap->getBuffer()->wrapper()->size() " << xwrap->size() << endl;
+    cout << "ywrap->getBuffer()->wrapper()->size() " << ywrap->size() << endl;
+    cout << "awrap->getBuffer()->wrapper()->size() " << awrap->size() << endl;
+    cout << "x_offset " << x_offset << " y_offset " << y_offset << " a_offset " << a_offset<< endl;
+    cout << "i_m " << i_m << " i_n " << i_n << " i_incx " << i_incx << " i_incy " << i_incy << " i_lda " << i_lda << endl;
 
       cl_event event = NULL;
       err = clblasSger(clblasColumnMajor, i_m, i_n, alpha,
@@ -296,15 +308,18 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
                        awrap->getBuffer(), a_offset, i_lda,
                        1, (THClState_getCl(state)->queue), 0, NULL, &event);
       if (err != CL_SUCCESS) {
-          THError("clblasSger() failed with %d", err);
+        throw runtime_error("clblasSger() failed with " + easycl::toString(err));
+        THError("clblasSger() failed with %d", err);
       }
       else {
           /* Wait for calculations to be finished. */
           err = clWaitForEvents(1, &event);
       }
+    THClState_getCl(state)->finish();
       awrap->markDeviceDirty();
 
       clblasTeardown();
+    THClState_getCl(state)->finish();
 
 //      THCublasCheck(cublasSger(*state->blasState->current_handle, i_m, i_n, &alpha, x, i_incx, y, i_incy, a, i_lda));
       return;

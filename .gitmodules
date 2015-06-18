@@ -1,6 +1,6 @@
 [submodule "clBLAS"]
 	path = clMathLibraries/clBLAS
-	url = git@github.com:clMathLibraries/clBLAS.git
+	url = https://github.com/hughperkins/clBLAS
 [submodule "EasyCL"]
 	path = EasyCL
 	url = https://github.com/hughperkins/EasyCL.git

@@ -229,7 +229,7 @@ print(torch.ClTensor({{3,5,2},{4,5,6}}) == torch.ClTensor({{3,5,2},{4,5,6}}))
 --print('end')
 end
 
-if true then
+if false then
 A = torch.ClTensor{{3,2,4},{9,7,5}}
 print('A\n', A)
 print('A:sum(2)', A:sum(2))
@@ -240,7 +240,7 @@ print('torch.max(A,1)', torch.max(A,1))
 print('torch.max(A,2)', torch.max(A,2))
 end
 
-if true then
+if false then
   c = torch.ClTensor{3,5,2}
   print('torch.isTensor(c)', torch.isTensor(c))
   print('c:nDimension()', c:nDimension())
@@ -259,7 +259,7 @@ if true then
   print('C:storageOffset()', C:storageOffset())
 end
 
-if true then
+if false then
   c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
   c:fill(1.345)
   print('c\n', c)
@@ -280,7 +280,7 @@ if true then
   print('d\n', d)
 end
 
-if true then
+if false then
   C = torch.ClTensor{{3,2,4},{9,7,5}}
   A = C:float()
   print('C\n', C)
@@ -292,7 +292,7 @@ if true then
   print(C:t())
 end
 
-if true then
+if false then
   C = torch.ClTensor{{3,2},{9,7}}
   D = torch.ClTensor{{3,1,7},{3,2,4}}
   E = torch.ClTensor{{3,1},{2,9},{3,2}}
@@ -310,7 +310,7 @@ if true then
   print(torch.addr(C:float(), d:float(), e:float()))
 end
 
-if true then
+if false then
   E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
   print('E\n', E)
   F = E:narrow(1,2,3)
@@ -349,14 +349,46 @@ if true then
 end
 
 if os.getenv('PROTOTYPING') ~= nil then
-  input = torch.ClTensor{3,5,2}
-  output = torch.ClTensor()
-  weight = torch.ClTensor{{0.2, -0.2, 0.3},
-                        {0.4,-0.1, -0.5}}
-  bias = torch.ClTensor{0.1, -0.2}
-  output:resize(bias:size(1))
-  output:copy(bias)
-  output:addmv(1, weight, input)
+--  input = torch.ClTensor{3,5,2}
+--  output = torch.ClTensor()
+--  weight = torch.ClTensor{{0.2, -0.2, 0.3},
+--                        {0.4,-0.1, -0.5}}
+--  bias = torch.ClTensor{0.1, -0.2}
+--  output:resize(bias:size(1))
+--  output:copy(bias)
+--  output:addmv(1, weight, input)
+
+ -- this fails currently, needs 2stage reduceall:
+--  A = torch.Tensor(28*28*1280,10):uniform():cl()
+--  A:fill(2.5)
+--  print(A[100][5])
+--  A = A + 2
+--  print(A[100][5])
+--  print(torch.sum(A))
+
+--  C = torch.ClTensor(128,10)
+--  D = torch.ClTensor(128,10)
+--  C:fill(3)
+--  D:fill(1)
+--  print(C - D) 
+
+    addBuffer = torch.Tensor(128):fill(0.1):cl()
+    bias = torch.Tensor(10):fill(0.1):cl()
+    output = torch.Tensor(128,10):fill(0.1):cl()
+
+  C = torch.ClTensor(128,10)
+  D = torch.ClTensor(128,10)
+  C:fill(3)
+  D:fill(1)
+  print(C - D) 
+
+--    bias:fill(0.1)
+--    addBuffer:fill(0.1)
+    print('bias', bias)
+    print('bias.storage', bias:storage())
+    output:addr(1,addBuffer,bias)
+--      self.output:addr(1, self.addBuffer, self.bias)
+    print('output\n', output)
 
 --  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
 --  F = torch.expand(E, 2)

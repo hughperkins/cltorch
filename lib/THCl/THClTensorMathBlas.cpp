@@ -227,6 +227,8 @@ void THClTensor_addmm(THClState *state, THClTensor *r_, float beta, THClTensor *
 
 void THClTensor_addr(THClState *state, THClTensor *r_, float beta, THClTensor *t, float alpha, THClTensor *vec1, THClTensor *vec2)
 {
+  cout << "vec1->storage->wrapper->isOnDevice() " << vec1->storage->wrapper->isOnDevice() << endl;
+  cout << "vec2->storage->wrapper->isOnDevice() " << vec2->storage->wrapper->isOnDevice() << endl;
   THAssert(THClTensor_checkGPU(state, 4, r_, t, vec1, vec2));
   if( (vec1->nDimension != 1) || (vec2->nDimension != 1) )
     THError("vector and vector expected");
@@ -239,12 +241,16 @@ void THClTensor_addr(THClState *state, THClTensor *r_, float beta, THClTensor *t
 
   if(r_ != t)
   {
+    cout << "r_ != t " << endl;
     THClTensor_resizeAs(state, r_, t);
     THClTensor_copy(state, r_, t);
   }
 
   if(beta != 1)
+  {
+    cout << "beta != 1" << endl;
     THClTensor_mul(state, r_, r_, beta);
+  }
 
   if(r_->stride[0] == 1)
   {
