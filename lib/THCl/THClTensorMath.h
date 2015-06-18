@@ -69,6 +69,9 @@ THCL_API void THClTensor_sign(THClState *state, THClTensor *self, THClTensor *sr
 THCL_API void THClTensor_round(THClState *state, THClTensor *self, THClTensor *src);
 TH_API void THClTensor_atan2(THClState *state, THClTensor *r_, THClTensor *tx, THClTensor *ty);
 
+// this doesnt exist in torch or cutorch. original development :-P
+THCL_API void THClTensor_neg(THClState *state, THClTensor *self, THClTensor *src);
+
 THCL_API void THClTensor_ltValue(THClState *state, THClTensor *self_, THClTensor *src, float value);
 THCL_API void THClTensor_gtValue(THClState *state, THClTensor *self_, THClTensor *src, float value);
 THCL_API void THClTensor_leValue(THClState *state, THClTensor *self_, THClTensor *src, float value);

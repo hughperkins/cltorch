@@ -390,6 +390,21 @@ if os.getenv('PROTOTYPING') ~= nil then
 --      self.output:addr(1, self.addBuffer, self.bias)
     print('output\n', output)
 
+    A = torch.Tensor(5,3):uniform()
+    B = torch.Tensor(5,3):uniform()
+    print('Res', torch.cmul(A,B))
+    print('ResCl', torch.cmul(A:clone():cl(), B:clone():cl()))
+
+    print('pow', torch.pow(A,2))
+    print('pow cl', torch.pow(A:clone():cl(),2))
+
+    print('- op', - A)
+    print('- op', - A:clone():cl())
+
+    Aclneg = A:clone():cl()
+    Aclneg:neg()
+    print('Aclneg', Aclneg)
+
 --  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
 --  F = torch.expand(E, 2)
 --  print('F\n', F)

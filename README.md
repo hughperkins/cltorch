@@ -168,9 +168,10 @@ print(A:reshape(3,2))
 <tr><td>Element-wise operations<td>Done<td><pre>
 c:abs()
 for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
-   'atan', 'tanh', 'ceil', 'floor', 'abs', 'round'}) do
+   'atan', 'tanh', 'ceil', 'floor', 'abs', 'round', 'neg'}) do
   loadstring('c:' .. name .. '()')()
 end
+-- note: neg is original, not part of torch or cutorch
 </pre>
 </tr>
 
@@ -353,6 +354,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * fixed a bug in clBLAS sger that meant that sger crashed on even tiny 5x5 matrices on nvidia, using either rowmajor or columnmajor :-)  https://github.com/clMathLibraries/clBLAS/pull/109
   * note that you will need to `git submodule update`, and `rm -Rf build/clBLAS`, in order to pick up the new version of clBLAS
   * moved clBLAS initialization code out of inner loops => huge speed boost
+  * added `:neg()` operator, which negates the tensor (like `-` but without reallocation, I think)
 * 15th-17th June:
   * pow(x,y) no longer returns undefined values for x containing, or being, negative
   * pow(x,y) now uses `pown` when y is an exact integer scalar (ie where (float)((int)y) == y)
