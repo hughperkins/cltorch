@@ -277,7 +277,7 @@ A:min(2) -- only returns the result, not the indices
 c:sub(d) -- subtracts d from c, element-wise
          -- similar to 'c - d'
          -- but stores results into c
-a:neg() -- basically the same as '- a'
+a:neg() -- similar to '- a'
         -- but stores results into a
 </pre></tr>
 
