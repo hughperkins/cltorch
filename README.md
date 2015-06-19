@@ -168,10 +168,9 @@ print(A:reshape(3,2))
 <tr><td>Element-wise operations<td>Done<td><pre>
 c:abs()
 for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
-   'atan', 'tanh', 'ceil', 'floor', 'abs', 'round', 'neg'}) do
+   'atan', 'tanh', 'ceil', 'floor', 'abs', 'round'}) do
   loadstring('c:' .. name .. '()')()
 end
--- note: neg is original, not part of torch or cutorch
 </pre>
 </tr>
 
@@ -179,7 +178,6 @@ end
 d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
 c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
 c:add(d)
-c:sub(d) -- note: original, not in torch/cutorch
 c:cmul(d)
 c:cdiv(d)
 c:add(3)
@@ -272,6 +270,11 @@ A:min()
 A:min(1) -- only returns the result, not the indices
 A:min(2) -- only returns the result, not the indices
 
+</pre></tr>
+
+<tr><td>Original work, not in torch or cutorch<td>N/A<td><pre>
+c:sub(d) -- subtracts d from c, element-wise, similar to 'c - d', but I think without causing new allocation?
+a:neg() -- basically the same as '- a', but I think it doesnt cause new allocation?
 </pre></tr>
 
 </table>
