@@ -347,6 +347,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
   * added `a:sub(b)` method, which does element-wise subtraction of b from a, and puts results in a
   * migrated to new version of EasyCL, with one fewer waitforevents, to try to boost perf a bit
+  * added `apply`, `map`, `map2` :-)  (which run on GPU, at full speed)
 * 18th June:
   * fixed a bug in clBLAS sger that meant that sger crashed on even tiny 5x5 matrices on nvidia, using either rowmajor or columnmajor :-)  https://github.com/clMathLibraries/clBLAS/pull/109
   * note that you will need to `git submodule update`, and `rm -Rf build/clBLAS`, in order to pick up the new version of clBLAS
