@@ -458,6 +458,16 @@ function test_apply()
   luaunit.assertEquals(Aapply, Aapplycl:double())
 end
 
+function test_map()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform()
+  local B = torch.Tensor(s):uniform()
+  local AmapB = A:clone():map(B, function(x, y) return math.sqrt(x*x + y*y + 3) end)
+  local AmapBcl = A:clone():cl():map(B:clone():cl(), 
+    "*out = sqrt(*out * *out + *in1 * *in1 + 3)")
+  luaunit.assertEquals(AmapB, AmapBcl:double())
+end
+
 os.exit( luaunit.LuaUnit.run() )
 
 

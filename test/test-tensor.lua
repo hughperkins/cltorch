@@ -399,16 +399,40 @@ if false then
 
 end
 
-if os.getenv('PROTOTYPING') ~= nil then
+if true then
    A = torch.Tensor(3,2):uniform()
    print('A\n', A)
    A:apply(function(x) return x + 3 end)
    print('A\n', A)
 
    C = A:clone():cl()
+
    print('C\n', C)
    C:apply("*out = sqrt(*out + 3.5)")
    print('C\n', C)
+end
+
+if os.getenv('PROTOTYPING') ~= nil then
+
+   A = torch.Tensor(3,2):uniform()
+   B = torch.Tensor(3,2):uniform()
+   print('A\n', A)
+   print('B\n', B)
+   Acopy = A:clone()
+   Acopy:map(B, function(a, b) return 1000 * a + b * 10 end)
+   print('A\n', Acopy)
+
+   Acl = A:clone():cl()
+   Bcl = B:clone():cl()
+
+   Acopycl = Acl:clone()
+   Acopycl:map(Bcl, "*out = 1000 * *out + *in1 * 10")
+   print('Acopycl\n', Acopycl)
+
+--   print('C\n', C)
+--   C:apply("*out = sqrt(*out + 3.5)")
+--   print('C\n', C)
+
 
 --  input = torch.ClTensor{3,5,2}
 --  output = torch.ClTensor()

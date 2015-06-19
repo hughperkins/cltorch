@@ -119,6 +119,7 @@ THCL_API void THClTensor_neg(THClState *state, THClTensor *self, THClTensor *src
 THCL_API void THClTensor_sub(THClState *state, THClTensor *self, THClTensor *src, float value);
 THCL_API void THClTensor_csub(THClState *state, THClTensor *self, THClTensor *src1, float value, THClTensor *src2);
 THCL_API void THClTensor_apply(THClState* state, THClTensor* self, char const * operation1);
+THCL_API void THClTensor_map(THClState* state, THClTensor* self, THClTensor* two, char const * operation2);
 
 #endif
 

@@ -1040,62 +1040,62 @@ static void torch_Tensor_(c_readTensorStorageSizeStride)(lua_State *L, int index
       luaL_argcheck(L, 0, index, "expecting number");
 }
 
-static int torch_Tensor_(apply)(lua_State *L)
-{
-  THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
-/*  luaL_checktype(L, 2, LUA_TFUNCTION);*/
-  char const*operation = luaL_checkstring(L, 2);
-  printf("apply operation %s\n", operation);
-  lua_settop(L, 2);
-  // this should probably not go here in fact, move to cwrap etc...
+//static int torch_Tensor_(apply)(lua_State *L)
+//{
+//  THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
+///*  luaL_checktype(L, 2, LUA_TFUNCTION);*/
+//  char const*operation = luaL_checkstring(L, 2);
+//  printf("apply operation %s\n", operation);
+//  lua_settop(L, 2);
+//  // this should probably not go here in fact, move to cwrap etc...
 
-  THError("not implemented, please convert to FloatTensor first, then back to ClTensor");
-//  THClTensor_applyInlineOp1(THClState* state, THClTensor* self_, THClTensor* src, char const *operation1);
+//  THError("not implemented, please convert to FloatTensor first, then back to ClTensor");
+////  THClTensor_applyInlineOp1(THClState* state, THClTensor* self_, THClTensor* src, char const *operation1);
 
-//  TH_TENSOR_APPLY(real, tensor,
-//                  lua_pushvalue(L, 2);
+////  TH_TENSOR_APPLY(real, tensor,
+////                  lua_pushvalue(L, 2);
+////                  lua_pushnumber(L, *tensor_data);
+////                  lua_call(L, 1, 1);
+////                  if(lua_isnumber(L, 3))
+////                  {
+////                    *tensor_data = (real)lua_tonumber(L, 3);
+////                    lua_pop(L, 1);
+////                  }
+////                  else if(lua_isnil(L, 3))
+////                    lua_pop(L, 1);
+////                  else
+////                    luaL_error(L, "given function should return a number or nil"););
+
+//  lua_settop(L, 1);
+//  return 1;
+//}
+
+//static int torch_Tensor_(map)(lua_State *L)
+//{
+//  THError("not implemented, please convert to FloatTensor first, then back to ClTensor");
+//  THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
+//  THTensor *src = luaT_checkudata(L, 2, torch_Tensor);
+//  luaL_checktype(L, 3, LUA_TFUNCTION);
+//  lua_settop(L, 3);
+
+//  TH_TENSOR_APPLY2(real, tensor, real, src,
+//                  lua_pushvalue(L, 3);
 //                  lua_pushnumber(L, *tensor_data);
-//                  lua_call(L, 1, 1);
-//                  if(lua_isnumber(L, 3))
+//                  lua_pushnumber(L, *src_data);
+//                  lua_call(L, 2, 1);
+//                  if(lua_isnumber(L, 4))
 //                  {
-//                    *tensor_data = (real)lua_tonumber(L, 3);
+//                    *tensor_data = (real)lua_tonumber(L, 4);
 //                    lua_pop(L, 1);
 //                  }
-//                  else if(lua_isnil(L, 3))
+//                  else if(lua_isnil(L, 4))
 //                    lua_pop(L, 1);
 //                  else
 //                    luaL_error(L, "given function should return a number or nil"););
 
-  lua_settop(L, 1);
-  return 1;
-}
-
-static int torch_Tensor_(map)(lua_State *L)
-{
-  THError("not implemented, please convert to FloatTensor first, then back to ClTensor");
-  THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
-  THTensor *src = luaT_checkudata(L, 2, torch_Tensor);
-  luaL_checktype(L, 3, LUA_TFUNCTION);
-  lua_settop(L, 3);
-
-  TH_TENSOR_APPLY2(real, tensor, real, src,
-                  lua_pushvalue(L, 3);
-                  lua_pushnumber(L, *tensor_data);
-                  lua_pushnumber(L, *src_data);
-                  lua_call(L, 2, 1);
-                  if(lua_isnumber(L, 4))
-                  {
-                    *tensor_data = (real)lua_tonumber(L, 4);
-                    lua_pop(L, 1);
-                  }
-                  else if(lua_isnil(L, 4))
-                    lua_pop(L, 1);
-                  else
-                    luaL_error(L, "given function should return a number or nil"););
-
-  lua_settop(L, 1);
-  return 1;
-}
+//  lua_settop(L, 1);
+//  return 1;
+//}
 
 static int torch_Tensor_(map2)(lua_State *L)
 {
@@ -1211,7 +1211,7 @@ static const struct luaL_Reg torch_Tensor_(_) [] = {
   {"nElement", torch_Tensor_(nElement)},
   {"copy", torch_Tensor_(copy)},
 //  {"apply", torch_Tensor_(apply)},
-  {"map", torch_Tensor_(map)},
+//  {"map", torch_Tensor_(map)},
   {"map2", torch_Tensor_(map2)},
   {"read", torch_Tensor_(read)},
   {"write", torch_Tensor_(write)},

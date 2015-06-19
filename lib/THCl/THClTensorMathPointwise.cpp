@@ -66,6 +66,22 @@ void THClTensor_apply(THClState* state, THClTensor* self, char const *operation1
 //  }
 }
 
+void THClTensor_map(THClState* state, THClTensor* self, THClTensor *in1, char const *operation2) {
+  THAssert(THClTensor_checkGPU(state, 2, self, in1));
+//  if (self == src) {
+    if (!THClTensor_pointwiseApply2(state, self, in1, TensorGenOpFullInline2(operation2))) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+//  } else {
+//    THError("not implemented (though we could... :-) )");
+//    THClTensor_resizeAs(state, self_, src);
+
+//    if (!THClTensor_pointwiseApply2(state, self_, src, TensorGenOp(#CFUNC))) {
+//      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+//    }
+//  }
+}
+
 void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, float value, THClTensor *src2)
 {
   THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));

@@ -274,6 +274,12 @@ wrap("apply",
      {{name=Tensor, returned=true},
       {name="string"}})
 
+wrap("map",
+     cname("map"),
+     {{name=Tensor, returned=true},
+      {name=Tensor},
+      {name="string"}})
+
 wrap("zero",
      cname("zero"),
      {{name=Tensor, returned=true}})
