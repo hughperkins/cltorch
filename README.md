@@ -276,9 +276,9 @@ A:min(2) -- only returns the result, not the indices
 <tr><td>Original, not in torch or cutorch<td>N/A<td><pre>
 c:sub(d) -- subtracts d from c, element-wise
          -- similar to 'c - d'
-         -- but I think without causing new allocation?
+         -- but without causing new allocation
 a:neg() -- basically the same as '- a'
-        -- but I think it doesnt cause new allocation?
+        -- but doesnt cause new allocation
 </pre></tr>
 
 </table>
