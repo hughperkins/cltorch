@@ -167,8 +167,9 @@ print(A:reshape(3,2))
 
 <tr><td>Element-wise operations<td>Done<td><pre>
 c:abs()
-for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
-   'atan', 'tanh', 'ceil', 'floor', 'abs', 'round'}) do
+for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin',
+   'asin', 'atan', 'tanh', 'ceil', 'floor', 'abs', 
+   'round'}) do
   loadstring('c:' .. name .. '()')()
 end
 </pre>
