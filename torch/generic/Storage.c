@@ -15,7 +15,29 @@ static int torch_Storage_(new)(lua_State *L)
   }
   else if(lua_type(L, 1) == LUA_TTABLE)
   {
-    THError("Please create like this: torch.Tensor(mytable):cl()");
+    long size = lua_objlen(L, 1);
+    long i;
+    THFloatStorage *storage = THFloatStorage_newWithSize(size);
+    for(i = 1; i <= size; i++)
+    {
+      lua_rawgeti(L, 1, i);
+      if(!lua_isnumber(L, -1))
+      {
+        THFloatStorage_free(storage);
+        luaL_error(L, "element at index %d is not a number", i);
+      }
+      THFloatStorage_set(storage, i-1, (real)lua_tonumber(L, -1));
+      lua_pop(L, 1);
+    }
+
+    THStorage *storagecl = THStorage_(newWithSize)(state, size);
+    THStorage_(copyFloat)(state, storagecl, storage);
+    THFloatStorage_free(storage);
+
+  luaT_pushudata(L, storagecl, "torch.ClStorage");
+  return 1;
+
+//    THError("Please create like this: torch.Tensor(mytable):cl()");
 //    long size = lua_objlen(L, 1);
 //    long i;
 //    storage = THStorage_(newWithSize)(state, size);

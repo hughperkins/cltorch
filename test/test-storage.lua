@@ -28,12 +28,12 @@ print('num devices:', cltorch.getDeviceCount())
 c = torch.ClStorage()
 print('c1\n', c)
 
-c = torch.ClStorage(3)
-print('c2\n', c)
-c[1] = 5
-print('c3\n', c)
-c[3] = 7
-print('c4\n', c)
+--c = torch.ClStorage(3)
+--print('c2\n', c)
+--c[1] = 5
+--print('c3\n', c)
+--c[3] = 7
+--print('c4\n', c)
 -- print('c' .. c)
 
 c = torch.ClStorage{4,9,2}
@@ -52,9 +52,9 @@ print('bbbbb\n', b)
 c:copy(a)
 print('c7\n', c)
 
-c[2] = 21
-print('c8\n', c)
-print('aaaaaa\n', a)
+--c[2] = 21
+--print('c8\n', c)
+--print('aaaaaa\n', a)
 a:copy(c)
 print('aaaaaa\n', a)
 

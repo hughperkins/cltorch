@@ -20,9 +20,10 @@ function test_basic()
   a:copy(c)  
   luaunit.assertEquals(tostring(a), '\n 4\n 9\n 2\n[torch.DoubleStorage of size 3]\n')
 
-  c = torch.ClStorage{4,9,2}
-  c[2] = 21
-  luaunit.assertEquals(tostring(c), '\n  4\n 21\n  2\n[torch.ClStorage of size 3]\n')
+-- removed, since copies whole buffer :-(
+--  c = torch.ClStorage{4,9,2}
+--  c[2] = 21
+--  luaunit.assertEquals(tostring(c), '\n  4\n 21\n  2\n[torch.ClStorage of size 3]\n')
 
   c = torch.ClStorage{4,9,2}
   d = torch.ClStorage(3)
