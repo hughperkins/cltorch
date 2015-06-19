@@ -65,6 +65,10 @@ void THFloatStorage_copyCl(THClState *state, THFloatStorage *self, struct THClSt
 {
 //  cout << "THfloatStorage_copyCl" << endl;
   THArgCheck(self->size == src->size, 2, "size does not match");
+  if( src->size == 0 ) {
+    // dont need to do anything...
+    return;
+  }
   if( src->wrapper->isDeviceDirty() ) {
     src->wrapper->copyToHost();
     if(THClStorage_traceOn) cout << "wrapper->copyToHost() size" << self->size << endl;
