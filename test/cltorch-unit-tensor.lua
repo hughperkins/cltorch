@@ -450,6 +450,14 @@ function test_sub()
 --  luaunit.assertEquals(AsubB, AsubBcl3:double())
 end
 
+function test_apply()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform()
+  local Aapply = A:clone():apply(function(x) return math.sqrt(x+3) end)
+  local Aapplycl = A:clone():cl():apply("*out = sqrt(*out + 3)")
+  luaunit.assertEquals(Aapply, Aapplycl:double())
+end
+
 os.exit( luaunit.LuaUnit.run() )
 
 
