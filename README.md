@@ -333,6 +333,14 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 * Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
 * (Ditto for any build errors)
 
+# Unit tests / samples
+
+* There are unit tests at:
+  * For ClStorage: [test/cltorch-unit-storage.lua](test/cltorch-unit-storage.lua)
+  * For ClTensor: [test/cltorch-unit-tensor.lua](test/cltorch-unit-tensor.lua)
+* There's also a sample of interrogating devices at:
+  * [test/test-device.lua](test/test-device.lua)
+
 # Guidelines for contributors
 
 You might or might not find [ContributorGuidelines.md](doc/ContributorGuidelines.md) useful.  Not required reading, but it is there if you want to see my own thoughts and ideas on how I am currently approaching cltorch development, and cutorch-porting.
