@@ -1,9 +1,11 @@
-function torch.ClTensor.apply(self, func)
-   local x = torch.FloatTensor(self:size()):copy(self)
-   x:apply(func)
-   self:copy(x)
-   return self
-end
+-- this is misleading, since it copies onto cpu, and does it on cpu
+-- lets remove it...
+--function torch.ClTensor.apply(self, func)
+--   local x = torch.FloatTensor(self:size()):copy(self)
+--   x:apply(func)
+--   self:copy(x)
+--   return self
+--end
 
 local function Tensor__type(self,type)
    local current = torch.typename(self)
@@ -72,6 +74,7 @@ rawset(torch.getmetatable('torch.ClTensor'), 'long', Tensor__long)
 
 do
     local metatable = torch.getmetatable('torch.ClTensor')
+    -- hmmm, maybe these are running on cpu? :-P
     for _,func in pairs{'expand', 'expandAs', 'view', 'viewAs', 'repeatTensor',
                         'permute', 'split', 'chunk'} do
         rawset(metatable, func, torch[func])

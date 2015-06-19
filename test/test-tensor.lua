@@ -354,42 +354,62 @@ end
 if false then
 --    bias:fill(0.1)
 --    addBuffer:fill(0.1)
-    print('bias', bias)
-    print('bias.storage', bias:storage())
-    output:addr(1,addBuffer,bias)
+  print('bias', bias)
+  print('bias.storage', bias:storage())
+  output:addr(1,addBuffer,bias)
 --      self.output:addr(1, self.addBuffer, self.bias)
-    print('output\n', output)
+  print('output\n', output)
 
-    A = torch.Tensor(5,3):uniform()
-    B = torch.Tensor(5,3):uniform()
-    print('Res', torch.cmul(A,B))
-    print('ResCl', torch.cmul(A:clone():cl(), B:clone():cl()))
+  A = torch.Tensor(5,3):uniform()
+  B = torch.Tensor(5,3):uniform()
+  print('Res', torch.cmul(A,B))
+  print('ResCl', torch.cmul(A:clone():cl(), B:clone():cl()))
 
-    print('pow', torch.pow(A,2))
-    print('pow cl', torch.pow(A:clone():cl(),2))
+  print('pow', torch.pow(A,2))
+  print('pow cl', torch.pow(A:clone():cl(),2))
 
-    print('- op', - A)
-    print('- op', - A:clone():cl())
+  print('- op', - A)
+  print('- op', - A:clone():cl())
 
-    Aclneg = A:clone():cl()
-    Aclneg:neg()
-    print('Aclneg', Aclneg)
+  Aclneg = A:clone():cl()
+  Aclneg:neg()
+  print('Aclneg', Aclneg)
 
-    print('torch.add(A,B)', torch.add(A,B))
+  print('torch.add(A,B)', torch.add(A,B))
 
-    Acladd = A:clone():cl()
-    Acladd:add(B:clone():cl())
-    print('Acladd', Acladd)
+  Acladd = A:clone():cl()
+  Acladd:add(B:clone():cl())
+  print('Acladd', Acladd)
 
-     print('A-B', A - B)
+   print('A-B', A - B)
 
-    Aclsub = A:clone():cl()
-    Aclsub:sub(B:clone():cl())
-    print('Aclsub', Aclsub)
+  Aclsub = A:clone():cl()
+  Aclsub:sub(B:clone():cl())
+  print('Aclsub', Aclsub)
+
+  addBuffer = torch.Tensor(128):fill(0.1):cl()
+  bias = torch.Tensor(10):fill(0.1):cl()
+  output = torch.Tensor(128,10):fill(0.1):cl()
+
+  C = torch.ClTensor(128,10)
+  D = torch.ClTensor(128,10)
+  C:fill(3)
+  D:fill(1)
+  print(C - D) 
 
 end
 
 if os.getenv('PROTOTYPING') ~= nil then
+   A = torch.Tensor(3,2):uniform()
+   print('A\n', A)
+   A:apply(function(x) return x + 3 end)
+   print('A\n', A)
+
+   C = A:clone():cl()
+   print('C\n', C)
+   C:apply(function(x) return x + 3 end)
+   print('C\n', C)
+
 --  input = torch.ClTensor{3,5,2}
 --  output = torch.ClTensor()
 --  weight = torch.ClTensor{{0.2, -0.2, 0.3},
@@ -412,16 +432,6 @@ if os.getenv('PROTOTYPING') ~= nil then
 --  C:fill(3)
 --  D:fill(1)
 --  print(C - D) 
-
-    addBuffer = torch.Tensor(128):fill(0.1):cl()
-    bias = torch.Tensor(10):fill(0.1):cl()
-    output = torch.Tensor(128,10):fill(0.1):cl()
-
-  C = torch.ClTensor(128,10)
-  D = torch.ClTensor(128,10)
-  C:fill(3)
-  D:fill(1)
-  print(C - D) 
 
 --  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
 --  F = torch.expand(E, 2)

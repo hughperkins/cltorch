@@ -1042,6 +1042,7 @@ static void torch_Tensor_(c_readTensorStorageSizeStride)(lua_State *L, int index
 
 static int torch_Tensor_(apply)(lua_State *L)
 {
+  THError("not implemented, please convert to FloatTensor first, then back to ClTensor");
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   luaL_checktype(L, 2, LUA_TFUNCTION);
   lua_settop(L, 2);
@@ -1066,6 +1067,7 @@ static int torch_Tensor_(apply)(lua_State *L)
 
 static int torch_Tensor_(map)(lua_State *L)
 {
+  THError("not implemented, please convert to FloatTensor first, then back to ClTensor");
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   THTensor *src = luaT_checkudata(L, 2, torch_Tensor);
   luaL_checktype(L, 3, LUA_TFUNCTION);
@@ -1092,6 +1094,7 @@ static int torch_Tensor_(map)(lua_State *L)
 
 static int torch_Tensor_(map2)(lua_State *L)
 {
+  THError("not implemented, please convert to FloatTensor first, then back to ClTensor");
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   THTensor *src1 = luaT_checkudata(L, 2, torch_Tensor);
   THTensor *src2 = luaT_checkudata(L, 3, torch_Tensor);
