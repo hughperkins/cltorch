@@ -41,12 +41,10 @@ print('current device: ', cltorch.getDevice())
 <tr><td> torch.ClStorage <td> works <td><pre>
 c = torch.ClStorage()
 c = torch.ClStorage(3)
-c[1] = 5
 c = torch.ClStorage{4,9,2}
 c:fill(7)
 a = torch.Storage{1.5, 2.4, 5.3}
 c:copy(a)
-c[2] = 21
 a:copy(c)
 d = torch.ClStorage(3)
 d:copy(c)
@@ -120,7 +118,6 @@ d:resizeAs(c)
   F = E:sub(2,3,2,2)
   E:select(1,2):fill(99)
   x = torch.Tensor(5, 6):zero()
-  x[{ 1,3 }] = 1
   x[{ 2,{2,4} }] = 2 
   x[{ {},4 }] = -1
   x[{ {},2 }] = torch.range(1,5) 
@@ -353,6 +350,10 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 * 20th June:
   * rename new `sub` method to `csub` so doesnt collide with existing `sub`
+  * added `cltorch.setTrace(1|0)`, which prints out every allocate or copy of gpu buffers (named 'wrapper's)
+  * removed `set` and `get` methods, because cause repeated gpu buffer copy (actually, get not too bad, but does copy whole buffer; set copies whole buffer, repeatedly :-P )
+  * modifed ClStorage.__string__ to first copy whole storage to FloatStorage, once, then convert this to string, rather than using now non-existent `get`
+  * `torch.ClTensor{3,5,2}` will now first create this as a `FloatTensor` then call `copy` on this, to convert whole Tensor/Storage to `ClTensor` (avoids repeated `set` calls)
 * 19th June:
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
   * added `a:sub(b)` method, which does element-wise subtraction of b from a, and puts results in a

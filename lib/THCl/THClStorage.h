@@ -8,6 +8,8 @@
 #define TH_STORAGE_RESIZABLE  2
 #define TH_STORAGE_FREEMEM    4
 
+extern int THClStorage_traceOn;
+
 typedef struct THClStorage
 {
   int device;
@@ -27,8 +29,8 @@ THCL_API float* THClStorage_data(THClState *state, const THClStorage*);
 THCL_API long THClStorage_size(THClState *state, const THClStorage*);
 
 /* slow access -- checks everything */
-THCL_API void THClStorage_set(THClState *state, THClStorage*, long, float);
-THCL_API float THClStorage_get(THClState *state, const THClStorage*, long);
+//THCL_API void THClStorage_set(THClState *state, THClStorage*, long, float);
+//THCL_API float THClStorage_get(THClState *state, const THClStorage*, long);
 
 THCL_API THClStorage* THClStorage_new(THClState *state);
 THCL_API THClStorage* THClStorage_newWithSize(THClState *state, long size);

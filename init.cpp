@@ -17,6 +17,7 @@ extern "C" {
 }
 
 #include "THClGeneral.h"
+#include "THClStorage.h"
 
 namespace cltorch {
   void setProperty(lua_State *L, string name, int value)
@@ -98,12 +99,24 @@ namespace cltorch {
     return 1;
   }
 
+  // if you turn this to 1, you will see all copies of data between
+  // host and gpu
+  // useful for checking we're not doing this too often...
+  static int cltorch_setTrace(lua_State *L)
+  {
+//    THClState *state = cltorch_getstate(L);
+    int trace = luaL_checknumber(L, 1);
+    THClStorage_traceOn = trace;
+    return 0;
+  }
+
   static const struct luaL_Reg cltorch_stuff__ [] = {
     {"getDevice", cltorch_getDevice},
     {"setDevice", cltorch_setDevice},
     {"getDeviceCount", cltorch_getDeviceCount},
     {"getDeviceProperties", cltorch_getDeviceProperties},
     {"getState", cltorch_getState},
+    {"setTrace", cltorch_setTrace},
     {NULL, NULL}
   };
 }

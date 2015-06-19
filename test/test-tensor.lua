@@ -12,11 +12,8 @@ function torch.traceon(state)
 end
 
 if os.getenv('TRACEON') ~= nil then
-  -- following command needs https://github.com/hughperkins/torch7.git, branch
-  --                         add-trace
-  -- lets one see storage allocs/copies
   function torch.traceon(state)
-    torch.setstoragetrace(state)
+    cltorch.setTrace(state)
   end
 end
 
@@ -58,9 +55,9 @@ b = torch.Tensor{{4,2,-2},{3.1,1.2,4.9}}
 b[1][2] = 2.123
 print('b2\n', b)
 
-c = torch.ClTensor{{4,2,-2},{3.1,1.2,4.9}}
-c[1][2] = 2.123
-print('c5\n', c)
+--c = torch.ClTensor{{4,2,-2},{3.1,1.2,4.9}}
+--c[1][2] = 2.123
+--print('c5\n', c)
 
 b[1][2] = 5.432
 c:copy(b)
@@ -102,8 +99,12 @@ for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
   print('c3\n', c)
 end
 
+c = c:float()
+d = d:float()
 c[2][1] = d[2][1]
 c[1][2] = d[1][2]
+c = c:cl()
+d = d:cl()
 for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
   print('name', name)
   print(loadstring('return torch.' .. name .. '(c,d)')())
@@ -210,7 +211,6 @@ print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
 print(torch.mv(A,v1))
 end
 
-
 -------------------
 
 if true then
@@ -253,7 +253,7 @@ print(torch.ClTensor({{3,5,2},{4,5,6}}) == torch.ClTensor({{3,5,2},{4,5,6}}))
 --print('end')
 end
 
-if false then
+if true then
 A = torch.ClTensor{{3,2,4},{9,7,5}}
 print('A\n', A)
 print('A:sum(2)', A:sum(2))
@@ -264,7 +264,7 @@ print('torch.max(A,1)', torch.max(A,1))
 print('torch.max(A,2)', torch.max(A,2))
 end
 
-if false then
+if true then
   c = torch.ClTensor{3,5,2}
   print('torch.isTensor(c)', torch.isTensor(c))
   print('c:nDimension()', c:nDimension())
@@ -283,7 +283,7 @@ if false then
   print('C:storageOffset()', C:storageOffset())
 end
 
-if false then
+if true then
   c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
   c:fill(1.345)
   print('c\n', c)
@@ -304,7 +304,7 @@ if false then
   print('d\n', d)
 end
 
-if false then
+if true then
   C = torch.ClTensor{{3,2,4},{9,7,5}}
   A = C:float()
   print('C\n', C)
@@ -316,7 +316,7 @@ if false then
   print(C:t())
 end
 
-if false then
+if true then
   C = torch.ClTensor{{3,2},{9,7}}
   D = torch.ClTensor{{3,1,7},{3,2,4}}
   E = torch.ClTensor{{3,1},{2,9},{3,2}}
@@ -334,7 +334,7 @@ if false then
   print(torch.addr(C:float(), d:float(), e:float()))
 end
 
-if false then
+if true then
   E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
   print('E\n', E)
   F = E:narrow(1,2,3)
@@ -359,8 +359,6 @@ if false then
 
   x = torch.ClTensor(5, 6):zero()
   print('x\n', x)
-  x[{ 1,3 }] = 1
-  print('x\n', x)
   x[{ 2,{2,4} }] = 2 
   print('x\n', x)
   x[{ {},4 }] = -1
@@ -372,19 +370,29 @@ if false then
 
 end
 
-if false then
+if true then
 --    bias:fill(0.1)
 --    addBuffer:fill(0.1)
-  print('bias', bias)
-  print('bias.storage', bias:storage())
-  output:addr(1,addBuffer,bias)
---      self.output:addr(1, self.addBuffer, self.bias)
-  print('output\n', output)
+--  bias = torch.ClTensor{0.1, -0.2}
+--  output = torch.ClTensor()
+--  weight = torch.ClTensor{{0.2, -0.2, 0.3},
+--                        {0.4,-0.1, -0.5}}
+--  output:resize(bias:size(1))
+--  print('bias', bias)
+--  print('bias.storage', bias:storage())
+--  output:addr(1,addBuffer,bias)
+----      self.output:addr(1, self.addBuffer, self.bias)
+--  print('output\n', output)
 
   A = torch.Tensor(5,3):uniform()
   B = torch.Tensor(5,3):uniform()
   print('Res', torch.cmul(A,B))
-  print('ResCl', torch.cmul(A:clone():cl(), B:clone():cl()))
+  Acl = A:clone():cl()
+  Bcl = B:clone():cl()
+  print('tocl done')
+  rescl = torch.cmul(Acl, Bcl)
+  print('cmul done')
+  print('ResCl', rescl)
 
   print('pow', torch.pow(A,2))
   print('pow cl', torch.pow(A:clone():cl(),2))
@@ -405,7 +413,7 @@ if false then
    print('A-B', A - B)
 
   Aclsub = A:clone():cl()
-  Aclsub:sub(B:clone():cl())
+  Aclsub:csub(B:clone():cl())
   print('Aclsub', Aclsub)
 
   addBuffer = torch.Tensor(128):fill(0.1):cl()
@@ -414,9 +422,11 @@ if false then
 
   C = torch.ClTensor(128,10)
   D = torch.ClTensor(128,10)
+  print('docalcs')
   C:fill(3)
   D:fill(1)
-  print(C - D) 
+  res = C - D
+--  print(C - D) 
 
 end
 
@@ -478,12 +488,15 @@ end
 
 if os.getenv('PROTOTYPING') ~= nil then
   A = torch.Tensor(28*28*1280,10):uniform()
-  print('numel A', torch.numel(A))
+  myprint('numel A', torch.numel(A))
   Acl = A:cl()
 --  torch.setstoragetrace(0)
-  print('torch.numel(A:cl())', torch.numel(Acl))
+--  myprint('Acl', Acl:double())
+  print('calc numel')
+  numel = torch.numel(Acl)
+  print('torch.numel(A:cl())', numel)
 
-  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
+  E = torch.Tensor({{3,1},{2,9},{3,2},{7,8},{6,4}}):cl()
   myprint('E\n', E)
   F = E:narrow(1,2,3)
   myprint('F\n', F)
@@ -491,7 +504,7 @@ if os.getenv('PROTOTYPING') ~= nil then
   myprint('F\n', F)
   myprint('E\n', E)
 
-  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
+  E = torch.Tensor({{3,1},{2,9},{3,2},{7,8},{6,4}}):cl()
   myprint('E\n', E)
   F = E:sub(2,3,2,2)
   myprint('F\n', F)
@@ -499,23 +512,29 @@ if os.getenv('PROTOTYPING') ~= nil then
   myprint('F\n', F)
   myprint('E\n', E)
 
---  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
---  myprint('E\n', E)
---  F = E:select(1,2):fill(99)
---  myprint('F\n', F)
---  myprint('E\n', E)
+  E = torch.Tensor({{3,1},{2,9},{3,2},{7,8},{6,4}}):cl()
+  myprint('E\n', E)
+  F = E:select(1,2):fill(99)
+  myprint('F\n', F)
+  myprint('E\n', E)
 
---  x = torch.ClTensor(5, 6):zero()
---  myprint('x\n', x)
+  x = torch.ClTensor(5, 6):zero()
+  myprint('x\n', x)
+  x[{ 2,{2,4} }] = 2 
+  myprint('x\n', x)
+  x[{ {},4 }] = -1
+  myprint('x\n', x)
+  print('create range...')
+  myrange = torch.range(1,5)
+  print('...done')
+  x[{ {},2 }] = myrange
+  myprint('x\n', x)
+
+  myprint('x\n', x)
 --  x[{ 1,3 }] = 1
---  myprint('x\n', x)
---  x[{ 2,{2,4} }] = 2 
---  myprint('x\n', x)
---  x[{ {},4 }] = -1
---  myprint('x\n', x)
---  x[{ {},2 }] = torch.range(1,5) 
---  myprint('x\n', x)
---  x[torch.lt(x,0)] = -2
+--  x[{ 1,3 }] = 1
+
+----  x[torch.lt(x,0)] = -2
 --  myprint('x\n', x)
 
 --   print('C\n', C)

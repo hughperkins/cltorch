@@ -15,20 +15,21 @@ static int torch_Storage_(new)(lua_State *L)
   }
   else if(lua_type(L, 1) == LUA_TTABLE)
   {
-    long size = lua_objlen(L, 1);
-    long i;
-    storage = THStorage_(newWithSize)(state, size);
-    for(i = 1; i <= size; i++)
-    {
-      lua_rawgeti(L, 1, i);
-      if(!lua_isnumber(L, -1))
-      {
-        THStorage_(free)(state, storage);
-        luaL_error(L, "element at index %d is not a number", i);
-      }
-      THStorage_(set)(state, storage, i-1, (real)lua_tonumber(L, -1));
-      lua_pop(L, 1);
-    }
+    THError("Please create like this: torch.Tensor(mytable):cl()");
+//    long size = lua_objlen(L, 1);
+//    long i;
+//    storage = THStorage_(newWithSize)(state, size);
+//    for(i = 1; i <= size; i++)
+//    {
+//      lua_rawgeti(L, 1, i);
+//      if(!lua_isnumber(L, -1))
+//      {
+//        THStorage_(free)(state, storage);
+//        luaL_error(L, "element at index %d is not a number", i);
+//      }
+//      THStorage_(set)(state, storage, i-1, (real)lua_tonumber(L, -1));
+//      lua_pop(L, 1);
+//    }
   }
   else if(lua_type(L, 1) == LUA_TUSERDATA)
   {
@@ -127,15 +128,16 @@ static int torch_Storage_(__newindex__)(lua_State *L)
 {
   if(lua_isnumber(L, 2))
   {
-    THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
-    long index = luaL_checklong(L, 2) - 1;
-    double number = luaL_checknumber(L, 3);
-    THStorage_(set)(cltorch_getstate(L), storage, index, (real)number);
-    lua_pushboolean(L, 1);
+    THError("Please convert to FloatTensor, then update, then copy back");
+    lua_pushboolean(L, 0);
+//    THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
+//    long index = luaL_checklong(L, 2) - 1;
+//    double number = luaL_checknumber(L, 3);
+//    THStorage_(set)(cltorch_getstate(L), storage, index, (real)number);
+//    lua_pushboolean(L, 1);
   }
   else
     lua_pushboolean(L, 0);
-
   return 1;
 }
 
@@ -143,11 +145,14 @@ static int torch_Storage_(__index__)(lua_State *L)
 {
   if(lua_isnumber(L, 2))
   {
-    THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
-    long index = luaL_checklong(L, 2) - 1;
-    lua_pushnumber(L, THStorage_(get)(cltorch_getstate(L), storage, index));
-    lua_pushboolean(L, 1);
-    return 2;
+    THError("Please convert to FloatStorage, then read the value");
+//    THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
+//    long index = luaL_checklong(L, 2) - 1;
+//    lua_pushnumber(L, THStorage_(get)(cltorch_getstate(L), storage, index));
+//    lua_pushboolean(L, 1);
+//    return 2;
+    lua_pushboolean(L, 0);
+    return 1;
   }
   else
   {
