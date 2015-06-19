@@ -4,10 +4,6 @@
 #include "THClTensor.h"
 #include "THClGeneral.h"
 
-//#ifdef __cplusplus
-//#include <string>
-//#endif // __cplusplus
-
 THCL_API void THClTensor_fill(THClState *state, THClTensor *self, float value);
 THCL_API void THClTensor_zero(THClState *state, THClTensor *self);
 
@@ -122,7 +118,7 @@ THCL_API int THClTensor_logicalany(THClState *state, THClTensor *self);
 THCL_API void THClTensor_neg(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_sub(THClState *state, THClTensor *self, THClTensor *src, float value);
 THCL_API void THClTensor_csub(THClState *state, THClTensor *self, THClTensor *src1, float value, THClTensor *src2);
-THCL_API void THClTensor_applyInlineOp1(THClState* state, THClTensor* self_, THClTensor* src, char const * operation1);
+THCL_API void THClTensor_apply(THClState* state, THClTensor* self, char const * operation1);
 
 #endif
 

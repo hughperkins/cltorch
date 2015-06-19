@@ -407,7 +407,7 @@ if os.getenv('PROTOTYPING') ~= nil then
 
    C = A:clone():cl()
    print('C\n', C)
-   C:apply("*out = *out + 3")
+   C:apply("*out = sqrt(*out + 3.5)")
    print('C\n', C)
 
 --  input = torch.ClTensor{3,5,2}

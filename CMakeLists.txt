@@ -13,7 +13,7 @@ endif()
 
 FIND_PACKAGE(Torch REQUIRED)
 
-SET(CMAKE_C_FLAGS "-std=c99 -Werror=implicit-function-declaration -save-temps")
+SET(CMAKE_C_FLAGS "-std=c99 -Werror=implicit-function-declaration")
 SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall")
 
 

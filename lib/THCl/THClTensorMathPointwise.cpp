@@ -50,20 +50,20 @@ IMPLEMENT_CL_TENSOR_BASIC_FUNC(neg, -)
 
 #undef IMPLEMENT_CL_TENSOR_BASIC_FUNC
 
-void THClTensor_applyInlineOp1(THClState* state, THClTensor* self_, THClTensor* src, char const *operation1) {
-  THAssert(THClTensor_checkGPU(state, 2, self_, src));
-  if (self_ == src) {
-    if (!THClTensor_pointwiseApply1(state, self_, TensorGenOpFullInline1(operation1))) {
+void THClTensor_apply(THClState* state, THClTensor* self, char const *operation1) {
+//  THAssert(THClTensor_checkGPU(state, 2, self, src));
+//  if (self == src) {
+    if (!THClTensor_pointwiseApply1(state, self, TensorGenOpFullInline1(operation1))) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
-  } else {
-    THError("not implemented (though we could... :-) )");
+//  } else {
+//    THError("not implemented (though we could... :-) )");
 //    THClTensor_resizeAs(state, self_, src);
 
 //    if (!THClTensor_pointwiseApply2(state, self_, src, TensorGenOp(#CFUNC))) {
 //      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
 //    }
-  }
+//  }
 }
 
 void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, float value, THClTensor *src2)

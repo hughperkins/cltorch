@@ -1210,7 +1210,7 @@ static const struct luaL_Reg torch_Tensor_(_) [] = {
   {"isSameSizeAs", torch_Tensor_(isSameSizeAs)},
   {"nElement", torch_Tensor_(nElement)},
   {"copy", torch_Tensor_(copy)},
-  {"apply", torch_Tensor_(apply)},
+//  {"apply", torch_Tensor_(apply)},
   {"map", torch_Tensor_(map)},
   {"map2", torch_Tensor_(map2)},
   {"read", torch_Tensor_(read)},

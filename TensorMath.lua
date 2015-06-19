@@ -107,6 +107,59 @@ wrap.types.ClTensor = {
    end
 }
 
+wrap.types.string = {
+
+   helpname = function(arg)
+                 return "string"
+              end,
+
+   declare = function(arg)
+                -- if it is a number we initialize here
+--                local default = interpretdefaultvalue(arg) or ''
+                local default = ''
+                print('default', default)
+                return string.format("char const* arg%d = \"%s\";", arg.i, default)
+             end,
+
+   check = function(arg, idx)
+              return string.format("lua_isstring(L, %d)", idx)
+           end,
+
+   read = function(arg, idx)
+             return string.format("arg%d = lua_tostring(L, %d);", arg.i, idx)
+          end,
+
+   init = function(arg)
+             -- otherwise do it here
+             if arg.default then
+--                local default = interpretdefaultvalue(arg)
+                if not default then
+                   return string.format("arg%d = \"%s\";", arg.i, default)
+                end
+             end
+          end,
+
+   carg = function(arg)
+             return string.format('arg%d', arg.i)
+          end,
+
+   creturn = function(arg)
+                return string.format('arg%d', arg.i)
+             end,
+
+   precall = function(arg)
+                if arg.returned then
+                   return string.format('lua_pushstring(L, arg%d);', arg.i)
+                end
+             end,
+
+   postcall = function(arg)
+                 if arg.creturned then
+                    return string.format('lua_pushstring(L, arg%d);', arg.i)
+                 end
+              end
+}
+
 wrap.types.LongArg = {
 
    vararg = true,
@@ -216,6 +269,11 @@ end
 local Tensor = "ClTensor"
 local real = "float"
 
+wrap("apply",
+     cname("apply"),
+     {{name=Tensor, returned=true},
+      {name="string"}})
+
 wrap("zero",
      cname("zero"),
      {{name=Tensor, returned=true}})
@@ -230,21 +288,21 @@ wrap("zeros",
      {{name=Tensor, default=true, returned=true, method={default='nil'}},
         {name="LongArg"}})
 
-   wrap("ones",
-        cname("ones"),
-        {{name=Tensor, default=true, returned=true, method={default='nil'}},
-           {name="LongArg"}})
+wrap("ones",
+    cname("ones"),
+    {{name=Tensor, default=true, returned=true, method={default='nil'}},
+       {name="LongArg"}})
 
-   wrap("reshape",
-        cname("reshape"),
-        {{name=Tensor, default=true, returned=true},
-           {name=Tensor},
-           {name="LongArg"}})
+wrap("reshape",
+    cname("reshape"),
+    {{name=Tensor, default=true, returned=true},
+       {name=Tensor},
+       {name="LongArg"}})
 
-   wrap("numel",
-        cname("numel"),
-        {{name=Tensor},
-           {name="long", creturned=true}})
+wrap("numel",
+    cname("numel"),
+    {{name=Tensor},
+       {name="long", creturned=true}})
 
 wrap("add",
      cname("add"),
