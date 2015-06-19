@@ -326,7 +326,7 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 
 # Guidelines for contributors
 
-You might or might not find [ContributorGuidelines.md](doc/ContributorGuidelines.md) useful.  Not required reading, but it is there if you want to see my own thoughts and ideas on how I personally approach cltorch development, and cutorch-porting.
+You might or might not find [ContributorGuidelines.md](doc/ContributorGuidelines.md) useful.  Not required reading, but it is there if you want to see my own thoughts and ideas on how I am currently approaching cltorch development, and cutorch-porting.
 
 # Related projects
 
