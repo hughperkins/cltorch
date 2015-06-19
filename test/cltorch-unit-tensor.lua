@@ -1,3 +1,5 @@
+-- unit tests for ClTensor class
+
 luaunit = require('luaunit')
 require 'cltorch'
 

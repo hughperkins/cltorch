@@ -1,3 +1,6 @@
+-- this is mostly for trying things
+-- for unit tests, see cltorch-unit-tensor.lua
+
 print("running require cltorch...")
 require 'cltorch'
 print("... require cltorch done")
@@ -348,40 +351,7 @@ if false then
 
 end
 
-if os.getenv('PROTOTYPING') ~= nil then
---  input = torch.ClTensor{3,5,2}
---  output = torch.ClTensor()
---  weight = torch.ClTensor{{0.2, -0.2, 0.3},
---                        {0.4,-0.1, -0.5}}
---  bias = torch.ClTensor{0.1, -0.2}
---  output:resize(bias:size(1))
---  output:copy(bias)
---  output:addmv(1, weight, input)
-
- -- this fails currently, needs 2stage reduceall:
---  A = torch.Tensor(28*28*1280,10):uniform():cl()
---  A:fill(2.5)
---  print(A[100][5])
---  A = A + 2
---  print(A[100][5])
---  print(torch.sum(A))
-
---  C = torch.ClTensor(128,10)
---  D = torch.ClTensor(128,10)
---  C:fill(3)
---  D:fill(1)
---  print(C - D) 
-
-    addBuffer = torch.Tensor(128):fill(0.1):cl()
-    bias = torch.Tensor(10):fill(0.1):cl()
-    output = torch.Tensor(128,10):fill(0.1):cl()
-
-  C = torch.ClTensor(128,10)
-  D = torch.ClTensor(128,10)
-  C:fill(3)
-  D:fill(1)
-  print(C - D) 
-
+if false then
 --    bias:fill(0.1)
 --    addBuffer:fill(0.1)
     print('bias', bias)
@@ -416,6 +386,42 @@ if os.getenv('PROTOTYPING') ~= nil then
     Aclsub = A:clone():cl()
     Aclsub:sub(B:clone():cl())
     print('Aclsub', Aclsub)
+
+end
+
+if os.getenv('PROTOTYPING') ~= nil then
+--  input = torch.ClTensor{3,5,2}
+--  output = torch.ClTensor()
+--  weight = torch.ClTensor{{0.2, -0.2, 0.3},
+--                        {0.4,-0.1, -0.5}}
+--  bias = torch.ClTensor{0.1, -0.2}
+--  output:resize(bias:size(1))
+--  output:copy(bias)
+--  output:addmv(1, weight, input)
+
+ -- this fails currently, needs 2stage reduceall:
+--  A = torch.Tensor(28*28*1280,10):uniform():cl()
+--  A:fill(2.5)
+--  print(A[100][5])
+--  A = A + 2
+--  print(A[100][5])
+--  print(torch.sum(A))
+
+--  C = torch.ClTensor(128,10)
+--  D = torch.ClTensor(128,10)
+--  C:fill(3)
+--  D:fill(1)
+--  print(C - D) 
+
+    addBuffer = torch.Tensor(128):fill(0.1):cl()
+    bias = torch.Tensor(10):fill(0.1):cl()
+    output = torch.Tensor(128,10):fill(0.1):cl()
+
+  C = torch.ClTensor(128,10)
+  D = torch.ClTensor(128,10)
+  C:fill(3)
+  D:fill(1)
+  print(C - D) 
 
 --  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
 --  F = torch.expand(E, 2)
