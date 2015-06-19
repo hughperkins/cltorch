@@ -4,6 +4,10 @@
 #include "THClTensor.h"
 #include "THClGeneral.h"
 
+//#ifdef __cplusplus
+//#include <string>
+//#endif // __cplusplus
+
 THCL_API void THClTensor_fill(THClState *state, THClTensor *self, float value);
 THCL_API void THClTensor_zero(THClState *state, THClTensor *self);
 
@@ -69,12 +73,6 @@ THCL_API void THClTensor_sign(THClState *state, THClTensor *self, THClTensor *sr
 THCL_API void THClTensor_round(THClState *state, THClTensor *self, THClTensor *src);
 TH_API void THClTensor_atan2(THClState *state, THClTensor *r_, THClTensor *tx, THClTensor *ty);
 
-// this doesnt exist in torch or cutorch. original development :-P
-THCL_API void THClTensor_neg(THClState *state, THClTensor *self, THClTensor *src);
-THCL_API void THClTensor_sub(THClState *state, THClTensor *self, THClTensor *src, float value);
-THCL_API void THClTensor_csub(THClState *state, THClTensor *self, THClTensor *src1, float value, THClTensor *src2);
-
-
 
 THCL_API void THClTensor_ltValue(THClState *state, THClTensor *self_, THClTensor *src, float value);
 THCL_API void THClTensor_gtValue(THClState *state, THClTensor *self_, THClTensor *src, float value);
@@ -118,6 +116,13 @@ THCL_API void THClTensor_maskedSelectByte(THClState *state, THClTensor *tensor, 
 
 THCL_API int THClTensor_logicalall(THClState *state, THClTensor *self);
 THCL_API int THClTensor_logicalany(THClState *state, THClTensor *self);
+
+
+// Original functions, not in torch or cutorch:
+THCL_API void THClTensor_neg(THClState *state, THClTensor *self, THClTensor *src);
+THCL_API void THClTensor_sub(THClState *state, THClTensor *self, THClTensor *src, float value);
+THCL_API void THClTensor_csub(THClState *state, THClTensor *self, THClTensor *src1, float value, THClTensor *src2);
+THCL_API void THClTensor_applyInlineOp1(THClState* state, THClTensor* self_, THClTensor* src, char const * operation1);
 
 #endif
 

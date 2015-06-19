@@ -2,7 +2,7 @@
 #define TH_GENERIC_FILE "generic/Tensor.c"
 #else
 
-// #include <stdio.h>
+#include <stdio.h>
 
 static void torch_Tensor_(c_readTensorStorageSizeStride)(lua_State *L, int index, int allowNone, int allowTensor, int allowStorage, int allowStride,
                                                          THStorage **storage_, long *storageOffset_, THLongStorage **size_, THLongStorage **stride_);
@@ -1042,24 +1042,29 @@ static void torch_Tensor_(c_readTensorStorageSizeStride)(lua_State *L, int index
 
 static int torch_Tensor_(apply)(lua_State *L)
 {
-  THError("not implemented, please convert to FloatTensor first, then back to ClTensor");
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
-  luaL_checktype(L, 2, LUA_TFUNCTION);
+/*  luaL_checktype(L, 2, LUA_TFUNCTION);*/
+  char const*operation = luaL_checkstring(L, 2);
+  printf("apply operation %s\n", operation);
   lua_settop(L, 2);
+  // this should probably not go here in fact, move to cwrap etc...
 
-  TH_TENSOR_APPLY(real, tensor,
-                  lua_pushvalue(L, 2);
-                  lua_pushnumber(L, *tensor_data);
-                  lua_call(L, 1, 1);
-                  if(lua_isnumber(L, 3))
-                  {
-                    *tensor_data = (real)lua_tonumber(L, 3);
-                    lua_pop(L, 1);
-                  }
-                  else if(lua_isnil(L, 3))
-                    lua_pop(L, 1);
-                  else
-                    luaL_error(L, "given function should return a number or nil"););
+  THError("not implemented, please convert to FloatTensor first, then back to ClTensor");
+//  THClTensor_applyInlineOp1(THClState* state, THClTensor* self_, THClTensor* src, char const *operation1);
+
+//  TH_TENSOR_APPLY(real, tensor,
+//                  lua_pushvalue(L, 2);
+//                  lua_pushnumber(L, *tensor_data);
+//                  lua_call(L, 1, 1);
+//                  if(lua_isnumber(L, 3))
+//                  {
+//                    *tensor_data = (real)lua_tonumber(L, 3);
+//                    lua_pop(L, 1);
+//                  }
+//                  else if(lua_isnil(L, 3))
+//                    lua_pop(L, 1);
+//                  else
+//                    luaL_error(L, "given function should return a number or nil"););
 
   lua_settop(L, 1);
   return 1;
