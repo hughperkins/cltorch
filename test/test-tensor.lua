@@ -425,9 +425,7 @@ if true then
    Acopycl = Acl:clone()
    Acopycl:map(Bcl, "*out = 1000 * *out + *in1 * 10")
    print('Acopycl\n', Acopycl)
-end
 
-if os.getenv('PROTOTYPING') ~= nil then
    A = torch.Tensor(3,2):uniform()
    B = torch.Tensor(3,2):uniform()
    C = torch.Tensor(3,2):uniform()
@@ -445,6 +443,9 @@ if os.getenv('PROTOTYPING') ~= nil then
    Acopycl = Acl:clone()
    Acopycl:map2(Bcl, Ccl, "*out = 1000 * *out + 100 * *in1 + *in2 * 10")
    print('Acopycl\n', Acopycl)
+end
+
+if os.getenv('PROTOTYPING') ~= nil then
 
 
 --   print('C\n', C)
@@ -461,13 +462,15 @@ if os.getenv('PROTOTYPING') ~= nil then
 --  output:copy(bias)
 --  output:addmv(1, weight, input)
 
- -- this fails currently, needs 2stage reduceall:
---  A = torch.Tensor(28*28*1280,10):uniform():cl()
+--  this fails currently, needs 2stage reduceall:
+  A = torch.Tensor(28*28*1280,10):uniform()
 --  A:fill(2.5)
---  print(A[100][5])
---  A = A + 2
---  print(A[100][5])
---  print(torch.sum(A))
+  print(A[100][5])
+  A = A + 2
+  print(A[100][5])
+  print(torch.sum(A))
+
+  print(torch.sum(A:clone():cl()  ))
 
 --  C = torch.ClTensor(128,10)
 --  D = torch.ClTensor(128,10)

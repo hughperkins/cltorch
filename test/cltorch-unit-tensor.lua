@@ -482,6 +482,28 @@ function test_map2()
   luaunit.assertEquals(Amap2BC, Amap2BCcl:double())
 end
 
+function test_reduceAll()
+  -- test on a large tensor, that needs two-pass :-)
+  A = torch.Tensor(28*28*1280,10):uniform()
+  Asum = torch.sum(A)
+  Aclsum = torch.sum(A:clone():cl())
+  diff = Asum - Aclsum
+  if diff < 0 then
+    diff = - diff
+  end
+  luaunit.assertTrue(diff < 0.5)
+
+  -- now test on a single pass
+  A = torch.Tensor(50,40):uniform()
+  Asum = torch.sum(A)
+  Aclsum = torch.sum(A:clone():cl())
+  diff = Asum - Aclsum
+  if diff < 0 then
+    diff = - diff
+  end
+  luaunit.assertTrue(diff < 0.1)
+end
+
 os.exit( luaunit.LuaUnit.run() )
 
 

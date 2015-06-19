@@ -84,13 +84,52 @@ void kernelLaunch_THClTensor_reduceAllPass1(
                      const HasOperator3 *reduceOp,
                      CLWrapper* scratch
     ){
-  EasyCL *cl = THClState_getCl(state);
-  TemplatedKernel kernelBuilder(cl);
+  std::vector< int > dims;
+  if( ADims >= 0 ) {
+    dims.push_back(ADims);
+  }
+  TemplatedKernel kernelBuilder(THClState_getCl(state));
   kernelBuilder
-      .set("include_THClDeviceutils", THClDeviceUtils_getKernelTemplate())
+    .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
+    .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
+    .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+    .set("dims", dims)
+    .set("dim1", ADims)
+    .set("modify_operation", modifyOp->operator2())
+    .set("reduce_operation", reduceOp->operator3())
+    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+    .set("IndexType", TypeParseTraits<IndexType>::name)
   ;
 
-  THError("Not implemented");
+  std::string uniqueName = "THClTensor_reduceAllPass1_" + easycl::toString(ADims) + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
+  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAllPass1" );
+  // calculate workgroup sizes and stuff
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = grid.vec[i] * block.vec[i];
+  }
+
+  // set up tensorinfos
+  TensorInfoCl inCl(in);
+
+  if( !in.wrapper->isOnDevice() ) {
+    in.wrapper->createOnDevice();
+  }
+
+  kernel->in(1, &inCl);
+  kernel->in( in.wrapper );
+  if( totalElements > ( 1l << 30 )) {
+    throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
+  }
+  kernel->in((int)totalElements);
+  kernel->in(init);
+  kernel->out(scratch);
+  kernel->localFloats(smemSize / sizeof(float));
+
+  kernel->run(3, global_ws.vec, block.vec);
+  THClState_getCl(state)->finish();
+
+//  THError("Not implemented");
 }
 
 template< typename IndexType >
@@ -104,11 +143,44 @@ void kernelLaunch_THClTensor_reduceAllPass2(
                      CLWrapper* devOut
     ){
   TemplatedKernel kernelBuilder(THClState_getCl(state));
+  std::vector< int > dims;
   kernelBuilder
-      .set("include_THClDeviceutils", THClDeviceUtils_getKernelTemplate())
+    .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
+    .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
+    .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+    .set("dims", dims)
+    .set("dim1", -2)
+//    .set("modify_operation", modifyOp->operator2())
+    .set("reduce_operation", reduceOp->operator3())
+    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+    .set("IndexType", TypeParseTraits<IndexType>::name)
   ;
 
-  THError("Not implemented");
+  std::string uniqueName = "THClTensor_reduceAllPass2_" + reduceOp->operator3();
+  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAllPass2" );
+  // calculate workgroup sizes and stuff
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = grid.vec[i] * block.vec[i];
+  }
+
+  // set up tensorinfos
+//  TensorInfoCl inCl(in);
+
+//  if( !in.wrapper->isOnDevice() ) {
+//    in.wrapper->createOnDevice();
+//  }
+
+  kernel->in(numPass1Blocks);
+  kernel->in(init);
+  kernel->in(scratch);
+  kernel->out(devOut);
+  kernel->localFloats(smemSize / sizeof(float));
+
+  kernel->run(3, global_ws.vec, block.vec);
+  THClState_getCl(state)->finish();
+
+//  THError("Not implemented");
 }
 
 template< typename IndexType >
@@ -189,14 +261,13 @@ void callReduceAll(THClState* state,
     getPass1ReduceBlockGrid(state, totalElements, grid, block);
     size_t smemSize = block.x() * sizeof(float);
 
-    THError("not implemented");
-//    kernelLaunch_THClTensor_reduceAllPass1<IndexType>(
-//        state,
-//        grid, block, smemSize,
-//        ADims,
-//          in, /* in.wrapper,*/
-//           (IndexType) totalElements, init, modifyOp, reduceOp,
-//        THClState_getCurrentDeviceScratchSpace(state));
+    kernelLaunch_THClTensor_reduceAllPass1<IndexType>(
+        state,
+        grid, block, smemSize,
+        ADims,
+          in,
+           (IndexType) totalElements, init, modifyOp, reduceOp,
+        THClState_getCurrentDeviceScratchSpace(state)->wrapper);
 //    THClTensor_reduceAllPass1<ModifyOp, ReduceOp, IndexType, ADims>
 //      <<<grid, block, smemSize, THClState_getCurrentStream(state)>>>(
 //        in, (IndexType) totalElements, init, modifyOp, reduceOp,
@@ -206,23 +277,24 @@ void callReduceAll(THClState* state,
     getPass2ReduceBlockGrid(state, totalElements, grid, block);
     smemSize = block.x() * sizeof(float);
 
-    THError("not implemented");
-//    kernelLaunch_THClTensor_reduceAllPass2<IndexType>(
-//        state,
-//        grid, block, smemSize,
-//        numPass1Blocks, init, reduceOp,
-//        THClState_getCurrentDeviceScratchSpace(state),
-//        devOut);
+//    THError("not implemented");
+    kernelLaunch_THClTensor_reduceAllPass2<IndexType>(
+        state,
+        grid, block, smemSize,
+        numPass1Blocks, init, reduceOp,
+        THClState_getCurrentDeviceScratchSpace(state)->wrapper,
+        devOut);
 //    THClTensor_reduceAllPass2<ReduceOp, IndexType>
 //      <<<grid, block, smemSize, THClState_getCurrentStream(state)>>>(
 //        numPass1Blocks, init, reduceOp,
 //        (float*) THClState_getCurrentDeviceScratchSpace(state),
 //        devOut);
-    THError("Not implemented");
+//    THError("Not implemented");
   } else {
     getSinglePassReduceBlockGrid(totalElements, grid, block);
     size_t smemSize = block.x() * sizeof(float);
 
+//    THError("Not implemented");
     kernelLaunch_THClTensor_reduceAll<IndexType>(
         state,
         grid, block, smemSize,
