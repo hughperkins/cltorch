@@ -285,6 +285,9 @@ c:apply("*out = sqrt(*out + 3.5)")
 c:map(d, ""*out = 1000 * *out + *in1 * 10"")
         -- note: a string, not a lua function
         -- this will be passed to OpenCL kernel :-)
+c:map2(d, e, ""*out = sqrt(1000 * *out + *in1 * 10 + *in2 * *in2)"")
+        -- note: a string, not a lua function
+        -- this will be passed to OpenCL kernel
 </pre></tr>
 
 </table>

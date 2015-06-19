@@ -410,9 +410,6 @@ if true then
    print('C\n', C)
    C:apply("*out = sqrt(*out + 3.5)")
    print('C\n', C)
-end
-
-if os.getenv('PROTOTYPING') ~= nil then
 
    A = torch.Tensor(3,2):uniform()
    B = torch.Tensor(3,2):uniform()
@@ -428,6 +425,27 @@ if os.getenv('PROTOTYPING') ~= nil then
    Acopycl = Acl:clone()
    Acopycl:map(Bcl, "*out = 1000 * *out + *in1 * 10")
    print('Acopycl\n', Acopycl)
+end
+
+if os.getenv('PROTOTYPING') ~= nil then
+   A = torch.Tensor(3,2):uniform()
+   B = torch.Tensor(3,2):uniform()
+   C = torch.Tensor(3,2):uniform()
+   print('A\n', A)
+   print('B\n', B)
+   print('C\n', C)
+   Acopy = A:clone()
+   Acopy:map2(B, C, function(a, b, c) return 1000 * a + 100 * b + c * 10 end)
+   print('A\n', Acopy)
+
+   Acl = A:clone():cl()
+   Bcl = B:clone():cl()
+   Ccl = C:clone():cl()
+
+   Acopycl = Acl:clone()
+   Acopycl:map2(Bcl, Ccl, "*out = 1000 * *out + 100 * *in1 + *in2 * 10")
+   print('Acopycl\n', Acopycl)
+
 
 --   print('C\n', C)
 --   C:apply("*out = sqrt(*out + 3.5)")

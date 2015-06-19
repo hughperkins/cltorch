@@ -280,6 +280,13 @@ wrap("map",
       {name=Tensor},
       {name="string"}})
 
+wrap("map2",
+     cname("map2"),
+     {{name=Tensor, returned=true},
+      {name=Tensor},
+      {name=Tensor},
+      {name="string"}})
+
 wrap("zero",
      cname("zero"),
      {{name=Tensor, returned=true}})

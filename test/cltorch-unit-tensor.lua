@@ -468,6 +468,20 @@ function test_map()
   luaunit.assertEquals(AmapB, AmapBcl:double())
 end
 
+function test_map2()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform()
+  local B = torch.Tensor(s):uniform()
+  local C = torch.Tensor(s):uniform()
+  local Amap2BC = A:clone():map2(B, C, 
+    function(x, y, z) return math.sqrt(x*x + y*y + z + 3) end)
+  local Amap2BCcl = A:clone():cl():map2(
+    B:clone():cl(),
+    C:clone():cl(), 
+    "*out = sqrt(*out * *out + *in1 * *in1 + *in2 + 3)")
+  luaunit.assertEquals(Amap2BC, Amap2BCcl:double())
+end
+
 os.exit( luaunit.LuaUnit.run() )
 
 

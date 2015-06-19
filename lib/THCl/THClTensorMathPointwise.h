@@ -36,6 +36,17 @@ public:
   }
 };
 
+class TensorGenOpFullInline3 : public HasOperator3 {
+public:
+  std::string cfun;
+  TensorGenOpFullInline3( std::string cfun ) {
+     this->cfun = cfun;
+  }
+  std::string operator3() const {
+    return cfun;
+  }
+};
+
 // used for maxall etc
 class MaxOp : public HasOperator2, public HasOperator3 {
 public:
