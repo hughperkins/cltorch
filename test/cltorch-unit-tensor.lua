@@ -443,7 +443,7 @@ function test_sub()
   local B = torch.Tensor(s):uniform()
   AsubB = A - B
   AsubBcl = A:clone():cl() - B:clone():cl()
-  AsubBcl2 = A:clone():cl():sub(B:clone():cl())
+  AsubBcl2 = A:clone():cl():csub(B:clone():cl())
 --  AsubBcl3 = torch.sub(A:clone():cl(), B:clone():cl())
   luaunit.assertEquals(AsubB, AsubBcl:double())
   luaunit.assertEquals(AsubB, AsubBcl2:double())

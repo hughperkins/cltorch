@@ -328,7 +328,7 @@ wrap("add",
         {name=real, default=1},
         {name=Tensor}})
 
-wrap("sub",
+wrap("csub",
      cname("sub"),
      {{name=Tensor, default=true, returned=true, method={default='nil'}},
       {name=Tensor, method={default=1}},

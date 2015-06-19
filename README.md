@@ -274,7 +274,7 @@ A:min(2) -- only returns the result, not the indices
 </pre></tr>
 
 <tr><td>Original, not in torch or cutorch<td>N/A<td><pre>
-c:sub(d) -- subtracts d from c, element-wise
+c:csub(d) -- subtracts d from c, element-wise
          -- similar to 'c - d'
          -- but stores results into c
 a:neg() -- similar to '- a'
@@ -351,6 +351,8 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 # Recent changes
 
+* 20th June:
+  * rename new `sub` method to `csub` so doesnt collide with existing `sub`
 * 19th June:
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
   * added `a:sub(b)` method, which does element-wise subtraction of b from a, and puts results in a

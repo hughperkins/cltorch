@@ -7,6 +7,27 @@ print("... require cltorch done")
 
 print(cltorch.getDeviceProperties(cltorch.getDevice()).deviceName)
 
+function torch.traceon(state)
+  -- nop
+end
+
+if os.getenv('TRACEON') ~= nil then
+  -- following command needs https://github.com/hughperkins/torch7.git, branch
+  --                         add-trace
+  -- lets one see storage allocs/copies
+  function torch.traceon(state)
+    torch.setstoragetrace(state)
+  end
+end
+
+function myprint(a,b)
+  torch.traceon(0)
+  print(a,b)
+  torch.traceon(1)
+end
+
+torch.traceon(1)
+
 if true then
 a = torch.Tensor{3,5,2}
 print('a\n', a)
@@ -443,10 +464,59 @@ if true then
    Acopycl = Acl:clone()
    Acopycl:map2(Bcl, Ccl, "*out = 1000 * *out + 100 * *in1 + *in2 * 10")
    print('Acopycl\n', Acopycl)
+
+  A = torch.Tensor(28*28*1280,10):uniform()
+--  A:fill(2.5)
+  print(A[100][5])
+  A = A + 2
+  print(A[100][5])
+  print(torch.sum(A))
+
+  Acl = A:clone():cl()
+  print('torch.sum(Acl)\n', torch.sum(Acl))
 end
 
 if os.getenv('PROTOTYPING') ~= nil then
+  A = torch.Tensor(28*28*1280,10):uniform()
+  print('numel A', torch.numel(A))
+  Acl = A:cl()
+--  torch.setstoragetrace(0)
+  print('torch.numel(A:cl())', torch.numel(Acl))
 
+  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
+  myprint('E\n', E)
+  F = E:narrow(1,2,3)
+  myprint('F\n', F)
+  F:fill(7)
+  myprint('F\n', F)
+  myprint('E\n', E)
+
+  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
+  myprint('E\n', E)
+  F = E:sub(2,3,2,2)
+  myprint('F\n', F)
+  F:fill(0)
+  myprint('F\n', F)
+  myprint('E\n', E)
+
+--  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
+--  myprint('E\n', E)
+--  F = E:select(1,2):fill(99)
+--  myprint('F\n', F)
+--  myprint('E\n', E)
+
+--  x = torch.ClTensor(5, 6):zero()
+--  myprint('x\n', x)
+--  x[{ 1,3 }] = 1
+--  myprint('x\n', x)
+--  x[{ 2,{2,4} }] = 2 
+--  myprint('x\n', x)
+--  x[{ {},4 }] = -1
+--  myprint('x\n', x)
+--  x[{ {},2 }] = torch.range(1,5) 
+--  myprint('x\n', x)
+--  x[torch.lt(x,0)] = -2
+--  myprint('x\n', x)
 
 --   print('C\n', C)
 --   C:apply("*out = sqrt(*out + 3.5)")
@@ -463,15 +533,6 @@ if os.getenv('PROTOTYPING') ~= nil then
 --  output:addmv(1, weight, input)
 
 --  this fails currently, needs 2stage reduceall:
-  A = torch.Tensor(28*28*1280,10):uniform()
---  A:fill(2.5)
-  print(A[100][5])
-  A = A + 2
-  print(A[100][5])
-  print(torch.sum(A))
-
-  print(torch.sum(A:clone():cl()  ))
-
 --  C = torch.ClTensor(128,10)
 --  D = torch.ClTensor(128,10)
 --  C:fill(3)
@@ -494,4 +555,6 @@ if os.getenv('PROTOTYPING') ~= nil then
 --  z:maskedSelect(x, mask)
 --  print('z\n', z)
 end
+
+torch.traceon(0)
 
