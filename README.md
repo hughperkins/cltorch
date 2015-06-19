@@ -136,11 +136,6 @@ C = torch.ClTensor{{3,2,4},{9,7,5}}
 print(C:t())
 </pre></tr>
 
-<tr><td>Applying a function to a tensor<td>30%<td><pre>
-c:apply("*out = sqrt(*out + 3.5)") -- note: a string, not a lua function
-                                   -- this will be passed to OpenCL kernel :-)
-</pre></tr>
-
 </table>
 
 ### From [random.md](https://github.com/torch/torch7/blob/master/doc/random.md)
@@ -284,6 +279,9 @@ c:sub(d) -- subtracts d from c, element-wise
          -- but stores results into c
 a:neg() -- similar to '- a'
         -- but stores results into a
+c:apply("*out = sqrt(*out + 3.5)")
+        -- note: a string, not a lua function
+        -- this will be passed to OpenCL kernel :-)
 </pre></tr>
 
 </table>
