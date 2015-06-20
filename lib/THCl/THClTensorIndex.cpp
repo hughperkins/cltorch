@@ -80,9 +80,6 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
   }
   strideWrapper->copyToDevice();
 
-//  THClCheck(cudaMalloc((void**)&stride_, res_->nDimension * sizeof(long)));
-//  THClCheck(cudaMemcpy(stride_, res_->stride, res_->nDimension * sizeof(long), cudaMemcpyHostToDevice));
-
   // launch kernel here....
   TemplatedKernel kernelBuilder(THClState_getCl(state));
 
@@ -110,16 +107,9 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
   kernel->run(3, global_ws.as_size_t(), nthreads.as_size_t());
   THClState_getCl(state)->finish();
 
-//  THClTensor_kernel_indexFill<<<nblocks, nthreads, 0, THClState_getCurrentStream(state)>>>(
-//    THClTensor_data(state, res_), stride_, THClTensor_data(state, indices_),
-//    res_->nDimension, dim, nIndex, nRes, res_->size[dim], val
-//  );
-
-//  THClCheck(cudaFree(stride_));
   delete strideWrapper;
   delete[] stride_;
   THClTensor_free(state, indices_);
-//  THError("Not implemented");
 }
 
 void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src, int dim, THLongTensor *indices)
