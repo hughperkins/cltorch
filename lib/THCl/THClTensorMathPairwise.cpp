@@ -42,8 +42,6 @@ void THClTensor_add(THClState *state, THClTensor *self_, THClTensor *src_, float
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
-
-//  THClCheck(cudaGetLastError());
 }
 
 class TensorMulConstantOp : public HasOperator2, public HasOperator1, public HasScalars {
@@ -73,8 +71,6 @@ void THClTensor_mul(THClState *state, THClTensor *self_, THClTensor *src_, float
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
-
-//  THClCheck(cudaGetLastError());
 }
 
 void THClTensor_div(THClState* state, THClTensor *self_, THClTensor *src_, float value)
@@ -93,8 +89,6 @@ void THClTensor_div(THClState* state, THClTensor *self_, THClTensor *src_, float
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
-
-//  THClCheck(cudaGetLastError());
 }
 
 

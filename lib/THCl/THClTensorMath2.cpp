@@ -84,8 +84,6 @@ void THClTensor_tpow(THClState *state, THClTensor *self_, float value, THClTenso
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
-
-//  THClCheck(cudaGetLastError());
 }
 /*
 struct TensorATan2Op {

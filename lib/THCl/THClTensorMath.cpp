@@ -269,16 +269,6 @@ float THClTensor_prodall(THClState *state, THClTensor *self)
   return val;
 }
 
-//struct dim4 {
-//    unsigned arr[4];
-
-//    __host__ dim4(unsigned init=0) {
-//        for(unsigned i=0; i<4; i++) { arr[i] = init; }
-//    }
-
-//    __host__ __device__ unsigned& operator[](const unsigned& idx) { return arr[idx]; }
-//};
-
 void THClTensor_sum(THClState* state, THClTensor *self, THClTensor *src, long dimension)
 {
   THAssert(THClTensor_checkGPU(state, 2, self, src));

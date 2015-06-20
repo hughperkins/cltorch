@@ -79,8 +79,6 @@ void kernelLaunch_THClTensor_kernel_transformReduceOuterDimIndex(
 
   kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   THClState_getCl(state)->finish();
-
-//  THError("Not implemented");
 }
 
 void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1, THClTensor *tgt2,
@@ -114,10 +112,6 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
     THClTensor_wrapper(state, src),
     THClTensor_storageOffset(state, src),
     num_orows, num_irows, row_size, init, binary_op);
-
-//  THClTensor_kernel_transformReduceOuterDimIndex<<<grid, threads, 0, THClState_getCurrentStream(state)>>>(
-//    THClTensor_data(state, tgt1), THClTensor_data(state, tgt2),
-//    THClTensor_data(state, src), num_orows, num_irows, row_size, init, binary_op);
 }
 
 void kernelLaunch_THClTensor_kernel_transformReduceInnermostDimIndex(
@@ -164,8 +158,6 @@ void kernelLaunch_THClTensor_kernel_transformReduceInnermostDimIndex(
 
   kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   THClState_getCl(state)->finish();
-
-//  THError("Not implemented");
 }
 
 void THClTensor_transformReduceInnermostDimIndex(
@@ -189,10 +181,6 @@ void THClTensor_transformReduceInnermostDimIndex(
     THClTensor_wrapper(state, tgt2), THClTensor_storageOffset(state, tgt2),
     THClTensor_wrapper(state, src), THClTensor_storageOffset(state, src),
     num_rows, row_size, init, binary_op);
-//  THClTensor_kernel_transformReduceInnermostDimIndex<<<grid, threads, 0, THClState_getCurrentStream(state)>>>(
-//    THClTensor_data(state, tgt1), THClTensor_data(state, tgt2),
-//    THClTensor_data(state, src), num_rows, row_size, init, binary_op);
-//  THError("Not implemented");
 }
 
 void THClTensor_reduceDimIndex(THClState *state, THClTensor *tgt1_, THClTensor *tgt2_, THClTensor *src,
@@ -213,7 +201,6 @@ void THClTensor_reduceDimIndex(THClState *state, THClTensor *tgt1_, THClTensor *
 
   if(dimension == THClTensor_nDimension(state, src)-1) {
     THClTensor_transformReduceInnermostDimIndex(state, tgt1, tgt2, src, init, binary_op);
-//    THError("Not implemented");
   } else {
     THClTensor_transformReduceOuterDimIndex(state, tgt1, tgt2, src, dimension, init, binary_op);
   }
@@ -226,39 +213,20 @@ void THClTensor_reduceDimIndex(THClState *state, THClTensor *tgt1_, THClTensor *
 void THClTensor_max(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dimension)
 {
   THAssert(THClTensor_checkGPU(state, 3, values, indices, src));
-//  CopyOp modifyOp;
   maxvalue_functor reduceOp;
   const float minfloat32 = -3.402823466e+38f;
-////   thrust::pair<float,float> init = thrust::make_pair<float,float>(minfloat32, -1);
-//  THError("Not implemented");
-//  return 0;
-     return THClTensor_reduceDimIndex(state, values, indices, src, dimension, minfloat32,
+  return THClTensor_reduceDimIndex(state, values, indices, src, dimension, minfloat32,
                                  &reduceOp);
 }
 
 void THClTensor_min(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dimension)
 {
   THAssert(THClTensor_checkGPU(state, 3, values, indices, src));
-//  CopyOp modifyOp;
   minvalue_functor reduceOp;
   const float maxfloat32 = 3.402823466e+38f;
-////   thrust::pair<float,float> init = thrust::make_pair<float,float>(minfloat32, -1);
-//  THError("Not implemented");
-//  return 0;
-     return THClTensor_reduceDimIndex(state, values, indices, src, dimension, maxfloat32,
+  return THClTensor_reduceDimIndex(state, values, indices, src, dimension, maxfloat32,
                                  &reduceOp);
 }
-
-//void THClTensor_min(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dimension)
-//{
-//  THAssert(THClTensor_checkGPU(state, 3, values, indices, src));
-//  const float maxfloat32 = 3.402823466e+38f;
-////   thrust::pair<float,float> init = thrust::make_pair<float,float>(maxfloat32, -1);
-//  THError("Not implemented");
-//  return 0;
-//  //   return THClTensor_reduceDimIndex(state, values, indices, src, dimension, init,
-//                                     minvalue_functor());
-//}
 
 std::string THClTensorMathTransformReduce_getKernelTemplate() {
   // [[[cog
