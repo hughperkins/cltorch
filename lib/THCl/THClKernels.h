@@ -5,6 +5,8 @@ class CLKernel;
 class THClTensor;
 class CLWrapper;
 
+#include "THClGeneral.h"
+
 // this uses ints for all the long/int type things
 // we can create a new version later that uses longs
 // for now, you need to make sure:
@@ -47,5 +49,7 @@ public:
 
   THClKernels *in(int value);
   THClKernels *in(float value);
+
+  void run(dim3 grid, dim3 block);  // uses cutorch-compatible dimensions
 };
 

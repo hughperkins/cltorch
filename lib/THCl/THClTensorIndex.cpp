@@ -44,17 +44,11 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
   }
   strideWrapper->copyToDevice();
 
-  // launch kernel here....
   TemplatedKernel kernelBuilder(THClState_getCl(state));
 
   std::string uniqueName = "THClTensorMathIndex_indexCopy";
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
     THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexCopy");
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = nblocks.vec[i] * nthreads.vec[i];
-  }
 
   THClKernels k(state, kernel);
   k.inout(res_);
@@ -69,8 +63,7 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
   k.in((int)(THClTensor_nElement(state, src)));
   k.in((int)(res_->size[dim]));
 
-  kernel->run(3, global_ws.as_size_t(), nthreads.as_size_t());
-  THClState_getCl(state)->finish();
+  k.run(nblocks, nthreads);
 
   delete strideWrapper;
   delete[] stride_;
@@ -112,11 +105,6 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
   std::string uniqueName = "THClTensorMathIndex_indexFill";
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
     THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexFill");
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = nblocks.vec[i] * nthreads.vec[i];
-  }
 
   THClKernels k(state, kernel);
   k.inout(res_);
@@ -128,9 +116,7 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
   k.in((int)nRes);
   k.in((int)(res_->size[dim]));
   k.in(val);
-
-  kernel->run(3, global_ws.as_size_t(), nthreads.as_size_t());
-  THClState_getCl(state)->finish();
+  k.run(nblocks, nthreads);
 
   delete strideWrapper;
   delete[] stride_;
@@ -176,15 +162,6 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   std::string uniqueName = "THClTensorMathIndex_indexSelect";
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
     THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexSelect");
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = nblocks.vec[i] * nthreads.vec[i];
-  }
-
-  if( !res_->storage->wrapper->isOnDevice() ) {
-    res_->storage->wrapper->createOnDevice();
-  }
 
   THClKernels k(state, kernel);
   k.inout(res_);
@@ -198,8 +175,7 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   k.in((int)nRes);
   k.in((int)src->size[dim]);
 
-  kernel->run(3, global_ws.as_size_t(), nthreads.as_size_t());
-  THClState_getCl(state)->finish();
+  k.run(nblocks, nthreads);
 
   delete strideWrapper;
   delete[] stride_;

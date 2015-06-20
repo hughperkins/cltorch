@@ -1,6 +1,9 @@
 #include "THClKernels.h"
 #include "EasyCL.h"
 #include "THClTensor.h"
+#include <stdexcept>
+
+using namespace std;
 
 THClKernels::THClKernels(THClState *state, CLKernel *kernel) :
   state(state),
@@ -8,25 +11,45 @@ THClKernels::THClKernels(THClState *state, CLKernel *kernel) :
 }
 THClKernels *THClKernels::in(THClTensor *tensor) {
   kernel->in(THClTensor_wrapper(state, tensor));
-  kernel->in((int)THClTensor_storageOffset(state, tensor));
+  try {
+    kernel->in((int)THClTensor_storageOffset(state, tensor));
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
   return this;
 }
 THClKernels *THClKernels::inout(THClTensor *tensor) {
-  kernel->inout(THClTensor_wrapper(state, tensor));
-  kernel->in((int)THClTensor_storageOffset(state, tensor));
+  try {
+    kernel->inout(THClTensor_wrapper(state, tensor));
+    kernel->in((int)THClTensor_storageOffset(state, tensor));
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
   return this;
 }
 THClKernels *THClKernels::out(THClTensor *tensor) {
-  kernel->out(THClTensor_wrapper(state, tensor));
-  kernel->in((int)THClTensor_storageOffset(state, tensor));
+  try {
+    kernel->out(THClTensor_wrapper(state, tensor));
+    kernel->in((int)THClTensor_storageOffset(state, tensor));
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
   return this;
 }
 THClKernels *THClKernels::in(int value) {
-  kernel->in(value);
+  try {
+    kernel->in(value);
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
   return this;
 }
 THClKernels *THClKernels::in(float value) {
-  kernel->in(value);
+  try {
+    kernel->in(value);
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
   return this;
 }
 THClKernels *THClKernels::in(CLWrapper *wrapper) {
@@ -34,11 +57,29 @@ THClKernels *THClKernels::in(CLWrapper *wrapper) {
   return this;
 }
 THClKernels *THClKernels::inout(CLWrapper *wrapper) {
-  kernel->inout(wrapper);
+  try {
+    kernel->inout(wrapper);
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
   return this;
 }
 THClKernels *THClKernels::out(CLWrapper *wrapper) {
-  kernel->out(wrapper);
+  try {
+    if( !wrapper->isOnDevice() ) {
+      wrapper->createOnDevice();
+    }
+    kernel->out(wrapper);
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
   return this;
+}
+void THClKernels::run(dim3 grid, dim3 block) {
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = grid.vec[i] * block.vec[i];
+  }
+  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
 }
 
