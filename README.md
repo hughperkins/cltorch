@@ -125,6 +125,7 @@ x[torch.lt(x,0)] = -2
 
 C = torch.ClTensor{{3,1,7},{3,2,4}}
 C:indexFill(2, torch.LongTensor{1,3}, -12)
+x:indexCopy(2,torch.LongTensor{5,1},z)
 </pre></tr>
 
 
@@ -377,6 +378,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * `max(1)` and `min(1)` now return the indices too, as well as the max.  Ditto for dimension 2.
   * added `:all()` and `:any()`
   * added `:indexFill()`
+  * added `:indexCopy()`
 * 19th June:
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
   * added `a:sub(b)` method, which does element-wise subtraction of b from a, and puts results in a

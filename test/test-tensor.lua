@@ -577,6 +577,24 @@ if os.getenv('PROTOTYPING') ~= nil then
   Afillcl:indexFill(2, torch.LongTensor{1,3}, -12)
   print('Afillcl', Afillcl)
 
+  x = torch.Tensor(5,5):uniform()
+  print('x', x)
+  z = torch.Tensor(5,2)
+  z:select(2,1):fill(-1)
+  z:select(2,2):fill(-2)
+  print('z', z)
+  x:indexCopy(2,torch.LongTensor{5,1},z)
+  print('x', x)
+
+  x = torch.Tensor(5,5):uniform():cl()
+  print('x', x)
+  z = torch.ClTensor(5,2)
+  z:select(2,1):fill(-1)
+  z:select(2,2):fill(-2)
+  print('z', z)
+  x:indexCopy(2,torch.LongTensor{5,1},z)
+  print('x', x)
+
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)
 --  x[{ 1,3 }] = 1
