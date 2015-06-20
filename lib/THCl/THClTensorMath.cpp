@@ -301,44 +301,48 @@ void THClTensor_prod(THClState* state, THClTensor *self, THClTensor *src, long d
      &modifyOp, &reduceOp, dimension);
 }
 
-//struct logicalall_functor
-//{
-//  __host__ __device__ float operator()(const float& x, const float& y) const
-//  {
-//    return x && y;
-//  }
-//};
+class logicalall_functor : public HasOperator3
+{
+public:
+  std::string operator3() const {
+    return "*out = (int)*in1 && (int)*in2";
+  }
+};
 
-//struct logicalany_functor
-//{
-//  __host__ __device__ float operator()(const float& x, const float& y) const
-//  {
-//    return x || y;
-//  }
-//};
+struct logicalany_functor : public HasOperator3
+{
+public:
+  std::string operator3() const {
+    return "*out = (int)*in1 || (int)*in2";
+  }
+};
 
 int THClTensor_logicalall(THClState *state, THClTensor *self) {
-//  THAssert(THClTensor_checkGPU(state, 1, self));
-//  self = THClTensor_newContiguous(state, self);
-//  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
+  THAssert(THClTensor_checkGPU(state, 1, self));
+  float val = 0.0f;
+  CopyOp modifyOp;
+  logicalall_functor reduceOp;
+  if (!THClTensor_reduceAll(state, self,
+          &modifyOp,
+          &reduceOp,
+          1.0f, &val)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
 
-//  int result = thrust::reduce(self_data, self_data+THClTensor_nElement(state, self), (float)(1), logicalall_functor());
-
-//  THClTensor_free(state, self);
-//  return result;
-    THError("Not implemented");
-    return 0;
+  return val;
 }
 
 int THClTensor_logicalany(THClState *state, THClTensor *self) {
-//  THAssert(THClTensor_checkGPU(state, 1, self));
-//  self = THClTensor_newContiguous(state, self);
-//  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
+  THAssert(THClTensor_checkGPU(state, 1, self));
+  float val = 0.0f;
+  CopyOp modifyOp;
+  logicalany_functor reduceOp;
+  if (!THClTensor_reduceAll(state, self,
+          &modifyOp,
+          &reduceOp,
+          0.0f, &val)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
 
-//  int result = thrust::reduce(self_data, self_data+THClTensor_nElement(state, self), (float)(0), logicalany_functor());
-
-//  THClTensor_free(state, self);
-//  return result;
-    THError("Not implemented");
-    return 0;
+  return val;
 }

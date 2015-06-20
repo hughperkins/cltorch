@@ -233,6 +233,8 @@ end
 for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
   print(loadstring('return torch.' .. name .. '(c,d)')())
 end
+torch.any(torch.Tensor({0,1,0}):cl())
+torch.all(torch.Tensor({0,1,0}):cl())
 </pre></tr>
 
 <tr><td>Overloaded operators <td>80% done<td><pre>
@@ -370,6 +372,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * added `normall`, ie can do `torch.norm(c)`, `torch.norm(c, exponent)`
   * added `prod`, `prod(1)`, `prod(2)`
   * `max(1)` and `min(1)` now return the indices too, as well as the max.  Ditto for dimension 2.
+  * added `:all()` and `:any()`
 * 19th June:
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
   * added `a:sub(b)` method, which does element-wise subtraction of b from a, and puts results in a

@@ -171,7 +171,7 @@ print('A\n', A)
 print('B\n', B)
 print(torch.mm(A,B))
 end
-if true then
+if false then
 print(torch.mm(A:float(), B:float()))
 
 C = torch.ClTensor{{0,0},{0,0}}
@@ -196,7 +196,7 @@ print('C\n', C)
 
 end
 
-if true then
+if false then
 v1 = torch.ClTensor{3,5,1}
 v2 = torch.ClTensor{2,4,8}
 --print(v1 * v2)
@@ -223,7 +223,7 @@ collectgarbage()
 
 -------------------
 
-if true then
+if false then
 
 A = torch.ClTensor{{3,5,2},{4,5,6}}
 print('A\n', A)
@@ -263,7 +263,7 @@ print(torch.ClTensor({{3,5,2},{4,5,6}}) == torch.ClTensor({{3,5,2},{4,5,6}}))
 --print('end')
 end
 
-if true then
+if false then
 A = torch.ClTensor{{3,2,4},{9,7,5}}
 print('A\n', A)
 print('A:sum(2)', A:sum(2))
@@ -274,7 +274,7 @@ print('torch.max(A,1)', torch.max(A,1))
 print('torch.max(A,2)', torch.max(A,2))
 end
 
-if true then
+if false then
   c = torch.ClTensor{3,5,2}
   print('torch.isTensor(c)', torch.isTensor(c))
   print('c:nDimension()', c:nDimension())
@@ -293,7 +293,7 @@ if true then
   print('C:storageOffset()', C:storageOffset())
 end
 
-if true then
+if false then
   c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
   c:fill(1.345)
   print('c\n', c)
@@ -314,7 +314,7 @@ if true then
   print('d\n', d)
 end
 
-if true then
+if false then
   C = torch.ClTensor{{3,2,4},{9,7,5}}
   A = C:float()
   print('C\n', C)
@@ -326,7 +326,7 @@ if true then
   print(C:t())
 end
 
-if true then
+if false then
   C = torch.ClTensor{{3,2},{9,7}}
   D = torch.ClTensor{{3,1,7},{3,2,4}}
   E = torch.ClTensor{{3,1},{2,9},{3,2}}
@@ -346,7 +346,7 @@ end
 
 collectgarbage()
 
-if true then
+if false then
   E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
   print('E\n', E)
   F = E:narrow(1,2,3)
@@ -383,7 +383,7 @@ if true then
 end
 collectgarbage()
 
-if true then
+if false then
 --    bias:fill(0.1)
 --    addBuffer:fill(0.1)
 --  bias = torch.ClTensor{0.1, -0.2}
@@ -444,7 +444,7 @@ if true then
 end
 collectgarbage()
 
-if true then
+if false then
    A = torch.Tensor(3,2):uniform()
    print('A\n', A)
    A:apply(function(x) return x + 3 end)
@@ -526,6 +526,7 @@ if os.getenv('PROTOTYPING') ~= nil then
 
   print('torch.prod(A)', torch.prod(A))
   print('torch.prod(Acl)', torch.prod(Acl))
+  collectgarbage()
 
   local s = torch.LongStorage{5,2}
   local A = torch.Tensor(s):uniform() - 0.5
@@ -534,14 +535,36 @@ if os.getenv('PROTOTYPING') ~= nil then
   local Aclmax, Aclind = Acl:max(2)
   print('A max', Amax, Aind)
   print('Acl max', Aclmax, Aclind)
+  collectgarbage()
+  print('after gc')
 
-  local s = torch.LongStorage{5,2}
+  local s = torch.LongStorage{5,4}
   local A = torch.Tensor(s):uniform() - 0.5
   local Acl = A:cl()
   local Amax, Aind = A:min(2)
   local Aclmax, Aclind = Acl:min(2)
   print('A min', Amax, Aind)
   print('Acl min', Aclmax, Aclind)
+
+--  print('Aind:select(2,1)', Aind:select(2,1))
+--  print('A', A)
+--  print('A:gather(2, Aind)', A:gather(2, Aind))
+--  print('Acl:gather(2, Aclind)', Acl:gather(2, Aclind))
+
+  A = torch.Tensor{{1,1,1},{1,1,1}}
+  A2 = torch.Tensor{{1,1,0},{1,1,1}}
+  A3 = torch.Tensor{{0,1,0},{0,0,0}}
+  A4 = torch.Tensor{{0,0,0},{0,0,0}}
+  print('torch.all(A)', torch.all(A:byte()))
+  print('torch.all(A2:byte())', torch.all(A2:byte()))
+
+  print('torch.all(A:cl())', torch.all(A:cl()))
+  print('torch.all(A2:cl())', torch.all(A2:cl()))
+
+  print('torch.any(A:cl())', torch.any(A:cl()))
+  print('torch.any(A2:cl())', torch.any(A2:cl()))
+  print('torch.any(A3:cl())', torch.any(A3:cl()))
+  print('torch.any(A4:cl())', torch.any(A4:cl()))
 
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)
