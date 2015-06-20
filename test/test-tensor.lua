@@ -63,6 +63,10 @@ b[1][2] = 5.432
 c:copy(b)
 print('c6\n', c)
 
+ print('collect garbage')
+
+collectgarbage()
+
 -- =============================
 
 d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
@@ -98,6 +102,8 @@ for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
   loadstring('c:' .. name .. '()')()
   print('c3\n', c)
 end
+
+collectgarbage()
 
 c = c:float()
 d = d:float()
@@ -150,6 +156,8 @@ print('c\n', c)
 print(torch.cpow(c,d))
 print(torch.cdiv(c,d))
 print(-c)
+
+collectgarbage()
 
 -- print(c:t())
 end
@@ -210,6 +218,8 @@ print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
 
 print(torch.mv(A,v1))
 end
+
+collectgarbage()
 
 -------------------
 
@@ -334,6 +344,8 @@ if true then
   print(torch.addr(C:float(), d:float(), e:float()))
 end
 
+collectgarbage()
+
 if true then
   E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
   print('E\n', E)
@@ -369,6 +381,7 @@ if true then
   print('x\n', x)
 
 end
+collectgarbage()
 
 if true then
 --    bias:fill(0.1)
@@ -429,6 +442,7 @@ if true then
 --  print(C - D) 
 
 end
+collectgarbage()
 
 if true then
    A = torch.Tensor(3,2):uniform()
@@ -485,6 +499,7 @@ if true then
   Acl = A:clone():cl()
   print('torch.sum(Acl)\n', torch.sum(Acl))
 end
+collectgarbage()
 
 if os.getenv('PROTOTYPING') ~= nil then
   A = torch.Tensor(3,2):uniform()
@@ -508,6 +523,7 @@ if os.getenv('PROTOTYPING') ~= nil then
   Aclt = Acl:t()
   print('Aclt', Aclt)
   print('Acl.transpose(1,2)', Acl:transpose(1,2))
+
 
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)
@@ -534,6 +550,7 @@ if os.getenv('PROTOTYPING') ~= nil then
 --  z:maskedSelect(x, mask)
 --  print('z\n', z)
 end
+collectgarbage()
 
 torch.traceon(0)
 
