@@ -50,9 +50,9 @@ kernel void THClTensor_kernel_transformReduceOuterDimIndex(global float *tgt1_da
  * Reduction along other dimensions is handled in a separate kernel.
  */
 kernel void THClTensor_kernel_transformReduceInnermostDimIndex(
-  global float *tgt1_data, long tgt1_offset, global float* tgt2_data, long tgt2_offset,
-  global float *src_data, long src_offset,
-  unsigned num_rows, unsigned row_size )
+  global float *tgt1_data, int tgt1_offset, global float* tgt2_data, int tgt2_offset,
+  global float *src_data, int src_offset,
+  int num_rows, int row_size )
 {
   local float sbuf[32][16];
   local float ibuf[32][16];

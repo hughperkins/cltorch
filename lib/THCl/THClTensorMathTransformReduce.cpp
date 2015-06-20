@@ -25,12 +25,6 @@ public:
   std::string pair_operator2() const {
     return "if( a.first > b.first ) { return a; } else { return b; }";
   }
-//   __host__ /*__device__*/ thrust::pair<float,float> operator()(const thrust::pair<float,float> &a,
-//                                                             const thrust::pair<float,float> &b)
-//  {
-  //     if (a.first > b.first) return a;
-//    else return b;
-//  }
 };
 
 void kernelLaunch_THClTensor_kernel_transformReduceOuterDimIndex(
@@ -47,7 +41,6 @@ void kernelLaunch_THClTensor_kernel_transformReduceOuterDimIndex(
   TemplatedKernel kernelBuilder(THClState_getCl(state));
 
   kernelBuilder
-//    .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
     .set("init", init)
     .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
     .set("pair_operator2", binary_op->pair_operator2())
@@ -91,7 +84,6 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
   unsigned num_orows = 1;
   for (unsigned dim = 0; dim < rdim; dim++) {
     num_orows *= THClTensor_size(state, src, dim);
-    THError("Not implemented");
   }
   unsigned row_size = THClTensor_size(state, src, rdim);
   unsigned num_irows = 1;
@@ -120,30 +112,80 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
 //    THClTensor_data(state, src), num_orows, num_irows, row_size, init, binary_op);
 }
 
-//template<class BinaryFunction>
-//__host__ void THClTensor_transformReduceInnermostDimIndex(
-//  THClState *state, THClTensor *tgt1, THClTensor *tgt2, THClTensor *src,
-////   thrust::pair<float,float> init, BinaryFunction binary_op)
-//{
-//  unsigned ndim = THClTensor_nDimension(state, src);
-//  unsigned num_rows = 1;
-//  for (unsigned dim = 0; dim < ndim - 1; dim++) {
-//    num_rows *= THClTensor_size(state, src, dim);
+void kernelLaunch_THClTensor_kernel_transformReduceInnermostDimIndex(
+    THClState *state, dim3 grid, dim3 block, 
+    CLWrapper *tgt1_wrap,
+    long tgt1_offset,
+    CLWrapper *tgt2_wrap,
+    long tgt2_offset,
+    CLWrapper *src_wrap,
+    long src_offset,
+    unsigned num_rows, unsigned row_size, float init, HasPairOperator2 *binary_op) {
+
+  // launch kernel here....
+  TemplatedKernel kernelBuilder(THClState_getCl(state));
+
+  kernelBuilder
+    .set("init", init)
+    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+    .set("pair_operator2", binary_op->pair_operator2())
+  ;
+
+  std::string uniqueName = "THClTensorMathTransformReduce_InnermostDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
+  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathTransformReduce.cl", THClTensorMathTransformReduce_getKernelTemplate(), "THClTensor_kernel_transformReduceInnermostDimIndex");
+  // calculate workgroup sizes and stuff
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = grid.vec[i] * block.vec[i];
+  }
+
+  if( !tgt1_wrap->isOnDevice() ) {
+    tgt1_wrap->createOnDevice();
+  }
+  if( !tgt2_wrap->isOnDevice() ) {
+    tgt2_wrap->createOnDevice();
+  }
+
+  kernel->out( tgt1_wrap );
+  kernel->in( (int)tgt1_offset );
+  kernel->out( tgt2_wrap );
+  kernel->in( (int)tgt2_offset );
+  kernel->in( src_wrap );
+  kernel->in( (int)src_offset );
+  kernel->in((int)num_rows)->in((int)row_size);
+
+  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
+  THClState_getCl(state)->finish();
+
 //  THError("Not implemented");
-//  }
-//  unsigned row_size = THClTensor_size(state, src, ndim - 1);
+}
 
-//  dim3 threads(16, 32);
-//  dim3 grid(min(1024, THCCeilDiv(num_rows, threads.y)));
+void THClTensor_transformReduceInnermostDimIndex(
+  THClState *state, THClTensor *tgt1, THClTensor *tgt2, THClTensor *src,
+  float init, HasPairOperator2 *binary_op)
+{
+  unsigned ndim = THClTensor_nDimension(state, src);
+  unsigned num_rows = 1;
+  for (unsigned dim = 0; dim < ndim - 1; dim++) {
+    num_rows *= THClTensor_size(state, src, dim);
+  }
+  unsigned row_size = THClTensor_size(state, src, ndim - 1);
 
+  dim3 threads(16, 32);
+  dim3 grid(mymin(1024, THClCeilDiv(num_rows, threads.y())));
+
+  // kernel launch...
+  kernelLaunch_THClTensor_kernel_transformReduceInnermostDimIndex(
+    state, grid, threads,
+    THClTensor_wrapper(state, tgt1), THClTensor_storageOffset(state, tgt1), 
+    THClTensor_wrapper(state, tgt2), THClTensor_storageOffset(state, tgt2),
+    THClTensor_wrapper(state, src), THClTensor_storageOffset(state, src),
+    num_rows, row_size, init, binary_op);
 //  THClTensor_kernel_transformReduceInnermostDimIndex<<<grid, threads, 0, THClState_getCurrentStream(state)>>>(
 //    THClTensor_data(state, tgt1), THClTensor_data(state, tgt2),
 //    THClTensor_data(state, src), num_rows, row_size, init, binary_op);
-//  cudaError errcode = cudaGetLastError();
-//  if(errcode != cudaSuccess) {
-//    THError(cudaGetErrorString(errcode));
-//  }
-//}
+//  THError("Not implemented");
+}
 
 void THClTensor_reduceDimIndex(THClState *state, THClTensor *tgt1_, THClTensor *tgt2_, THClTensor *src,
                               long dimension, float init,
@@ -162,11 +204,10 @@ void THClTensor_reduceDimIndex(THClState *state, THClTensor *tgt1_, THClTensor *
   src = THClTensor_newContiguous(state, src);
 
   if(dimension == THClTensor_nDimension(state, src)-1) {
-    THError("Not implemented");
-//    THClTensor_transformReduceInnermostDimIndex(state, tgt1, tgt2, src, init, binary_op);
+    THClTensor_transformReduceInnermostDimIndex(state, tgt1, tgt2, src, init, binary_op);
+//    THError("Not implemented");
   } else {
     THClTensor_transformReduceOuterDimIndex(state, tgt1, tgt2, src, dimension, init, binary_op);
-//    THError("Not implemented");
   }
 
   THClTensor_free(state, src);
@@ -257,9 +298,9 @@ std::string THClTensorMathTransformReduce_getKernelTemplate() {
   " * Reduction along other dimensions is handled in a separate kernel.\n" 
   " */\n" 
   "kernel void THClTensor_kernel_transformReduceInnermostDimIndex(\n" 
-  "  global float *tgt1_data, long tgt1_offset, global float* tgt2_data, long tgt2_offset,\n" 
-  "  global float *src_data, long src_offset,\n" 
-  "  unsigned num_rows, unsigned row_size )\n" 
+  "  global float *tgt1_data, int tgt1_offset, global float* tgt2_data, int tgt2_offset,\n" 
+  "  global float *src_data, int src_offset,\n" 
+  "  int num_rows, int row_size )\n" 
   "{\n" 
   "  local float sbuf[32][16];\n" 
   "  local float ibuf[32][16];\n" 

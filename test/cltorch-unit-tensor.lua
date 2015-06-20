@@ -572,12 +572,24 @@ function test_sum()
   luaunit.assertEquals(A:sum(2), Acl:sum(2):double())  
 end
 
-function test_max()
+function test_max1()
   local s = torch.LongStorage{5,2}
   local A = torch.Tensor(s):uniform() - 0.5
   local Acl = A:cl()
-  Amax, Aind = A:max(1)
-  Aclmax, Aclind = Acl:max(1)
+  local Amax, Aind = A:max(1)
+  local Aclmax, Aclind = Acl:max(1)
+  print('A max', Amax, Aind)
+  print('Acl max', Aclmax, Aclind)
+  luaunit.assertEquals(Amax, Aclmax:double())
+  luaunit.assertEquals(Aind, Aclind:long())
+end
+
+function test_max2()
+  local s = torch.LongStorage{5,2}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local Acl = A:cl()
+  local Amax, Aind = A:max(2)
+  local Aclmax, Aclind = Acl:max(2)
   print('A max', Amax, Aind)
   print('Acl max', Aclmax, Aclind)
   luaunit.assertEquals(Amax, Aclmax:double())

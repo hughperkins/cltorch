@@ -527,6 +527,14 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('torch.prod(A)', torch.prod(A))
   print('torch.prod(Acl)', torch.prod(Acl))
 
+  local s = torch.LongStorage{5,2}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local Acl = A:cl()
+  local Amax, Aind = A:max(2)
+  local Aclmax, Aclind = Acl:max(2)
+  print('A max', Amax, Aind)
+  print('Acl max', Aclmax, Aclind)
+
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)
 --  x[{ 1,3 }] = 1

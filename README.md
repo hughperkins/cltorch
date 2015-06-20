@@ -268,7 +268,7 @@ print(A:prod(1))
 print(A:prod(2))
 A:max()
 result, idx = A:max(1)
-A:max(2) -- only returns the result, not the indices
+result, idx = A:max(2)
 A:min()
 A:min(1) -- only returns the result, not the indices
 A:min(2) -- only returns the result, not the indices
