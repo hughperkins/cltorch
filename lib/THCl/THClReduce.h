@@ -12,6 +12,7 @@
 #include "EasyCL.h"
 #include "THClTypeParseTraits.h"
 #include "THClDeviceUtils.h"
+#include "THClKernels.h"
 
 
 std::string THClReduce_getKernelSource();
@@ -138,7 +139,7 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
   kernel->in(init);
 
   kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-  THClState_getCl(state)->finish();
+//  THClState_getCl(state)->finish();
 }
 
 template<typename IndexType>
@@ -215,7 +216,7 @@ void kernelLaunch_THClTensor_reduceContigDim(
   kernel->localFloats(smemSize / sizeof(float));
 
   kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-  THClState_getCl(state)->finish();
+//  THClState_getCl(state)->finish();
 
 }
 
