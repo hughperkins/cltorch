@@ -8,6 +8,7 @@
 #include "THClApply.h"
 #include "THClReduce.h"
 #include "THClDeviceUtils.h"
+#include "THClKernels.h"
 
 #include <string>
 using namespace std;
@@ -35,52 +36,6 @@ public:
   }
 };
 
-void kernelLaunch_THClTensor_kernel_transformReduceOuterDimIndex(
-    THClState *state, dim3 grid, dim3 block, 
-    CLWrapper *tgt1_wrap,
-    long tgt1_offset,
-    CLWrapper *tgt2_wrap,
-    long tgt2_offset,
-    CLWrapper *src_wrap,
-    long src_offset,
-    unsigned num_orows, unsigned num_irows, unsigned row_size, float init, HasPairOperator2 *binary_op) {
-
-  // launch kernel here....
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-
-  kernelBuilder
-    .set("init", init)
-    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-    .set("pair_operator2", binary_op->pair_operator2())
-  ;
-
-  std::string uniqueName = "THClTensorMathTransformReduce_OuterDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
-  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathTransformReduce.cl", THClTensorMathTransformReduce_getKernelTemplate(), "THClTensor_kernel_transformReduceOuterDimIndex");
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * block.vec[i];
-  }
-
-  if( !tgt1_wrap->isOnDevice() ) {
-    tgt1_wrap->createOnDevice();
-  }
-  if( !tgt2_wrap->isOnDevice() ) {
-    tgt2_wrap->createOnDevice();
-  }
-
-  kernel->out( tgt1_wrap );
-  kernel->in( (int)tgt1_offset );
-  kernel->out( tgt2_wrap );
-  kernel->in( (int)tgt2_offset );
-  kernel->in( src_wrap );
-  kernel->in( (int)src_offset );
-  kernel->in((int)num_orows)->in((int)num_irows)->in((int)row_size);
-
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-  THClState_getCl(state)->finish();
-}
-
 void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1, THClTensor *tgt2,
                                                    THClTensor *src,
                                                     long rdim, float init,
@@ -101,30 +56,6 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
   unsigned maxGridDim = 1024;
   dim3 grid(mymin(maxGridDim, num_orows), mymin(maxGridDim, THClCeilDiv(num_irows, threads.x())));
 
-  // kernel launch...
-  kernelLaunch_THClTensor_kernel_transformReduceOuterDimIndex(
-    state,
-    grid, threads,
-    THClTensor_wrapper(state, tgt1),
-    THClTensor_storageOffset(state, tgt1),
-    THClTensor_wrapper(state, tgt2),
-    THClTensor_storageOffset(state, tgt2),
-    THClTensor_wrapper(state, src),
-    THClTensor_storageOffset(state, src),
-    num_orows, num_irows, row_size, init, binary_op);
-}
-
-void kernelLaunch_THClTensor_kernel_transformReduceInnermostDimIndex(
-    THClState *state, dim3 grid, dim3 block, 
-    CLWrapper *tgt1_wrap,
-    long tgt1_offset,
-    CLWrapper *tgt2_wrap,
-    long tgt2_offset,
-    CLWrapper *src_wrap,
-    long src_offset,
-    unsigned num_rows, unsigned row_size, float init, HasPairOperator2 *binary_op) {
-
-  // launch kernel here....
   TemplatedKernel kernelBuilder(THClState_getCl(state));
 
   kernelBuilder
@@ -133,31 +64,17 @@ void kernelLaunch_THClTensor_kernel_transformReduceInnermostDimIndex(
     .set("pair_operator2", binary_op->pair_operator2())
   ;
 
-  std::string uniqueName = "THClTensorMathTransformReduce_InnermostDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
-  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathTransformReduce.cl", THClTensorMathTransformReduce_getKernelTemplate(), "THClTensor_kernel_transformReduceInnermostDimIndex");
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * block.vec[i];
-  }
+  std::string uniqueName = "THClTensorMathTransformReduce_OuterDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
+  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathTransformReduce.cl", THClTensorMathTransformReduce_getKernelTemplate(), "THClTensor_kernel_transformReduceOuterDimIndex");
 
-  if( !tgt1_wrap->isOnDevice() ) {
-    tgt1_wrap->createOnDevice();
-  }
-  if( !tgt2_wrap->isOnDevice() ) {
-    tgt2_wrap->createOnDevice();
-  }
-
-  kernel->out( tgt1_wrap );
-  kernel->in( (int)tgt1_offset );
-  kernel->out( tgt2_wrap );
-  kernel->in( (int)tgt2_offset );
-  kernel->in( src_wrap );
-  kernel->in( (int)src_offset );
-  kernel->in((int)num_rows)->in((int)row_size);
-
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-  THClState_getCl(state)->finish();
+  THClKernels k(state, kernel);
+  k.out( tgt1 );
+  k.out( tgt2 );
+  k.in( src );
+  k.in((int)num_orows);
+  k.in((int)num_irows);
+  k.in((int)row_size);
+  k.run(grid, threads);
 }
 
 void THClTensor_transformReduceInnermostDimIndex(
@@ -174,13 +91,24 @@ void THClTensor_transformReduceInnermostDimIndex(
   dim3 threads(16, 32);
   dim3 grid(mymin(1024, THClCeilDiv(num_rows, threads.y())));
 
-  // kernel launch...
-  kernelLaunch_THClTensor_kernel_transformReduceInnermostDimIndex(
-    state, grid, threads,
-    THClTensor_wrapper(state, tgt1), THClTensor_storageOffset(state, tgt1), 
-    THClTensor_wrapper(state, tgt2), THClTensor_storageOffset(state, tgt2),
-    THClTensor_wrapper(state, src), THClTensor_storageOffset(state, src),
-    num_rows, row_size, init, binary_op);
+  TemplatedKernel kernelBuilder(THClState_getCl(state));
+
+  kernelBuilder
+    .set("init", init)
+    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+    .set("pair_operator2", binary_op->pair_operator2())
+  ;
+
+  std::string uniqueName = "THClTensorMathTransformReduce_InnermostDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
+  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathTransformReduce.cl", THClTensorMathTransformReduce_getKernelTemplate(), "THClTensor_kernel_transformReduceInnermostDimIndex");
+
+  THClKernels k(state, kernel);
+  k.out( tgt1 );
+  k.out( tgt2 );
+  k.in( src );
+  k.in((int)num_rows);
+  k.in((int)row_size);
+  k.run(grid, threads);
 }
 
 void THClTensor_reduceDimIndex(THClState *state, THClTensor *tgt1_, THClTensor *tgt2_, THClTensor *src,
