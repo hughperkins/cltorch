@@ -457,7 +457,7 @@ end
 
 function test_apply()
   local s = torch.LongStorage{60,50}
-  local A = torch.Tensor(s):uniform()
+  local A = torch.Tensor(s):uniform() - 0.5
   local Aapply = A:clone():apply(function(x) return math.sqrt(x+3) end)
   local Aapplycl = A:clone():cl():apply("*out = sqrt(*out + 3)")
   luaunit.assertEquals(Aapply, Aapplycl:double())
@@ -465,8 +465,8 @@ end
 
 function test_map()
   local s = torch.LongStorage{60,50}
-  local A = torch.Tensor(s):uniform()
-  local B = torch.Tensor(s):uniform()
+  local A = torch.Tensor(s):uniform() - 0.5
+  local B = torch.Tensor(s):uniform() - 0.5
   local AmapB = A:clone():map(B, function(x, y) return math.sqrt(x*x + y*y + 3) end)
   local AmapBcl = A:clone():cl():map(B:clone():cl(), 
     "*out = sqrt(*out * *out + *in1 * *in1 + 3)")
@@ -475,9 +475,9 @@ end
 
 function test_map2()
   local s = torch.LongStorage{60,50}
-  local A = torch.Tensor(s):uniform()
-  local B = torch.Tensor(s):uniform()
-  local C = torch.Tensor(s):uniform()
+  local A = torch.Tensor(s):uniform() - 0.5
+  local B = torch.Tensor(s):uniform() - 0.5
+  local C = torch.Tensor(s):uniform() - 0.5
   local Amap2BC = A:clone():map2(B, C, 
     function(x, y, z) return math.sqrt(x*x + y*y + z + 3) end)
   local Amap2BCcl = A:clone():cl():map2(
@@ -489,7 +489,7 @@ end
 
 function test_reduceAll()
   -- test on a large tensor, that needs two-pass :-)
-  A = torch.Tensor(28*28*1280,10):uniform()
+  A = torch.Tensor(28*28*1280,10):uniform() - 0.5
   Asum = torch.sum(A)
   Aclsum = torch.sum(A:clone():cl())
   diff = Asum - Aclsum
@@ -499,7 +499,7 @@ function test_reduceAll()
   luaunit.assertTrue(diff < 1.2)
 
   -- now test on a single pass
-  A = torch.Tensor(50,40):uniform()
+  A = torch.Tensor(50,40):uniform() - 0.5
   Asum = torch.sum(A)
   Aclsum = torch.sum(A:clone():cl())
   diff = Asum - Aclsum
@@ -511,7 +511,7 @@ end
 
 function test_prodall()
   local s = torch.LongStorage{60,50}
-  local A = torch.Tensor(s):uniform()
+  local A = torch.Tensor(s):uniform() - 0.5
   local Acl = A:cl()
   print('allocated A,Acl')
   local Aprodall = torch.prod(A)
@@ -529,7 +529,7 @@ end
 
 function test_sumall()
   local s = torch.LongStorage{60,50}
-  local A = torch.Tensor(s):uniform()
+  local A = torch.Tensor(s):uniform() - 0.5
   local Acl = A:cl()
   print('allocated A,Acl')
   local Asumall = torch.sum(A)
@@ -542,6 +542,22 @@ function test_sumall()
   Aclsumall2 = Acl:sum()
   print('...calced')
   luaunit.assertEquals(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall2})
+end
+
+function test_prod()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local Acl = A:cl()
+  luaunit.assertEquals(A:prod(1), Acl:prod(1):double())  
+  luaunit.assertEquals(A:prod(2), Acl:prod(2):double())  
+end
+
+function test_sum()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local Acl = A:cl()
+  luaunit.assertEquals(A:sum(1), Acl:sum(1):double())  
+  luaunit.assertEquals(A:sum(2), Acl:sum(2):double())  
 end
 
 local function _run()

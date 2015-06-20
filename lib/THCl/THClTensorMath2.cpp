@@ -123,13 +123,6 @@ public:
   string operator1() const {
     return "*out = fmax(fmin(*out, val2), val1)";
   }
-//  __device__ __forceinline__ void operator()(float* out, float* in) {
-//    *out = max(min(*in, maxValue), minValue);
-//  }
-
-//  __device__ __forceinline__ void operator()(float* v) {
-//    *v = max(min(*v, maxValue), minValue);
-//  }
 
   const float minValue;
   const float maxValue;
@@ -463,7 +456,6 @@ struct partial_not_equal_functor : public HasOperator2
   {
     return "*out = *in1 != " + easycl::toString(rhs);
   }
-//  __host__ __device__ bool operator()(const float &lhs) const {return lhs != rhs;}
 };
 
 float THClTensor_normall(THClState *state, THClTensor *self, float value)
@@ -480,7 +472,6 @@ float THClTensor_normall(THClState *state, THClTensor *self, float value)
           0.0f, &result)) {
       THArgCheck(false, 1, CLTORCH_DIM_WARNING);
     }
-//    result = thrust::transform_reduce(self_data, self_data+size, partial_not_equal_functor(0.0f), (float)0, thrust::plus<float>());
   } else {
     norm_functor modifyOp(value);
     TensorAddOp reduceOp;

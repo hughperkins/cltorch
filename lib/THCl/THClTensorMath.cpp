@@ -267,17 +267,6 @@ float THClTensor_prodall(THClState *state, THClTensor *self)
   }
 
   return val;
-
-//  THAssert(THClTensor_checkGPU(state, 1, self));
-//  self = THClTensor_newContiguous(state, self);
-//  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
-
-//  float result = thrust::reduce(self_data, self_data+THClTensor_nElement(state, self), (float)(1), thrust::multiplies<float>());
-
-//  THClTensor_free(state, self);
-//  return result;
-    THError("Not implemented");
-    return 0;
 }
 
 //struct dim4 {
@@ -334,14 +323,13 @@ void THClTensor_min(THClState* state, THClTensor *self, THClTensor *src, long di
 
 void THClTensor_prod(THClState* state, THClTensor *self, THClTensor *src, long dimension)
 {
-//  THAssert(THClTensor_checkGPU(state, 2, self, src));
-//  THClTensor_reduceDim(
-//    state, self, src,
-//    thrust::identity<float>(), thrust::multiplies<float>(), 1.0f, dimension);
-
-//  THClCheck(cudaGetLastError());
-    THError("Not implemented");
-//    return 0;
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+  CopyOp modifyOp;
+  TensorMulOp reduceOp;
+  THClTensor_reduceDim(
+    state, self, src,
+      1.0f, 
+     &modifyOp, &reduceOp, dimension);
 }
 
 //struct logicalall_functor
