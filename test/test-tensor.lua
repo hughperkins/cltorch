@@ -501,70 +501,81 @@ if false then
 end
 collectgarbage()
 
-if os.getenv('PROTOTYPING') ~= nil then
-  A = torch.Tensor(3,2):uniform()
+A = torch.Tensor(3,2):uniform()
 --  A = torch.Tensor{3}
-  print('torch.norm(A)', torch.norm(A))
-  Acl = A:cl()
-  print('torch.norm(Acl)', torch.norm(Acl))
+print('torch.norm(A)', torch.norm(A))
+Acl = A:cl()
+print('torch.norm(Acl)', torch.norm(Acl))
 
-  print('torch.norm(A, 1)', torch.norm(A, 1))
-  print('torch.norm(Acl, 1)', torch.norm(Acl, 1))
+print('torch.norm(A, 1)', torch.norm(A, 1))
+print('torch.norm(Acl, 1)', torch.norm(Acl, 1))
 
-  print('torch.norm(A, 0)', torch.norm(A, 0))
-  print('torch.norm(Acl, 0)', torch.norm(Acl, 0))
+print('torch.norm(A, 0)', torch.norm(A, 0))
+print('torch.norm(Acl, 0)', torch.norm(Acl, 0))
 
-  print('torch.numel(A)', torch.numel(A))
-  print('torch.numel(Acl)', torch.numel(Acl))
+print('torch.numel(A)', torch.numel(A))
+print('torch.numel(Acl)', torch.numel(Acl))
 
 --  print('torch.trace(A)', torch.trace(A))
 --  print('torch.trace(Acl)', torch.trace(Acl))
 
-  Aclt = Acl:t()
-  print('Aclt', Aclt)
-  print('Acl.transpose(1,2)', Acl:transpose(1,2))
+Aclt = Acl:t()
+print('Aclt', Aclt)
+print('Acl.transpose(1,2)', Acl:transpose(1,2))
 
-  print('torch.prod(A)', torch.prod(A))
-  print('torch.prod(Acl)', torch.prod(Acl))
-  collectgarbage()
+print('torch.prod(A)', torch.prod(A))
+print('torch.prod(Acl)', torch.prod(Acl))
+collectgarbage()
 
-  local s = torch.LongStorage{5,2}
-  local A = torch.Tensor(s):uniform() - 0.5
-  local Acl = A:cl()
-  local Amax, Aind = A:max(2)
-  local Aclmax, Aclind = Acl:max(2)
-  print('A max', Amax, Aind)
-  print('Acl max', Aclmax, Aclind)
-  collectgarbage()
-  print('after gc')
+local s = torch.LongStorage{5,2}
+local A = torch.Tensor(s):uniform() - 0.5
+local Acl = A:cl()
+local Amax, Aind = A:max(2)
+local Aclmax, Aclind = Acl:max(2)
+print('A max', Amax, Aind)
+print('Acl max', Aclmax, Aclind)
+collectgarbage()
+print('after gc')
 
-  local s = torch.LongStorage{5,4}
-  local A = torch.Tensor(s):uniform() - 0.5
-  local Acl = A:cl()
-  local Amax, Aind = A:min(2)
-  local Aclmax, Aclind = Acl:min(2)
-  print('A min', Amax, Aind)
-  print('Acl min', Aclmax, Aclind)
+local s = torch.LongStorage{5,4}
+local A = torch.Tensor(s):uniform() - 0.5
+local Acl = A:cl()
+local Amax, Aind = A:min(2)
+local Aclmax, Aclind = Acl:min(2)
+print('A min', Amax, Aind)
+print('Acl min', Aclmax, Aclind)
 
 --  print('Aind:select(2,1)', Aind:select(2,1))
 --  print('A', A)
 --  print('A:gather(2, Aind)', A:gather(2, Aind))
 --  print('Acl:gather(2, Aclind)', Acl:gather(2, Aclind))
 
-  A = torch.Tensor{{1,1,1},{1,1,1}}
-  A2 = torch.Tensor{{1,1,0},{1,1,1}}
-  A3 = torch.Tensor{{0,1,0},{0,0,0}}
-  A4 = torch.Tensor{{0,0,0},{0,0,0}}
-  print('torch.all(A)', torch.all(A:byte()))
-  print('torch.all(A2:byte())', torch.all(A2:byte()))
+A = torch.Tensor{{1,1,1},{1,1,1}}
+A2 = torch.Tensor{{1,1,0},{1,1,1}}
+A3 = torch.Tensor{{0,1,0},{0,0,0}}
+A4 = torch.Tensor{{0,0,0},{0,0,0}}
+print('torch.all(A)', torch.all(A:byte()))
+print('torch.all(A2:byte())', torch.all(A2:byte()))
 
-  print('torch.all(A:cl())', torch.all(A:cl()))
-  print('torch.all(A2:cl())', torch.all(A2:cl()))
+print('torch.all(A:cl())', torch.all(A:cl()))
+print('torch.all(A2:cl())', torch.all(A2:cl()))
 
-  print('torch.any(A:cl())', torch.any(A:cl()))
-  print('torch.any(A2:cl())', torch.any(A2:cl()))
-  print('torch.any(A3:cl())', torch.any(A3:cl()))
-  print('torch.any(A4:cl())', torch.any(A4:cl()))
+print('torch.any(A:cl())', torch.any(A:cl()))
+print('torch.any(A2:cl())', torch.any(A2:cl()))
+print('torch.any(A3:cl())', torch.any(A3:cl()))
+print('torch.any(A4:cl())', torch.any(A4:cl()))
+collectgarbage()
+
+if os.getenv('PROTOTYPING') ~= nil then
+  A = torch.Tensor{{3,1,7},{3,2,4}}
+  print('A', A)
+  Afill = A:clone()
+  Afill:indexFill(2, torch.LongTensor{1,3}, -12)
+  print('Afill', Afill)
+
+  Afillcl = A:cl()
+  Afillcl:indexFill(2, torch.LongTensor{1,3}, -12)
+  print('Afillcl', Afillcl)
 
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)

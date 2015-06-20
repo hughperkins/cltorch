@@ -12,7 +12,8 @@ SET(src
     THClTensorMathPairwise.cpp THClTensorMath2.cpp
     THClBlas.cpp THClTensorMathBlas.cpp THClBlas.cpp THClReduce.cpp
     THClTypeParseTraits.cpp THClReduceAll.cpp THClDeviceUtils.cpp
-    THClTensorMasked.cpp THClTensorMathTransformReduce.cpp )
+    THClTensorMasked.cpp THClTensorMathTransformReduce.cpp
+    THClTensorIndex.cpp )
 set(src-cl)
 
 message("CLBLAS_INCLUDE_DIRS ${CLBLAS_INCLUDE_DIRS}")
