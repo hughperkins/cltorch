@@ -276,7 +276,7 @@ result, idx = A:max(2)
 A:min()
 result, idx = A:min(1)
 result, idx = A:min(2)
-
+torch.cumsum(x, 2)
 </pre></tr>
 
 <tr><td>Matrix-wide operations<td>25%<td><pre>
@@ -378,6 +378,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * added `:indexFill()`
   * added `:indexCopy()`
   * added `:indexSelect()`
+  * added `torch.cumsum(x,2)`
 * 19th June:
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
   * added `a:sub(b)` method, which does element-wise subtraction of b from a, and puts results in a
