@@ -505,6 +505,10 @@ if os.getenv('PROTOTYPING') ~= nil then
 --  print('torch.trace(A)', torch.trace(A))
 --  print('torch.trace(Acl)', torch.trace(Acl))
 
+  Aclt = Acl:t()
+  print('Aclt', Aclt)
+  print('Acl.transpose(1,2)', Acl:transpose(1,2))
+
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)
 --  x[{ 1,3 }] = 1

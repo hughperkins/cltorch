@@ -5,6 +5,10 @@
     #include "THAtomic.h"
 //}
 
+#include <iostream>
+
+using namespace std;
+
 /**** access methods ****/
 THClStorage *THClTensor_storage(THClState *state, const THClTensor *self)
 {
@@ -418,8 +422,9 @@ void THClTensor_transpose(THClState *state, THClTensor *self, THClTensor *src, i
 
   THClTensor_set(state, self, src);
 
-  if(dimension1 == dimension2)
+  if(dimension1 == dimension2) {
     return;
+  }
 
   z = self->stride[dimension1];
   self->stride[dimension1] = self->stride[dimension2];
