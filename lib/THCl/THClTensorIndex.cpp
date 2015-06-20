@@ -37,9 +37,6 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
   dim3 nthreads(16, 16);
   dim3 nblocks(ceil((float)nRes / nIndex / (16*16)));
 
-//  THClCheck(cudaMalloc((void**)&stride_, res_->nDimension * sizeof(long)));
-//  THClCheck(cudaMemcpy(stride_, res_->stride, res_->nDimension * sizeof(long), cudaMemcpyHostToDevice));
-
   stride_ = new int[res_->nDimension];
   CLWrapper *strideWrapper = THClState_getCl(state)->wrap(res_->nDimension, stride_);
   for(int i = 0; i < res_->nDimension; i++ ) {
@@ -78,17 +75,8 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
   delete strideWrapper;
   delete[] stride_;
 
-//  THClTensor_kernel_indexCopy<<<nblocks, nthreads, 0, THClState_getCurrentStream(state)>>>(
-//    THClTensor_data(state, res_), THClTensor_data(state, src),
-//    stride_, THClTensor_data(state, indices_),
-//    res_->nDimension, dim, nIndex,
-//    THClTensor_nElement(state, src), res_->size[dim]
-//  );
-
-//  THClCheck(cudaFree(stride_));
   THClTensor_free(state, indices_);
   THClTensor_free(state, src);
-//  THError("Not implemented");
 }
 
 void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, float val)
@@ -175,8 +163,6 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   dim3 nthreads(16, 16);
   dim3 nblocks(ceil((float)nRes / nIndex / (16*16)));
 
-//  THClCheck(cudaMalloc((void**)&stride_, src->nDimension * sizeof(long)));
-//  THClCheck(cudaMemcpy(stride_, src->stride, src->nDimension * sizeof(long), cudaMemcpyHostToDevice));
   stride_ = new int[src->nDimension];
   CLWrapper *strideWrapper = THClState_getCl(state)->wrap(src->nDimension, stride_);
   for(int i = 0; i < src->nDimension; i++ ) {
@@ -218,15 +204,7 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   delete strideWrapper;
   delete[] stride_;
 
-//  THClTensor_kernel_indexSelect<<<nblocks, nthreads, 0, THClState_getCurrentStream(state)>>>(
-//    THClTensor_data(state, res_), THClTensor_data(state, src),
-//    stride_, THClTensor_data(state, indices_),
-//    src->nDimension, dim, indices->size[0], nRes, src->size[dim]
-//  );
-
-//  THClCheck(cudaFree(stride_));
   THClTensor_free(state, indices_);
-//  THError("Not implemented");
 }
 
 std::string THClTensorIndex_getKernelTemplate() {
