@@ -8,12 +8,6 @@
 #include "THClApply.h"
 #include "THClReduce.h"
 
-// #include <thrust/device_ptr.h>
-// #include <thrust/fill.h>
-// #include <thrust/functional.h>
-// #include <thrust/reduce.h>
-// #include <thrust/inner_product.h>
-
 // The largest consecutive integer representable in float32 (2^24)
 #define FLOAT32_MAX_CONSECUTIVE_INT 16777216.0f
 
@@ -25,13 +19,6 @@ public:
   std::string operator2() const {
     return "if( *in1 != 0.0f ) { *out = val1; }";
   }
-//    void operator()(float* t, float* mask) {
-//    // Really mask should be `0` or `1` but we can't propagate errors here.
-//    if (*mask != 0.0f) {
-//      *t = value;
-//    }
-//  }
-
   float value;
 };
 
