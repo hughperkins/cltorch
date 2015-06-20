@@ -89,8 +89,6 @@ void THClTensor_maskedFill(THClState* state,
   if (!THClTensor_pointwiseApply2(state, tensor, mask, TensorMaskedFillOp(value))) {
     THArgCheck(false, 2, CLTORCH_DIM_WARNING);
   }
-
-
 }
 
 

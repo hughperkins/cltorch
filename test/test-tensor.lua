@@ -613,6 +613,13 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('y', y)
   print('x', x)
 
+  x = torch.range(1,4):double():resize(1,4):cl()
+  print('x', x)
+  mask = torch.ByteTensor(2,2):bernoulli():cl()
+  print('mask', mask)
+  x:maskedFill(mask, -1)
+  print('x', x)
+
 
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)

@@ -123,6 +123,7 @@ x[torch.lt(x,0)] = -2
 C:indexFill(2, torch.LongTensor{1,3}, -12)
 x:indexCopy(2,torch.LongTensor{5,1},z)
 x:indexSelect( ... )
+x:maskedFill( ... )
 </pre></tr>
 
 
