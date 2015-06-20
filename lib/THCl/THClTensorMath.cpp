@@ -290,16 +290,16 @@ void THClTensor_sum(THClState* state, THClTensor *self, THClTensor *src, long di
      &modifyOp, &reduceOp, dimension);
 }
 
-void THClTensor_max(THClState* state, THClTensor *self, THClTensor *src, long dimension)
-{
-  THAssert(THClTensor_checkGPU(state, 2, self, src));
-  CopyOp modifyOp;
-  MaxOp reduceOp;
-  THClTensor_reduceDim(
-    state, self, src,
-      -THInf, 
-     &modifyOp, &reduceOp, dimension);
-}
+//void THClTensor_max(THClState* state, THClTensor *self, THClTensor *src, long dimension)
+//{
+//  THAssert(THClTensor_checkGPU(state, 2, self, src));
+//  CopyOp modifyOp;
+//  MaxOp reduceOp;
+//  THClTensor_reduceDim(
+//    state, self, src,
+//      -THInf, 
+//     &modifyOp, &reduceOp, dimension);
+//}
 
 void THClTensor_min(THClState* state, THClTensor *self, THClTensor *src, long dimension)
 {

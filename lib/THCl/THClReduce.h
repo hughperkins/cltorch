@@ -137,7 +137,7 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
   kernel->in((int)totalSlices);
   kernel->in(init);
 
-  kernel->run(3, global_ws.vec, block.vec);
+  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   THClState_getCl(state)->finish();
 }
 
@@ -214,7 +214,7 @@ void kernelLaunch_THClTensor_reduceContigDim(
   kernel->in(init);
   kernel->localFloats(smemSize / sizeof(float));
 
-  kernel->run(3, global_ws.vec, block.vec);
+  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   THClState_getCl(state)->finish();
 
 }

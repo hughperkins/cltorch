@@ -1895,7 +1895,7 @@ local LuaUnit_MT = { __index = M.LuaUnit }
                     self:execOneFunction( className, methodName, instance, methodInstance )
                 end
             end
-            print('gc')
+--            print('gc')
             collectgarbage()
         end
 

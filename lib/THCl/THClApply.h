@@ -79,7 +79,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   kernel->in( (int)totalElements );
-  kernel->run(3, global_ws.vec, block.vec);
+  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   THClState_getCl(state)->finish();
 }
 
@@ -147,7 +147,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   kernel->in( (int)totalElements );
-  kernel->run(3, global_ws.vec, block.vec);
+  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   THClState_getCl(state)->finish();
 }
 
@@ -215,7 +215,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   kernel->in( (int)totalElements );
-  kernel->run(3, global_ws.vec, block.vec);
+  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   THClState_getCl(state)->finish();
 }
 

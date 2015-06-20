@@ -24,9 +24,11 @@ def process_block(block):
     if block.find('__global__') >= 0 or block.find('__device__') >= 0:
         # kernel method, probably
         block = block.replace('gridDim.x', 'get_num_groups(0)')
+        block = block.replace('gridDim.y', 'get_num_groups(1)')
         block = block.replace('blockDim.x', 'get_local_size(0)')
         block = block.replace('blockDim.y', 'get_local_size(1)')
         block = block.replace('blockIdx.x', 'get_group_id(0)')
+        block = block.replace('blockIdx.y', 'get_group_id(1)')
         block = block.replace('threadIdx.x', 'get_local_id(0)')
         block = block.replace('threadIdx.y', 'get_local_id(1)')
         block = block.replace('__global__', 'kernel')

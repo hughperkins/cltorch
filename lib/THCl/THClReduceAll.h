@@ -126,7 +126,7 @@ void kernelLaunch_THClTensor_reduceAllPass1(
   kernel->out(scratch);
   kernel->localFloats(smemSize / sizeof(float));
 
-  kernel->run(3, global_ws.vec, block.vec);
+  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   THClState_getCl(state)->finish();
 
 //  THError("Not implemented");
@@ -177,7 +177,7 @@ void kernelLaunch_THClTensor_reduceAllPass2(
   kernel->out(devOut);
   kernel->localFloats(smemSize / sizeof(float));
 
-  kernel->run(3, global_ws.vec, block.vec);
+  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   THClState_getCl(state)->finish();
 
 //  THError("Not implemented");
@@ -238,7 +238,7 @@ void kernelLaunch_THClTensor_reduceAll(
   kernel->out(devOut);
   kernel->localFloats(smemSize / sizeof(float));
 
-  kernel->run(3, global_ws.vec, block.vec);
+  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   THClState_getCl(state)->finish();
 
 //  THError("Not implemented");

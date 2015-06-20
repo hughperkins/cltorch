@@ -85,48 +85,50 @@ THCL_API size_t THClState_getDeviceScratchSpaceSize(THClState* state, int device
 //THCL_API void __THCublasCheck(clblasStatus_t status, const char *file, const int line);
 
 typedef unsigned long ulong;
+typedef unsigned int uint;
 
 // define dim3, since this came from cuda in cutorch
 #ifdef __cplusplus
 class dim3 {
 public:
-    ulong vec[3];
+    uint vec[3];
+    size_t vec_for_cl[3];
 //    size_t vec_size_t[3];
     dim3() {
         vec[0] = 1;
         vec[1] = 1;
         vec[2] = 1;
     }
-    dim3( ulong x ) {
+    dim3( uint x ) {
         vec[0] = x;
         vec[1] = 1;
         vec[2] = 1;
     }
-    dim3( ulong x, ulong y ) {
+    dim3( uint x, uint y ) {
         vec[0] = x;
         vec[1] = y;
         vec[2] = 1;
     }
-    dim3( ulong x, ulong y, ulong z ) {
+    dim3( uint x, uint y, uint z ) {
         vec[0] = x;
         vec[1] = y;
         vec[2] = z;
     }
-    inline float x() {
+    inline uint x() {
         return vec[0];
     }
-    inline float y() {
+    inline uint y() {
         return vec[1];
     }
-    inline float z() {
+    inline uint z() {
         return vec[2];
     }
-//    size_t const *as_size_t() {
-//        for( int i = 0; i < 3; i++ ) {
-//            vec_size_t[i] = vec[i];
-//        }
-//        return &vec_size_t;
-//    }
+    size_t const *as_size_t() {
+        for( int i = 0; i < 3; i++ ) {
+            vec_for_cl[i] = vec[i];
+        }
+        return vec_for_cl;
+    }
 };
 
 std::ostream &operator<<( std::ostream &os, const dim3 &obj );

@@ -3,8 +3,6 @@
 luaunit = require('luaunit')
 require 'cltorch'
 
-cltorch.setTrace(1)
-
 function torch.Tensor.__eq(self, b)
 --  print('======= eq begin ====')
 --  print('self', self)
@@ -64,6 +62,20 @@ function torch.DoubleTensor.__eq(self, b)
     print('right\n', b)
     print('diff\n', self - b)
 --    print('======= eq end FALSE ====')
+    return false
+  end
+end
+
+function torch.LongTensor.__eq(self, b)
+  diff = self - b
+  diff = torch.abs(diff)
+  sum = torch.sum(diff)
+  if sum == 0 then
+    return true
+  else
+    print('left\n', self)
+    print('right\n', b)
+    print('diff\n', self - b)
     return false
   end
 end
@@ -560,8 +572,20 @@ function test_sum()
   luaunit.assertEquals(A:sum(2), Acl:sum(2):double())  
 end
 
+function test_max()
+  local s = torch.LongStorage{5,2}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local Acl = A:cl()
+  Amax, Aind = A:max(1)
+  Aclmax, Aclind = Acl:max(1)
+  print('A max', Amax, Aind)
+  print('Acl max', Aclmax, Aclind)
+  luaunit.assertEquals(Amax, Aclmax:double())
+  luaunit.assertEquals(Aind, Aclind:long())
+end
+
 local function _run()
-  cltorch.setTrace(1)
+  cltorch.setTrace(0)
   luaunit.LuaUnit.run()
   -- cltorch.setTrace(0)
 end
