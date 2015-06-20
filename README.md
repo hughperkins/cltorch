@@ -365,7 +365,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * rename new `sub` method to `csub` so doesnt collide with existing `sub`
   * added `cltorch.setTrace(1|0)`, which prints out every allocate or copy of gpu buffers (named 'wrapper's)
   * removed `set` and `get` methods, because cause repeated gpu buffer copy (actually, get not too bad, but does copy whole buffer; set copies whole buffer, repeatedly :-P )
-  * modifed ClStorage.__string__ to first copy whole storage to FloatStorage, once, then convert this to string, rather than using now non-existent `get`
+  * modifed `ClStorage.__string__` to first copy whole storage to FloatStorage, once, then convert this to string, rather than using now non-existent `get`
   * `torch.ClTensor{3,5,2}` will now first create this as a `FloatTensor` then call `copy` on this, to convert whole Tensor/Storage to `ClTensor` (avoids repeated `set` calls)
   * added `normall`, ie can do `torch.norm(c)`, `torch.norm(c, exponent)`
   * added `prod`, `prod(1)`, `prod(2)`
