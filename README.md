@@ -368,6 +368,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * modifed ClStorage.__string__ to first copy whole storage to FloatStorage, once, then convert this to string, rather than using now non-existent `get`
   * `torch.ClTensor{3,5,2}` will now first create this as a `FloatTensor` then call `copy` on this, to convert whole Tensor/Storage to `ClTensor` (avoids repeated `set` calls)
   * added `normall`, ie can do `torch.norm(c)`, `torch.norm(c, exponent)`
+  * added `prod`, `prod(1)`, `prod(2)`
   * `max(1)` and `min(1)` now return the indices too, as well as the max.  Ditto for dimension 2.
 * 19th June:
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
