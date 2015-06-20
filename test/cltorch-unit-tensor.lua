@@ -425,8 +425,8 @@ end
 
 function test_add()
   local s = torch.LongStorage{60,50}
-  local A = torch.Tensor(s):uniform()
-  local B = torch.Tensor(s):uniform()
+  local A = torch.Tensor(s):uniform() - 0.5
+  local B = torch.Tensor(s):uniform() - 0.5
   luaunit.assertEquals(torch.add(A,B), torch.add(A:clone():cl(), B:clone():cl()):double())
   luaunit.assertEquals(A + B, (A:clone():cl() + B:clone():cl() ):double())
   luaunit.assertEquals(A:clone():add(B), (A:clone():cl():add(B:clone():cl())):double())
@@ -434,8 +434,8 @@ end
 
 function test_cmul()
   local s = torch.LongStorage{60,50}
-  local A = torch.Tensor(s):uniform()
-  local B = torch.Tensor(s):uniform()
+  local A = torch.Tensor(s):uniform() - 0.5
+  local B = torch.Tensor(s):uniform() - 0.5
   luaunit.assertEquals(torch.cmul(A,B), torch.cmul(A:clone():cl(), B:clone():cl()):double())
   luaunit.assertEquals(A:clone():cmul(B), (A:clone():cl():cmul(B:clone():cl())):double())
 end
@@ -445,7 +445,7 @@ function test_neg()
   -- no neg for Tensors, only for clTensor, but we can use '-' to 
   -- compare
   local s = torch.LongStorage{60,50}
-  local A = torch.Tensor(s):uniform()
+  local A = torch.Tensor(s):uniform() - 0.5
   local negA = - A:clone()
   local negAcl1 = - A:clone():cl()
   local negAcl2 = A:clone():cl():neg()
@@ -456,8 +456,8 @@ end
 -- this function doesnt exist in base torch
 function test_sub()
   local s = torch.LongStorage{60,50}
-  local A = torch.Tensor(s):uniform()
-  local B = torch.Tensor(s):uniform()
+  local A = torch.Tensor(s):uniform() - 0.5
+  local B = torch.Tensor(s):uniform() - 0.5
   AsubB = A - B
   AsubBcl = A:clone():cl() - B:clone():cl()
   AsubBcl2 = A:clone():cl():csub(B:clone():cl())
@@ -621,7 +621,7 @@ function test_min2()
 end
 
 function test_indexfill()
-  x = torch.Tensor(60,50):uniform()
+  x = torch.Tensor(60,50):uniform() - 0.5
   selector = torch.LongTensor{4,7,12,19,35}
   value = -7
   xfill = x:clone()
@@ -636,7 +636,7 @@ function test_indexfill()
 end
 
 function test_indexcopy()
-  x = torch.Tensor(60,50):uniform()
+  x = torch.Tensor(60,50):uniform() - 0.5
   z = torch.Tensor(60,2)
   z:select(2,1):fill(-1)
   z:select(2,2):fill(-2)
@@ -649,7 +649,7 @@ function test_indexcopy()
 end
 
 function test_indexselect()
-  x = torch.Tensor(50,60):uniform()
+  x = torch.Tensor(50,60):uniform() - 0.5
 
   xcopy = x:clone()
   xcopy:select(1, 2):fill(2) -- select row 2 and fill up
@@ -662,12 +662,27 @@ function test_indexselect()
   luaunit.assertEquals(xcopy, xcopycl:double())
 end
 
+function test_cumsum()
+  x = torch.Tensor(50,60):uniform() - 0.5
+  luaunit.assertEquals(torch.cumsum(x), torch.cumsum(x:cl()):double())
+  luaunit.assertEquals(torch.cumsum(x, 1), torch.cumsum(x:cl(), 1):double())
+  luaunit.assertEquals(torch.cumsum(x, 2), torch.cumsum(x:cl(), 2):double())
+end
+
+function test_cumprod()
+  x = torch.Tensor(50,60):uniform() - 0.5
+  luaunit.assertEquals(torch.cumprod(x), torch.cumprod(x:cl()):double())
+  luaunit.assertEquals(torch.cumprod(x, 1), torch.cumprod(x:cl(), 1):double())
+  luaunit.assertEquals(torch.cumprod(x, 2), torch.cumprod(x:cl(), 2):double())
+end
+
 local function _run()
-  cltorch.setTrace(0)
+  --cltorch.setTrace(1)
   luaunit.LuaUnit.run()
   -- cltorch.setTrace(0)
 end
 
+--cltorch.setTrace(1)
 luaunit.LuaUnit.run()
 -- os.exit(_run())
 

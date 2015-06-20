@@ -46,25 +46,16 @@ void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src,
   std::string uniqueName = "THClTensorMathScan_scanOuterDim_" + binary_op->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathScan.cl",
     THClTensorMathScan_getKernelTemplate(), "THClTensor_kernel_scanOuterDim");
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * threads.vec[i];
-  }
-
-  if( !tgt->storage->wrapper->isOnDevice() ) {
-    tgt->storage->wrapper->createOnDevice();
-  }
 
   THClKernels k(state, kernel);
-  k.inout(tgt);
+  k.out(tgt);
   k.inout(src);
   k.in((int)num_orows);
   k.in((int)num_irows);
   k.in((int)row_size);
   k.in(init);
 
-  kernel->run(3, global_ws.as_size_t(), threads.as_size_t());
-  THClState_getCl(state)->finish();
+  k.run(grid, threads);
 }
 
 
@@ -89,24 +80,15 @@ void THClTensor_scanInnermostDim(THClState *state, THClTensor *tgt, THClTensor *
   std::string uniqueName = "THClTensorMathScan_scanInnermostDim_" + binary_op->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathScan.cl",
     THClTensorMathScan_getKernelTemplate(), "THClTensor_kernel_scanInnermostDim");
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * threads.vec[i];
-  }
-
-  if( !tgt->storage->wrapper->isOnDevice() ) {
-    tgt->storage->wrapper->createOnDevice();
-  }
 
   THClKernels k(state, kernel);
-  k.inout(tgt);
+  k.out(tgt);
   k.inout(src);
   k.in((int)num_rows);
   k.in((int)row_size);
   k.in(init);
 
-  kernel->run(3, global_ws.as_size_t(), threads.as_size_t());
-  THClState_getCl(state)->finish();
+  k.run(grid, threads);
 }
 
 void THClTensor_scanDim(THClState *state, THClTensor *self_, THClTensor *src, long dimension, float init, HasOperator3 *binary_op)
