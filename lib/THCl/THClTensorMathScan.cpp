@@ -38,9 +38,38 @@ void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src,
   unsigned maxGridDim = 1024;
   dim3 grid(mymin(maxGridDim, num_orows), mymin(maxGridDim, THClCeilDiv(num_irows, threads.x())));
 
+  TemplatedKernel kernelBuilder(THClState_getCl(state));
+  kernelBuilder.set("num_threads_x", 16); // dont need for this kernel, but do need so whole file
+  kernelBuilder.set("num_threads_y", 32); // compiles ok
+  kernelBuilder.set("operator3", binary_op->operator3());
+//  cout << kernelBuilder.getRenderedKernel( THClTensorMathScan_getKernelTemplate() ) << endl;
+
+  std::string uniqueName = "THClTensorMathScan_scanOuterDim";
+  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathScan.cl",
+    THClTensorMathScan_getKernelTemplate(), "THClTensor_kernel_scanOuterDim");
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = grid.vec[i] * threads.vec[i];
+  }
+
+  if( !tgt->storage->wrapper->isOnDevice() ) {
+    tgt->storage->wrapper->createOnDevice();
+  }
+
+  THClKernels k(state, kernel);
+  k.inout(tgt);
+  k.inout(src);
+  k.in((int)num_orows);
+  k.in((int)num_irows);
+  k.in((int)row_size);
+  k.in(init);
+
+  kernel->run(3, global_ws.as_size_t(), threads.as_size_t());
+  THClState_getCl(state)->finish();
+
 //  THClTensor_kernel_scanOuterDim<<<grid, threads, 0, THClState_getCurrentStream(state)>>>(
 //      THClTensor_data(state, tgt), THClTensor_data(state, src), num_orows, num_irows, row_size, init, binary_op);
-  THError("Not implemented");
+//  THError("Not implemented");
 }
 
 

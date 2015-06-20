@@ -628,6 +628,7 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('torch.cumsum(A, 2)\n', torch.cumsum(A, 2))
   print('A', A)
   print('torch.cumsum(A:cl(), 2)\n', torch.cumsum(A:cl(), 2))
+  print('torch.cumsum(A:cl(), 1)\n', torch.cumsum(A:cl(), 1))
 
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)
