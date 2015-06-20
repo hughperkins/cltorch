@@ -7,6 +7,8 @@
 //#include "THCTensorRandom.h"
 #include "THClApply.h"
 //#include "THCReduce.cuh"
+#include "THClTensorMathPointwise.h"
+#include "THClReduceAll.h"
 
 using namespace std;
 
@@ -439,46 +441,60 @@ void THClTensor_std(THClState *state, THClTensor *self_, THClTensor *src, long d
   THClTensor_free(state, src);
   THClTensor_freeCopyTo(state, self, self_);
 }
+*/
 
-
-struct norm_functor
+class norm_functor : public HasOperator2
 {
+public:
   const float exponent;
 
   norm_functor(float exponent_) : exponent(exponent_) {}
-
-    __host__ __device__ float operator()(const float& x) const
+  std::string operator2() const
   {
-    return pow(fabs(x), exponent);
+    return "*out = pow(fabs(*in1), " + easycl::toString(exponent) + ")";
   }
 };
 
-struct partial_not_equal_functor
+struct partial_not_equal_functor : public HasOperator2
 {
   const float rhs;
   partial_not_equal_functor(float rhs) : rhs(rhs) {}
-  __host__ __device__ bool operator()(const float &lhs) const {return lhs != rhs;}
+  std::string operator2() const
+  {
+    return "*out = *in1 != " + easycl::toString(rhs);
+  }
+//  __host__ __device__ bool operator()(const float &lhs) const {return lhs != rhs;}
 };
 
 float THClTensor_normall(THClState *state, THClTensor *self, float value)
 {
   THAssert(THClTensor_checkGPU(state, 1, self));
-  self = THClTensor_newContiguous(state, self);
-  long size = THClTensor_nElement(state, self);
-  thrust::device_ptr<float> self_data(THClTensor_data(state, self));
-
+  
   float result;
   if(value == 0.0f) {
-    result = thrust::transform_reduce(self_data, self_data+size, partial_not_equal_functor(0.0f), (float)0, thrust::plus<float>());
+    partial_not_equal_functor modifyOp(0.0f);
+    TensorAddOp reduceOp;
+    if (!THClTensor_reduceAll(state, self,
+          &modifyOp,
+          &reduceOp,
+          0.0f, &result)) {
+      THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+    }
+//    result = thrust::transform_reduce(self_data, self_data+size, partial_not_equal_functor(0.0f), (float)0, thrust::plus<float>());
   } else {
-    result = thrust::transform_reduce(self_data, self_data+size, norm_functor(value), (float)0, thrust::plus<float>());
+    norm_functor modifyOp(value);
+    TensorAddOp reduceOp;
+    if (!THClTensor_reduceAll(state, self,
+          &modifyOp,
+          &reduceOp,
+          0.0f, &result)) {
+      THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+    }
     result = pow(result, (float)1.0/value);
   }
-
-  THClTensor_free(state, self);
   return result;
 }
-
+/*
 void THClTensor_norm(THClState *state, THClTensor* self, THClTensor* src, float value, long dimension)
 {
   THAssert(THClTensor_checkGPU(state, 2, self, src));

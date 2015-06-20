@@ -487,82 +487,32 @@ if true then
 end
 
 if os.getenv('PROTOTYPING') ~= nil then
-  A = torch.Tensor(28*28*1280,10):uniform()
-  myprint('numel A', torch.numel(A))
+  A = torch.Tensor(3,2):uniform()
+--  A = torch.Tensor{3}
+  print('torch.norm(A)', torch.norm(A))
   Acl = A:cl()
---  torch.setstoragetrace(0)
---  myprint('Acl', Acl:double())
-  print('calc numel')
-  numel = torch.numel(Acl)
-  print('torch.numel(A:cl())', numel)
+  print('torch.norm(Acl)', torch.norm(Acl))
 
-  E = torch.Tensor({{3,1},{2,9},{3,2},{7,8},{6,4}}):cl()
-  myprint('E\n', E)
-  F = E:narrow(1,2,3)
-  myprint('F\n', F)
-  F:fill(7)
-  myprint('F\n', F)
-  myprint('E\n', E)
+  print('torch.norm(A, 1)', torch.norm(A, 1))
+  print('torch.norm(Acl, 1)', torch.norm(Acl, 1))
 
-  E = torch.Tensor({{3,1},{2,9},{3,2},{7,8},{6,4}}):cl()
-  myprint('E\n', E)
-  F = E:sub(2,3,2,2)
-  myprint('F\n', F)
-  F:fill(0)
-  myprint('F\n', F)
-  myprint('E\n', E)
+  print('torch.norm(A, 0)', torch.norm(A, 0))
+  print('torch.norm(Acl, 0)', torch.norm(Acl, 0))
 
-  E = torch.Tensor({{3,1},{2,9},{3,2},{7,8},{6,4}}):cl()
-  myprint('E\n', E)
-  F = E:select(1,2):fill(99)
-  myprint('F\n', F)
-  myprint('E\n', E)
-
-  x = torch.ClTensor(5, 6):zero()
-  myprint('x\n', x)
-  x[{ 2,{2,4} }] = 2 
-  myprint('x\n', x)
-  x[{ {},4 }] = -1
-  myprint('x\n', x)
-  print('create range...')
-  myrange = torch.range(1,5)
-  print('...done')
-  x[{ {},2 }] = myrange
-  myprint('x\n', x)
-
-  myprint('x\n', x)
+--  x = torch.ClTensor(5, 6):zero()
+--  myprint('x\n', x)
 --  x[{ 1,3 }] = 1
---  x[{ 1,3 }] = 1
-
-----  x[torch.lt(x,0)] = -2
+--  myprint('x\n', x)
+--  x[{ 2,{2,4} }] = 2 
+--  myprint('x\n', x)
+--  x[{ {},4 }] = -1
+--  myprint('x\n', x)
+--  print('create range...')
+--  myrange = torch.range(1,5)
+--  print('...done')
+--  x[{ {},2 }] = myrange
 --  myprint('x\n', x)
 
---   print('C\n', C)
---   C:apply("*out = sqrt(*out + 3.5)")
---   print('C\n', C)
-
-
---  input = torch.ClTensor{3,5,2}
---  output = torch.ClTensor()
---  weight = torch.ClTensor{{0.2, -0.2, 0.3},
---                        {0.4,-0.1, -0.5}}
---  bias = torch.ClTensor{0.1, -0.2}
---  output:resize(bias:size(1))
---  output:copy(bias)
---  output:addmv(1, weight, input)
-
---  this fails currently, needs 2stage reduceall:
---  C = torch.ClTensor(128,10)
---  D = torch.ClTensor(128,10)
---  C:fill(3)
---  D:fill(1)
---  print(C - D) 
-
---  E = torch.ClTensor{{3,1},{2,9},{3,2},{7,8},{6,4}}
---  F = torch.expand(E, 2)
---  print('F\n', F)
---  E[1][2] = 51
---  print('F\n', F)
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x\n', x)
