@@ -27,6 +27,14 @@ public:
   }
 };
 
+class minvalue_functor : public HasPairOperator2
+{
+public:
+  std::string pair_operator2() const {
+    return "if( a.first < b.first ) { return a; } else { return b; }";
+  }
+};
+
 void kernelLaunch_THClTensor_kernel_transformReduceOuterDimIndex(
     THClState *state, dim3 grid, dim3 block, 
     CLWrapper *tgt1_wrap,
@@ -225,6 +233,19 @@ void THClTensor_max(THClState *state, THClTensor *values, THClTensor *indices, T
 //  THError("Not implemented");
 //  return 0;
      return THClTensor_reduceDimIndex(state, values, indices, src, dimension, minfloat32,
+                                 &reduceOp);
+}
+
+void THClTensor_min(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dimension)
+{
+  THAssert(THClTensor_checkGPU(state, 3, values, indices, src));
+//  CopyOp modifyOp;
+  minvalue_functor reduceOp;
+  const float maxfloat32 = 3.402823466e+38f;
+////   thrust::pair<float,float> init = thrust::make_pair<float,float>(minfloat32, -1);
+//  THError("Not implemented");
+//  return 0;
+     return THClTensor_reduceDimIndex(state, values, indices, src, dimension, maxfloat32,
                                  &reduceOp);
 }
 

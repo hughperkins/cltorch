@@ -596,6 +596,30 @@ function test_max2()
   luaunit.assertEquals(Aind, Aclind:long())
 end
 
+function test_min1()
+  local s = torch.LongStorage{5,2}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local Acl = A:cl()
+  local Amax, Aind = A:min(1)
+  local Aclmax, Aclind = Acl:min(1)
+  print('A max', Amax, Aind)
+  print('Acl max', Aclmax, Aclind)
+  luaunit.assertEquals(Amax, Aclmax:double())
+  luaunit.assertEquals(Aind, Aclind:long())
+end
+
+function test_min2()
+  local s = torch.LongStorage{5,2}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local Acl = A:cl()
+  local Amax, Aind = A:min(2)
+  local Aclmax, Aclind = Acl:min(2)
+  print('A max', Amax, Aind)
+  print('Acl max', Aclmax, Aclind)
+  luaunit.assertEquals(Amax, Aclmax:double())
+  luaunit.assertEquals(Aind, Aclind:long())
+end
+
 local function _run()
   cltorch.setTrace(0)
   luaunit.LuaUnit.run()

@@ -32,12 +32,8 @@ THCL_API float THClTensor_maxall(THClState *state, THClTensor *self);
 THCL_API float THClTensor_sumall(THClState *state, THClTensor *self);
 THCL_API float THClTensor_prodall(THClState *state, THClTensor *self);
 
-//THCL_API void THClTensor_min(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dim);
+THCL_API void THClTensor_min(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dim);
 THCL_API void THClTensor_max(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dim);
-
-// cutdown versions of max/min, to get working quickly:
-THCL_API void THClTensor_min(THClState *state, THClTensor *self, THClTensor *src, long dim);
-//THCL_API void THClTensor_max(THClState *state, THClTensor *self, THClTensor *src, long dim);
 
 THCL_API void THClTensor_sum(THClState *state, THClTensor *self, THClTensor *src, long dim);
 THCL_API void THClTensor_prod(THClState *state, THClTensor *self, THClTensor *src, long dim);

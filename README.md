@@ -257,7 +257,7 @@ v2 = torch.ClTensor{2,4,8}
 print(v1 * v2)
 </pre></tr>
 
-<tr><td>Column or row-wise operations<td>5% done<td><pre>
+<tr><td>Column or row-wise operations<td>30% done<td><pre>
 A = torch.ClTensor{{3,5,2},{4,5,6}}
 A:sum()
 A:sum(2)
@@ -270,8 +270,8 @@ A:max()
 result, idx = A:max(1)
 result, idx = A:max(2)
 A:min()
-A:min(1) -- only returns the result, not the indices
-A:min(2) -- only returns the result, not the indices
+result, idx = A:min(1)
+result, idx = A:min(2)
 
 </pre></tr>
 
@@ -368,6 +368,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * modifed ClStorage.__string__ to first copy whole storage to FloatStorage, once, then convert this to string, rather than using now non-existent `get`
   * `torch.ClTensor{3,5,2}` will now first create this as a `FloatTensor` then call `copy` on this, to convert whole Tensor/Storage to `ClTensor` (avoids repeated `set` calls)
   * added `normall`, ie can do `torch.norm(c)`, `torch.norm(c, exponent)`
+  * `max(1)` and `min(1)` now return the indices too, as well as the max.  Ditto for dimension 2.
 * 19th June:
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
   * added `a:sub(b)` method, which does element-wise subtraction of b from a, and puts results in a
