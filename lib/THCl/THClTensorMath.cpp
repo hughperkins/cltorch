@@ -288,9 +288,6 @@ void THClTensor_sum(THClState* state, THClTensor *self, THClTensor *src, long di
     state, self, src,
       0.0f, 
      &modifyOp, &reduceOp, dimension);
-
-
-//  THError("Not implemented");
 }
 
 void THClTensor_max(THClState* state, THClTensor *self, THClTensor *src, long dimension)
@@ -302,9 +299,6 @@ void THClTensor_max(THClState* state, THClTensor *self, THClTensor *src, long di
     state, self, src,
       -THInf, 
      &modifyOp, &reduceOp, dimension);
-
-
-//  THError("Not implemented");
 }
 
 void THClTensor_min(THClState* state, THClTensor *self, THClTensor *src, long dimension)
@@ -316,9 +310,6 @@ void THClTensor_min(THClState* state, THClTensor *self, THClTensor *src, long di
     state, self, src,
       THInf, 
      &modifyOp, &reduceOp, dimension);
-
-
-//  THError("Not implemented");
 }
 
 void THClTensor_prod(THClState* state, THClTensor *self, THClTensor *src, long dimension)
