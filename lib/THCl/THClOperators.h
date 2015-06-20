@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef __cplusplus
+
 class OpBase {
 public:
 };
@@ -26,11 +27,12 @@ public:
     virtual std::string operator3() const = 0;
 };
 
+class HasGlobalTensors {
+public:
+  virtual int getNumGlobalTensors() const = 0;
+  virtual THClTensor *getTensor(int index) const = 0;
+  virtual std::string getTensorName(int index) const = 0;
+};
 
-//class HasScalar2 {
-//public:
-////    float getScalar1() = 0;
-//    virtual float getVal2() = 0;
-//};
 #endif // __cplusplus
 

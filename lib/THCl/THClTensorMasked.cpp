@@ -22,6 +22,32 @@ public:
   float value;
 };
 
+class TensorMaskedCopyOp : public HasOperator2, public HasGlobalTensors {
+public:
+  TensorMaskedCopyOp(THClTensor *src, THClTensor *baseMask, THClTensor *maskPrefixSum) :
+    src(src), baseMask(baseMask), maskPrefixSum(maskPrefixSum) {
+  }
+  int getNumGlobalTensors() const { return 3; }
+  THClTensor *getTensor(int index) const {
+    if(index == 0){ return src; }
+    if(index == 1){ return baseMask; }
+    if(index == 2){ return maskPrefixSum; }
+    THError("index not recognized %i", index);
+  }
+  std::string getTensorName(int index) const {
+    if(index == 0){ return "src"; }
+    if(index == 1){ return "baseMask"; }
+    if(index == 2){ return "maskPrefixSum"; }
+    THError("index not recognized %i", index);
+  }
+  std::string operator2() const {
+    return "if( *in1 != 0.0f ) { *out = src[(int)maskPrefixSum[srcOffset] ]; }";
+  }
+  THClTensor *src;
+  THClTensor *baseMask;
+  THClTensor *maskPrefixSum;
+};
+
 //struct TensorMaskedCopyOp {
 //  TensorMaskedCopyOp(float* s, float* bm, float* ps)
 //      : src(s),
@@ -78,67 +104,72 @@ void THClTensor_maskedFill(THClState* state,
   }
 }
 
+void THClTensor_maskedCopy(THClState* state,
+                             THClTensor *tensor, THClTensor *mask, THClTensor *src)
+{
+  THAssert(THClTensor_checkGPU(state, 3, tensor, src, mask));
+  long maskSize = THClTensor_nElement(state, mask);
+  long tensorSize = THClTensor_nElement(state, tensor);
+  long srcSize = THClTensor_nElement(state, src);
 
-//void THClTensor_maskedCopy(THClState* state,
-//                             THClTensor *tensor, THClTensor *mask, THClTensor *src)
-//{
-//  THAssert(THClTensor_checkGPU(state, 3, tensor, src, mask));
-//  long maskSize = THClTensor_nElement(state, mask);
-//  long tensorSize = THClTensor_nElement(state, tensor);
-//  long srcSize = THClTensor_nElement(state, src);
+  // Since we are performing a prefix sum of mask, it cannot exceed
+  // the size allowed in consecutive integers in float32
+  THArgCheck(maskSize <= (long) FLOAT32_MAX_CONSECUTIVE_INT,
+             3, "mask nElements exceeds single-precision float "
+             "consecutive integer precision size (2^24)");
 
-//  // Since we are performing a prefix sum of mask, it cannot exceed
-//  // the size allowed in consecutive integers in float32
-//  THArgCheck(maskSize <= (long) FLOAT32_MAX_CONSECUTIVE_INT,
-//             3, "mask nElements exceeds single-precision float "
-//             "consecutive integer precision size (2^24)");
+  // `mask` and `tensor` must have the same number of elements
+  THArgCheck(maskSize == tensorSize, 2,
+             "mask and tensor must have the same number of elements");
 
-//  // `mask` and `tensor` must have the same number of elements
-//  THArgCheck(maskSize == tensorSize, 2,
-//             "mask and tensor must have the same number of elements");
+  THClTensor* contigMask = THClTensor_newContiguous(state, mask);
+  long oneElements = (long) THClTensor_sumall(state, contigMask);
 
-//  THClTensor* contigMask = THClTensor_newContiguous(state, mask);
-//  long oneElements = (long) THClTensor_sumall(state, contigMask);
+  // The number of `1` elements present in the mask must be <= the
+  // number of elements available in `src`
+  if (oneElements > srcSize) {
+    THClTensor_free(state, contigMask);
+    THArgCheck(false, 2, "source nElements must be == mask `1` elements");
+  }
 
-//  // The number of `1` elements present in the mask must be <= the
-//  // number of elements available in `src`
-//  if (oneElements > srcSize) {
-//    THClTensor_free(state, contigMask);
-//    THArgCheck(false, 2, "source nElements must be == mask `1` elements");
-//  }
+  // Use a prefix sum to determine the copy locations of the masked elements
+  THClTensor* maskPrefixSum = THClTensor_new(state);
+  THClTensor_resizeAs(state, maskPrefixSum, contigMask);
 
-//  // Use a prefix sum to determine the copy locations of the masked elements
-//  THClTensor* maskPrefixSum = THClTensor_new(state);
-//  THClTensor_resizeAs(state, maskPrefixSum, contigMask);
+  // We are getting elements from `src` based on an offset from
+  // `maskPrefixSum`, so that should be made contiguous too
+  THClTensor* contigSrc = THClTensor_newContiguous(state, src);
 
-//  // We are getting elements from `src` based on an offset from
-//  // `maskPrefixSum`, so that should be made contiguous too
-//  THClTensor* contigSrc = THClTensor_newContiguous(state, src);
+//  TensorAddOp cumOp;
+//  THAssert(THClTensor_checkGPU(state, 2, maskData, maskPrefixSumData));
+//  THClTensor_scanDim(state, maskPrefixSumData, maskData, dimension, 0.0f, &cumOp);
+  // hmmmm: this is scanDim, but what we really need is somsething like: scanAll
 
-////   thrust::device_ptr<float>
+//   thrust::device_ptr<float>
 //    maskData(THClTensor_data(state, contigMask));
-////   thrust::device_ptr<float>
+//   thrust::device_ptr<float>
 //    maskPrefixSumData(THClTensor_data(state, maskPrefixSum));
-////   thrust::exclusive_scan(maskData,
+//   thrust::exclusive_scan(maskData,
 //                         maskData + THClTensor_nElement(state, contigMask),
 //                         maskPrefixSumData);
+  THError("Not implemented");
 
-//  // update `tensor` where `mask` == 1 but pull from `src` at
-//  // maskPrefixSum
-//  bool status = THClTensor_pointwiseApply2(
-//    state, tensor, contigMask,
-//    TensorMaskedCopyOp(THClTensor_data(state, contigSrc),
-//                       THClTensor_data(state, contigMask),
-//                       THClTensor_data(state, maskPrefixSum)));
+  // update `tensor` where `mask` == 1 but pull from `src` at
+  // maskPrefixSum
+  TensorMaskedCopyOp maskedCopyOp(
+     contigSrc, contigMask, maskPrefixSum);
+  bool status = THClTensor_pointwiseApply2(
+    state, tensor, contigMask, maskedCopyOp);
+  THError("Not implemented");
 
-//  THClTensor_free(state, contigSrc);
-//  THClTensor_free(state, maskPrefixSum);
-//  THClTensor_free(state, contigMask);
+  THClTensor_free(state, contigSrc);
+  THClTensor_free(state, maskPrefixSum);
+  THClTensor_free(state, contigMask);
 
-//  THArgCheck(status, 2, CLTORCH_DIM_WARNING);
+  THArgCheck(status, 2, CLTORCH_DIM_WARNING);
 
-//  THError("Not implemented");
-//}
+  THError("Not implemented");
+}
 
 //void THClTensor_maskedSelect(THClState* state,
 //                               THClTensor *tensor, THClTensor *src, THClTensor *mask)
