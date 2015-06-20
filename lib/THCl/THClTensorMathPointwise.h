@@ -123,7 +123,7 @@ public:
         return "*out *= *in1";
     }
     std::string operator3() const {
-        return "*out = *in1 * *in2";
+        return "*out = (*in1) * (*in2)";
     }
 };
 

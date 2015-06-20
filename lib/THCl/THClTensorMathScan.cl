@@ -18,7 +18,9 @@ inline float binary_op(float _in1, float _in2) {
   float *out = &_out;
   float *in1 = &_in1;
   float *in2 = &_in2;
+  *out = 10 * (*in2) * (*in1);
   {{operator3}};
+ // *out = (*in1) * (*in2);
   return _out;
 }
 

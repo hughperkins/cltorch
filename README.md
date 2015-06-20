@@ -278,6 +278,8 @@ result, idx = A:min(1)
 result, idx = A:min(2)
 torch.cumsum(x, 1)
 torch.cumsum(x, 2)
+torch.cumprod(x, 1)
+torch.cumprod(x, 2)
 </pre></tr>
 
 <tr><td>Matrix-wide operations<td>25%<td><pre>
@@ -380,6 +382,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * added `:indexCopy()`
   * added `:indexSelect()`
   * added `torch.cumsum(x,2)` and `torch.cumsum(x,1)`
+  * added `torch.cumprod(x,2)` and `torch.cumprod(x,1)`
 * 19th June:
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
   * added `a:sub(b)` method, which does element-wise subtraction of b from a, and puts results in a

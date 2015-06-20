@@ -42,9 +42,8 @@ void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src,
   kernelBuilder.set("num_threads_x", 16); // dont need for this kernel, but do need so whole file
   kernelBuilder.set("num_threads_y", 32); // compiles ok
   kernelBuilder.set("operator3", binary_op->operator3());
-//  cout << kernelBuilder.getRenderedKernel( THClTensorMathScan_getKernelTemplate() ) << endl;
 
-  std::string uniqueName = "THClTensorMathScan_scanOuterDim";
+  std::string uniqueName = "THClTensorMathScan_scanOuterDim_" + binary_op->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathScan.cl",
     THClTensorMathScan_getKernelTemplate(), "THClTensor_kernel_scanOuterDim");
   dim3 global_ws;
@@ -66,10 +65,6 @@ void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src,
 
   kernel->run(3, global_ws.as_size_t(), threads.as_size_t());
   THClState_getCl(state)->finish();
-
-//  THClTensor_kernel_scanOuterDim<<<grid, threads, 0, THClState_getCurrentStream(state)>>>(
-//      THClTensor_data(state, tgt), THClTensor_data(state, src), num_orows, num_irows, row_size, init, binary_op);
-//  THError("Not implemented");
 }
 
 
@@ -90,9 +85,8 @@ void THClTensor_scanInnermostDim(THClState *state, THClTensor *tgt, THClTensor *
   kernelBuilder.set("num_threads_x", 16);
   kernelBuilder.set("num_threads_y", 32);
   kernelBuilder.set("operator3", binary_op->operator3());
-//  cout << kernelBuilder.getRenderedKernel( THClTensorMathScan_getKernelTemplate() ) << endl;
 
-  std::string uniqueName = "THClTensorMathScan_scanInnermostDim";
+  std::string uniqueName = "THClTensorMathScan_scanInnermostDim_" + binary_op->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathScan.cl",
     THClTensorMathScan_getKernelTemplate(), "THClTensor_kernel_scanInnermostDim");
   dim3 global_ws;
@@ -113,10 +107,6 @@ void THClTensor_scanInnermostDim(THClState *state, THClTensor *tgt, THClTensor *
 
   kernel->run(3, global_ws.as_size_t(), threads.as_size_t());
   THClState_getCl(state)->finish();
-
-//  THClTensor_kernel_scanInnermostDim<16, 32><<<grid, threads, 0, THClState_getCurrentStream(state)>>>(
-//      THClTensor_data(state, tgt), THClTensor_data(state, src), num_rows, row_size, init, binary_op);
-//  THError("Not implemented");
 }
 
 void THClTensor_scanDim(THClState *state, THClTensor *self_, THClTensor *src, long dimension, float init, HasOperator3 *binary_op)
@@ -141,16 +131,13 @@ void THClTensor_cumsum(THClState *state, THClTensor *self, THClTensor *src, long
   TensorAddOp cumOp;
   THAssert(THClTensor_checkGPU(state, 2, self, src));
   THClTensor_scanDim(state, self, src, dimension, 0.0f, &cumOp);
-//  THError("Not implemented");
-//  return 0;
 }
 
 void THClTensor_cumprod(THClState *state, THClTensor *self, THClTensor *src, long dimension)
 {
+  TensorMulOp cumOp;
   THAssert(THClTensor_checkGPU(state, 2, self, src));
-  THError("Not implemented");
-//  return 0;
-  // //   return THClTensor_scanDim(state, self, src, dimension, 1.0f, thrust::multiplies<float>());
+  THClTensor_scanDim(state, self, src, dimension, 1.0f, &cumOp);
 }
 
 std::string THClTensorMathScan_getKernelTemplate() {
@@ -180,7 +167,9 @@ std::string THClTensorMathScan_getKernelTemplate() {
   "  float *out = &_out;\n" 
   "  float *in1 = &_in1;\n" 
   "  float *in2 = &_in2;\n" 
+  "  *out = 10 * (*in2) * (*in1);\n" 
   "  {{operator3}};\n" 
+  " // *out = (*in1) * (*in2);\n" 
   "  return _out;\n" 
   "}\n" 
   "\n" 
