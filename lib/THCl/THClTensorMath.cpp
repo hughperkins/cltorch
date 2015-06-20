@@ -255,6 +255,19 @@ float THClTensor_sumall(THClState *state, THClTensor *self)
 
 float THClTensor_prodall(THClState *state, THClTensor *self)
 {
+  THAssert(THClTensor_checkGPU(state, 1, self));
+  float val = 0.0f;
+  CopyOp modifyOp;
+  TensorMulOp reduceOp;
+  if (!THClTensor_reduceAll(state, self,
+          &modifyOp,
+          &reduceOp,
+          1.0f, &val)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
+
+  return val;
+
 //  THAssert(THClTensor_checkGPU(state, 1, self));
 //  self = THClTensor_newContiguous(state, self);
 //  thrust::device_ptr<float> self_data(THClTensor_data(state, self));

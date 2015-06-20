@@ -7,6 +7,9 @@ Development by Philippe Fremy <phil@freehackers.org>
 Based on initial work of Ryu, Gwang (http://www.gpgstudy.com/gpgiki/LuaUnit)
 License: BSD License, see LICENSE.txt
 Version: 3.0
+
+Modified by Hugh Perkins 20th June 2015, to call collectgarbage 
+after each test
 ]]--
 
 local M={}
@@ -1892,6 +1895,8 @@ local LuaUnit_MT = { __index = M.LuaUnit }
                     self:execOneFunction( className, methodName, instance, methodInstance )
                 end
             end
+            print('gc')
+            collectgarbage()
         end
 
         if self.lastClassName ~= nil then

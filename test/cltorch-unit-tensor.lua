@@ -3,6 +3,8 @@
 luaunit = require('luaunit')
 require 'cltorch'
 
+cltorch.setTrace(1)
+
 function torch.Tensor.__eq(self, b)
 --  print('======= eq begin ====')
 --  print('self', self)
@@ -27,7 +29,7 @@ function torch.FloatTensor.__eq(self, b)
 --  print('self', self)
   diff = self - b
 --  print('diff1\n', diff)
-  diff = torch.abs(diff) - 0.0001
+  diff = torch.abs(diff) - 0.0002
   diff = torch.gt(diff, 0)
 --  print('diff', diff)
   sum = torch.sum(diff)
@@ -494,7 +496,7 @@ function test_reduceAll()
   if diff < 0 then
     diff = - diff
   end
-  luaunit.assertTrue(diff < 0.5)
+  luaunit.assertTrue(diff < 1.2)
 
   -- now test on a single pass
   A = torch.Tensor(50,40):uniform()
@@ -507,6 +509,47 @@ function test_reduceAll()
   luaunit.assertTrue(diff < 0.1)
 end
 
-os.exit( luaunit.LuaUnit.run() )
+function test_prodall()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform()
+  local Acl = A:cl()
+  print('allocated A,Acl')
+  local Aprodall = torch.prod(A)
+  local Aclprodall = torch.prod(Acl)
+  print('done prodall calcs')
+  luaunit.assertEquals(Aprodall, Aclprodall)
 
+  Aprodall2 = A:prod()
+  print('calcing...')
+  Aclprodall2 = Acl:prod()
+  print('...calced')
+  luaunit.assertEquals(Aprodall, Aprodall2)
+  luaunit.assertEquals(Aprodall, Aclprodall2)
+end
+
+function test_sumall()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform()
+  local Acl = A:cl()
+  print('allocated A,Acl')
+  local Asumall = torch.sum(A)
+  local Aclsumall = torch.sum(Acl)
+  print('done sumall calcs')
+  luaunit.assertEquals(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall})
+
+  Aprodall2 = A:prod()
+  print('calcing...')
+  Aclsumall2 = Acl:sum()
+  print('...calced')
+  luaunit.assertEquals(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall2})
+end
+
+local function _run()
+  cltorch.setTrace(1)
+  luaunit.LuaUnit.run()
+  -- cltorch.setTrace(0)
+end
+
+luaunit.LuaUnit.run()
+-- os.exit(_run())
 

@@ -262,6 +262,8 @@ A = torch.ClTensor{{3,5,2},{4,5,6}}
 A:sum()
 A:sum(2)
 A:sum(1)
+print(A:prod())
+print(torch.prod(A))
 A:max()
 A:max(1) -- only returns the result, not the indices
 A:max(2) -- only returns the result, not the indices

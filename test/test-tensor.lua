@@ -524,6 +524,8 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('Aclt', Aclt)
   print('Acl.transpose(1,2)', Acl:transpose(1,2))
 
+  print('torch.prod(A)', torch.prod(A))
+  print('torch.prod(Acl)', torch.prod(Acl))
 
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)
