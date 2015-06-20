@@ -566,6 +566,16 @@ print('torch.any(A3:cl())', torch.any(A3:cl()))
 print('torch.any(A4:cl())', torch.any(A4:cl()))
 collectgarbage()
 
+x = torch.Tensor(5,5):uniform():cl()
+print('x', x)
+z = torch.ClTensor(5,2)
+z:select(2,1):fill(-1)
+z:select(2,2):fill(-2)
+print('z', z)
+x:indexCopy(2,torch.LongTensor{5,1},z)
+print('x', x)
+collectgarbage()
+
 if os.getenv('PROTOTYPING') ~= nil then
   A = torch.Tensor{{3,1,7},{3,2,4}}
   print('A', A)
@@ -577,13 +587,13 @@ if os.getenv('PROTOTYPING') ~= nil then
   Afillcl:indexFill(2, torch.LongTensor{1,3}, -12)
   print('Afillcl', Afillcl)
 
-  x = torch.Tensor(5,5):uniform()
+  x = torch.Tensor(5,6):zero():cl()
   print('x', x)
-  z = torch.Tensor(5,2)
-  z:select(2,1):fill(-1)
-  z:select(2,2):fill(-2)
+  y = x:select(1, 2):fill(2) -- select row 2 and fill up
+  print('y', y)
+  print('x', x)
+  z = x:select(2,5):fill(5) -- select column 5 and fill up
   print('z', z)
-  x:indexCopy(2,torch.LongTensor{5,1},z)
   print('x', x)
 
   x = torch.Tensor(5,5):uniform():cl()
@@ -594,6 +604,15 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('z', z)
   x:indexCopy(2,torch.LongTensor{5,1},z)
   print('x', x)
+
+  x = torch.rand(5,5):cl()
+  print('x', x)
+  y = x:index(1,torch.LongTensor{3,1})
+  print('y', y)
+  y:fill(1)
+  print('y', y)
+  print('x', x)
+
 
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)

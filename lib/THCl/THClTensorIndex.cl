@@ -82,9 +82,9 @@ kernel void THClTensor_kernel_indexCopy(
 }
 
 kernel void THClTensor_kernel_indexSelect(
-   global float *tensor_data, long tensor_offset, global float *src_data, long src_offset,
-  global long* src_stride, global float *index_data, long index_offset,
-   long src_nDim, int dim, long idx_size, long tensor_size, long size_dim
+   global float *tensor_data, int tensor_offset, global float *src_data, int src_offset,
+  global int* src_stride, global float *index_data, int index_offset,
+   int src_nDim, int dim, int idx_size, int tensor_size, int size_dim
 )
 {
   int thread_idx = get_group_id(0) * get_local_size(0) * get_local_size(1) + get_local_id(1) * get_local_size(0) + get_local_id(0);

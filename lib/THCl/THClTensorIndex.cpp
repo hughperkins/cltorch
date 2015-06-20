@@ -5,6 +5,7 @@
 //#include "THClTensorRandom.h"
 #include "THClApply.h"
 #include "THClReduce.h"
+#include "THClKernels.h"
 
 #include <string>
 using namespace std;
@@ -58,23 +59,18 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
       global_ws.vec[i] = nblocks.vec[i] * nthreads.vec[i];
   }
 
-  kernel->inout(THClTensor_wrapper(state, res_));
-  kernel->in((int)THClTensor_storageOffset(state, res_));
+  THClKernels k(state, kernel);
+  k.inout(res_);
+  k.in(src);
+  k.in(strideWrapper);
+  k.in(indices_);
 
-  kernel->in(THClTensor_wrapper(state, src));
-  kernel->in((int)THClTensor_storageOffset(state, src));
+  k.in((int)(res_->nDimension));
+  k.in((int)dim);
+  k.in((int)nIndex);
 
-  kernel->in(strideWrapper);
-
-  kernel->in(THClTensor_wrapper(state, indices_)),
-  kernel->in((int)THClTensor_storageOffset(state, indices_)),
-
-  kernel->in((int)(res_->nDimension));
-  kernel->in((int)dim);
-  kernel->in((int)nIndex);
-
-  kernel->in((int)(THClTensor_nElement(state, src)));
-  kernel->in((int)(res_->size[dim]));
+  k.in((int)(THClTensor_nElement(state, src)));
+  k.in((int)(res_->size[dim]));
 
   kernel->run(3, global_ws.as_size_t(), nthreads.as_size_t());
   THClState_getCl(state)->finish();
@@ -134,17 +130,16 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
       global_ws.vec[i] = nblocks.vec[i] * nthreads.vec[i];
   }
 
-  kernel->inout(THClTensor_wrapper(state, res_));
-  kernel->in((int)THClTensor_storageOffset(state, res_));
-  kernel->in(strideWrapper);
-  kernel->in(THClTensor_wrapper(state, indices_)),
-  kernel->in((int)THClTensor_storageOffset(state, indices_)),
-  kernel->in((int)(res_->nDimension));
-  kernel->in((int)dim);
-  kernel->in((int)nIndex);
-  kernel->in((int)nRes);
-  kernel->in((int)(res_->size[dim]));
-  kernel->in(val);
+  THClKernels k(state, kernel);
+  k.inout(res_);
+  k.in(strideWrapper);
+  k.in(indices_);
+  k.in((int)(res_->nDimension));
+  k.in((int)dim);
+  k.in((int)nIndex);
+  k.in((int)nRes);
+  k.in((int)(res_->size[dim]));
+  k.in(val);
 
   kernel->run(3, global_ws.as_size_t(), nthreads.as_size_t());
   THClState_getCl(state)->finish();
@@ -156,33 +151,72 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
 
 void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src, int dim, THLongTensor *indices)
 {
-  THError("Not implemented");
-//  THAssert(THClTensor_checkGPU(state, 2, res_, src));
-//  THLongStorage *newSize;
-//  THClTensor *indices_;
-//  long *stride_;
-//  long nIndex = indices->size[0];
-//  long nRes;
+  THAssert(THClTensor_checkGPU(state, 2, res_, src));
+  THLongStorage *newSize;
+  THClTensor *indices_;
+  int *stride_;
+  int nIndex = indices->size[0];
+  int nRes;
 
-//  THArgCheck(indices->nDimension == 1, 3, "expecting vector of indices");
-//  THArgCheck(dim < src->nDimension, 4, "Indexing dim is out of bounds");
-//  THArgCheck(src->nDimension > 0, 2, "Source tensor is empty");
+  THArgCheck(indices->nDimension == 1, 3, "expecting vector of indices");
+  THArgCheck(dim < src->nDimension, 4, "Indexing dim is out of bounds");
+  THArgCheck(src->nDimension > 0, 2, "Source tensor is empty");
 
-//  newSize = THLongStorage_newWithSize(src->nDimension);
-//  THLongStorage_rawCopy(newSize, src->size);
-//  newSize->data[dim] = nIndex;
-//  THClTensor_resize(state, res_, newSize, NULL);
-//  THLongStorage_free(newSize);
+  newSize = THLongStorage_newWithSize(src->nDimension);
+  THLongStorage_rawCopy(newSize, src->size);
+  newSize->data[dim] = nIndex;
+  THClTensor_resize(state, res_, newSize, NULL);
+  THLongStorage_free(newSize);
 
-//  indices_ = THClTensor_newWithSize1d(state, nIndex);
-//  THClTensor_copyLong(state, indices_, indices);
+  indices_ = THClTensor_newWithSize1d(state, nIndex);
+  THClTensor_copyLong(state, indices_, indices);
 
-//  nRes = THClTensor_nElement(state, res_);
-//  dim3 nthreads(16, 16);
-//  dim3 nblocks(ceil((float)nRes / nIndex / (16*16)));
+  nRes = THClTensor_nElement(state, res_);
+  dim3 nthreads(16, 16);
+  dim3 nblocks(ceil((float)nRes / nIndex / (16*16)));
 
 //  THClCheck(cudaMalloc((void**)&stride_, src->nDimension * sizeof(long)));
 //  THClCheck(cudaMemcpy(stride_, src->stride, src->nDimension * sizeof(long), cudaMemcpyHostToDevice));
+  stride_ = new int[src->nDimension];
+  CLWrapper *strideWrapper = THClState_getCl(state)->wrap(src->nDimension, stride_);
+  for(int i = 0; i < src->nDimension; i++ ) {
+    stride_[i] = src->stride[i];
+  }
+  strideWrapper->copyToDevice();
+
+  // launch kernel here....
+  TemplatedKernel kernelBuilder(THClState_getCl(state));
+
+  std::string uniqueName = "THClTensorMathIndex_indexSelect";
+  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
+    THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexSelect");
+  // calculate workgroup sizes and stuff
+  dim3 global_ws;
+  for( int i = 0; i < 3; i++ ) {
+      global_ws.vec[i] = nblocks.vec[i] * nthreads.vec[i];
+  }
+
+  if( !res_->storage->wrapper->isOnDevice() ) {
+    res_->storage->wrapper->createOnDevice();
+  }
+
+  THClKernels k(state, kernel);
+  k.inout(res_);
+  k.in(src);
+  k.in(strideWrapper);
+  k.in(indices_);
+
+  k.in((int)(src->nDimension));
+  k.in((int)dim);
+  k.in((int)indices->size[0]);
+  k.in((int)nRes);
+  k.in((int)src->size[dim]);
+
+  kernel->run(3, global_ws.as_size_t(), nthreads.as_size_t());
+  THClState_getCl(state)->finish();
+
+  delete strideWrapper;
+  delete[] stride_;
 
 //  THClTensor_kernel_indexSelect<<<nblocks, nthreads, 0, THClState_getCurrentStream(state)>>>(
 //    THClTensor_data(state, res_), THClTensor_data(state, src),
@@ -191,7 +225,8 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
 //  );
 
 //  THClCheck(cudaFree(stride_));
-//  THClTensor_free(state, indices_);
+  THClTensor_free(state, indices_);
+//  THError("Not implemented");
 }
 
 std::string THClTensorIndex_getKernelTemplate() {
@@ -285,9 +320,9 @@ std::string THClTensorIndex_getKernelTemplate() {
   "}\n" 
   "\n" 
   "kernel void THClTensor_kernel_indexSelect(\n" 
-  "   global float *tensor_data, long tensor_offset, global float *src_data, long src_offset,\n" 
-  "  global long* src_stride, global float *index_data, long index_offset,\n" 
-  "   long src_nDim, int dim, long idx_size, long tensor_size, long size_dim\n" 
+  "   global float *tensor_data, int tensor_offset, global float *src_data, int src_offset,\n" 
+  "  global int* src_stride, global float *index_data, int index_offset,\n" 
+  "   int src_nDim, int dim, int idx_size, int tensor_size, int size_dim\n" 
   ")\n" 
   "{\n" 
   "  int thread_idx = get_group_id(0) * get_local_size(0) * get_local_size(1) + get_local_id(1) * get_local_size(0) + get_local_id(0);\n" 
