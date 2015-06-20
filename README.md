@@ -156,13 +156,12 @@ torch.Tensor(5,3):uniform():cl()
 <tr><td>Component<td>Status<td>Examples of what works now</tr>
 
 
-<tr><td>Construction or extraction functions<td>Started<td><pre>
-c:fill(1.345)
-c:zero()
-print(torch.ClTensor.zeros(torch.ClTensor.new(), 3, 5))
-print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
-A = torch.ClTensor{{3,5,2},{4,5,6}}
-print(A:reshape(3,2))
+<tr><td>Construction or extraction functions<td>0% done<td><pre>
+-- For now, you would mostly create using a FloatTensor,
+-- then use the :cl operator to convert to a ClTensor, eg:
+a = torch.Tensor(40,30):uniform():cl()
+b = torch.eye(20):cl()
+-- etc ...
 </tre></tr>
 
 <tr><td>Element-wise operations<td>Done<td><pre>
