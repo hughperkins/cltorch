@@ -525,16 +525,16 @@ function test_prodall()
   local s = torch.LongStorage{60,50}
   local A = torch.Tensor(s):uniform() - 0.5
   local Acl = A:cl()
-  print('allocated A,Acl')
+--  print('allocated A,Acl')
   local Aprodall = torch.prod(A)
   local Aclprodall = torch.prod(Acl)
-  print('done prodall calcs')
+--  print('done prodall calcs')
   luaunit.assertEquals(Aprodall, Aclprodall)
 
   Aprodall2 = A:prod()
-  print('calcing...')
+--  print('calcing...')
   Aclprodall2 = Acl:prod()
-  print('...calced')
+--  print('...calced')
   luaunit.assertEquals(Aprodall, Aprodall2)
   luaunit.assertEquals(Aprodall, Aclprodall2)
 end
@@ -543,16 +543,16 @@ function test_sumall()
   local s = torch.LongStorage{60,50}
   local A = torch.Tensor(s):uniform() - 0.5
   local Acl = A:cl()
-  print('allocated A,Acl')
+--  print('allocated A,Acl')
   local Asumall = torch.sum(A)
   local Aclsumall = torch.sum(Acl)
-  print('done sumall calcs')
+--  print('done sumall calcs')
   luaunit.assertEquals(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall})
 
   Aprodall2 = A:prod()
-  print('calcing...')
+--  print('calcing...')
   Aclsumall2 = Acl:sum()
-  print('...calced')
+--  print('...calced')
   luaunit.assertEquals(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall2})
 end
 
@@ -578,8 +578,8 @@ function test_max1()
   local Acl = A:cl()
   local Amax, Aind = A:max(1)
   local Aclmax, Aclind = Acl:max(1)
-  print('A max', Amax, Aind)
-  print('Acl max', Aclmax, Aclind)
+--  print('A max', Amax, Aind)
+--  print('Acl max', Aclmax, Aclind)
   luaunit.assertEquals(Amax, Aclmax:double())
   luaunit.assertEquals(Aind, Aclind:long())
 end
@@ -590,8 +590,8 @@ function test_max2()
   local Acl = A:cl()
   local Amax, Aind = A:max(2)
   local Aclmax, Aclind = Acl:max(2)
-  print('A max', Amax, Aind)
-  print('Acl max', Aclmax, Aclind)
+--  print('A max', Amax, Aind)
+--  print('Acl max', Aclmax, Aclind)
   luaunit.assertEquals(Amax, Aclmax:double())
   luaunit.assertEquals(Aind, Aclind:long())
 end
@@ -602,8 +602,8 @@ function test_min1()
   local Acl = A:cl()
   local Amax, Aind = A:min(1)
   local Aclmax, Aclind = Acl:min(1)
-  print('A max', Amax, Aind)
-  print('Acl max', Aclmax, Aclind)
+--  print('A max', Amax, Aind)
+--  print('Acl max', Aclmax, Aclind)
   luaunit.assertEquals(Amax, Aclmax:double())
   luaunit.assertEquals(Aind, Aclind:long())
 end
@@ -614,10 +614,52 @@ function test_min2()
   local Acl = A:cl()
   local Amax, Aind = A:min(2)
   local Aclmax, Aclind = Acl:min(2)
-  print('A max', Amax, Aind)
-  print('Acl max', Aclmax, Aclind)
+--  print('A max', Amax, Aind)
+--  print('Acl max', Aclmax, Aclind)
   luaunit.assertEquals(Amax, Aclmax:double())
   luaunit.assertEquals(Aind, Aclind:long())
+end
+
+function test_indexfill()
+  x = torch.Tensor(60,50):uniform()
+  selector = torch.LongTensor{4,7,12,19,35}
+  value = -7
+  xfill = x:clone()
+  xfill:indexFill(2, selector, value)
+--  print('xfill\n', xfill)
+
+  xfillcl = x:clone():cl()
+  xfillcl:indexFill(2, selector, value)
+--  print('xfillcl\n', xfillcl)
+
+  luaunit.assertEquals(xfill, xfillcl:double())
+end
+
+function test_indexcopy()
+  x = torch.Tensor(60,50):uniform()
+  z = torch.Tensor(60,2)
+  z:select(2,1):fill(-1)
+  z:select(2,2):fill(-2)
+  xafter = x:clone()
+  xafter:indexCopy(2,torch.LongTensor{5,1}, z)
+
+  xaftercl = x:cl()
+  xaftercl:indexCopy(2,torch.LongTensor{5,1}, z:cl())
+  luaunit.assertEquals(xafter, xaftercl:double())
+end
+
+function test_indexselect()
+  x = torch.Tensor(50,60):uniform()
+
+  xcopy = x:clone()
+  xcopy:select(1, 2):fill(2) -- select row 2 and fill up
+  xcopy:select(2, 5):fill(5) -- select column 5 and fill up
+
+  xcopycl = x:cl()
+  xcopycl:select(1, 2):fill(2) -- select row 2 and fill up
+  xcopycl:select(2, 5):fill(5) -- select column 5 and fill up
+  
+  luaunit.assertEquals(xcopy, xcopycl:double())
 end
 
 local function _run()

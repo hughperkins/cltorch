@@ -639,6 +639,16 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('torch.cumprod(A, 1)\n', torch.cumprod(A, 1))
   print('torch.cumprod(A:cl(), 1)\n', torch.cumprod(A:cl(), 1))
 
+  x = torch.range(1,12):double():resize(3,4):cl()
+  print('x', x)
+  mask = torch.ByteTensor(2,6):bernoulli():cl()
+  print('mask', mask)
+  y = x:maskedSelect(mask)
+  print('y', y)
+  z = torch.DoubleTensor():cl()
+  z:maskedSelect(x, mask)
+  print('z', z)
+
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)
 --  x[{ 1,3 }] = 1
