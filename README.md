@@ -270,6 +270,13 @@ A:min(2) -- only returns the result, not the indices
 
 </pre></tr>
 
+<tr><td>Matrix-wide operations<td><td><pre>
+A = torch.ClTensor{{3,5,2},{4,5,6}}
+torch.norm(A)
+torch.norm(A,1)
+torch.norm(A,0)
+</pre></tr>
+
 <tr><td>Original, not in torch or cutorch<td>N/A<td><pre>
 c:csub(d) -- subtracts d from c, element-wise
          -- similar to 'c - d'
@@ -354,6 +361,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * removed `set` and `get` methods, because cause repeated gpu buffer copy (actually, get not too bad, but does copy whole buffer; set copies whole buffer, repeatedly :-P )
   * modifed ClStorage.__string__ to first copy whole storage to FloatStorage, once, then convert this to string, rather than using now non-existent `get`
   * `torch.ClTensor{3,5,2}` will now first create this as a `FloatTensor` then call `copy` on this, to convert whole Tensor/Storage to `ClTensor` (avoids repeated `set` calls)
+  * added `normall`, ie can do `torch.norm(c)`, `torch.norm(c, exponent)`
 * 19th June:
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
   * added `a:sub(b)` method, which does element-wise subtraction of b from a, and puts results in a
