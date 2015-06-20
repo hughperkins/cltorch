@@ -270,11 +270,12 @@ A:min(2) -- only returns the result, not the indices
 
 </pre></tr>
 
-<tr><td>Matrix-wide operations<td><td><pre>
+<tr><td>Matrix-wide operations<td><td>25%<pre>
 A = torch.ClTensor{{3,5,2},{4,5,6}}
 torch.norm(A)
 torch.norm(A,1)
 torch.norm(A,0)
+torch.numel(A)
 </pre></tr>
 
 <tr><td>Original, not in torch or cutorch<td>N/A<td><pre>

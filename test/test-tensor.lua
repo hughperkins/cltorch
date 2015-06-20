@@ -11,7 +11,7 @@ function torch.traceon(state)
   -- nop
 end
 
-if os.getenv('TRACEON') ~= nil then
+if os.getenv('TRACE') ~= nil then
   function torch.traceon(state)
     cltorch.setTrace(state)
   end
@@ -498,6 +498,12 @@ if os.getenv('PROTOTYPING') ~= nil then
 
   print('torch.norm(A, 0)', torch.norm(A, 0))
   print('torch.norm(Acl, 0)', torch.norm(Acl, 0))
+
+  print('torch.numel(A)', torch.numel(A))
+  print('torch.numel(Acl)', torch.numel(Acl))
+
+--  print('torch.trace(A)', torch.trace(A))
+--  print('torch.trace(Acl)', torch.trace(Acl))
 
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)
