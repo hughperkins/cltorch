@@ -51,6 +51,8 @@ INSTALL(FILES
           THClApply.h
           THClReduce.h
           THClReduceApplyUtils.h
+          THClKernels.h
+          THClOperators.h
 #	  THClAllocator.h
           DESTINATION "${Torch_INSTALL_INCLUDE_SUBDIR}/THCl")
 
