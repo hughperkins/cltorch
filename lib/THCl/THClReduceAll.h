@@ -15,6 +15,7 @@
 #include "THClDeviceUtils.h"
 #include "templates/TemplatedKernel.h"
 #include "THClTypeParseTraits.h"
+#include "THClKernels.h"
 
 // Size per each reduction block
 #define THCL_REDUCE_ALL_BLOCK_SIZE 1024L
@@ -103,33 +104,14 @@ void kernelLaunch_THClTensor_reduceAllPass1(
 
   std::string uniqueName = "THClTensor_reduceAllPass1_" + easycl::toString(ADims) + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAllPass1" );
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * block.vec[i];
-  }
 
-  // set up tensorinfos
-  TensorInfoCl inCl(in);
-
-  if( !in.wrapper->isOnDevice() ) {
-    in.wrapper->createOnDevice();
-  }
-
-  kernel->in(1, &inCl);
-  kernel->in( in.wrapper );
-  if( totalElements > ( 1l << 30 )) {
-    throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
-  }
-  kernel->in((int)totalElements);
-  kernel->in(init);
-  kernel->out(scratch);
-  kernel->localFloats(smemSize / sizeof(float));
-
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-  THClState_getCl(state)->finish();
-
-//  THError("Not implemented");
+  THClKernels k(state, kernel);
+  k.in(in);
+  k.in((int)totalElements);
+  k.in(init);
+  k.out(scratch);
+  k.localFloats(smemSize / sizeof(float));
+  k.run(grid, block);
 }
 
 template< typename IndexType >
@@ -158,29 +140,14 @@ void kernelLaunch_THClTensor_reduceAllPass2(
 
   std::string uniqueName = "THClTensor_reduceAllPass2_" + reduceOp->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAllPass2" );
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * block.vec[i];
-  }
 
-  // set up tensorinfos
-//  TensorInfoCl inCl(in);
-
-//  if( !in.wrapper->isOnDevice() ) {
-//    in.wrapper->createOnDevice();
-//  }
-
-  kernel->in(numPass1Blocks);
-  kernel->in(init);
-  kernel->in(scratch);
-  kernel->out(devOut);
-  kernel->localFloats(smemSize / sizeof(float));
-
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-  THClState_getCl(state)->finish();
-
-//  THError("Not implemented");
+  THClKernels k(state, kernel);
+  k.in(numPass1Blocks);
+  k.in(init);
+  k.in(scratch);
+  k.out(devOut);
+  k.localFloats(smemSize / sizeof(float));
+  k.run(grid, block);
 }
 
 template< typename IndexType >
@@ -215,33 +182,14 @@ void kernelLaunch_THClTensor_reduceAll(
 
   std::string uniqueName = "THClTensor_reduceAll_" + easycl::toString(ADims) + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAll" );
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * block.vec[i];
-  }
 
-  // set up tensorinfos
-  TensorInfoCl inCl(in);
-
-  if( !in.wrapper->isOnDevice() ) {
-    in.wrapper->createOnDevice();
-  }
-
-  kernel->in(1, &inCl);
-  kernel->in( in.wrapper );
-  if( totalElements > ( 1l << 30 )) {
-    throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
-  }
-  kernel->in((int)totalElements);
-  kernel->in(init);
-  kernel->out(devOut);
-  kernel->localFloats(smemSize / sizeof(float));
-
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-  THClState_getCl(state)->finish();
-
-//  THError("Not implemented");
+  THClKernels k(state, kernel);
+  k.in(in);
+  k.in((int)totalElements);
+  k.in(init);
+  k.out(devOut);
+  k.localFloats(smemSize / sizeof(float));
+  k.run(grid, block);
 }
 
 template <typename IndexType>
