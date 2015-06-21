@@ -52,3 +52,12 @@ Anyway.... rightly or wrongly :-P  what I've done for now is to change the opera
 
 I think it works quite nicely, and it's easy to convert the structs into classes, and visa versa, though it is admittedly a slight deviation from the cutorch design.
 
+# cogapp
+
+Oh yes, by the way, I'm using [cogapp](https://bitbucket.org/ned/cog) to help do some of the templating.  It needs a python environment.  By default, it doesnt run, but if you want to modify any of the cl files, you'll need to rerun stringify.  To get this to work:
+* make sure you have python available
+* cd into `build` directory, and do `ccmake ..`
+* set option `DEV_RUN_COG` to `ON`
+* and do `configure` then `generate`
+* => from now on, cogapp will run automatically, when you build, and reimport the .cl files into the corresponding .cpp file
+
