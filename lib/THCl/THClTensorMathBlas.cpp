@@ -65,30 +65,24 @@ void THClTensor_addmv(THClState *state, THClTensor *r_, float beta, THClTensor *
   {
     THClBlas_gemv(state, 'n', mat->size[0], mat->size[1],
                     alpha, 
-                    THClTensor_wrapper(state, mat), 
-                    THClTensor_storageOffset(state, mat), 
+                    mat, 
                     mat->stride[1],
-                    THClTensor_wrapper(state, vec), 
-                    THClTensor_storageOffset(state, vec), 
+                    vec, 
                     vec->stride[0],
                     beta, 
-                    THClTensor_wrapper(state, r_),
-                    THClTensor_storageOffset(state, r_),
+                    r_,
                     r_->stride[0]);
   }
   else if(mat->stride[1] == 1)
   {
     THClBlas_gemv(state, 't',  mat->size[1], mat->size[0],
                     alpha, 
-                    THClTensor_wrapper(state, mat),
-                    THClTensor_storageOffset(state, mat),
+                    mat,
                     mat->stride[0],
-                    THClTensor_wrapper(state, vec),
-                    THClTensor_storageOffset(state, vec),
+                    vec,
                     vec->stride[0],
                     beta,
-                    THClTensor_wrapper(state, r_),
-                    THClTensor_storageOffset(state, r_),
+                    r_,
                     r_->stride[0]);
   }
   else
@@ -97,15 +91,12 @@ void THClTensor_addmv(THClState *state, THClTensor *r_, float beta, THClTensor *
 
     THClBlas_gemv(state, 't',  mat->size[1], mat->size[0],
                     alpha, 
-                    THClTensor_wrapper(state, cmat),
-                    THClTensor_storageOffset(state, cmat),
+                    cmat,
                     cmat->stride[0],
-                    THClTensor_wrapper(state, vec),
-                    THClTensor_storageOffset(state, vec),
+                    vec,
                     vec->stride[0],
                     beta,
-                    THClTensor_wrapper(state, r_),
-                    THClTensor_storageOffset(state, r_),
+                    r_,
                     r_->stride[0]);
 
     THClTensor_free(state, cmat);
@@ -200,15 +191,12 @@ void THClTensor_addmm(THClState *state, THClTensor *r_, float beta, THClTensor *
                   r__->size[(transpose_r == 'n' ? 1 : 0)],
                   m1_->size[(transpose_r == 'n' ? 1 : 0)],
                   alpha,
-                  THClTensor_wrapper(state, m1_),
-                  THClTensor_storageOffset(state, m1_),
+                  m1_,
                   (transpose_m1 == 'n' ? m1_->stride[(transpose_r == 'n' ? 1 : 0)] : m1_->stride[(transpose_r == 'n' ? 0 : 1)]),
-                  THClTensor_wrapper(state, m2_),
-                  THClTensor_storageOffset(state, m2_),
+                  m2_,
                   (transpose_m2 == 'n' ? m2_->stride[(transpose_r == 'n' ? 1 : 0)] : m2_->stride[(transpose_r == 'n' ? 0 : 1)]),
                   beta,
-                  THClTensor_wrapper(state, r__),
-                  THClTensor_storageOffset(state, r__),
+                  r__,
                   r__->stride[(transpose_r == 'n' ? 1 : 0)]);
 
   r__->storage->wrapper->markDeviceDirty();
@@ -252,28 +240,22 @@ void THClTensor_addr(THClState *state, THClTensor *r_, float beta, THClTensor *t
   {
     THClBlas_ger(state, vec1->size[0], vec2->size[0],
                    alpha, 
-                  THClTensor_wrapper(state, vec1), 
-                  THClTensor_storageOffset(state, vec1), 
+                  vec1, 
                   vec1->stride[0],
-                   THClTensor_wrapper(state, vec2),
-                   THClTensor_storageOffset(state, vec2),
+                   vec2,
                    vec2->stride[0],
-                   THClTensor_wrapper(state, r_), 
-                   THClTensor_storageOffset(state, r_), 
+                   r_, 
                     r_->stride[1]);
   }
   else if(r_->stride[1] == 1)
   {
     THClBlas_ger(state, vec2->size[0], vec1->size[0],
                    alpha, 
-                  THClTensor_wrapper(state, vec2),
-                  THClTensor_storageOffset(state, vec2),
+                  vec2,
                    vec2->stride[0],
-                   THClTensor_wrapper(state, vec1),
-                   THClTensor_storageOffset(state, vec1),
+                   vec1,
                     vec1->stride[0],
-                   THClTensor_wrapper(state, r_), 
-                   THClTensor_storageOffset(state, r_), 
+                   r_, 
                     r_->stride[0]);
   }
   else
@@ -282,14 +264,11 @@ void THClTensor_addr(THClState *state, THClTensor *r_, float beta, THClTensor *t
 
     THClBlas_ger(state, vec2->size[0], vec1->size[0],
                    alpha, 
-                  THClTensor_wrapper(state, vec2),
-                  THClTensor_storageOffset(state, vec2),
+                  vec2,
                   vec2->stride[0],
-                   THClTensor_wrapper(state, vec1),
-                   THClTensor_storageOffset(state, vec1),
+                   vec1,
                     vec1->stride[0],
-                   THClTensor_wrapper(state, cr),
-                   THClTensor_storageOffset(state, cr),
+                   cr,
                     cr->stride[0]);
 
     THClTensor_freeCopyTo(state, cr, r_);

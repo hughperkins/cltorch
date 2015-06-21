@@ -2,6 +2,7 @@
 
 #include "THClBlas.h"
 #include "THClGeneral.h"
+#include "THClTensor.h"
 
 #include "util/easycl_stringhelper.h"
 #include "EasyCL.h"
@@ -208,11 +209,20 @@ float THClBlas_dot(THClState *state, long n,
 }
 
 /* Level 2 */
-void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, CLWrapper *awrapper, long aoffset, long lda, 
-    CLWrapper *xwrapper, long xoffset, long incx, 
+void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, 
+    THClTensor *a, long lda, 
+    THClTensor *x, long incx, 
     float beta,
-     CLWrapper *ywrapper, long yoffset, long incy)
+     THClTensor *y, long incy)
 {
+  CLWrapper *awrapper = THClTensor_wrapper(state, a);
+  CLWrapper *xwrapper = THClTensor_wrapper(state, x);
+  CLWrapper *ywrapper = THClTensor_wrapper(state, y);
+  long aoffset = THClTensor_storageOffset(state, a);
+  long xoffset = THClTensor_storageOffset(state, x);
+  long yoffset = THClTensor_storageOffset(state, y);
+
+
   if(n == 1)
     lda = m;
 
@@ -264,10 +274,17 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha, CL
 }
 
 void THClBlas_ger(THClState *state, long m, long n, float alpha, 
-    CLWrapper *xwrap, long x_offset, long incx,
-    CLWrapper *ywrap, long y_offset, long incy,
-    CLWrapper *awrap, long a_offset, long lda)
+    THClTensor *x, long incx,
+    THClTensor *y, long incy,
+    THClTensor *a, long lda)
 {
+  CLWrapper *xwrap = THClTensor_wrapper(state, x);
+  CLWrapper *ywrap = THClTensor_wrapper(state, y);
+  CLWrapper *awrap = THClTensor_wrapper(state, a);
+  long x_offset = THClTensor_storageOffset(state, x);
+  long y_offset = THClTensor_storageOffset(state, y);
+  long a_offset = THClTensor_storageOffset(state, a);
+
   if(n == 1)
     lda = m;
 
@@ -351,8 +368,17 @@ void adjustLd(char transa, char transb, long m, long n, long k, long *lda, long 
 }
 
 /* Level 3 */
-void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, long k, float alpha, CLWrapper *aWrapper, long offseta, long lda, CLWrapper *bWrapper, long offsetb, long ldb, float beta, CLWrapper *cWrapper, long offsetc, long ldc)
+void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, long k, float alpha, 
+  THClTensor *a, long lda, THClTensor *b, long ldb, float beta, 
+  THClTensor *c, long ldc)
 {
+  CLWrapper *aWrapper = THClTensor_wrapper(state, a);
+  CLWrapper *bWrapper = THClTensor_wrapper(state, b);
+  CLWrapper *cWrapper = THClTensor_wrapper(state, c);
+  long offseta = THClTensor_storageOffset(state, a);
+  long offsetb = THClTensor_storageOffset(state, b);
+  long offsetc = THClTensor_storageOffset(state, c);
+
   adjustLd(transa, transb, m, n, k, &lda, &ldb, &ldc);
   clblasTranspose opa = convertTransToClblasOperation(transa);
   clblasTranspose opb = convertTransToClblasOperation(transb);
