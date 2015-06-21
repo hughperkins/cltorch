@@ -683,6 +683,7 @@ local function _run()
 end
 
 --cltorch.setTrace(1)
-luaunit.LuaUnit.run()
+--luaunit.LuaUnit.run()
 -- os.exit(_run())
+os.exit(luaunit.LuaUnit.run())
 

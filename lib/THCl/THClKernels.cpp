@@ -2,13 +2,22 @@
 #include "EasyCL.h"
 #include "THClTensor.h"
 #include <stdexcept>
+#include "THClReduceApplyUtils.h"
+#include "CLKernel_structs.h"
 
 using namespace std;
 
+// Constructor
 THClKernels::THClKernels(THClState *state, CLKernel *kernel) :
   state(state),
   kernel(kernel) {
 }
+THClKernels::~THClKernels() {
+  for( int i = 0; i < (int)tensorInfoCls.size(); i++ ) {
+    delete tensorInfoCls[i];
+  }
+}
+// CLTensors =====================
 THClKernels *THClKernels::in(THClTensor *tensor) {
   kernel->in(THClTensor_wrapper(state, tensor));
   try {
@@ -36,6 +45,7 @@ THClKernels *THClKernels::out(THClTensor *tensor) {
   }
   return this;
 }
+// scalars ==================
 THClKernels *THClKernels::in(int value) {
   try {
     kernel->in(value);
@@ -52,6 +62,35 @@ THClKernels *THClKernels::in(float value) {
   }
   return this;
 }
+// CLTensorInfos ================
+template< typename IndexType >
+THClKernels *THClKernels::in(TensorInfo<IndexType>tensorInfo) {
+  TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensorInfo);
+  kernel->in(1, tensorInfoCl);
+  kernel->in(tensorInfo.wrapper);
+  tensorInfoCls.push_back(tensorInfoCl);
+  return this;
+}
+template< typename IndexType >
+THClKernels *THClKernels::inout(TensorInfo<IndexType>tensorInfo) {
+  TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensorInfo);
+  kernel->in(1, tensorInfoCl);
+  kernel->inout(tensorInfo.wrapper);
+  tensorInfoCls.push_back(tensorInfoCl);
+  return this;
+}
+template< typename IndexType >
+THClKernels *THClKernels::out(TensorInfo<IndexType>tensorInfo) {
+  TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensorInfo);
+  if( !tensorInfo.wrapper->isOnDevice() ) {
+    tensorInfo.wrapper->createOnDevice();
+  }
+  kernel->in(1, tensorInfoCl);
+  kernel->out(tensorInfo.wrapper);
+  tensorInfoCls.push_back(tensorInfoCl);
+  return this;
+}
+// CLWrapper ===============
 THClKernels *THClKernels::in(CLWrapper *wrapper) {
   kernel->in(wrapper);
   return this;
@@ -82,4 +121,19 @@ void THClKernels::run(dim3 grid, dim3 block) {
   }
   kernel->run(3, global_ws.as_size_t(), block.as_size_t());
 }
+
+#define DECLARE_THCLKERNELS(IndexType) \
+template \
+THClKernels *THClKernels::in<IndexType>(TensorInfo<IndexType>tensorInfo); \
+template \
+THClKernels *THClKernels::inout<IndexType>(TensorInfo<IndexType>tensorInfo); \
+template \
+THClKernels *THClKernels::out<IndexType>(TensorInfo<IndexType>tensorInfo);
+
+DECLARE_THCLKERNELS(unsigned int);
+DECLARE_THCLKERNELS(unsigned long);
+
+template CLKernel *CLKernel::in<>(int N, const TensorInfoCl *data);
+template CLKernel *CLKernel::inout<>(int N, const TensorInfoCl *data);
+template CLKernel *CLKernel::out<>(int N, const TensorInfoCl *data);
 

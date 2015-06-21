@@ -8,6 +8,7 @@
 #include "EasyCL.h"
 #include "CLKernel_structs.h"
 #include "THClTypeParseTraits.h"
+#include "THClKernels.h"
 
 #include <string>
 
@@ -55,32 +56,17 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate());
   std::string uniqueName = "THClApply_1t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + op->operator1();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * block.vec[i];
-  }
 
-  // set up tensorinfos
-  TensorInfoCl aInfoCl(aInfo);
-
-  if( !aInfo.wrapper->isOnDevice() ) {
-    aInfo.wrapper->createOnDevice();
-  }
-
-  kernel->in(1, &aInfoCl);
-  kernel->inout( aInfo.wrapper );
-
+  THClKernels k(state, kernel);
+  k.out(aInfo);
   for( int i = 0; i < numScalars; i++ ) {
-    kernel->in(hasScalars->getScalar(i));
+    k.in(hasScalars->getScalar(i));
   }
-
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
-  kernel->in( (int)totalElements );
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-  THClState_getCl(state)->finish();
+  k.in( (int)totalElements );
+  k.run(grid, block);
 }
 
 template< typename IndexType >
@@ -119,36 +105,18 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     THError( ( std::string("Error building kernel in apply2 ") + __FILE__ + ":" + easycl::toString( __LINE__ ) + ": " + e.what() ).c_str() );
 //    throw e;
   }
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * block.vec[i];
-  }
 
-  // set up tensorinfos
-  TensorInfoCl aInfoCl(aInfo);
-  TensorInfoCl bInfoCl(bInfo);
-
-  if( !aInfo.wrapper->isOnDevice() ) {
-    aInfo.wrapper->createOnDevice();
-  }
-
-  kernel->in(1, &aInfoCl);
-  kernel->inout( aInfo.wrapper );
-
-  kernel->in(1, &bInfoCl);
-  kernel->inout( bInfo.wrapper );
-
+  THClKernels k(state, kernel);
+  k.out(aInfo);
+  k.in(bInfo);
   for( int i = 0; i < numScalars; i++ ) {
-    kernel->in(hasScalars->getScalar(i));
+    k.in(hasScalars->getScalar(i));
   }
-
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
-  kernel->in( (int)totalElements );
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-  THClState_getCl(state)->finish();
+  k.in( (int)totalElements );
+  k.run(grid, block);
 }
 
 template< typename IndexType >
@@ -184,39 +152,19 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   kernelBuilder.set("operation", operation);
   std::string uniqueName = "THClApply_3t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + easycl::toString(C) + "_" + op->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClApply.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * block.vec[i];
-  }
 
-  // set up tensorinfos
-  TensorInfoCl aInfoCl(aInfo);
-  TensorInfoCl bInfoCl(bInfo);
-  TensorInfoCl cInfoCl(cInfo);
-
-  if( !aInfo.wrapper->isOnDevice() ) {
-    aInfo.wrapper->createOnDevice();
-  }
-  kernel->in(1, &aInfoCl);
-  kernel->inout( aInfo.wrapper );
-
-  kernel->in(1, &bInfoCl);
-  kernel->inout( bInfo.wrapper );
-
-  kernel->in(1, &cInfoCl);
-  kernel->inout( cInfo.wrapper );
-
+  THClKernels k(state, kernel);
+  k.out(aInfo);
+  k.in(bInfo);
+  k.in(cInfo);
   for( int i = 0; i < numScalars; i++ ) {
-    kernel->in(hasScalars->getScalar(i));
+    k.in(hasScalars->getScalar(i));
   }
-
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
-  kernel->in( (int)totalElements );
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-  THClState_getCl(state)->finish();
+  k.in( (int)totalElements );
+  k.run(grid, block);
 }
 
 inline dim3 getApplyBlock() {

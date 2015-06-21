@@ -263,7 +263,7 @@ print(torch.ClTensor({{3,5,2},{4,5,6}}) == torch.ClTensor({{3,5,2},{4,5,6}}))
 --print('end')
 end
 
-if false then
+if true then
 A = torch.ClTensor{{3,2,4},{9,7,5}}
 print('A\n', A)
 print('A:sum(2)', A:sum(2))
@@ -274,7 +274,7 @@ print('torch.max(A,1)', torch.max(A,1))
 print('torch.max(A,2)', torch.max(A,2))
 end
 
-if false then
+if true then
   c = torch.ClTensor{3,5,2}
   print('torch.isTensor(c)', torch.isTensor(c))
   print('c:nDimension()', c:nDimension())
