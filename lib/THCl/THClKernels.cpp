@@ -121,7 +121,12 @@ void THClKernels::run(dim3 grid, dim3 block) {
   }
   kernel->run(3, global_ws.as_size_t(), block.as_size_t());
 }
+// locals ==================
+THClKernels *THClKernels::localFloats(int count) {
+  kernel->localFloats(count);
+}
 
+// template instantiations ====================
 #define DECLARE_THCLKERNELS(IndexType) \
 template \
 THClKernels *THClKernels::in<IndexType>(TensorInfo<IndexType>tensorInfo); \

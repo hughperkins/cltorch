@@ -115,31 +115,16 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
   std::string uniqueName = "THClTensor_reduceNoncontigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
     TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClReduce.cl", THClReduce_getKernelSource(), "THClTensor_reduceNoncontigDim");
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * block.vec[i];
-  }
 
-  // set up tensorinfos
-  TensorInfoCl outCl(out);
-  TensorInfoCl inCl(in);
+  THClKernels k(state, kernel);
+  k.out(out);
+  k.in(in);
+  k.in((int)reductionStride);
+  k.in((int)reductionSize);
+  k.in((int)totalSlices);
+  k.in(init);
 
-  if( !out.wrapper->isOnDevice() ) {
-    out.wrapper->createOnDevice();
-  }
-
-  kernel->in(1, &outCl);
-  kernel->out( out.wrapper );
-  kernel->in(1, &inCl);
-  kernel->in( in.wrapper );
-  kernel->in((int)reductionStride);
-  kernel->in((int)reductionSize);
-  kernel->in((int)totalSlices);
-  kernel->in(init);
-
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-//  THClState_getCl(state)->finish();
+  k.run(grid, block);
 }
 
 template<typename IndexType>
@@ -192,32 +177,16 @@ void kernelLaunch_THClTensor_reduceContigDim(
   std::string uniqueName = "THClTensor_reduceContigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
     TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
   CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClReduce.cl", THClReduce_getKernelSource(), "THClTensor_reduceContigDim");
-  // calculate workgroup sizes and stuff
-  dim3 global_ws;
-  for( int i = 0; i < 3; i++ ) {
-      global_ws.vec[i] = grid.vec[i] * block.vec[i];
-  }
 
-  // set up tensorinfos
-  TensorInfoCl outCl(out);
-  TensorInfoCl inCl(in);
+  THClKernels k(state, kernel);
+  k.out(out);
+  k.in(in);
+  k.in((int)reductionSize);
+  k.in((int)totalSlices);
+  k.in(init);
+  k.localFloats(smemSize / sizeof(float));
 
-  if( !out.wrapper->isOnDevice() ) {
-    out.wrapper->createOnDevice();
-  }
-
-  kernel->in(1, &outCl);
-  kernel->out( out.wrapper );
-  kernel->in(1, &inCl);
-  kernel->in( in.wrapper );
-  kernel->in((int)reductionSize);
-  kernel->in((int)totalSlices);
-  kernel->in(init);
-  kernel->localFloats(smemSize / sizeof(float));
-
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
-//  THClState_getCl(state)->finish();
-
+  k.run(grid, block);
 }
 
 bool THClTensor_reduceDim(THClState* state,
