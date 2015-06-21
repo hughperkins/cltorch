@@ -53,7 +53,7 @@ namespace cltorch {
     state->currentDevice = device;
     return 0;
   }
-  static int cltorch_streamSynchronize(lua_State *L)
+  static int cltorch_synchronize(lua_State *L)
   {
     THClState *state = cltorch_getstate(L);
     THClState_getCl(state)->finish();
@@ -119,8 +119,8 @@ namespace cltorch {
   static const struct luaL_Reg cltorch_stuff__ [] = {
     {"getDevice", cltorch_getDevice},
     {"setDevice", cltorch_setDevice},
-    {"streamSynchronize", cltorch_streamSynchronize},
-    {"finish", cltorch_streamSynchronize},
+    {"synchronize", cltorch_synchronize},
+    {"finish", cltorch_synchronize},
     {"getDeviceCount", cltorch_getDeviceCount},
     {"getDeviceProperties", cltorch_getDeviceProperties},
     {"getState", cltorch_getState},

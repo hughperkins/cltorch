@@ -28,8 +28,8 @@ for k,v in props do
 end
 cltorch.setDevice(1)
 print('current device: ', cltorch.getDevice())
-cltorch.streamSynchronize()
-cltorch.finish() -- alias for streamSynchronize()
+cltorch.synchronize()
+cltorch.finish() -- alias for synchronize()
 </pre></tr>
 </table>
 
@@ -373,7 +373,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
     * Upgraded new THClKernels class to handle `THClTensorInfo`
     * migrated Reduce, ReduceAll, etc to use THClKernels
     * upgraded EasyCL to handle `uint`, `long`, `ulong`
-  * added `cltorch.finish()` and `cltorch.streamSynchronize()`, both do same thing, which is a `clFinish()`, on current device
+  * added `cltorch.finish()` and `cltorch.synchronize()`, both do same thing, which is a `clFinish()`, on current device
 * 20th June:
   * rename new `sub` method to `csub` so doesnt collide with existing `sub`
   * added `cltorch.setTrace(1|0)`, which prints out every allocate or copy of gpu buffers (named 'wrapper's)
