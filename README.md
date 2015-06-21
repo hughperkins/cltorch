@@ -367,6 +367,11 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 # Recent changes
 
+* 21st June:
+  * Under the hood:
+    * Upgraded new THClKernels class to handle `THClTensorInfo`
+    * migrated Reduce, ReduceAll, etc to use THClKernels
+    * upgraded EasyCL to handle `uint`, `long`, `ulong`
 * 20th June:
   * rename new `sub` method to `csub` so doesnt collide with existing `sub`
   * added `cltorch.setTrace(1|0)`, which prints out every allocate or copy of gpu buffers (named 'wrapper's)
@@ -382,6 +387,11 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
   * added `:indexSelect()`
   * added `torch.cumsum(x,2)` and `torch.cumsum(x,1)`
   * added `torch.cumprod(x,2)` and `torch.cumprod(x,1)`
+  * Under the hood:
+    * created new THClKernels class:
+      * handles THClTensor kernel input
+      * provides `run` method that takes a dim3 `grid` and `block` input, as for cutorch kernel launches
+      * migrated TensorIndexed to use THClKernels
 * 19th June:
   * fixed a compile bug in EasyCL, when lua5.2/5.3 header files are present (not tested yet)
   * added `a:sub(b)` method, which does element-wise subtraction of b from a, and puts results in a
