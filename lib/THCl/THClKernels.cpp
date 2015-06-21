@@ -5,6 +5,7 @@
 #include "THClReduceApplyUtils.h"
 #include "CLKernel_structs.h"
 
+#include <iostream>
 using namespace std;
 
 // Constructor
@@ -126,6 +127,7 @@ void THClKernels::run(dim3 grid, dim3 block) {
   try {
     kernel->run(3, global_ws.as_size_t(), block.as_size_t());
   } catch( runtime_error &e ) {
+    cout << e.what() << endl;
     THError(e.what());
   }
 }
