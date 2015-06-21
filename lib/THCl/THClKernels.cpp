@@ -19,8 +19,8 @@ THClKernels::~THClKernels() {
 }
 // CLTensors =====================
 THClKernels *THClKernels::in(THClTensor *tensor) {
-  kernel->in(THClTensor_wrapper(state, tensor));
   try {
+    kernel->in(THClTensor_wrapper(state, tensor));
     kernel->in((int)THClTensor_storageOffset(state, tensor));
   } catch( runtime_error &e ) {
     THError(e.what());
@@ -92,7 +92,11 @@ THClKernels *THClKernels::out(TensorInfo<IndexType>tensorInfo) {
 }
 // CLWrapper ===============
 THClKernels *THClKernels::in(CLWrapper *wrapper) {
-  kernel->in(wrapper);
+  try {
+    kernel->in(wrapper);
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
   return this;
 }
 THClKernels *THClKernels::inout(CLWrapper *wrapper) {
@@ -119,11 +123,19 @@ void THClKernels::run(dim3 grid, dim3 block) {
   for( int i = 0; i < 3; i++ ) {
       global_ws.vec[i] = grid.vec[i] * block.vec[i];
   }
-  kernel->run(3, global_ws.as_size_t(), block.as_size_t());
+  try {
+    kernel->run(3, global_ws.as_size_t(), block.as_size_t());
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
 }
 // locals ==================
 THClKernels *THClKernels::localFloats(int count) {
-  kernel->localFloats(count);
+  try {
+    kernel->localFloats(count);
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
 }
 
 // template instantiations ====================
