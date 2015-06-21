@@ -23,22 +23,12 @@ for i,torchtype in ipairs(torchtypes) do
 end
 
 for i,torchtype in ipairs(torchtypes) do
---  print('init torch type copy', torchtype)
   torchtype.copy = function (self, two)
---    print('cust copy')
-    for j, innertorchtype in ipairs(torchtypes) do
-      if(torch.type(two) == getmetatable(innertorchtype).__typename) then
-        torchtype.cloldcopy(self, two)
-        return self
-      end
-    end
-
     if(torch.type(two) == "torch.ClTensor") then
       torchtype.clnewcopy(self, two)
-      return self
+    else
+      torchtype.cloldcopy(self, two)
     end
-
-    torchtype.cloldcopy(self, two)
     return self
   end
 end
