@@ -421,6 +421,7 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
     else {
 //        err = clWaitForEvents(1, &event);
     }
+    cWrapper->markDeviceDirty();
 
 //    clblasTeardown();
 

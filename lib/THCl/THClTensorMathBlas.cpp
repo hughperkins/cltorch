@@ -199,7 +199,7 @@ void THClTensor_addmm(THClState *state, THClTensor *r_, float beta, THClTensor *
                   r__,
                   r__->stride[(transpose_r == 'n' ? 1 : 0)]);
 
-  r__->storage->wrapper->markDeviceDirty();
+//  r__->storage->wrapper->markDeviceDirty();
 
   /* free intermediate variables */
   if(m1_ != m1)

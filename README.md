@@ -317,6 +317,11 @@ c:map2(d, e, "*out = sqrt(1000 * *out + *in1 * 10 + *in2 * *in2)")
 luarocks make rocks/cltorch-scm-1.rockspec
 ```
 
+# Co-existence with cutorch
+
+* You must ensure that cltorch is `require`d after cutorch
+* If you get errors about #1 argument to copy should be tensor, but is userdata, then please double-check that cltorch is `required`d after cutorch (they each monkey-patch cutorch, but since cutorch was written first, it assumes there is no monkey-patch conflict)
+
 # Updating
 
 * Sometimes you might want to do `git pull` to pull in new updates
@@ -374,6 +379,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
     * migrated Reduce, ReduceAll, etc to use THClKernels
     * upgraded EasyCL to handle `uint`, `long`, `ulong`
   * added `cltorch.finish()` and `cltorch.synchronize()`, both do same thing, which is a `clFinish()`, on current device
+  * made it possible to require both cutorch and cltorch, as long as one requires cutorch followed by cltorch, in that order
 * 20th June:
   * rename new `sub` method to `csub` so doesnt collide with existing `sub`
   * added `cltorch.setTrace(1|0)`, which prints out every allocate or copy of gpu buffers (named 'wrapper's)
