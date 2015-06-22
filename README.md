@@ -299,6 +299,8 @@ a:neg() -- similar to '- a'
 c:apply("*out = sqrt(*out + 3.5)")
         -- note: a string, not a lua function
         -- this will be passed to OpenCL kernel :-)
+-- Update: in fact, this is available for cutorch :-)
+-- It is here: https://github.com/szagoruyko/cutorch-rtc
 c:map(d, "*out = 1000 * *out + *in1 * 10")
         -- note: a string, not a lua function
         -- this will be passed to OpenCL kernel :-)
