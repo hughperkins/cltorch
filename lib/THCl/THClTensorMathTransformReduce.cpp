@@ -70,8 +70,8 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
   kernelBuilder
     .set("init", init)
     .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-    .set("x_threads", 0)
-    .set("y_threads", 0)
+    .set("x_threads", 1)
+    .set("y_threads", 1)
     .set("pair_operator2", binary_op->pair_operator2())
   ;
 
