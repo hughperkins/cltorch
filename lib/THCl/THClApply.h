@@ -173,7 +173,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
 inline int getWorkgroupSize(THClState *state) {
   int workgroupSize = THCL_APPLY_THREADS_PER_BLOCK;
   int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[state->currentDevice])->maxWorkGroupSize;
-  std::cout << "maxworkgroupsize=" << maxWorkgroupSize << std::endl;
+//  std::cout << "maxworkgroupsize=" << maxWorkgroupSize << std::endl;
   if( workgroupSize > maxWorkgroupSize ) {
     workgroupSize = maxWorkgroupSize;
   }

@@ -18,10 +18,25 @@
 #include "THClKernels.h"
 
 // Size per each reduction block
-#define THCL_REDUCE_ALL_BLOCK_SIZE 1024L
+//#define THCL_REDUCE_ALL_BLOCK_SIZE 1024L
+
+inline long getReduceAllBlockSize(THClState *state) {
+  int blockSize = 1024;
+  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[state->currentDevice])->maxWorkGroupSize;
+  if( blockSize > maxWorkgroupSize ) {
+    blockSize = maxWorkgroupSize;
+  }
+  return blockSize;
+}
 
 // Cutoff size for two-pass reduction
-#define THCL_TWO_PASS_REDUCTION_SIZE 2048L
+// #define THCL_TWO_PASS_REDUCTION_SIZE 2048L
+// I wonder if this is a function of the block size above?  logically it 
+// probably is...
+
+inline long getTwoPassReductionSize(THClState *state) {
+  return getReduceAllBlockSize(state) * 2;
+}
 
 std::string THClReduceAll_getKernelTemplate();
 bool THClTensor_reduceAll(THClState* state,
@@ -33,12 +48,12 @@ bool THClTensor_reduceAll(THClState* state,
 
 // Perform a two-pass reduction if the tensor is large enough to
 // warrant it.
-inline bool isTwoPassReductionSize(long elements) {
-  return (elements > THCL_TWO_PASS_REDUCTION_SIZE);
+inline bool isTwoPassReductionSize(THClState *state, long elements) {
+  return (elements > getTwoPassReductionSize(state));
 }
 
 inline long getTwoPassBlocks(THClState* state, long elements) {
-  long numBlocks = THClCeilDiv(elements, THCL_REDUCE_ALL_BLOCK_SIZE);
+  long numBlocks = THClCeilDiv(elements, getReduceAllBlockSize(state));
 
   // We can only have as many blocks as there is scratch space
   size_t scratchSpace =
@@ -56,7 +71,7 @@ inline long getTwoPassBlocks(THClState* state, long elements) {
 inline void getPass1ReduceBlockGrid(THClState* state, long elements,
                                     dim3& grid, dim3& block) {
   grid = dim3(getTwoPassBlocks(state, elements));
-  block = dim3(THCL_REDUCE_ALL_BLOCK_SIZE);
+  block = dim3(getReduceAllBlockSize(state));
 }
 
 inline void getPass2ReduceBlockGrid(THClState* state, long elements,
@@ -66,10 +81,10 @@ inline void getPass2ReduceBlockGrid(THClState* state, long elements,
   block = dim3(getTwoPassBlocks(state, elements));
 }
 
-inline void getSinglePassReduceBlockGrid(long elements,
+inline void getSinglePassReduceBlockGrid(THClState *state, long elements,
                                          dim3& grid, dim3& block) {
   grid = dim3(1);
-  block = dim3(THCL_REDUCE_ALL_BLOCK_SIZE);
+  block = dim3(getReduceAllBlockSize(state));
 }
 
 template< typename IndexType >
@@ -205,7 +220,7 @@ void callReduceAll(THClState* state,
   dim3 block;
 
 //  TensorInfoCl inCl(in);
-  if (isTwoPassReductionSize(totalElements)) {
+  if (isTwoPassReductionSize(state, totalElements)) {
     getPass1ReduceBlockGrid(state, totalElements, grid, block);
     size_t smemSize = block.x() * sizeof(float);
 
@@ -239,7 +254,7 @@ void callReduceAll(THClState* state,
 //        devOut);
 //    THError("Not implemented");
   } else {
-    getSinglePassReduceBlockGrid(totalElements, grid, block);
+    getSinglePassReduceBlockGrid(state, totalElements, grid, block);
     size_t smemSize = block.x() * sizeof(float);
 
 //    THError("Not implemented");
