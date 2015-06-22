@@ -318,6 +318,17 @@ git clone --recursive https://github.com/hughperkins/cltorch.git
 cd cltorch
 luarocks make rocks/cltorch-scm-1.rockspec
 ```
+* If you get an error message about some files in EasyCL or clBLAS not existing, then do:
+```
+git submodule init
+git submodule update
+```
+* If, during `git submodule update` command, it says something about `clBLAS/src` directory already exists, then do:
+```
+git submodule init
+rmdir clMathLibraries/clBLAS/src
+git submodule update
+```
 
 # Co-existence with cutorch
 
