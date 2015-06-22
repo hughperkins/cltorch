@@ -27,9 +27,10 @@ kernel void THClTensor_kernel_transformReduceOuterDimIndex(global float *tgt1_da
   for (int orow = get_group_id(0); orow < num_orows; orow += get_num_groups(0)) {
     for (int irow = get_group_id(1) * get_local_size(0) + get_local_id(0); irow < num_irows; irow += get_num_groups(1) * get_local_size(0)) {
       global float *src = src_data + src_offset + orow * row_size * num_irows + irow;
-      Pair acc = (Pair){.first={{init}}, .second=-1};
+      Pair acc = {.first={{init}}, .second=-1};
       for (int col = 0; col < row_size; ++col) {
-        acc = binary_op( (Pair){.first=*src, .second=col+1}, acc);
+        Pair lhs = {*src, col+1};
+        acc = binary_op( lhs, acc);
 //         acc = binary_op(thrust::make_pair(*src, col+1), acc); // i+1 for 1-indexing
         src += num_irows;
       }
@@ -60,13 +61,13 @@ kernel void THClTensor_kernel_transformReduceInnermostDimIndex(
   for (int block_row = get_group_id(0) * get_local_size(1); block_row < num_rows; block_row += get_local_size(1) * get_num_groups(0)) {
     int row = block_row + get_local_id(1);
 //     thrust::pair<float,float> acc = init;
-    Pair acc = (Pair){ .first={{init}}, .second=-1 };
+    Pair acc = { .first={{init}}, .second=-1 };
     if (row < num_rows) {
       global float *src = src_data + src_offset + row * row_size;
       // Sequential reduction within a thread.
       for (int col = get_local_id(0); col < row_size; col += get_local_size(0)) {
-           acc = binary_op((Pair){.first=src[col], .second=col+1}, acc);
-//         acc = binary_op(thrust::make_pair(src[col], col+1), acc);
+        Pair lhs = {src[col], col+1};
+        acc = binary_op(lhs, acc);
       }
     }
 
@@ -78,12 +79,9 @@ kernel void THClTensor_kernel_transformReduceInnermostDimIndex(
     local float* iline = &ibuf[get_local_id(1)][0];
     for (int s = 8; s > 0; s >>= 1) {
       if (row < num_rows && get_local_id(0) < s) {
-        Pair arg1 = (Pair){.first=sline[get_local_id(0)], .second=iline[get_local_id(0)]};
-        Pair arg2 = (Pair){.first=sline[get_local_id(0) + s], .second=iline[get_local_id(0) + s]};
+        Pair arg1 = {.first=sline[get_local_id(0)], .second=iline[get_local_id(0)]};
+        Pair arg2 = {.first=sline[get_local_id(0) + s], .second=iline[get_local_id(0) + s]};
         Pair res = binary_op(arg1, arg2);
-//         thrust::pair<float,float> arg1 = thrust::make_pair<float,float>(sline[get_local_id(0)], iline[get_local_id(0)]);
-//         thrust::pair<float,float> arg2 = thrust::make_pair<float,float>(sline[get_local_id(0) + s], iline[get_local_id(0) + s]);
-//         thrust::pair<float,float> res = binary_op(arg1, arg2);
         sline[get_local_id(0)] = res.first;
         iline[get_local_id(0)] = res.second;
       }

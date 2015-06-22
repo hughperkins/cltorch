@@ -9,23 +9,11 @@ print("... require cltorch done")
 
 print(cltorch.getDeviceProperties(cltorch.getDevice()).deviceName)
 
-function torch.traceon(state)
-  -- nop
-end
-
 if os.getenv('TRACE') ~= nil then
   function torch.traceon(state)
     cltorch.setTrace(state)
   end
 end
-
-function myprint(a,b)
-  torch.traceon(0)
-  print(a,b)
-  torch.traceon(1)
-end
-
-torch.traceon(1)
 
 if true then
 a = torch.Tensor{3,5,2}
@@ -696,5 +684,4 @@ if os.getenv('PROTOTYPING') ~= nil then
 end
 collectgarbage()
 
-torch.traceon(0)
 
