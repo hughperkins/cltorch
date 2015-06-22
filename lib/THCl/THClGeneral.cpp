@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include "EasyCL.h"
 #include <clBLAS.h>
+#include "DeviceInfo.h"
+
+//using namespace easycl;
 
 //#include "THCTensorRandom.h"
 //#include "THCBlas.h"
@@ -20,9 +23,12 @@ void THClInit(THClState* state)
   state->allocatedDevices = easycl::DevicesInfo::getNumDevices();
   state->clByDevice = new EasyCL *[state->allocatedDevices];
   state->scratchSpaceByDevice = new THClScratchSpace *[state->allocatedDevices];
+//  state->workgroupSizeByDevice = new int[state->allocatedDevices];
+  state->deviceInfoByDevice = (struct DeviceInfo **) new easycl::DeviceInfo *[state->allocatedDevices];
   for(int i = 0; i < state->allocatedDevices; i++) {
     state->clByDevice[i] = 0;
     state->scratchSpaceByDevice[i] = 0;
+    state->deviceInfoByDevice[i] = 0;
   }
   state->currentDevice = 0;
   //state->cl = EasyCL::createForFirstGpuOtherwiseCpu(); // obviously this should change...
@@ -49,6 +55,16 @@ void THClShutdown(THClState* state)
 //  }
 //  delete state->clByDevice;
     clblasTeardown();
+  for( int i = 0; i < state->allocatedDevices; i++ ) {
+    delete state->clByDevice[i];
+    delete state->scratchSpaceByDevice[i]->wrapper;
+    delete[] state->scratchSpaceByDevice[i]->data;
+    delete (easycl::DeviceInfo*)state->deviceInfoByDevice[i];
+  }
+  delete[] (easycl::DeviceInfo**)state->deviceInfoByDevice;
+  delete[] state->clByDevice;
+  delete[] state->scratchSpaceByDevice;
+//  delete[] state->workgroupSizeByDevice
 
   printf("THClShutdown() done\n");
   printf("*******************************************\n");
@@ -87,6 +103,8 @@ EasyCL *THClState_getClAndDevice(THClState* state, int *p_device) {
     scratch->wrapper = cl->wrap(FLOATS_PER_SCRATCH_SPACE, scratch->data);
     scratch->wrapper->createOnDevice();
     state->scratchSpaceByDevice[device] = scratch;
+    state->deviceInfoByDevice[device] = (struct DeviceInfo *)new easycl::DeviceInfo();
+    *((easycl::DeviceInfo *)state->deviceInfoByDevice[device]) = easycl::DevicesInfo::getDeviceInfo( device );
   }
   if( p_device != 0 ) {
         *p_device = device;

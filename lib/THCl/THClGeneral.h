@@ -23,6 +23,7 @@
 
 struct EasyCL;
 struct CLWrapper;
+struct DeviceInfo;
 
 #ifdef __cplusplus
 #include <iostream>
@@ -40,6 +41,8 @@ typedef struct THClState
   int currentDevice;
   struct THClScratchSpace**scratchSpaceByDevice; // for now, do one 'stream' per device
                                  // can improve later...
+  struct DeviceInfo **deviceInfoByDevice;
+//  int *workgroupSizeByDevice;
   struct EasyCL **clByDevice;
  // EasyCL *getCl();  
 } THClState;

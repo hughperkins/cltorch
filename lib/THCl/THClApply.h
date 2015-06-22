@@ -9,10 +9,13 @@
 #include "CLKernel_structs.h"
 #include "THClTypeParseTraits.h"
 #include "THClKernels.h"
+#include "DeviceInfo.h"
 
 #include <string>
 
 std::string getApplyDv2_template();
+
+//using namespace easycl;
 
 //
 // This file contains pointwise operation functions and kernels that
@@ -167,8 +170,18 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   k.run(grid, block);
 }
 
-inline dim3 getApplyBlock() {
-  return dim3(THCL_APPLY_THREADS_PER_BLOCK);
+inline int getWorkgroupSize(THClState *state) {
+  int workgroupSize = THCL_APPLY_THREADS_PER_BLOCK;
+  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[state->currentDevice])->maxWorkGroupSize;
+  std::cout << "maxworkgroupsize=" << maxWorkgroupSize << std::endl;
+  if( workgroupSize > maxWorkgroupSize ) {
+    workgroupSize = maxWorkgroupSize;
+  }
+  return workgroupSize;
+}
+
+inline dim3 getApplyBlock(THClState *state) {
+  return dim3(getWorkgroupSize(state));
 }
 
 inline bool getApplyGrid(THClState* state, long totalElements, dim3& grid) {
@@ -190,7 +203,7 @@ inline bool getApplyGrid(THClState* state, long totalElements, dim3& grid) {
 
   // 16 warps per block * 4 per SM gives 64 warps per SM at maximum,
   // which seems to be a good sweetspot for latency hiding
-  grid = dim3(mymin(DIVUP(totalElements, (long long) THCL_APPLY_THREADS_PER_BLOCK),
+  grid = dim3(mymin(DIVUP(totalElements, (long long) getWorkgroupSize(state)),
                   4LL * numSM));
   return true;
 }
@@ -211,7 +224,7 @@ bool THClTensor_pointwiseApply1(THClState* state,
     return true;
   }
 
-  const dim3 block = getApplyBlock();
+  const dim3 block = getApplyBlock(state);
 
   dim3 grid;
   if (!getApplyGrid(state, totalElements, grid)) {
@@ -335,7 +348,7 @@ bool THClTensor_pointwiseApply2(THClState* state,
     return true;
   }
 
-  const dim3 block = getApplyBlock();
+  const dim3 block = getApplyBlock(state);
 
   dim3 grid;
   if (!getApplyGrid(state, totalElements, grid)) {
@@ -501,7 +514,7 @@ bool THClTensor_pointwiseApply3(THClState* state,
     return true;
   }
 
-  const dim3 block = getApplyBlock();
+  const dim3 block = getApplyBlock(state);
 
   dim3 grid;
   if (!getApplyGrid(state, totalElements, grid)) {
