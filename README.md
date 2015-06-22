@@ -312,8 +312,10 @@ c:map2(d, e, "*out = sqrt(1000 * *out + *in1 * 10 + *in2 * *in2)")
 # Installation
 
 * First install torch distro, see [https://github.com/torch/distro](https://github.com/torch/distro).
-* Now, git clone the cltorch distro, cd into it, and run:
+* Now, do:
 ```
+git clone --recursive https://github.com/hughperkins/cltorch.git
+cd cltorch
 luarocks make rocks/cltorch-scm-1.rockspec
 ```
 
