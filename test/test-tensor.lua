@@ -1,7 +1,7 @@
 -- this is mostly for trying things
 -- for unit tests, see cltorch-unit-tensor.lua
 
-require 'cutorch'
+-- require 'cutorch'
 
 print("running require cltorch...")
 require 'cltorch'
