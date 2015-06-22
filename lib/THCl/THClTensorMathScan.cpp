@@ -17,6 +17,14 @@ using namespace std;
 
 std::string THClTensorMathScan_getKernelTemplate();
 
+inline long getBlockSize(THClState *state) {
+  int blockSize = 1024;
+  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[state->currentDevice])->maxWorkGroupSize;
+  if( blockSize > maxWorkgroupSize ) {
+    blockSize = maxWorkgroupSize;
+  }
+  return blockSize;
+}
 
 void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src, long dimension,
                                         float init, HasOperator3 *binary_op)
@@ -34,8 +42,8 @@ void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src,
     num_irows *= THClTensor_size(state, src, dim);
   }
 
-  dim3 threads(mymin(512, num_irows));
-  unsigned maxGridDim = 1024;
+  dim3 threads(mymin(getBlockSize(state) / 2, num_irows));
+  unsigned maxGridDim = getBlockSize(state);
   dim3 grid(mymin(maxGridDim, num_orows), mymin(maxGridDim, THClCeilDiv(num_irows, threads.x())));
 
   TemplatedKernel kernelBuilder(THClState_getCl(state));
@@ -69,12 +77,17 @@ void THClTensor_scanInnermostDim(THClState *state, THClTensor *tgt, THClTensor *
   }
   unsigned row_size = THClTensor_size(state, src, ndim - 1);
 
-  dim3 threads(16, 32);
-  dim3 grid(mymin(1024, THClCeilDiv(num_rows, threads.y())));
+  int x_threads = 16;
+  int y_threads = 32;
+  if( getBlockSize(state) < x_threads * y_threads ) {
+    y_threads = getBlockSize(state) / x_threads;
+  }
+  dim3 threads(x_threads, y_threads);
+  dim3 grid(mymin(getBlockSize(state), THClCeilDiv(num_rows, threads.y())));
 
   TemplatedKernel kernelBuilder(THClState_getCl(state));
-  kernelBuilder.set("num_threads_x", 16);
-  kernelBuilder.set("num_threads_y", 32);
+  kernelBuilder.set("num_threads_x", x_threads);
+  kernelBuilder.set("num_threads_y", y_threads);
   kernelBuilder.set("operator3", binary_op->operator3());
 
   std::string uniqueName = "THClTensorMathScan_scanInnermostDim_" + binary_op->operator3();
