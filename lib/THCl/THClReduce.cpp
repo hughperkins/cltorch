@@ -49,11 +49,11 @@ bool THClTensor_reduceDim(THClState* state,
     block = getContigReduceBlock(outElements, reductionSize);
     smemSize = sizeof(float) * block.x();
   } else {
-    if (!getNoncontigReduceGrid(outElements, grid)) {
+    if (!getNoncontigReduceGrid(state, outElements, grid)) {
       return false;
     }
 
-    block = getNoncontigReduceBlock();
+    block = getNoncontigReduceBlock(state);
   }
 
   // Resize out to correspond to the reduced size

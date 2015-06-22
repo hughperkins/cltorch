@@ -24,10 +24,19 @@ std::string THClReduce_getKernelSource();
 // arguments without copying or temporary storage.
 //
 
-#define THCL_NONCONTIG_REDUCE_BLOCK_SIZE 32 * 16
+//#define THCL_NONCONTIG_REDUCE_BLOCK_SIZE 32 * 16
 
-inline dim3 getNoncontigReduceBlock() {
-  return dim3(THCL_NONCONTIG_REDUCE_BLOCK_SIZE);
+inline long getNonContigReduceBlockSize(THClState *state) {
+  int blockSize = 1024;
+  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[state->currentDevice])->maxWorkGroupSize;
+  if( blockSize > maxWorkgroupSize ) {
+    blockSize = maxWorkgroupSize;
+  }
+  return blockSize;
+}
+
+inline dim3 getNoncontigReduceBlock(THClState *state) {
+  return dim3(getNonContigReduceBlockSize(state));
 }
 
 inline dim3 getContigReduceBlock(long numSlices, long reductionSize) {
@@ -56,9 +65,9 @@ inline dim3 getContigReduceBlock(long numSlices, long reductionSize) {
   return dim3(numWarps * 32);
 }
 
-inline bool getNoncontigReduceGrid(long elements, dim3& grid) {
+inline bool getNoncontigReduceGrid(THClState *state, long elements, dim3& grid) {
   // One output point per thread
-  return THCL_getGridFromTiles(THClCeilDiv(elements, (long) THCL_NONCONTIG_REDUCE_BLOCK_SIZE), grid);
+  return THCL_getGridFromTiles(THClCeilDiv(elements, (long) getNonContigReduceBlockSize(state)), grid);
 //  return THCL_getGridFromTiles(DIVUP(elements, THCL_NONCONTIG_REDUCE_BLOCK_SIZE), grid);
 }
 
