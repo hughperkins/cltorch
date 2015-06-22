@@ -375,6 +375,10 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 # Recent changes
 
+* 22nd June:
+  * Under the hood:
+    * Moved marking a buffer dirty, ie modified on the GPU, from [THClTensorMathBlas.cpp](https://github.com/hughperkins/cltorch/blob/9133fb4f0a23a86c48dcb5dc9cc7d44f44850a3f/lib/THCl/THClTensorMathBlas.cpp#L202) to [THClBlas.cpp](https://github.com/hughperkins/cltorch/blob/9133fb4f0a23a86c48dcb5dc9cc7d44f44850a3f/lib/THCl/THClBlas.cpp#L424)
+      * This fixes a bug in [clnn](https://github.com/hughperkins/clnn), where the results of a convolutional layer were not being written back to the output tensor
 * 21st June:
   * Under the hood:
     * Upgraded new THClKernels class to handle `THClTensorInfo`
