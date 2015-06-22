@@ -54,8 +54,8 @@ kernel void THClTensor_kernel_transformReduceInnermostDimIndex(
   global float *src_data, int src_offset,
   int num_rows, int row_size )
 {
-  local float sbuf[32][16];
-  local float ibuf[32][16];
+  local float sbuf[{{y_threads}}][{{x_threads}}];
+  local float ibuf[{{y_threads}}][{{x_threads}}];
 
   for (int block_row = get_group_id(0) * get_local_size(1); block_row < num_rows; block_row += get_local_size(1) * get_num_groups(0)) {
     int row = block_row + get_local_id(1);

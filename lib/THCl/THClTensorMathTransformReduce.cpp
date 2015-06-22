@@ -13,6 +13,15 @@
 #include <string>
 using namespace std;
 
+inline long getBlockSize(THClState *state) {
+  int blockSize = 1024;
+  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[state->currentDevice])->maxWorkGroupSize;
+  if( blockSize > maxWorkgroupSize ) {
+    blockSize = maxWorkgroupSize;
+  }
+  return blockSize;
+}
+
 std::string THClTensorMathTransformReduce_getKernelTemplate();
 
 class HasPairOperator2 {
@@ -52,8 +61,8 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
     num_irows *= THClTensor_size(state, src, dim);
   }
 
-  dim3 threads(mymin(512, num_irows));
-  unsigned maxGridDim = 1024;
+  dim3 threads(mymin(getBlockSize(state)/2, num_irows));
+  unsigned maxGridDim = getBlockSize(state);
   dim3 grid(mymin(maxGridDim, num_orows), mymin(maxGridDim, THClCeilDiv(num_irows, threads.x())));
 
   TemplatedKernel kernelBuilder(THClState_getCl(state));
@@ -61,6 +70,8 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
   kernelBuilder
     .set("init", init)
     .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+    .set("x_threads", 0)
+    .set("y_threads", 0)
     .set("pair_operator2", binary_op->pair_operator2())
   ;
 
@@ -88,13 +99,20 @@ void THClTensor_transformReduceInnermostDimIndex(
   }
   unsigned row_size = THClTensor_size(state, src, ndim - 1);
 
-  dim3 threads(16, 32);
-  dim3 grid(mymin(1024, THClCeilDiv(num_rows, threads.y())));
+  int x_threads = 16;
+  int y_threads = 32;
+  if( x_threads * y_threads > getBlockSize(state) ) {
+    y_threads = getBlockSize(state) / x_threads;
+  }
+  dim3 threads(x_threads, y_threads);
+  dim3 grid(mymin(getBlockSize(state), THClCeilDiv(num_rows, threads.y())));
 
   TemplatedKernel kernelBuilder(THClState_getCl(state));
 
   kernelBuilder
     .set("init", init)
+    .set("x_threads", x_threads)
+    .set("y_threads", y_threads)
     .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
     .set("pair_operator2", binary_op->pair_operator2())
   ;
@@ -219,8 +237,8 @@ std::string THClTensorMathTransformReduce_getKernelTemplate() {
   "  global float *src_data, int src_offset,\n" 
   "  int num_rows, int row_size )\n" 
   "{\n" 
-  "  local float sbuf[32][16];\n" 
-  "  local float ibuf[32][16];\n" 
+  "  local float sbuf[{{y_threads}}][{{x_threads}}];\n" 
+  "  local float ibuf[{{y_threads}}][{{x_threads}}];\n" 
   "\n" 
   "  for (int block_row = get_group_id(0) * get_local_size(1); block_row < num_rows; block_row += get_local_size(1) * get_num_groups(0)) {\n" 
   "    int row = block_row + get_local_id(1);\n" 
