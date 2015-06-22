@@ -367,6 +367,8 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 
 You might or might not find [ContributorGuidelines.md](doc/ContributorGuidelines.md) useful.  Not required reading, but it is there if you want to see my own thoughts and ideas on how I am currently approaching cltorch development, and cutorch-porting.
 
+Also, some more technical guidelines on porting, in the [clnn](https://github.com/hughperkins/clnn) repository, at [porting-guidelines.md](https://github.com/hughperkins/clnn/blob/master/doc/porting-guidelines.md).
+
 # Related projects
 
 Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn).  Early stages for now :-)
