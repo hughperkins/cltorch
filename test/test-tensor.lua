@@ -631,26 +631,6 @@ if false then
 end
 
 if os.getenv('PROTOTYPING') ~= nil then
-  a = torch.Tensor(3,4)
-  a:copy(torch.range(1,a:nElement()))
-  print('a', a)
-
-  idx = torch.LongTensor({{2,1,3,1}})
-  print('idx', idx)                        
-  print('a:gather(1, idx)', a:gather(1, idx))
-
-  idx = torch.LongTensor({{2},{4},{1}})
-  print('idx', idx)                        
-  print('a:gather(2, idx)', a:gather(2, idx))
-
-  acl = a:clone():cl()
-  idxcl = torch.LongTensor({{2,1,3,1}}):cl()
-  print('idxcl', idxcl)
-  res = acl:clone():fill(-1)
-  --torch.gather(res, acl, 1, idxcl)
-  print('res', res)
---  print('gather cl', torch.gather(acl, 1, idxcl))
-  print('acl:gather(1, idxcl)', acl:gather(1, idxcl))
 
   a = torch.Tensor(5,4)
   a:copy(torch.range(1, a:nElement()))
@@ -698,6 +678,32 @@ if os.getenv('PROTOTYPING') ~= nil then
 --  xcopycl:select(2, 5):fill(5) -- select column 5 and fill up
   print('xcopycl', xcopycl)
   
+  a = torch.Tensor(3,4)
+  a:copy(torch.range(1,a:nElement()))
+  print('a', a)
+
+  idx = torch.LongTensor({{2,1,3,1}})
+  print('idx', idx)                        
+  print('a:gather(1, idx)', a:gather(1, idx))
+
+  idx = torch.LongTensor({{2},{4},{1}})
+  print('idx', idx)                        
+  print('a:gather(2, idx)', a:gather(2, idx))
+
+
+  a = torch.Tensor(3,4)
+  a:copy(torch.range(1,a:nElement()))
+  print('a', a)
+  acl = a:clone():cl()
+  idx = torch.LongTensor({{2,1,3,1}})
+  idxcl = idx:clone():cl()
+  print('idxcl', idxcl)
+  res = acl:clone():fill(-1)
+  --torch.gather(res, acl, 1, idxcl)
+  print('res', res)
+--  print('gather cl', torch.gather(acl, 1, idxcl))
+  print('a:gather(1, idx)', a:gather(1, idx))
+  print('acl:gather(1, idxcl)', acl:gather(1, idxcl))
 
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
