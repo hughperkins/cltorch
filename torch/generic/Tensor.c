@@ -536,6 +536,39 @@ static int torch_Tensor_(indexSelect)(lua_State *L)
   return 1;
 }
 
+static int torch_Tensor_(gather)(lua_State *L)
+{
+  THClState *state = cltorch_getstate(L);
+  printf("torch_Tensor_(gather)\n");
+  int narg = lua_gettop(L);
+  THTensor *tensor, *src, *index;
+  int dim;
+  if (narg == 3)
+  {
+    tensor = THTensor_(new)(state);
+    src = luaT_checkudata(L, 1, torch_Tensor);
+    dim = luaL_checkint(L, 2) - 1;
+    index = luaT_checkudata(L, 3, torch_Tensor);
+    luaT_pushudata(L,tensor,torch_Tensor);
+  }
+//  else if(narg == 4)
+//  {
+//    src = luaT_checkudata(L, 2, torch_Tensor);
+//    dim = luaL_checkint(L, 3) - 1;
+//    index = luaT_checkudata(L, 4, "torch.LongTensor");
+//    tensor = luaT_checkudata(L,1,torch_Tensor);
+//  }
+  else
+  {
+    luaL_error(L,"Tensor, Tensor, long, Tensor expected");
+    return 0;
+  }
+
+  THTensor_(gather)(state, tensor,src, dim,index);
+
+  return 1;
+}
+
 static int torch_Tensor_(indexCopy)(lua_State *L)
 {
   int narg = lua_gettop(L);
@@ -1240,6 +1273,7 @@ static const struct luaL_Reg torch_Tensor_(_) [] = {
   {"clone", torch_Tensor_(clone)},
   {"contiguous", torch_Tensor_(contiguous)},
   {"resizeAs", torch_Tensor_(resizeAs)},
+  {"gather", torch_Tensor_(gather)},
   {"resize", torch_Tensor_(resize)},
   {"narrow", torch_Tensor_(narrow)},
   {"sub", torch_Tensor_(sub)},

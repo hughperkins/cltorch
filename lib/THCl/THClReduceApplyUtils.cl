@@ -22,29 +22,33 @@ bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
 // specialized on `Dims` to reduce nvcc compilation time
 {% for _,dim in ipairs(dims) do %}
 {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, TensorInfoCl info) {
-  {{IndexType}} offset = 0;
+  {{IndexType}} offset = info.offset;
 
   // Use static dims
-  for (int i = {{dim}} - 1; i >= 0; --i) {
-    {{IndexType}} curDimIndex = linearId % info.sizes[i];
-    {{IndexType}} curDimOffset = curDimIndex * info.strides[i];
+//  for (int i = {{dim}} - 1; i >= 0; --i) {
+  {{IndexType}} curDimIndex;
+  {{IndexType}} curDimOffset;
+  {% for i=dim-1,0,-1 do %}  // bake this in....
+    curDimIndex = linearId % info.sizes[{{i}}];
+    curDimOffset = curDimIndex * info.strides[{{i}}];
     offset += curDimOffset;
 
-    if (i > 0) {
-      linearId /= info.sizes[i];
-    }
-  }
+    {% if i > 0 then %}
+      linearId /= info.sizes[{{i}}];
+    {% end %}
+  {% end %}
+//  }
 
   return offset;
 }
 {% end %}
 
 {{IndexType}} IndexToOffset_998_get({{IndexType}} linearId, const TensorInfoCl info) {
-    return linearId;
+    return linearId + info.offset;
 }
 
 {{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, const TensorInfoCl info) {
-  {{IndexType}} offset = 0;
+  {{IndexType}} offset = info.offset;
 
   // Use dynamic dims
   for (int i = info.dims - 1; i >= 0; --i) {
@@ -58,10 +62,10 @@ bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
   return offset;
 }
 
-/*__device__*/ /*__forceline__*/ {{IndexType}} getLinearBlockId() {
-  return get_group_id(2) * get_num_groups(1) * /*gridDim.x*/ get_num_groups(0) +
-    get_group_id(1) * /*gridDim.x*/ get_num_groups(0) +
-    /*blockIdx.x*/ get_group_id(0);
+{{IndexType}} getLinearBlockId() {
+  return get_group_id(2) * get_num_groups(1) * get_num_groups(0) +
+    get_group_id(1) * get_num_groups(0) +
+    get_group_id(0);
 }
 
 // Block-wide reduction in shared memory helper; only /*threadIdx.x*/ get_local_id(0) == 0 will
@@ -74,27 +78,27 @@ float reduceBlock( local float* smem,
     return init;
   }
 
-  if (/*threadIdx.x*/ get_local_id(0) < numVals) {
-    smem[/*threadIdx.x*/ get_local_id(0)] = threadVal;
+  if (get_local_id(0) < numVals) {
+    smem[ get_local_id(0)] = threadVal;
   }
 
   // First warp will perform reductions across warps
   barrier(CLK_LOCAL_MEM_FENCE);
-  if ((/*threadIdx.x*/ get_local_id(0) / {{WarpSize}}) == 0) {
-    float r = /*threadIdx.x*/ get_local_id(0) < numVals ? smem[/*threadIdx.x*/ get_local_id(0)] : init;
+  if ((get_local_id(0) / {{WarpSize}}) == 0) {
+    float r = get_local_id(0) < numVals ? smem[get_local_id(0)] : init;
 
-    for (int i = {{WarpSize}} + /*threadIdx.x*/ get_local_id(0); i < numVals; i += {{WarpSize}}) {
+    for (int i = {{WarpSize}} + get_local_id(0); i < numVals; i += {{WarpSize}}) {
       r = reduceOp(r, smem[i]);
     }
 
-    smem[/*threadIdx.x*/ get_local_id(0)] = r;
+    smem[get_local_id(0)] = r;
   }
 
   // First thread will perform reductions across the block
   barrier(CLK_LOCAL_MEM_FENCE);
 
   float r = init;
-  if (/*threadIdx.x*/ get_local_id(0) == 0) {
+  if (get_local_id(0) == 0) {
     r = smem[0];
 
     int numLanesParticipating = min(numVals, {{WarpSize}});

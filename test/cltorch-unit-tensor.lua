@@ -549,10 +549,21 @@ function test_sumall()
 --  print('done sumall calcs')
   luaunit.assertEquals(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall})
 
-  Aprodall2 = A:prod()
---  print('calcing...')
   Aclsumall2 = Acl:sum()
---  print('...calced')
+  luaunit.assertEquals(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall2})
+end
+
+function test_sumallt()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local Acl = A:cl()
+--  print('allocated A,Acl')
+  local Asumall = torch.sum(A:t())
+  local Aclsumall = torch.sum(Acl:t())
+--  print('done sumall calcs')
+  luaunit.assertEquals(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall})
+
+  Aclsumall2 = Acl:sum()
   luaunit.assertEquals(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall2})
 end
 
@@ -571,6 +582,33 @@ function test_sum()
   luaunit.assertEquals(A:sum(1), Acl:sum(1):double())  
   luaunit.assertEquals(A:sum(2), Acl:sum(2):double())  
 end
+
+function test_sum_t()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local Acl = A:cl()
+  luaunit.assertEquals(A:t():sum(1), Acl:t():sum(1):double())  
+  luaunit.assertEquals(A:t():sum(2), Acl:t():sum(2):double())  
+end
+
+function test_sum_t_offset()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local Acl = A:cl()
+  luaunit.assertEquals(A:narrow(1,10,30):t():sum(1), Acl:narrow(1,10,30):t():sum(1):double())  
+  luaunit.assertEquals(A:narrow(1,10,30):t():sum(2), Acl:narrow(1,10,30):t():sum(2):double())  
+  luaunit.assertEquals(A:narrow(2,10,30):t():sum(1), Acl:narrow(2,10,30):t():sum(1):double())  
+  luaunit.assertEquals(A:narrow(2,10,30):t():sum(2), Acl:narrow(2,10,30):t():sum(2):double())  
+end
+
+--function test_sum_t_offset()
+--  local s = torch.LongStorage{60,50}
+--  local A = torch.Tensor(s):uniform() - 0.5
+----  A = A:narrow(2, 10, 30)
+--  local Acl = A:cl()
+--  luaunit.assertEquals(A:t():sum(1), Acl:t():sum(1):double())  
+--  luaunit.assertEquals(A:t():sum(2), Acl:t():sum(2):double())  
+--end
 
 function test_max1()
   local s = torch.LongStorage{5,2}
@@ -649,7 +687,7 @@ function test_indexcopy()
 end
 
 function test_indexselect()
-  x = torch.Tensor(50,60):uniform() - 0.5
+  local x = torch.Tensor(60,50):uniform() - 0.5
 
   xcopy = x:clone()
   xcopy:select(1, 2):fill(2) -- select row 2 and fill up

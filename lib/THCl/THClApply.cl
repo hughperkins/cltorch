@@ -60,7 +60,7 @@ THClTensor_pointwiseApplyD(
    int totalElements) {
   for (int linearIndex = get_global_id(0);
        linearIndex < totalElements;
-       linearIndex += get_global_size(0) /* ? */ ) {
+       linearIndex += get_global_size(0)) {
     {% for input_idx=1,num_tensors do %}
     // Convert `linearIndex` into an offset of `a`
     const int offset{{input_idx}} =
@@ -70,7 +70,7 @@ THClTensor_pointwiseApplyD(
     op( 
       {% for input_idx=1,num_tensors do %}
          {% if input_idx > 1 then %} , {% end %}
-         &(data_{{input_idx}}[offset{{input_idx}} + info_{{input_idx}}->offset])
+         &(data_{{input_idx}}[offset{{input_idx}}])
       {% end %}
       {% for i=1,num_scalars do %}
       , val{{i}}

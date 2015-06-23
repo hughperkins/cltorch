@@ -15,198 +15,200 @@ if os.getenv('TRACE') ~= nil then
   end
 end
 
-if true then
-a = torch.Tensor{3,5,2}
-print('a\n', a)
+if false then
+  a = torch.Tensor{3,5,2}
+  print('a\n', a)
 
-c = torch.ClTensor{7,4,5}
-print('c1\n', c)
+  c = torch.ClTensor{7,4,5}
+  print('c1\n', c)
 
-c = torch.ClTensor(3,2)
-print('c2\n', c)
+  c = torch.ClTensor(3,2)
+  print('c2\n', c)
 
-a = torch.Tensor{2,6,9}
-c = a:cl()
-print('c3\n', c)
-
-b = c:float()
-print('b\n', b)
-
-c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
-print('c4', c)
-
-d = torch.ClTensor(2,3)
-print('d', d)
-
-d:copy(c)
-print('d2', d)
-
-b = torch.Tensor{{4,2,-2},{3.1,1.2,4.9}}
-b[1][2] = 2.123
-print('b2\n', b)
-
---c = torch.ClTensor{{4,2,-2},{3.1,1.2,4.9}}
---c[1][2] = 2.123
---print('c5\n', c)
-
-b[1][2] = 5.432
-c:copy(b)
-print('c6\n', c)
-
- print('collect garbage')
-
-collectgarbage()
-
--- =============================
-
-d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
-c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
-c:add(d)
-print('c2\n', c)
-
-a = c:float()
-b = d:float()
-a:cmul(b)
-print('a', a)
-
-c:cmul(d)
-print('c2\n', c)
-
-c:cdiv(d)
-print('c2\n', c)
-
-c = c + d
-print('c3\n', c)
-
-c = c - d
-print('c3\n', c)
-
-c:abs()
-print('c3\n', c)
-c:sqrt()
-print('c3\n', c)
-for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
-   'atan', 'tanh', 'ceil', 'floor', 'abs', 'round'}) do
-  print('name', name)
-  c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
-  loadstring('c:' .. name .. '()')()
+  a = torch.Tensor{2,6,9}
+  c = a:cl()
   print('c3\n', c)
-end
 
-collectgarbage()
+  b = c:float()
+  print('b\n', b)
 
-c = c:float()
-d = d:float()
-c[2][1] = d[2][1]
-c[1][2] = d[1][2]
-c = c:cl()
-d = d:cl()
-for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
-  print('name', name)
-  print(loadstring('return torch.' .. name .. '(c,d)')())
-end
+  c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
+  print('c4', c)
 
-print('c\n', c)
-print('torch.add', torch.add(c,3))
-c:add(3)
-print('c\n', c)
-c:mul(3)
-print('c\n', c)
-c:div(2)
-print('c\n', c)
-c = torch.mul(c, 4)
-print('c\n', c)
-c = torch.div(c, 3)
-print('c\n', c)
-c = c / 2
-print('c\n', c)
-c = c * 1.5
-print('c\n', c)
-c = c + 4
-print('c\n', c)
-c = c - 5
-print('c\n', c)
+  d = torch.ClTensor(2,3)
+  print('d', d)
 
-for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
-  print('name', name)
-  print(loadstring('return c:' .. name .. '(5)')())
-end
+  d:copy(c)
+  print('d2', d)
 
-print('c\n', c)
-print(torch.pow(2,c))
-c:pow(2)
-print('c\n', c)
-print(torch.pow(c,2))
+  b = torch.Tensor{{4,2,-2},{3.1,1.2,4.9}}
+  b[1][2] = 2.123
+  print('b2\n', b)
 
-print('c\n', c)
-print(torch.clamp(c, 50, 100))
-c:clamp(50, 100)
-print('c\n', c)
+  --c = torch.ClTensor{{4,2,-2},{3.1,1.2,4.9}}
+  --c[1][2] = 2.123
+  --print('c5\n', c)
 
-print(torch.cpow(c,d))
-print(torch.cdiv(c,d))
-print(-c)
+  b[1][2] = 5.432
+  c:copy(b)
+  print('c6\n', c)
 
-collectgarbage()
+   print('collect garbage')
 
--- print(c:t())
-end
-if true then
-A = torch.ClTensor{{1,2,-1},
-                   {3,4,0}}
-B = torch.ClTensor{{0,1},
-                   {1,2},
-                   {4,5}}
-print('A\n', A)
-print('B\n', B)
-print(torch.mm(A,B))
-end
-if false then
-print(torch.mm(A:float(), B:float()))
+  collectgarbage()
 
-C = torch.ClTensor{{0,0},{0,0}}
-C:mm(A,B)
-print(C)
+  -- =============================
 
-print( A * B )
-C:fill(1.345)
-print('C\n', C)
+  d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
+  c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
+  c:add(d)
+  print('c2\n', c)
 
+  a = c:float()
+  b = d:float()
+  a:cmul(b)
+  print('a', a)
 
-s = torch.LongStorage{3,2}
-print('s\n', s)
---C = cltorch.ones(s)
---print('C\n', C)
-C:zero()
-print('C\n', C)
+  c:cmul(d)
+  print('c2\n', c)
 
+  c:cdiv(d)
+  print('c2\n', c)
 
---C:reshape({4,1})
---print('C\n', C)
+  c = c + d
+  print('c3\n', c)
 
+  c = c - d
+  print('c3\n', c)
+
+  c:abs()
+  print('c3\n', c)
+  c:sqrt()
+  print('c3\n', c)
+  for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin', 'asin',
+     'atan', 'tanh', 'ceil', 'floor', 'abs', 'round'}) do
+    print('name', name)
+    c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
+    loadstring('c:' .. name .. '()')()
+    print('c3\n', c)
+  end
+
+  collectgarbage()
 end
 
 if false then
-v1 = torch.ClTensor{3,5,1}
-v2 = torch.ClTensor{2,4,8}
---print(v1 * v2)
-print(torch.dot(v1,v2))
+  c = c:float()
+  d = d:float()
+  c[2][1] = d[2][1]
+  c[1][2] = d[1][2]
+  c = c:cl()
+  d = d:cl()
+  for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+    print('name', name)
+    print(loadstring('return torch.' .. name .. '(c,d)')())
+  end
 
-fv1 = torch.FloatTensor{3,5,1}
-fv2 = torch.FloatTensor{2,4,8}
-print(fv1*fv2)
+  print('c\n', c)
+  print('torch.add', torch.add(c,3))
+  c:add(3)
+  print('c\n', c)
+  c:mul(3)
+  print('c\n', c)
+  c:div(2)
+  print('c\n', c)
+  c = torch.mul(c, 4)
+  print('c\n', c)
+  c = torch.div(c, 3)
+  print('c\n', c)
+  c = c / 2
+  print('c\n', c)
+  c = c * 1.5
+  print('c\n', c)
+  c = c + 4
+  print('c\n', c)
+  c = c - 5
+  print('c\n', c)
+
+  for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+    print('name', name)
+    print(loadstring('return c:' .. name .. '(5)')())
+  end
+
+  print('c\n', c)
+  print(torch.pow(2,c))
+  c:pow(2)
+  print('c\n', c)
+  print(torch.pow(c,2))
+
+  print('c\n', c)
+  print(torch.clamp(c, 50, 100))
+  c:clamp(50, 100)
+  print('c\n', c)
+
+  print(torch.cpow(c,d))
+  print(torch.cdiv(c,d))
+  print(-c)
+
+  collectgarbage()
+
+  -- print(c:t())
+end
+if false then
+  A = torch.ClTensor{{1,2,-1},
+                     {3,4,0}}
+  B = torch.ClTensor{{0,1},
+                     {1,2},
+                     {4,5}}
+  print('A\n', A)
+  print('B\n', B)
+  print(torch.mm(A,B))
+end
+if false then
+  print(torch.mm(A:float(), B:float()))
+
+  C = torch.ClTensor{{0,0},{0,0}}
+  C:mm(A,B)
+  print(C)
+
+  print( A * B )
+  C:fill(1.345)
+  print('C\n', C)
 
 
-print(torch.dot(v1,v2))
+  s = torch.LongStorage{3,2}
+  print('s\n', s)
+  --C = cltorch.ones(s)
+  --print('C\n', C)
+  C:zero()
+  print('C\n', C)
 
 
-print(torch.ClTensor.zeros(torch.ClTensor.new(), 3, 5))
-print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
--- print(torch.ClTensor.eye(torch.ClTensor.new(), 3))
--- print(torch.ClTensor.diag(torch.ClTensor{{3,5,4},{2,3,4},{7,6,5}}))
+  --C:reshape({4,1})
+  --print('C\n', C)
+
+end
+
+if false then
+  v1 = torch.ClTensor{3,5,1}
+  v2 = torch.ClTensor{2,4,8}
+  --print(v1 * v2)
+  print(torch.dot(v1,v2))
+
+  fv1 = torch.FloatTensor{3,5,1}
+  fv2 = torch.FloatTensor{2,4,8}
+  print(fv1*fv2)
 
 
-print(torch.mv(A,v1))
+  print(torch.dot(v1,v2))
+
+
+  print(torch.ClTensor.zeros(torch.ClTensor.new(), 3, 5))
+  print(torch.ClTensor.ones(torch.ClTensor.new(), 3, 5))
+  -- print(torch.ClTensor.eye(torch.ClTensor.new(), 3))
+  -- print(torch.ClTensor.diag(torch.ClTensor{{3,5,4},{2,3,4},{7,6,5}}))
+
+
+  print(torch.mv(A,v1))
 end
 
 collectgarbage()
@@ -214,10 +216,10 @@ collectgarbage()
 -------------------
 
 if false then
-
-A = torch.ClTensor{{3,5,2},{4,5,6}}
-print('A\n', A)
-print('A:sum()', A:sum())
+  A = torch.ClTensor{{3,5,2},{4,5,6}}
+  print('A\n', A)
+  print('A:sum()', A:sum())
+end
 
 print(torch.Tensor.__eq)
 function torch.Tensor.__eq(self, b)
@@ -249,22 +251,23 @@ end
 --print(torch.Tensor({3,5,2}) == torch.Tensor({3,5,2}))
 --print(torch.Tensor({{3,5,2},{4,5,6}}) == torch.Tensor({{3,5,2},{4,5,6}}))
 
+if false then
 print(torch.ClTensor({{3,5,2},{4,5,6}}) == torch.ClTensor({{3,5,2},{4,5,6}}))
 --print('end')
 end
 
-if true then
-A = torch.ClTensor{{3,2,4},{9,7,5}}
-print('A\n', A)
-print('A:sum(2)', A:sum(2))
-print('A:sum(1)', A:sum(1))
-print('A:max()', A:max())
-print('A:min()', A:min())
-print('torch.max(A,1)', torch.max(A,1))
-print('torch.max(A,2)', torch.max(A,2))
+if false then
+  A = torch.ClTensor{{3,2,4},{9,7,5}}
+  print('A\n', A)
+  print('A:sum(2)', A:sum(2))
+  print('A:sum(1)', A:sum(1))
+  print('A:max()', A:max())
+  print('A:min()', A:min())
+  print('torch.max(A,1)', torch.max(A,1))
+  print('torch.max(A,2)', torch.max(A,2))
 end
 
-if true then
+if false then
   c = torch.ClTensor{3,5,2}
   print('torch.isTensor(c)', torch.isTensor(c))
   print('c:nDimension()', c:nDimension())
@@ -610,9 +613,6 @@ if false then
   x:maskedFill(mask, -1)
   print('x', x)
 
-end
-
-if os.getenv('PROTOTYPING') ~= nil then
   A = torch.Tensor{{3,1,7},{3,2,4}}
   print('A', A)
   print('torch.cumsum(A, 2)\n', torch.cumsum(A, 2))
@@ -628,6 +628,77 @@ if os.getenv('PROTOTYPING') ~= nil then
 
   print('torch.cumprod(A, 1)\n', torch.cumprod(A, 1))
   print('torch.cumprod(A:cl(), 1)\n', torch.cumprod(A:cl(), 1))
+end
+
+if os.getenv('PROTOTYPING') ~= nil then
+  a = torch.Tensor(3,4)
+  a:copy(torch.range(1,a:nElement()))
+  print('a', a)
+
+  idx = torch.LongTensor({{2,1,3,1}})
+  print('idx', idx)                        
+  print('a:gather(1, idx)', a:gather(1, idx))
+
+  idx = torch.LongTensor({{2},{4},{1}})
+  print('idx', idx)                        
+  print('a:gather(2, idx)', a:gather(2, idx))
+
+  acl = a:clone():cl()
+  idxcl = torch.LongTensor({{2,1,3,1}}):cl()
+  print('idxcl', idxcl)
+  res = acl:clone():fill(-1)
+  --torch.gather(res, acl, 1, idxcl)
+  print('res', res)
+--  print('gather cl', torch.gather(acl, 1, idxcl))
+  print('acl:gather(1, idxcl)', acl:gather(1, idxcl))
+
+  a = torch.Tensor(5,4)
+  a:copy(torch.range(1, a:nElement()))
+  acl = a:clone():cl()
+  print('a', a)
+  print('a:narrow(1,2,2)', a:narrow(1,2,2))
+  print('a:narrow(1,2,2):sum(1)', a:narrow(1,2,2):sum(1))
+
+  print('acl:narrow(1,2,2)', acl:narrow(1,2,2))
+  print('acl:narrow(1,2,2):sum(1)', acl:narrow(1,2,2):sum(1))
+
+  print('a:narrow(1,2,2):t()', a:narrow(1,2,2):t())
+  print('a:narrow(1,2,2):t():sum(1)', a:narrow(1,2,2):t():sum(1))
+
+  print('acl:narrow(1,2,2):t()', acl:narrow(1,2,2):t())
+  print('acl:narrow(1,2,2):t():sum(1)', acl:narrow(1,2,2):t():sum(1))
+
+  print('a:narrow(1,2,2):t():sum()', a:narrow(1,2,2):t():sum())
+  print('acl:narrow(1,2,2):t():sum()', acl:narrow(1,2,2):t():sum())
+
+  print('a:narrow(1,2,2):t():sum(2)', a:narrow(1,2,2):t():sum(2))
+  print('acl:narrow(1,2,2):t():sum(2)', acl:narrow(1,2,2):t():sum(2))
+
+  x = torch.Tensor(6,5):uniform() - 0.5
+
+  xcopy = x:clone()
+  print('xcopy:select(1, 2)', xcopy:select(1, 2))
+  xcopy:select(1, 2):fill(2) -- select row 2 and fill up
+  print('xcopy:select(1, 2)', xcopy:select(1, 2))
+  xcopy:select(2, 5):fill(5) -- select column 5 and fill up
+  print('xcopy', xcopy)
+
+  xcopycl = x:clone():cl()
+  print('xcopycl', xcopycl)
+  local sel = xcopycl:select(1, 2)
+  print('sel', sel)
+  sel:fill(2)
+  print('sel:storageOffset()', sel:storageOffset())
+  print('sel:stride()', sel:stride())
+  print('sel:size()', sel:size())
+  print('sel', sel)
+--  local sel = xcopycl:select(1, 2):fill(2) -- select row 2 and fill up
+  print('xcopycl:select(1, 2)', xcopycl:select(1, 2))
+--  print('xcopycl:select(1, 2)', xcopycl:select(1, 2))
+--  xcopycl:select(2, 5):fill(5) -- select column 5 and fill up
+  print('xcopycl', xcopycl)
+  
+
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
@@ -639,23 +710,23 @@ if os.getenv('PROTOTYPING') ~= nil then
 --  z:maskedSelect(x, mask)
 --  print('z', z)
   
-  x = torch.range(1,8):double():resize(1,8)
-  print('x', x)
-  mask = torch.ByteTensor(1,8):bernoulli()
-  print('mask', mask)
-  y = torch.DoubleTensor(2,4):fill(0)
-  print('y', y)
-  y:maskedCopy(mask, x)
-  print('y', y)
+--  x = torch.range(1,8):double():resize(1,8)
+--  print('x', x)
+--  mask = torch.ByteTensor(1,8):bernoulli()
+--  print('mask', mask)
+--  y = torch.DoubleTensor(2,4):fill(0)
+--  print('y', y)
+--  y:maskedCopy(mask, x)
+--  print('y', y)
 
-  x = torch.range(1,8):double():resize(1,8):cl()
-  print('x', x)
-  mask = torch.ByteTensor(1,8):bernoulli():cl()
-  print('mask', mask)
-  y = torch.DoubleTensor(2,4):fill(0):cl()
-  print('y', y)
-  y:maskedCopy(mask, x)
-  print('y', y)
+--  x = torch.range(1,8):double():resize(1,8):cl()
+--  print('x', x)
+--  mask = torch.ByteTensor(1,8):bernoulli():cl()
+--  print('mask', mask)
+--  y = torch.DoubleTensor(2,4):fill(0):cl()
+--  print('y', y)
+--  y:maskedCopy(mask, x)
+--  print('y', y)
 
 --  x = torch.ClTensor(5, 6):zero()
 --  myprint('x\n', x)

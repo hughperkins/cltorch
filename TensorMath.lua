@@ -375,6 +375,14 @@ wrap("addcdiv",
         {name=Tensor},
         {name=Tensor}})
 
+--wrap("gather",
+--     cname("gather"),
+--     {{name=Tensor, default=true, returned=true, method={default='nil'}},
+--	{name=Tensor},
+--  {name="index", default=1},
+--	{name=Tensor}
+--})
+
 wrap("maskedFill",
      cname("maskedFill"),
      {{name=Tensor, returned=true, method={default='nil'}},

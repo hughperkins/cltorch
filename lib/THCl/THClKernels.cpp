@@ -138,6 +138,7 @@ THClKernels *THClKernels::localFloats(int count) {
   } catch( runtime_error &e ) {
     THError(e.what());
   }
+  return this;
 }
 
 // template instantiations ====================
