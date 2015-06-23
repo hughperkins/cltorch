@@ -33,12 +33,14 @@ public:
     if(index == 1){ return baseMask; }
     if(index == 2){ return maskPrefixSum; }
     THError("index not recognized %i", index);
+    return 0;
   }
   std::string getTensorName(int index) const {
     if(index == 0){ return "src"; }
     if(index == 1){ return "baseMask"; }
     if(index == 2){ return "maskPrefixSum"; }
     THError("index not recognized %i", index);
+    return "";
   }
   std::string operator2() const {
     return "if( *in1 != 0.0f ) { *out = src[(int)maskPrefixSum[srcOffset] ]; }";

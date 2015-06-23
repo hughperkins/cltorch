@@ -18,8 +18,6 @@
 
 void THClInit(THClState* state)
 {
-//  printf("*******************************************\n");
-  printf("THClInit()\n");
   state->allocatedDevices = easycl::DevicesInfo::getNumDevices();
   state->clByDevice = new EasyCL *[state->allocatedDevices];
   state->scratchSpaceByDevice = new THClScratchSpace *[state->allocatedDevices];

@@ -60,7 +60,7 @@ inline long getTwoPassBlocks(THClState* state, long elements) {
     THClState_getCurrentDeviceScratchSpaceSize(state) / sizeof(float);
   THAssert(scratchSpace > 0);
 
-  if (numBlocks > scratchSpace) {
+  if (numBlocks > (long)scratchSpace) {
     numBlocks = scratchSpace;
   }
 
