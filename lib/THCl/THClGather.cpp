@@ -67,6 +67,7 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
     if( i != dim ) {
       THArgCheck(THClTensor_size(state, src, i) == THClTensor_size(state, index, i), 3, ("index tensor must have same dimensions as source tensor, but dimension " + easycl::toString(i) + " doesnt match").c_str());
     }
+    cout << "index strides[" << i << "]=" << index->stride[i] << endl;
   }
 
   newSize = THLongStorage_newWithSize(index->nDimension);
@@ -83,14 +84,20 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   
 
   TemplatedKernel kernelBuilder( THClState_getCl(state) );
-  kernelBuilder.set("IndexType", "int");
+  kernelBuilder.set("IndexType", "unsigned int");
+  kernelBuilder.set("dims", nDims);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
-  std::string uniqueName = __FILE__ ":gather";
+  std::string uniqueName = __FILE__ ":gather:" + easycl::toString(nDims);
   CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_gather" );
 
-  TensorInfo<unsigned int> selfInfo(state, self);
-    TensorInfo<unsigned int> srcInfo(state, src);
-    TensorInfo<unsigned int> indexInfo(state, index);
+  TensorInfoCl selfInfoCl(self);
+    TensorInfoCl srcInfoCl(src);
+    TensorInfoCl indexInfoCl(index);
+  cout << "indexInfo.dims=" << index->nDimension << endl;
+  cout << "indexInfo.dims=" << indexInfoCl.dims << endl;
+  for( int i = 0; i < nDims; i++ ) {
+    cout << "index strides[" << i << "]=" << indexInfoCl.strides[i] << endl;
+  }
 
   const dim3 block = getApplyBlock(state);
 
@@ -101,10 +108,15 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   }
 
   THClKernels k(state, kernel);
-  k.out(selfInfo);
-  k.in(srcInfo);
+  kernel->in(1, &selfInfoCl);
+  kernel->out(self->storage->wrapper);
+  kernel->in(1, &srcInfoCl);
+  kernel->in(src->storage->wrapper);
+//  k.in(srcInfoCl);
   k.in((int)dim);
-  k.in(indexInfo);
+  kernel->in(1, &indexInfoCl);
+  kernel->in(index->storage->wrapper);
+//  k.in(indexInfoCl);
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
@@ -123,9 +135,9 @@ static std::string getTemplate() {
   "// probably should put this on its own somewhere, so we\n" 
   "// dont have to either ocpy/paste, or include entire THClReduceApplyUtils\n" 
   "typedef struct TensorInfoCl {\n" 
-  "  {{IndexType}} sizes[{{MAX_CLTORCH_DIMS}}];\n" 
-  "  {{IndexType}} strides[{{MAX_CLTORCH_DIMS}}];\n" 
-  "  {{IndexType}} offset;\n" 
+  "  unsigned int sizes[{{MAX_CLTORCH_DIMS}}];\n" 
+  "  unsigned int strides[{{MAX_CLTORCH_DIMS}}];\n" 
+  "  int offset;\n" 
   "  int dims;\n" 
   "} TensorInfoCl;\n" 
   "\n" 
@@ -161,7 +173,7 @@ static std::string getTemplate() {
   "      int srcOffset = src_info->offset;\n" 
   "      int dstOffset = dst_info->offset;\n" 
   "      int linearId = _linearId; // copy it, since we'll modify it\n" 
-  "      for(int d=dim-1; d >= 0; d--) {  // just use slow, unbkaed loop for now, to\n" 
+  "      for(int d={{dims}}-1; d >= 0; d--) {  // just use slow, unbkaed loop for now, to\n" 
   "                                   // get it working\n" 
   "        int curDimIndex = linearId % idx_info->sizes[d];\n" 
   "        idxOffset += curDimIndex * idx_info->strides[d];\n" 
@@ -172,10 +184,14 @@ static std::string getTemplate() {
   "        } else {\n" 
   "          // do nothing... add it later, once we know the value\n" 
   "        }\n" 
+  "        if( get_global_id(0) == 1 ) {\n" 
+  "//          dst_data[d] = idx_info->strides[d];\n" 
+  "//          dst_data[1] += 100;\n" 
+  "        }\n" 
   "        linearId /= idx_info->sizes[d];\n" 
   "      }\n" 
   "      // now we have the idxoffset.  get the value at that location\n" 
-  "      int idxValue = idx_data[idxOffset];\n" 
+  "      int idxValue = idx_data[idxOffset] - 1; // subtract 1, because 1-based\n" 
   "      // then use this to get the final value for srcOffset\n" 
   "      srcOffset += idxValue * src_info->strides[dim];\n" 
   "      // get the value...\n" 

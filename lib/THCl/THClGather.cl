@@ -1,9 +1,9 @@
 // probably should put this on its own somewhere, so we 
 // dont have to either ocpy/paste, or include entire THClReduceApplyUtils
 typedef struct TensorInfoCl {
-  {{IndexType}} sizes[{{MAX_CLTORCH_DIMS}}];
-  {{IndexType}} strides[{{MAX_CLTORCH_DIMS}}];
-  {{IndexType}} offset;
+  unsigned int sizes[{{MAX_CLTORCH_DIMS}}];
+  unsigned int strides[{{MAX_CLTORCH_DIMS}}];
+  int offset;
   int dims;
 } TensorInfoCl;
 
@@ -39,7 +39,7 @@ kernel void THClTensor_kernel_gather(
       int srcOffset = src_info->offset;
       int dstOffset = dst_info->offset;
       int linearId = _linearId; // copy it, since we'll modify it
-      for(int d=dim-1; d >= 0; d--) {  // just use slow, unbkaed loop for now, to
+      for(int d={{dims}}-1; d >= 0; d--) {  // just use slow, unbkaed loop for now, to
                                    // get it working
         int curDimIndex = linearId % idx_info->sizes[d];
         idxOffset += curDimIndex * idx_info->strides[d];
@@ -50,10 +50,14 @@ kernel void THClTensor_kernel_gather(
         } else {
           // do nothing... add it later, once we know the value
         }
+        if( get_global_id(0) == 1 ) {
+//          dst_data[d] = idx_info->strides[d];
+//          dst_data[1] += 100;
+        }
         linearId /= idx_info->sizes[d];
       }
       // now we have the idxoffset.  get the value at that location
-      int idxValue = idx_data[idxOffset];
+      int idxValue = idx_data[idxOffset] - 1; // subtract 1, because 1-based
       // then use this to get the final value for srcOffset
       srcOffset += idxValue * src_info->strides[dim];
       // get the value...

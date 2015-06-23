@@ -210,6 +210,14 @@ typedef struct TensorInfoCl {
       strides[i] = info.strides[i];
     }
   }
+  TensorInfoCl(THClTensor *tensor ) {
+    dims = tensor->nDimension;
+    for( int i = 0; i < dims; i++ ) {
+      sizes[i] = tensor->size[i];
+      strides[i] = tensor->stride[i];
+    }
+    offset = tensor->storageOffset;
+  }
   unsigned int sizes[MAX_CLTORCH_DIMS];
   unsigned int strides[MAX_CLTORCH_DIMS];
   int offset;
