@@ -136,7 +136,7 @@ result:repeatTensor(a, 3,2)
 squeezed = a:squeeze()
 </pre></tr>
 
-<tr><td>Manipulating the tensor view<td>5%<td><pre>
+<tr><td>Manipulating the tensor view<td>Done<td><pre>
 C = torch.ClTensor{{3,2,4},{9,7,5}}
 print(C:t())
 print(C:transpose(1,2))
