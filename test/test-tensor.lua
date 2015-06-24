@@ -10,9 +10,7 @@ print("... require cltorch done")
 print(cltorch.getDeviceProperties(cltorch.getDevice()).deviceName)
 
 if os.getenv('TRACE') ~= nil then
-  function torch.traceon(state)
-    cltorch.setTrace(state)
-  end
+  cltorch.setTrace(1)
 end
 
 if false then
@@ -630,8 +628,7 @@ if false then
   print('torch.cumprod(A:cl(), 1)\n', torch.cumprod(A:cl(), 1))
 end
 
-if os.getenv('PROTOTYPING') ~= nil then
-
+if false then
   a = torch.Tensor(5,4)
   a:copy(torch.range(1, a:nElement()))
   acl = a:clone():cl()
@@ -705,6 +702,42 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('a:gather(1, idx)', a:gather(1, idx))
   print('torch.gather(1, idxcl)', torch.gather(acl, 1, idxcl))
   print('acl:gather(1, idxcl)', acl:gather(1, idxcl))
+end
+
+if os.getenv('PROTOTYPING') ~= nil then
+  a = torch.ClTensor({{3,5,2}}):t()
+  print('a', a)
+  print('expanding...')
+  b = torch.expand(a, 3, 2)
+  print('...expanded')
+--  print(torch.expand(a,3,2))
+--  b = a:expand(3, 2)
+  print('b', b)
+  a:copy(torch.Tensor{7,2,1})
+  print('b', b)
+  c = torch.ClTensor(3, 4)
+  c:copy(torch.range(1, c:nElement()))
+  print('c', c)
+  print('expanding...')
+  b = torch.expandAs(a, c)
+  print('...expanded')
+  print('b', b)
+
+  reptarget = torch.ClTensor(3, 4):fill(-1)
+  print('reptarget', reptarget)
+--  print('after b resize')
+  print('a\n', a)
+  d = a:repeatTensor(1, 4)
+  print('a:repeatTensor(1,4)\n', d)
+  print('before repeat')
+  reptarget:repeatTensor(a, 1, 4)
+  print('after repeatTensor')
+  print('reptarget', reptarget)
+  print('a\n', a)
+
+  as = a:squeeze()
+  print('after squeeze')
+  print('as\n', as)
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
@@ -761,4 +794,7 @@ if os.getenv('PROTOTYPING') ~= nil then
 end
 collectgarbage()
 
+if os.getenv('TRACE') ~= nil then
+  cltorch.setTrace(0)
+end
 

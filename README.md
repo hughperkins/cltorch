@@ -129,7 +129,11 @@ x:gather( ... )
 </pre></tr>
 
 
-<tr><td>Expanding/Replicating/Squeezing Tensors<td>0%<td><pre>
+<tr><td>Expanding/Replicating/Squeezing Tensors<td>Done<td><pre>
+torch.expand(x,3,2)
+torch.expandAs(x, a)
+result:repeatTensor(a, 3,2)
+squeezed = a:squeeze()
 </pre></tr>
 
 <tr><td>Manipulating the tensor view<td>5%<td><pre>
