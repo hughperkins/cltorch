@@ -24,7 +24,7 @@ THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, T
   THArgCheck(dim >= 0, 2, "dim out of bounds");
   THArgCheck(nDims < MAX_CLTORCH_DIMS, 2, "Tensors should have less than %i dimensions", MAX_CLTORCH_DIMS); // I guess?
 
-  THLongStorage *newSize;
+//  THLongStorage *newSize;
 
   for( int i = 0; i < nDims; i++ ) {
     if( i != dim ) {

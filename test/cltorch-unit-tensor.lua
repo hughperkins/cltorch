@@ -759,6 +759,18 @@ function test_gather_narrowed()
   cltorch.setTrace(0)
 end
 
+function test_scatter()
+  x = torch.Tensor(2,5)
+  x = x:copy(torch.range(1, x:nElement()))
+  y = torch.zeros(3,5)
+  idx = torch.LongTensor{{1,2,3,1,1},{3,1,1,2,3}}
+
+  z = y:clone():scatter(1, idx:clone(), x:clone())
+  zcl = y:clone():cl():scatter(1, idx:clone():cl(), x:clone():cl())
+
+  luaunit.assertEquals(z, zcl:double())
+end
+
 local function _run()
   --cltorch.setTrace(1)
   luaunit.LuaUnit.run()
