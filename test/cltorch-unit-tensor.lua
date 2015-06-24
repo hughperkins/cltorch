@@ -714,6 +714,51 @@ function test_cumprod()
   luaunit.assertEquals(torch.cumprod(x, 2), torch.cumprod(x:cl(), 2):double())
 end
 
+function test_gather()
+  a = torch.Tensor(60,4)
+  a:copy(torch.range(1,a:nElement()))
+  acl = a:clone():cl()
+  idx = torch.LongTensor({{2,1,3,1}})
+  idxcl = idx:clone():cl()
+
+  luaunit.assertEquals(a:gather(1, idx), acl:gather(1, idxcl):double())
+  luaunit.assertEquals(torch.gather(a, 1, idx), torch.gather(acl, 1, idxcl):double())
+end
+
+function test_gather_t()
+  a = torch.Tensor(60,4)
+  a:copy(torch.range(1,a:nElement()))
+  acl = a:clone():cl()
+
+  idx = torch.LongTensor({{2,1,3,1}})
+  idxcl = idx:clone():cl()
+
+  a = a:t()
+  acl = acl:t()
+  idx = idx:t()
+  idxcl = idxcl:t()
+
+  luaunit.assertEquals(a:gather(2, idx), acl:gather(2, idxcl):double())
+  luaunit.assertEquals(torch.gather(a, 2, idx), torch.gather(acl, 2, idxcl):double())
+end
+
+function test_gather_narrowed()
+  a = torch.Tensor(60,4)
+  a:copy(torch.range(1,a:nElement()))
+  acl = a:clone():cl()
+
+  idx = torch.LongTensor({{2,1,3,1}})
+  idxcl = idx:clone():cl()
+
+  a = a:narrow(1, 20, 20)
+  acl = acl:narrow(1, 20, 20)
+
+  cltorch.setTrace(1)
+  luaunit.assertEquals(a:gather(1, idx), acl:gather(1, idxcl):double())
+  luaunit.assertEquals(torch.gather(a, 1, idx), torch.gather(acl, 1, idxcl):double())
+  cltorch.setTrace(0)
+end
+
 local function _run()
   --cltorch.setTrace(1)
   luaunit.LuaUnit.run()
@@ -721,7 +766,8 @@ local function _run()
 end
 
 --cltorch.setTrace(1)
---luaunit.LuaUnit.run()
+luaunit.LuaUnit.run()
+cltorch.setTrace(0)
 -- os.exit(_run())
-os.exit(luaunit.LuaUnit.run())
+--os.exit(luaunit.LuaUnit.run())
 

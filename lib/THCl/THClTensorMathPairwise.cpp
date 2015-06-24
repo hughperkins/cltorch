@@ -76,17 +76,14 @@ void THClTensor_mul(THClState *state, THClTensor *self_, THClTensor *src_, float
 
 void THClTensor_div(THClState* state, THClTensor *self_, THClTensor *src_, float value)
 {
-  cout << "THClTensorMathPairwise.THClTensor_div(state, self_, src_, float value)" << endl;
   THAssert(THClTensor_checkGPU(state, 2, self_, src_));
   THArgCheck(value != 0.0f, 3, "divide by zero");
 
   if (self_ == src_) {
-    cout << "self_ == src_" << endl;
     if (!THClTensor_pointwiseApply1(state, self_, TensorMulConstantOp(1.0f / value))) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
-    cout << "self_ != src_, resizing self_ as src_" << endl;
     THClTensor_resizeAs(state, self_, src_);
 
     if (!THClTensor_pointwiseApply2(state, self_, src_, TensorMulConstantOp(1.0f / value))) {
