@@ -113,7 +113,7 @@ d = torch.ClTensor(2,2)
 d:resizeAs(c)
 </pre></tr>
 
-<tr><td>Extracting sub-tensors<td>50%<td><pre>
+<tr><td>Extracting sub-tensors<td>70%<td><pre>
 E:narrow(1,2,3)
 E:sub(2,3,2,2)
 E:select(1,2):fill(99)
