@@ -35,17 +35,20 @@ kernel void THClTensor_kernel_gather(
       int srcOffset = src_info->offset;
       int dstOffset = dst_info->offset;
       int linearId = _linearId; // copy it, since we'll modify it
-      for(int d={{dims}}-1; d >= 0; d--) {  // just use slow, unbkaed loop for now, to
+//      for(int d={{dims}}-1; d >= 0; d--) {  // just use slow, unbkaed loop for now, to
                                    // get it working
-        int curDimIndex = linearId % idx_info->sizes[d];
-        idxOffset += curDimIndex * idx_info->strides[d];
-        dstOffset += curDimIndex * dst_info->strides[d];
-        if( d != dim ) { // this only matters for the source, the others are 
-                         // unaffected by which dimension we are on. I think.
-          srcOffset += curDimIndex * src_info->strides[d];
-        }
-        linearId /= idx_info->sizes[d];
-      }
+        int curDimIndex;
+        {% for d=dims-1,0,-1 do %}
+          curDimIndex = linearId % idx_info->sizes[{{d}}];
+          idxOffset += curDimIndex * idx_info->strides[{{d}}];
+          dstOffset += curDimIndex * dst_info->strides[{{d}}];
+          if( {{d}} != dim ) { // this only matters for the source, the others are 
+                           // unaffected by which dimension we are on. I think.
+            srcOffset += curDimIndex * src_info->strides[{{d}}];
+          }
+          linearId /= idx_info->sizes[{{d}}];
+        {% end %}
+//      }
       // now we have the idxoffset.  get the value at that location
       int idxValue = idx_data[idxOffset] - 1; // subtract 1, because 1-based
       // then use this to get the final value for srcOffset
