@@ -125,6 +125,7 @@ C:indexFill(2, torch.LongTensor{1,3}, -12)
 x:indexCopy(2,torch.LongTensor{5,1},z)
 x:indexSelect( ... )
 x:maskedFill( ... )
+x:gather( ... )
 </pre></tr>
 
 
