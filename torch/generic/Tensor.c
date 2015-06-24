@@ -1273,7 +1273,7 @@ static const struct luaL_Reg torch_Tensor_(_) [] = {
   {"clone", torch_Tensor_(clone)},
   {"contiguous", torch_Tensor_(contiguous)},
   {"resizeAs", torch_Tensor_(resizeAs)},
-  {"gather", torch_Tensor_(gather)},
+//  {"gather", torch_Tensor_(gather)},
   {"resize", torch_Tensor_(resize)},
   {"narrow", torch_Tensor_(narrow)},
   {"sub", torch_Tensor_(sub)},

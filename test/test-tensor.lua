@@ -703,8 +703,8 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('res', res)
 --  print('gather cl', torch.gather(acl, 1, idxcl))
   print('a:gather(1, idx)', a:gather(1, idx))
+  print('torch.gather(1, idxcl)', torch.gather(acl, 1, idxcl))
   print('acl:gather(1, idxcl)', acl:gather(1, idxcl))
-
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)

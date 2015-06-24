@@ -132,4 +132,9 @@ THCL_API float THClTensor_get4d(THClState *state, const THClTensor *tensor, long
 THCL_API int THClTensor_getDevice(THClState *state, const THClTensor *self);
 THCL_API int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...);
 
+// new
+#ifdef __cplusplus
+THCL_API std::string THClTensor_toString(THClState *state, const THClTensor *tensor);
+#endif // __cplusplus
+
 #endif

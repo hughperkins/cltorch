@@ -345,6 +345,51 @@ wrap("mul",
         {name=Tensor, method={default=1}},
         {name=real}})
 
+-- wrap("gather",
+--      cname("gather"),
+--      {{name=Tensor, default=true, returned=true,
+--        init=function(arg)
+--                return table.concat(
+--                   {
+--                      arg.__metatable.init(arg),
+--                      string.format("THLongStorage* %s_size = THLongTensor_newSizeOf(%s);", arg:carg(), arg.args[4]:carg()),
+--                      string.format("TH%s_resize(%s, %s_size, NULL);", Tensor, arg:carg(), arg:carg()),
+--                      string.format("THLongStorage_free(%s_size);", arg:carg())
+--                   }, '\n')
+--             end
+--       },
+--       {name=Tensor},
+--       {name="index"},
+--       {name=Tensor, noreadadd=true}})
+
+--function diag(arg)
+--  print('diag', arg)
+--  for k,v in pairs(arg) do
+--    print(k,v)
+--  end
+--  return ''
+--end
+
+wrap("gather",
+     cname("gather"),
+     {{name=Tensor, default=true, returned=true,
+        init=function(arg)
+                return table.concat(
+                   {
+                      string.format('THClState *state = cltorch_getstate(L);'),
+                      string.format('THLongStorage *%s_newSize = THLongStorage_newWithSize(%s->nDimension);', arg:carg(), arg.args[4]:carg()),
+                      string.format('THLongStorage_rawCopy(%s_newSize, %s->size);', arg:carg(), arg.args[4]:carg()),
+                      string.format('%s = THClTensor_new(state);', arg:carg()),
+                      string.format('THClTensor_resize(state, %s, %s_newSize, NULL);', arg:carg(), arg:carg()),
+                      string.format('THLongStorage_free(%s_newSize);', arg:carg()),
+                   }, '\n')
+             end
+  },
+	{name=Tensor},
+  {name="index"},
+	{name=Tensor, noreadadd=true}
+})
+
 wrap("div",
      cname("div"),
      {{name=Tensor, default=true, returned=true, method={default='nil'}},
@@ -374,14 +419,6 @@ wrap("addcdiv",
         {name=real, default=1},
         {name=Tensor},
         {name=Tensor}})
-
---wrap("gather",
---     cname("gather"),
---     {{name=Tensor, default=true, returned=true, method={default='nil'}},
---	{name=Tensor},
---  {name="index", default=1},
---	{name=Tensor}
---})
 
 wrap("maskedFill",
      cname("maskedFill"),

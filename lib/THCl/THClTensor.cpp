@@ -4,6 +4,7 @@
     #include "THClTensorCopy.h"
     #include "THAtomic.h"
 //}
+#include "util/easycl_stringhelper.h"
 
 #include <iostream>
 
@@ -847,3 +848,29 @@ int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...)
 //  return valid;
 //#endif
 }
+
+std::string THClTensor_toString(THClState *state, const THClTensor *tensor) {
+  string res = "";
+  res += "THClTensor{";
+  res += "size={";
+  for( int i = 0; i < tensor->nDimension; i++ ) {
+    if(i > 0) {
+      res += ",";
+    }
+    res += easycl::toString(tensor->size[i]);
+  }
+  res += "},";
+  res += "stride={";
+  for( int i = 0; i < tensor->nDimension; i++ ) {
+    if(i > 0) {
+      res += ",";
+    }
+    res += easycl::toString(tensor->stride[i]);
+  }
+  res += "},";
+  res += "offset=" + easycl::toString(tensor->storageOffset);
+  res += ",nElem=" + easycl::toString(THClTensor_nElement(state, tensor));
+  res += "}";
+  return res;
+}
+

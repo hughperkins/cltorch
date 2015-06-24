@@ -15,10 +15,6 @@ kernel void THClTensor_kernel_gather(
    int totalElements
 )
 {
-//  global float *dst = dst_data + dst_info.offset;
-//  global const float *src = src_data + src_info.offset;
-//  global const float *idx = idx_data + idx_info.offset;
-
   for (int _linearId = get_global_id(0);
        _linearId < totalElements;
        _linearId += get_global_size(0)) {
@@ -47,12 +43,6 @@ kernel void THClTensor_kernel_gather(
         if( d != dim ) { // this only matters for the source, the others are 
                          // unaffected by which dimension we are on. I think.
           srcOffset += curDimIndex * src_info->strides[d];
-        } else {
-          // do nothing... add it later, once we know the value
-        }
-        if( get_global_id(0) == 1 ) {
-//          dst_data[d] = idx_info->strides[d];
-//          dst_data[1] += 100;
         }
         linearId /= idx_info->sizes[d];
       }

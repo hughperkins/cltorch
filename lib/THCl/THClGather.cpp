@@ -49,7 +49,22 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   // index will be ndims too, though one of the dims should have length 1
   // self will be ndims
   int nDims = src->nDimension;
-  cout << "nDims " << nDims << endl;
+//  int dim = lua_dim - 1;
+//  cout << "nDims " << nDims << "dim " << dim << endl;
+
+//  cout << "self dims " << self->nDimension << " nelem=" << THClTensor_nElement(state, self) << endl;
+//  cout << "src dims " << src->nDimension << " nelem=" << THClTensor_nElement(state, src) << endl;
+//  cout << "index dims " << index->nDimension << " nelem=" << THClTensor_nElement(state, index) << endl;
+
+//  if(self == src) {
+//    cout << "self == src" << endl;
+//  } else {
+//    cout << "self != src" << endl;
+//  }
+
+//  cout << "self " << THClTensor_toString(state, self) << endl;
+//  cout << "src " << THClTensor_toString(state, src) << endl;
+//  cout << "index " << THClTensor_toString(state, index) << endl;
 
   THArgCheck(nDims >= 2, 2, "Tensors should have at least 2 dimensions"); // I guess?
 //  THArgCheck(self->nDimension == nDims, 2, "All tensors should have same number of dims");
@@ -67,17 +82,26 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
     if( i != dim ) {
       THArgCheck(THClTensor_size(state, src, i) == THClTensor_size(state, index, i), 3, ("index tensor must have same dimensions as source tensor, but dimension " + easycl::toString(i) + " doesnt match").c_str());
     }
-    cout << "index strides[" << i << "]=" << index->stride[i] << endl;
+//    cout << "index strides[" << i << "]=" << index->stride[i] << endl;
   }
 
-  newSize = THLongStorage_newWithSize(index->nDimension);
-  THLongStorage_rawCopy(newSize, index->size);
-//  newSize->data[dim] = nIndex;
-  THClTensor_resize(state, self, newSize, NULL);
-  THLongStorage_free(newSize);
+  if( self != src ) {
+    newSize = THLongStorage_newWithSize(index->nDimension);
+    THLongStorage_rawCopy(newSize, index->size);
+  //  newSize->data[dim] = nIndex;
+    THClTensor_resize(state, self, newSize, NULL);
+    THLongStorage_free(newSize);
+  }
+
+//  cout << "self dims " << self->nDimension << " nelem=" << THClTensor_nElement(state, self) << endl;
+//  cout << "src dims " << src->nDimension << " nelem=" << THClTensor_nElement(state, src) << endl;
+//  cout << "index dims " << index->nDimension << " nelem=" << THClTensor_nElement(state, index) << endl;
+//  cout << "self " << THClTensor_toString(state, self) << endl;
+//  cout << "src " << THClTensor_toString(state, src) << endl;
+//  cout << "index " << THClTensor_toString(state, index) << endl;
 
   // This is just here to prove we are actually executing thi function :-)
-  THClTensor_fill(state, self, 0);
+//  THClTensor_fill(state, self, -99);
 
   // since self is write-only, and index and src are read-only, ie none are read-write
   // so, we dnot need to worry about contiguity (at least, not from point of view of correctness)
@@ -93,11 +117,11 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   TensorInfoCl selfInfoCl(self);
     TensorInfoCl srcInfoCl(src);
     TensorInfoCl indexInfoCl(index);
-  cout << "indexInfo.dims=" << index->nDimension << endl;
-  cout << "indexInfo.dims=" << indexInfoCl.dims << endl;
-  for( int i = 0; i < nDims; i++ ) {
-    cout << "index strides[" << i << "]=" << indexInfoCl.strides[i] << endl;
-  }
+//  cout << "indexInfo.dims=" << index->nDimension << endl;
+//  cout << "indexInfo.dims=" << indexInfoCl.dims << endl;
+//  for( int i = 0; i < nDims; i++ ) {
+//    cout << "index strides[" << i << "]=" << indexInfoCl.strides[i] << endl;
+//  }
 
   const dim3 block = getApplyBlock(state);
 
@@ -149,10 +173,6 @@ static std::string getTemplate() {
   "   int totalElements\n" 
   ")\n" 
   "{\n" 
-  "//  global float *dst = dst_data + dst_info.offset;\n" 
-  "//  global const float *src = src_data + src_info.offset;\n" 
-  "//  global const float *idx = idx_data + idx_info.offset;\n" 
-  "\n" 
   "  for (int _linearId = get_global_id(0);\n" 
   "       _linearId < totalElements;\n" 
   "       _linearId += get_global_size(0)) {\n" 
@@ -181,12 +201,6 @@ static std::string getTemplate() {
   "        if( d != dim ) { // this only matters for the source, the others are\n" 
   "                         // unaffected by which dimension we are on. I think.\n" 
   "          srcOffset += curDimIndex * src_info->strides[d];\n" 
-  "        } else {\n" 
-  "          // do nothing... add it later, once we know the value\n" 
-  "        }\n" 
-  "        if( get_global_id(0) == 1 ) {\n" 
-  "//          dst_data[d] = idx_info->strides[d];\n" 
-  "//          dst_data[1] += 100;\n" 
   "        }\n" 
   "        linearId /= idx_info->sizes[d];\n" 
   "      }\n" 
