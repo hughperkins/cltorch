@@ -62,19 +62,19 @@ c:resize(5)
 
 <tr><td>Component<td>Status<td>Examples of what works now</tr>
 
-<tr><td>torch.ClTensor constructors<td>works<td><pre>
+<tr><td>torch.ClTensor constructors<td>Done<td><pre>
 c = torch.ClTensor()
 c = torch.ClTensor{7,4,5}
 c = torch.ClTensor(3,2)
 </pre></tr>
 
-<tr><td>Cloning <td>90%<td><pre>
+<tr><td>Cloning <td>Done<td><pre>
 c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
 d = c:clone()
 print('isTensor', torch.isTensor(c))
 </pre></tr>
 
-<tr><td>Quering size and structure<td>90%<td><pre>
+<tr><td>Quering size and structure<td>Done<td><pre>
 c = torch.ClTensor{3,5,2}
 print('torch.isTensor(c)', torch.isTensor(c))
 print('c:nDimension()', c:nDimension())
@@ -162,8 +162,8 @@ torch.Tensor(5,3):uniform():cl()
 <tr><td>Component<td>Status<td>Examples of what works now</tr>
 
 
-<tr><td>Construction or extraction functions<td>0% done<td><pre>
--- For now, you would mostly create using a FloatTensor,
+<tr><td>Construction or extraction functions<td>0%<td><pre>
+-- For now, you can create using a FloatTensor,
 -- then use the :cl operator to convert to a ClTensor, eg:
 a = torch.Tensor(40,30):uniform():cl()
 b = torch.eye(20):cl()
