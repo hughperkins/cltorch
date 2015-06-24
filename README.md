@@ -409,7 +409,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 * 24th June:
   * added tests for `gather`, and removed some spam
-  * added `scatter`
+  * added `scatter` (for both tensor or float source)
 * 23rd June:
   * Fixed bug where operations such as apply and map on tensors with non-zero offset didnt work correctly (ie, `fill` etc after `narrow` or similar)
   * Added `gather`

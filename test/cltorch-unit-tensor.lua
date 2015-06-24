@@ -771,6 +771,15 @@ function test_scatter()
   luaunit.assertEquals(z, zcl:double())
 end
 
+function test_scatterFill()
+  y = torch.zeros(3,5)
+  idx = torch.LongTensor{{1,2,3,1,1},{3,1,1,2,3}}
+
+  z = y:clone():scatter(1, idx:clone(), 3.4567)
+  zcl = y:clone():cl():scatter(1, idx:clone():cl(), 3.4567)
+
+  luaunit.assertEquals(z, zcl:double())
+end
 local function _run()
   --cltorch.setTrace(1)
   luaunit.LuaUnit.run()

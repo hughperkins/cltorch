@@ -748,6 +748,11 @@ if os.getenv('PROTOTYPING') ~= nil then
   z = y:scatter(1, idx, x)
   print('z\n', z)
 
+  y = torch.zeros(3,5):cl()
+  idx = torch.LongTensor{{1,2,3,1,1},{3,1,1,2,3}}:cl()
+  z = y:scatter(1, idx, 3.4567)
+  print('z\n', z)
+
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
 --  mask = torch.ByteTensor(2,6):bernoulli():cl()
