@@ -390,6 +390,18 @@ wrap("gather",
 	{name=Tensor, noreadadd=true}
 })
 
+ wrap("scatter",
+      cname("scatter"),
+      {{name=Tensor, returned=true},
+       {name="index"},
+       {name=Tensor, noreadadd=true},
+       {name=Tensor}},
+      cname("scatterFill"),
+      {{name=Tensor, returned=true},
+       {name="index"},
+       {name=Tensor, noreadadd=true},
+       {name=real}})
+
 wrap("div",
      cname("div"),
      {{name=Tensor, default=true, returned=true, method={default='nil'}},

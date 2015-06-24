@@ -14,17 +14,14 @@ using namespace std;
 
 static std::string getTemplate();
 
-THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *src, long dim, THClTensor *index) {
-  // src will be ndims
-  // index will be ndims too, though one of the dims should have length 1
-  // self will be ndims
-  int nDims = src->nDimension;
+THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, THClTensor *index, THClTensor *src) {
+  int nDims = index->nDimension;
 
   THArgCheck(nDims >= 2, 2, "Tensors should have at least 2 dimensions"); // I guess?
-  THArgCheck(src->nDimension == nDims, 2, "All tensors should have same number of dims");
-  THArgCheck(index->nDimension == nDims, 4, "All tensors should have same number of dims");
-  THArgCheck(dim < nDims, 4, "dim out of bounds");
-  THArgCheck(dim >= 0, 4, "dim out of bounds");
+  THArgCheck(src->nDimension == nDims, 4, "All tensors should have same number of dims");
+  THArgCheck(index->nDimension == nDims, 3, "All tensors should have same number of dims");
+  THArgCheck(dim < nDims, 2, "dim out of bounds");
+  THArgCheck(dim >= 0, 2, "dim out of bounds");
   THArgCheck(nDims < MAX_CLTORCH_DIMS, 2, "Tensors should have less than %i dimensions", MAX_CLTORCH_DIMS); // I guess?
 
   THLongStorage *newSize;
@@ -35,7 +32,6 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
     }
   }
 
-  // hmmm ,I wonder if we need this any more, after migration to TensorMath.lua
 //  if( self != src ) {
 //    newSize = THLongStorage_newWithSize(index->nDimension);
 //    THLongStorage_rawCopy(newSize, index->size);
@@ -46,13 +42,12 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   // since self is write-only, and index and src are read-only, ie none are read-write
   // so, we dnot need to worry about contiguity (at least, not from point of view of correctness)
   
-
   TemplatedKernel kernelBuilder( THClState_getCl(state) );
   kernelBuilder.set("IndexType", "unsigned int");
   kernelBuilder.set("dims", nDims);
   kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
-  std::string uniqueName = __FILE__ ":gather:" + easycl::toString(nDims);
-  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_gather" );
+  std::string uniqueName = __FILE__ ":scatter:" + easycl::toString(nDims);
+  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_scatter" );
 
   TensorInfoCl selfInfoCl(self);
     TensorInfoCl srcInfoCl(src);
@@ -69,11 +64,11 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   THClKernels k(state, kernel);
   kernel->in(1, &selfInfoCl);
   kernel->out(self->storage->wrapper);
-  kernel->in(1, &srcInfoCl);
-  kernel->in(src->storage->wrapper);
   k.in((int)dim);
   kernel->in(1, &indexInfoCl);
   kernel->in(index->storage->wrapper);
+  kernel->in(1, &srcInfoCl);
+  kernel->in(src->storage->wrapper);
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
@@ -85,9 +80,9 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
 static std::string getTemplate() {
   // [[[cog
   // import stringify
-  // stringify.write_kernel( "kernel", "THClGather.cl" )
+  // stringify.write_kernel( "kernel", "THClScatter.cl" )
   // ]]]
-  // generated using cog, from THClGather.cl:
+  // generated using cog, from THClScatter.cl:
   const char * kernelSource =  
   "// probably should put this on its own somewhere, so we\n" 
   "// dont have to either ocpy/paste, or include entire THClReduceApplyUtils\n" 
@@ -98,11 +93,11 @@ static std::string getTemplate() {
   "  int dims;\n" 
   "} TensorInfoCl;\n" 
   "\n" 
-  "kernel void THClTensor_kernel_gather(\n" 
+  "kernel void THClTensor_kernel_scatter(\n" 
   "    global TensorInfoCl *dst_info, global float*dst_data,\n" 
-  "    global const TensorInfoCl *src_info, global float*src_data,\n" 
   "   int dim,\n" 
   "    global const TensorInfoCl *idx_info, global float*idx_data,\n" 
+  "    global const TensorInfoCl *src_info, global float*src_data,\n" 
   "   int totalElements\n" 
   ")\n" 
   "{\n" 
@@ -113,10 +108,10 @@ static std::string getTemplate() {
   "      // plan is:\n" 
   "      // based on our linearIndex, this gets us a spot in the index\n" 
   "      // tensor\n" 
-  "      // this is also a spot in the tgt_data (at least, if we can\n" 
+  "      // this is also a spot in the src_data (at least, if we can\n" 
   "      // convert into actual coordinates, then it is the coordinates\n" 
-  "      // in the target tensor\n" 
-  "      // the coordinates in the source are teh same, except that\n" 
+  "      // in the src tensor\n" 
+  "      // the coordinates in the dest are teh same, except that\n" 
   "      // we replace that of dimension dim with the value from\n" 
   "      // the index tensor\n" 
   "      //\n" 
@@ -132,18 +127,18 @@ static std::string getTemplate() {
   "        {% for d=dims-1,0,-1 do %}\n" 
   "          curDimIndex = linearId % idx_info->sizes[{{d}}];\n" 
   "          idxOffset += curDimIndex * idx_info->strides[{{d}}];\n" 
-  "          dstOffset += curDimIndex * dst_info->strides[{{d}}];\n" 
+  "          srcOffset += curDimIndex * src_info->strides[{{d}}];\n" 
   "          if( {{d}} != dim ) { // this only matters for the source, the others are\n" 
   "                           // unaffected by which dimension we are on. I think.\n" 
-  "            srcOffset += curDimIndex * src_info->strides[{{d}}];\n" 
+  "            dstOffset += curDimIndex * dst_info->strides[{{d}}];\n" 
   "          }\n" 
   "          linearId /= idx_info->sizes[{{d}}];\n" 
   "        {% end %}\n" 
   "//      }\n" 
   "      // now we have the idxoffset.  get the value at that location\n" 
   "      int idxValue = idx_data[idxOffset] - 1; // subtract 1, because 1-based\n" 
-  "      // then use this to get the final value for srcOffset\n" 
-  "      srcOffset += idxValue * src_info->strides[dim];\n" 
+  "      // then use this to get the final value for dstOffset\n" 
+  "      dstOffset += idxValue * dst_info->strides[dim];\n" 
   "      // get the value...\n" 
   "      float value = src_data[srcOffset];\n" 
   "      // and save it up...\n" 

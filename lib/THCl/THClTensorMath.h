@@ -122,6 +122,8 @@ THCL_API void THClTensor_apply(THClState* state, THClTensor* self, char const * 
 THCL_API void THClTensor_map(THClState* state, THClTensor* self, THClTensor* two, char const * operation2);
 THCL_API void THClTensor_map2(THClState* state, THClTensor* self, THClTensor* in1, THClTensor* in2, char const * operation3);
 THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *src, long dim, THClTensor *index);
+THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, THClTensor *index, THClTensor *src);
+THCL_API void THClTensor_scatterFill(THClState *state, THClTensor *self, long dim, THClTensor *index, float val);
 
 #endif
 

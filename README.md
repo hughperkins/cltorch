@@ -137,6 +137,7 @@ x:indexCopy(2,torch.LongTensor{5,1},z)
 x:indexSelect( ... )
 x:maskedFill( ... )
 x:gather( ... )
+x:scatter( ... )
 </pre></tr>
 
 
@@ -408,6 +409,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 * 24th June:
   * added tests for `gather`, and removed some spam
+  * added `scatter`
 * 23rd June:
   * Fixed bug where operations such as apply and map on tensors with non-zero offset didnt work correctly (ie, `fill` etc after `narrow` or similar)
   * Added `gather`

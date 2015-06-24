@@ -702,9 +702,7 @@ if false then
   print('a:gather(1, idx)', a:gather(1, idx))
   print('torch.gather(1, idxcl)', torch.gather(acl, 1, idxcl))
   print('acl:gather(1, idxcl)', acl:gather(1, idxcl))
-end
 
-if os.getenv('PROTOTYPING') ~= nil then
   a = torch.ClTensor({{3,5,2}}):t()
   print('a', a)
   print('expanding...')
@@ -738,6 +736,17 @@ if os.getenv('PROTOTYPING') ~= nil then
   as = a:squeeze()
   print('after squeeze')
   print('as\n', as)
+
+end
+
+if os.getenv('PROTOTYPING') ~= nil then
+  x = torch.Tensor(2,5)
+  x = x:copy(torch.range(1, x:nElement())):cl()
+  print('x\n', x)
+  y = torch.zeros(3,5):cl()
+  idx = torch.LongTensor{{1,2,3,1,1},{3,1,1,2,3}}:cl()
+  z = y:scatter(1, idx, x)
+  print('z\n', z)
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)

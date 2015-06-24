@@ -13,7 +13,8 @@ SET(src
     THClBlas.cpp THClTensorMathBlas.cpp THClBlas.cpp THClReduce.cpp
     THClTypeParseTraits.cpp THClReduceAll.cpp THClDeviceUtils.cpp
     THClTensorMasked.cpp THClTensorMathTransformReduce.cpp
-    THClTensorIndex.cpp THClKernels.cpp THClTensorMathScan.cpp THClGather.cpp )
+    THClTensorIndex.cpp THClKernels.cpp THClTensorMathScan.cpp THClGather.cpp
+    THClScatter.cpp )
 set(src-cl)
 
 message("CLBLAS_INCLUDE_DIRS ${CLBLAS_INCLUDE_DIRS}")
