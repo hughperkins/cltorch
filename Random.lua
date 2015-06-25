@@ -12,4 +12,14 @@ function torch.ClTensor:bernoulli(p)
   return self
 end
 
+function torch.ClTensor:uniform(a, b)
+  if a == nil then
+    a = 0
+  end
+  if b == nil then
+    b = 1
+  end
+  self:copy(torch.Tensor(self:size()):uniform(a, b))
+  return self
+end
 

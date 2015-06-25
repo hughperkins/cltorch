@@ -760,6 +760,8 @@ if os.getenv('PROTOTYPING') ~= nil then
   c:bernoulli(0.1)
   print('c\n', c)
 
+  c:uniform()
+  print('c\n', c)
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
