@@ -45,7 +45,7 @@ end
 torch.ClTensor.__tostring__ = torch.FloatTensor.__tostring__
 
 include('Tensor.lua')
-require('Bernoulli')
+include('Bernoulli.lua')
 --include('FFI.lua')
 --include('test.lua')
 
