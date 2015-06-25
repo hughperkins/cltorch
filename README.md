@@ -162,8 +162,10 @@ print(C:transpose(1,2))
 
 <tr><td>Component<td>Status<td>Examples of what works now</tr>
 
-<tr><td>uniform, etc <td>0%<td><pre>For now, you would need to do for example:
+<tr><td>uniform, etc <td>2%<td><pre>For now, you would need to do for example:
 torch.Tensor(5,3):uniform():cl()
+torch.Tensor(5,3):bernoulli() -- works now, but basically generates on host side
+     -- then copies to gpu
 </pre></tr>
 </table>
 
@@ -407,6 +409,8 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 # Recent changes
 
+* 25th June:
+  * added bernoulli (generates on host-side for now, but I guess this is fast enough for many things?)
 * 24th June:
   * added tests for `gather`, and removed some spam
   * added `scatter` (for both tensor or float source)
