@@ -143,7 +143,7 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
   bool dstContig = THClTensor_isContiguous(state, dst);
   bool memcpyEligible = (srcContig && dstContig) || (totalElements == 1);
 
-  if (memcpyEligible) {
+  if (false && memcpyEligible) { // this should check the size too probably, just 'false' it out for now
     if( !dst->storage->wrapper->isOnDevice() ) {
       dst->storage->wrapper->createOnDevice();
     }

@@ -409,6 +409,10 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 # Recent changes
 
+* 26th June:
+  * add addcmul (not tested yet)
+  * add addcdiv (not tested yet)
+  * fix a buffer copy bug (a bit hacky for now...)
 * 25th June:
   * added bernoulli (generates on host-side for now, but I guess this is fast enough for many things?)
 * 24th June:

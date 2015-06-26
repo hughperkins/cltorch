@@ -335,11 +335,13 @@ bool THClTensor_pointwiseApply2(THClState* state,
   long totalElements = THClTensor_nElement(state, a);
 
   if (totalElements != THClTensor_nElement(state, b)) {
+    std::cout << "apply2 num elements mismatch" << std::endl;
     return false;
   }
 
   if (THClTensor_nDimension(state, a) > MAX_CLTORCH_DIMS ||
       THClTensor_nDimension(state, b) > MAX_CLTORCH_DIMS) {
+    std::cout << "apply2 too many dimensions" << std::endl;
     return false;
   }
 
@@ -352,6 +354,7 @@ bool THClTensor_pointwiseApply2(THClState* state,
 
   dim3 grid;
   if (!getApplyGrid(state, totalElements, grid)) {
+    std::cout << "apply2 couldnt get apply grid" << std::endl;
     return false;
   }
 
@@ -500,12 +503,14 @@ bool THClTensor_pointwiseApply3(THClState* state,
 
   if (totalElements != THClTensor_nElement(state, b) ||
       totalElements != THClTensor_nElement(state, c)) {
+    std::cout << "element size mismatch between b and c" << std::endl;
     return false;
   }
 
   if (THClTensor_nDimension(state, a) > MAX_CLTORCH_DIMS ||
       THClTensor_nDimension(state, b) > MAX_CLTORCH_DIMS ||
       THClTensor_nDimension(state, c) > MAX_CLTORCH_DIMS) {
+    std::cout << "too many dimensions" << std::endl;
     return false;
   }
 
@@ -518,6 +523,7 @@ bool THClTensor_pointwiseApply3(THClState* state,
 
   dim3 grid;
   if (!getApplyGrid(state, totalElements, grid)) {
+    std::cout << "getapplygrid returns false" << std::endl;
     return false;
   }
 

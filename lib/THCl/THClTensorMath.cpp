@@ -141,68 +141,77 @@ void THClTensor_cdiv(THClState* state, THClTensor *self_, THClTensor *src1, THCl
   }
 }
 
-//struct TensorAddCMulOp {
-//  TensorAddCMulOp(float v) : val(v) {}
-
+class TensorAddCMulOp : public HasScalars, public HasOperator3 {
+public:
+  TensorAddCMulOp(float v) : val(v) {}
+  int getNumScalars() const{ return 1; }
+  float getScalar(int index) const{ return val; }
+  std::string operator3() const {
+    return "*out += val1 * *in1 * *in2";
+  }
+  
 //  __device__ __forceinline__ void
 //  operator()(float* out, float* in1, float* in2) {
 //    *out += val * *in1 * *in2;
 //  }
 
-//  float val;
-//};
+  float val;
+};
 
 void THClTensor_addcmul(THClState *state, THClTensor *self_, THClTensor *t, float value, THClTensor *src1, THClTensor *src2)
 {
-//  THAssert(THClTensor_checkGPU(state, 4, self_, t, src1, src2));
-//  if(self_ != t)
-//  {
-//    THClTensor_resizeAs(state, self_, t);
-//    THClTensor_copy(state, self_, t);
-//  }
-//  THClTensor_resizeAs(state, self_, src1);
+  THAssert(THClTensor_checkGPU(state, 4, self_, t, src1, src2));
+  if(self_ != t)
+  {
+    THClTensor_resizeAs(state, self_, t);
+    THClTensor_copy(state, self_, t);
+  }
+  THClTensor_resizeAs(state, self_, src1);
 
-//  THArgCheck(THClTensor_nElement(state, src1) ==
-//             THClTensor_nElement(state, src2), 3, "sizes do not match");
+  THArgCheck(THClTensor_nElement(state, src1) ==
+             THClTensor_nElement(state, src2), 3, "sizes do not match");
 
-//  if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorAddCMulOp(value))) {
-//    THArgCheck(false, 2, CLTORCH_DIM_WARNING);
-//  }
+  TensorAddCMulOp op(value);
+  if (!THClTensor_pointwiseApply3(state, self_, src1, src2, op)) {
+    THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+  }
 
-//  THClCheck(cudaGetLastError());
-    THError("Not implemented");
 }
 
-//struct TensorAddCDivOp {
-//  TensorAddCDivOp(float v) : val(v) {}
+class TensorAddCDivOp : public HasScalars, public HasOperator3 {
+public:
+  TensorAddCDivOp(float v) : val(v) {}
 
+  int getNumScalars() const{ return 1; }
+  float getScalar(int index) const{ return val; }
+  std::string operator3() const {
+    return "*out += val1 * *in1 / *in2";
+  }
 //  __device__ __forceinline__ void
 //  operator()(float* out, float* in1, float* in2) {
 //    *out += val * *in1 / *in2;
 //  }
 
-//  float val;
-//};
+  float val;
+};
 
 void THClTensor_addcdiv(THClState *state, THClTensor *self_, THClTensor *t, float value, THClTensor *src1, THClTensor *src2)
 {
-//  THAssert(THClTensor_checkGPU(state, 4, self_, t, src1, src2));
-//  if(self_ != t)
-//  {
-//    THClTensor_resizeAs(state, self_, t);
-//    THClTensor_copy(state, self_, t);
-//  }
+  THAssert(THClTensor_checkGPU(state, 4, self_, t, src1, src2));
+  if(self_ != t)
+  {
+    THClTensor_resizeAs(state, self_, t);
+    THClTensor_copy(state, self_, t);
+  }
 
-//  THClTensor_resizeAs(state, self_, src1);
-//  THArgCheck(THClTensor_nElement(state, src1) == THClTensor_nElement(state, src2), 3, "sizes do not match");
+  THClTensor_resizeAs(state, self_, src1);
+  THArgCheck(THClTensor_nElement(state, src1) == THClTensor_nElement(state, src2), 3, "sizes do not match");
 
-//  if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorAddCDivOp(value))) {
-//    THArgCheck(false, 2, CLTORCH_DIM_WARNING);
-//  }
+  TensorAddCDivOp op(value);
+  if (!THClTensor_pointwiseApply3(state, self_, src1, src2, op)) {
+    THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+  }
 
-//  THClCheck(cudaGetLastError());
-    THError("Not implemented");
-//    return 0;
 }
 
 float THClTensor_minall(THClState *state, THClTensor *self)
