@@ -141,9 +141,10 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
   // to the size/strides such that the resulting tensor is contiguous).
   bool srcContig = THClTensor_isContiguous(state, src);
   bool dstContig = THClTensor_isContiguous(state, dst);
-  bool memcpyEligible = (srcContig && dstContig) || (totalElements == 1);
+  bool memcpyEligible = ( (srcContig && dstContig) || (totalElements == 1)
+   ) && ( src->storage->wrapper->size() == dst->storage->wrapper->size() );
 
-  if (false && memcpyEligible) { // this should check the size too probably, just 'false' it out for now
+  if (memcpyEligible) { // this should check the size too probably, just 'false' it out for now
     if( !dst->storage->wrapper->isOnDevice() ) {
       dst->storage->wrapper->createOnDevice();
     }
