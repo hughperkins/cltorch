@@ -141,14 +141,14 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
   // to the size/strides such that the resulting tensor is contiguous).
   bool srcContig = THClTensor_isContiguous(state, src);
   bool dstContig = THClTensor_isContiguous(state, dst);
-  bool memcpyEligible = ( (srcContig && dstContig) || (totalElements == 1)
-   ) && ( src->storage->wrapper->size() == dst->storage->wrapper->size() );
+  bool memcpyEligible = (srcContig && dstContig) || (totalElements == 1);
 
-  if (memcpyEligible) { // this should check the size too probably, just 'false' it out for now
+  if (memcpyEligible) {
     if( !dst->storage->wrapper->isOnDevice() ) {
       dst->storage->wrapper->createOnDevice();
     }
-    src->storage->wrapper->copyTo( dst->storage->wrapper );
+    src->storage->wrapper->copyTo( dst->storage->wrapper, (int)src->storageOffset,
+      (int)dst->storageOffset, (int)totalElements );
  } else {
     int oldDev = curGPU(state);
     int srcDev = THClTensor_getDevice(state, src);

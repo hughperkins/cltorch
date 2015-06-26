@@ -412,9 +412,9 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 * 26th June:
   * add addcmul, and unit test
   * add addcdiv, and unit test
-  * fix a buffer copy bug (a bit hacky for now...)
   * added `apply2` and `apply3` as synonyms for `map` and `map2`
   * can use `x`, `y`, `z` instead of `*out`, `*in1` and `*in2`, in `apply`, `map`, etc
+  * fix a buffer copy bug (note: implies updating EasyCL, and rebuilding EasyCL, see notes on updating above)
 * 25th June:
   * added bernoulli (generates on host-side for now, but I guess this is fast enough for many things?)
 * 24th June:
