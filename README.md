@@ -315,15 +315,15 @@ c:csub(d) -- subtracts d from c, element-wise
          -- but stores results into c
 a:neg() -- similar to '- a'
         -- but stores results into a
-c:apply("*out = sqrt(*out + 3.5)")
+c:apply("x = sqrt(x + 3.5)")
         -- note: a string, not a lua function
         -- this will be passed to OpenCL kernel :-)
 -- Update: in fact, this is available for cutorch :-)
 -- It is here: https://github.com/szagoruyko/cutorch-rtc
-c:map(d, "*out = 1000 * *out + *in1 * 10")
+c:map(d, "x = 1000 * x + y * 10")
         -- note: a string, not a lua function
         -- this will be passed to OpenCL kernel :-)
-c:map2(d, e, "*out = sqrt(1000 * *out + *in1 * 10 + *in2 * *in2)")
+c:map2(d, e, "x = sqrt(1000 * x + y * 10 + z * z)")
         -- note: a string, not a lua function
         -- this will be passed to OpenCL kernel
 </pre></tr>
