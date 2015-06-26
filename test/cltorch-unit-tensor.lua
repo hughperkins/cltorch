@@ -440,6 +440,24 @@ function test_cmul()
   luaunit.assertEquals(A:clone():cmul(B), (A:clone():cl():cmul(B:clone():cl())):double())
 end
 
+function test_addcmul()
+  local s = torch.LongStorage{60,50}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local B = torch.Tensor(s):uniform() - 0.5
+  local C = torch.Tensor(s):uniform() - 0.5
+  luaunit.assertEquals(torch.addcmul(A,1.234,B,C), torch.addcmul(A:clone():cl(), 1.234, B:clone():cl(), C:clone():cl()):double())
+  luaunit.assertEquals(A:clone():addcmul(1.234,B,C), (A:clone():cl():addcmul(1.234, B:clone():cl(),C:clone():cl())):double())
+end
+
+function test_addcdiv()
+  local s = torch.LongStorage{20,50}
+  local A = torch.Tensor(s):uniform() - 0.5
+  local B = torch.Tensor(s):uniform() - 0.5
+  local C = torch.Tensor(s):uniform() - 0.5
+  luaunit.assertEquals(torch.addcdiv(A,1.234,B,C), torch.addcdiv(A:clone():cl(), 1.234, B:clone():cl(), C:clone():cl()):double())
+  luaunit.assertEquals(A:clone():addcdiv(1.234,B,C), (A:clone():cl():addcdiv(1.234, B:clone():cl(),C:clone():cl())):double())
+end
+
 -- this function doesnt exist in base torch
 function test_neg()
   -- no neg for Tensors, only for clTensor, but we can use '-' to 
