@@ -57,7 +57,11 @@ IMPLEMENT_CL_TENSOR_BASIC_FUNC(neg, -)
 void THClTensor_apply(THClState* state, THClTensor* self, char const *_operation1) {
 //  THAssert(THClTensor_checkGPU(state, 2, self, src));
 //  if (self == src) {
-  string operation1 = easycl::replaceGlobal(string(_operation1), "x", "(*out)");
+  string operation1 = easycl::replaceGlobal(string(_operation1), "exp", "ejp");
+  operation1 = easycl::replaceGlobal(operation1, "max", "mam");
+  operation1 = easycl::replaceGlobal(operation1, "x", "(*out)");
+  operation1 = easycl::replaceGlobal(operation1, "ejp", "exp");
+  operation1 = easycl::replaceGlobal(operation1, "mam", "max");
     if (!THClTensor_pointwiseApply1(state, self, TensorGenOpFullInline1(operation1))) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
@@ -74,7 +78,11 @@ void THClTensor_apply(THClState* state, THClTensor* self, char const *_operation
 void THClTensor_map(THClState* state, THClTensor* self, THClTensor *in1, char const *_operation2) {
   THAssert(THClTensor_checkGPU(state, 2, self, in1));
 //  if (self == src) {
-  string operation2 = easycl::replaceGlobal(string(_operation2), "x", "(*out)");
+  string operation2 = easycl::replaceGlobal(string(_operation2), "exp", "ejp");
+  operation2 = easycl::replaceGlobal(operation2, "max", "mam");
+  operation2 = easycl::replaceGlobal(operation2, "x", "(*out)");
+  operation2 = easycl::replaceGlobal(operation2, "ejp", "exp");
+  operation2 = easycl::replaceGlobal(operation2, "mam", "max");
   operation2 = easycl::replaceGlobal(operation2, "y", "(*in1)");
     if (!THClTensor_pointwiseApply2(state, self, in1, TensorGenOpFullInline2(operation2))) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
@@ -91,7 +99,11 @@ void THClTensor_map(THClState* state, THClTensor* self, THClTensor *in1, char co
 
 void THClTensor_map2(THClState* state, THClTensor* self, THClTensor *in1, THClTensor *in2, char const *_operation3) {
   THAssert(THClTensor_checkGPU(state, 3, self, in1, in2));
-  string operation3 = easycl::replaceGlobal(string(_operation3), "x", "(*out)");
+  string operation3 = easycl::replaceGlobal(string(_operation3), "exp", "ejp");
+  operation3 = easycl::replaceGlobal(operation3, "max", "mam");
+  operation3 = easycl::replaceGlobal(operation3, "x", "(*out)");
+  operation3 = easycl::replaceGlobal(operation3, "ejp", "exp");
+  operation3 = easycl::replaceGlobal(operation3, "mam", "max");
   operation3 = easycl::replaceGlobal(operation3, "y", "(*in1)");
   operation3 = easycl::replaceGlobal(operation3, "z", "(*in2)");
 //  if (self == src) {

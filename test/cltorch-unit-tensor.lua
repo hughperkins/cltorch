@@ -488,11 +488,11 @@ end
 function test_apply()
   local s = torch.LongStorage{60,50}
   local A = torch.Tensor(s):uniform() - 0.5
-  local Aapply = A:clone():apply(function(x) return math.sqrt(x+3) end)
-  local Aapplycl = A:clone():cl():apply("*out = sqrt(*out + 3)")
+  local Aapply = A:clone():apply(function(x) return math.sqrt(x+3) + math.exp(x) end)
+  local Aapplycl = A:clone():cl():apply("*out = sqrt(*out + 3) + exp(*out)")
   luaunit.assertEquals(Aapply, Aapplycl:double())
 
-  local Aapplycl_x = A:clone():cl():apply("x = sqrt(x + 3)")
+  local Aapplycl_x = A:clone():cl():apply("x = sqrt(x + 3) + exp(x)")
   luaunit.assertEquals(Aapply, Aapplycl_x:double())
 end
 
@@ -500,17 +500,17 @@ function test_map()
   local s = torch.LongStorage{60,50}
   local A = torch.Tensor(s):uniform() - 0.5
   local B = torch.Tensor(s):uniform() - 0.5
-  local AmapB = A:clone():map(B, function(x, y) return math.sqrt(x*x + y*y + 3) end)
+  local AmapB = A:clone():map(B, function(x, y) return math.sqrt(x*x + y*y + 3 + math.exp(y)) end)
   local AmapBcl = A:clone():cl():map(B:clone():cl(), 
-    "*out = sqrt(*out * *out + *in1 * *in1 + 3)")
+    "*out = sqrt(*out * *out + *in1 * *in1 + 3 + exp(*in1))")
   luaunit.assertEquals(AmapB, AmapBcl:double())
 
   local Aapp2Bcl = A:clone():cl():apply2(B:clone():cl(), 
-    "*out = sqrt(*out * *out + *in1 * *in1 + 3)")
+    "*out = sqrt(*out * *out + *in1 * *in1 + 3 + exp(*in1))")
   luaunit.assertEquals(AmapB, Aapp2Bcl:double())
 
   local Aapp2Bcl_xy = A:clone():cl():apply2(B:clone():cl(), 
-    "x = sqrt(x * x + y * y + 3)")
+    "x = sqrt(x * x + y * y + 3 + exp(y))")
   luaunit.assertEquals(AmapB, Aapp2Bcl_xy:double())
 end
 
@@ -520,22 +520,22 @@ function test_map2()
   local B = torch.Tensor(s):uniform() - 0.5
   local C = torch.Tensor(s):uniform() - 0.5
   local Amap2BC = A:clone():map2(B, C, 
-    function(x, y, z) return math.sqrt(x*x + y*y + z + 3) end)
+    function(x, y, z) return math.sqrt(x*x + y*y + z + 3 + math.exp(z)) end)
   local Amap2BCcl = A:clone():cl():map2(
     B:clone():cl(),
     C:clone():cl(), 
-    "*out = sqrt(*out * *out + *in1 * *in1 + *in2 + 3)")
+    "*out = sqrt(*out * *out + *in1 * *in1 + *in2 + 3 + exp(*in2))")
 
   local Aapp3BCcl = A:clone():cl():apply3(
     B:clone():cl(),
     C:clone():cl(), 
-    "*out = sqrt(*out * *out + *in1 * *in1 + *in2 + 3)")
+    "*out = sqrt(*out * *out + *in1 * *in1 + *in2 + 3 + exp(*in2))")
   luaunit.assertEquals(Amap2BC, Aapp3BCcl:double())
 
   local Aapp3BCcl_xyz = A:clone():cl():apply3(
     B:clone():cl(),
     C:clone():cl(), 
-    "x = sqrt(x * x + y * y + z + 3)")
+    "x = sqrt(x * x + y * y + z + 3 + exp(z))")
   luaunit.assertEquals(Amap2BC, Aapp3BCcl_xyz:double())
 end
 
