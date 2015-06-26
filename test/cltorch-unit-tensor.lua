@@ -473,6 +473,9 @@ function test_apply()
   local Aapply = A:clone():apply(function(x) return math.sqrt(x+3) end)
   local Aapplycl = A:clone():cl():apply("*out = sqrt(*out + 3)")
   luaunit.assertEquals(Aapply, Aapplycl:double())
+
+  local Aapplycl_x = A:clone():cl():apply("x = sqrt(x + 3)")
+  luaunit.assertEquals(Aapply, Aapplycl_x:double())
 end
 
 function test_map()
@@ -483,6 +486,14 @@ function test_map()
   local AmapBcl = A:clone():cl():map(B:clone():cl(), 
     "*out = sqrt(*out * *out + *in1 * *in1 + 3)")
   luaunit.assertEquals(AmapB, AmapBcl:double())
+
+  local Aapp2Bcl = A:clone():cl():apply2(B:clone():cl(), 
+    "*out = sqrt(*out * *out + *in1 * *in1 + 3)")
+  luaunit.assertEquals(AmapB, Aapp2Bcl:double())
+
+  local Aapp2Bcl_xy = A:clone():cl():apply2(B:clone():cl(), 
+    "x = sqrt(x * x + y * y + 3)")
+  luaunit.assertEquals(AmapB, Aapp2Bcl_xy:double())
 end
 
 function test_map2()
@@ -496,7 +507,18 @@ function test_map2()
     B:clone():cl(),
     C:clone():cl(), 
     "*out = sqrt(*out * *out + *in1 * *in1 + *in2 + 3)")
-  luaunit.assertEquals(Amap2BC, Amap2BCcl:double())
+
+  local Aapp3BCcl = A:clone():cl():apply3(
+    B:clone():cl(),
+    C:clone():cl(), 
+    "*out = sqrt(*out * *out + *in1 * *in1 + *in2 + 3)")
+  luaunit.assertEquals(Amap2BC, Aapp3BCcl:double())
+
+  local Aapp3BCcl_xyz = A:clone():cl():apply3(
+    B:clone():cl(),
+    C:clone():cl(), 
+    "x = sqrt(x * x + y * y + z + 3)")
+  luaunit.assertEquals(Amap2BC, Aapp3BCcl_xyz:double())
 end
 
 function test_reduceAll()
