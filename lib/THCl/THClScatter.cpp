@@ -46,13 +46,20 @@ THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, T
   THArgCheck(self != index, 1, "self cannot alias index");
   THArgCheck(self != src, 1, "self cannot alias src");
   
-  TemplatedKernel kernelBuilder( THClState_getCl(state) );
-  kernelBuilder.set("IndexType", "unsigned int");
-  kernelBuilder.set("dims", nDims);
-  kernelBuilder.set("scatter", 1);
-  kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   std::string uniqueName = __FILE__ ":scatter:" + easycl::toString(nDims);
-  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_scatter" );
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("Apply3 1aa");
+  } else {
+    TemplatedKernel kernelBuilder( THClState_getCl(state) );
+    kernelBuilder.set("IndexType", "unsigned int");
+    kernelBuilder.set("dims", nDims);
+    kernelBuilder.set("scatter", 1);
+    kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
+    kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_scatter" );
+  }
 
   TensorInfoCl selfInfoCl(self);
     TensorInfoCl srcInfoCl(src);
@@ -102,13 +109,20 @@ THCL_API void THClTensor_scatterFill(THClState *state, THClTensor *self, long di
   // so, we dnot need to worry about contiguity (at least, not from point of view of correctness)
   THArgCheck(self != index, 1, "self cannot alias index");
   
-  TemplatedKernel kernelBuilder( THClState_getCl(state) );
-  kernelBuilder.set("IndexType", "unsigned int");
-  kernelBuilder.set("dims", nDims);
-  kernelBuilder.set("scatterFill", 1);
-  kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   std::string uniqueName = __FILE__ ":scatterFill:" + easycl::toString(nDims);
-  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_scatterFill" );
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("Apply3 1aa");
+  } else {
+    TemplatedKernel kernelBuilder( THClState_getCl(state) );
+    kernelBuilder.set("IndexType", "unsigned int");
+    kernelBuilder.set("dims", nDims);
+    kernelBuilder.set("scatterFill", 1);
+    kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
+    kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_scatterFill" );
+  }
 
   TensorInfoCl selfInfoCl(self);
     TensorInfoCl indexInfoCl(index);

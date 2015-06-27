@@ -224,7 +224,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
 }
 
 inline int getWorkgroupSize(THClState *state) {
-  return 64;
+//  return 64;
 
   int workgroupSize = THCL_APPLY_THREADS_PER_BLOCK;
   int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[state->currentDevice])->maxWorkGroupSize;
@@ -258,10 +258,10 @@ inline bool getApplyGrid(THClState* state, long totalElements, dim3& grid) {
 
   // 16 warps per block * 4 per SM gives 64 warps per SM at maximum,
   // which seems to be a good sweetspot for latency hiding
-//  grid = dim3(mymin(DIVUP(totalElements, (long long) getWorkgroupSize(state)),
-//                  4LL * numSM));
-  int workgroupSize = getWorkgroupSize(state);
-  grid = dim3((totalElements + workgroupSize - 1 ) / workgroupSize);
+  grid = dim3(mymin(DIVUP(totalElements, (long long) getWorkgroupSize(state)),
+                  4LL * numSM));
+//  int workgroupSize = getWorkgroupSize(state);
+//  grid = dim3((totalElements + workgroupSize - 1 ) / workgroupSize);
   return true;
 }
 

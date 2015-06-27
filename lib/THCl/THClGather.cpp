@@ -47,12 +47,19 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   // so, we dnot need to worry about contiguity (at least, not from point of view of correctness)
   
 
-  TemplatedKernel kernelBuilder( THClState_getCl(state) );
-  kernelBuilder.set("IndexType", "unsigned int");
-  kernelBuilder.set("dims", nDims);
-  kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
   std::string uniqueName = __FILE__ ":gather:" + easycl::toString(nDims);
-  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_gather" );
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("Apply3 1aa");
+  } else {
+    TemplatedKernel kernelBuilder( THClState_getCl(state) );
+    kernelBuilder.set("IndexType", "unsigned int");
+    kernelBuilder.set("dims", nDims);
+    kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
+    kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_gather" );
+  }
 
   TensorInfoCl selfInfoCl(self);
     TensorInfoCl srcInfoCl(src);
