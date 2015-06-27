@@ -3,6 +3,7 @@ INCLUDE(ExternalProject)
 message("CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 ExternalProject_Add(
     EasyCL-external
+    STAMP_DIR ${CMAKE_BINARY_DIR}/EasyCL/stamp
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/EasyCL
     PREFIX ${CMAKE_BINARY_DIR}/EasyCL
     CMAKE_CACHE_ARGS 
@@ -15,4 +16,9 @@ ADD_DEPENDENCIES(EasyCL EasyCL-external)
 SET(EASYCL_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/deepcl ${CMAKE_INSTALL_PREFIX}/include/easycl )
 SET(EASYCL_LIBRARIES ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}EasyCL${CMAKE_SHARED_LIBRARY_SUFFIX} )
 SET(EASYCL_FOUND ON)
+
+add_custom_target(easycl_delete_stamp EasyCL-external 
+  ${CMAKE_COMMAND} -E  remove_directory "${CMAKE_BINARY_DIR}/EasyCL/stamp"
+)
+
 
