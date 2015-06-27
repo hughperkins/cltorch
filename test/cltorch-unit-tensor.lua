@@ -450,7 +450,8 @@ function test_addcmul()
 end
 
 function test_addcdiv()
-  local s = torch.LongStorage{20,50}
+  torch.manualSeed(0)
+  local s = torch.LongStorage{30,50}
   local A = torch.Tensor(s):uniform() - 0.5
   local B = torch.Tensor(s):uniform() - 0.5
   local C = torch.Tensor(s):uniform() - 0.5
@@ -486,7 +487,7 @@ function test_sub()
 end
 
 function test_apply()
-  local s = torch.LongStorage{60,50}
+  local s = torch.LongStorage{6,4}
   local A = torch.Tensor(s):uniform() - 0.5
   local Aapply = A:clone():apply(function(x) return math.sqrt(x+3) + math.exp(x) end)
   local Aapplycl = A:clone():cl():apply("*out = sqrt(*out + 3) + exp(*out)")

@@ -409,6 +409,8 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 # Recent changes
 
+* 27th June:
+  * fixed more bugs involving Tensor copy.  Hopefully should be fixed permanently now :-P
 * 26th June:
   * add addcmul, and unit test
   * add addcdiv, and unit test

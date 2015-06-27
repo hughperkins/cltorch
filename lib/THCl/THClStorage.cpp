@@ -177,6 +177,7 @@ void THClStorage_resize(THClState *state, THClStorage *self, long size)
   delete[] self->data;
   self->data = new float[size];
   self->wrapper = THClState_getCl(state)->wrap( size, self->data );
+  self->wrapper->createOnDevice();
     if(THClStorage_traceOn) cout << "new wrapper, size " << size << endl;
   self->size = size;
 }

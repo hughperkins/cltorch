@@ -147,8 +147,12 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
     if( !dst->storage->wrapper->isOnDevice() ) {
       dst->storage->wrapper->createOnDevice();
     }
-    src->storage->wrapper->copyTo( dst->storage->wrapper, (int)src->storageOffset,
-      (int)dst->storageOffset, (int)totalElements );
+    try {
+      src->storage->wrapper->copyTo( dst->storage->wrapper, (int)src->storageOffset,
+        (int)dst->storageOffset, (int)totalElements );
+    } catch( runtime_error &e ) {
+      THError("Error: %s", e.what());
+    }
  } else {
     int oldDev = curGPU(state);
     int srcDev = THClTensor_getDevice(state, src);
