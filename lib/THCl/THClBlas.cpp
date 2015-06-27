@@ -266,6 +266,7 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha,
         /* Wait for calculations to be finished. */
 //        err = clWaitForEvents(1, &event);
     }
+    clReleaseEvent(event);
 
     /* Finalize work with clblas. */
 //    clblasTeardown();
@@ -330,6 +331,7 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
           /* Wait for calculations to be finished. */
 //          err = clWaitForEvents(1, &event);
       }
+      clReleaseEvent(event);
 //    THClState_getCl(state)->finish();
       awrap->markDeviceDirty();
 
@@ -430,6 +432,7 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
     else {
 //        err = clWaitForEvents(1, &event);
     }
+    clReleaseEvent(event);
     cWrapper->markDeviceDirty();
 
 //    clblasTeardown();
