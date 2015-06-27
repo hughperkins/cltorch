@@ -65,18 +65,25 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
   unsigned maxGridDim = getBlockSize(state);
   dim3 grid(mymin(maxGridDim, num_orows), mymin(maxGridDim, THClCeilDiv(num_irows, threads.x())));
 
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-
-  kernelBuilder
-    .set("init", init)
-    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-    .set("x_threads", 1)
-    .set("y_threads", 1)
-    .set("pair_operator2", binary_op->pair_operator2())
-  ;
-
   std::string uniqueName = "THClTensorMathTransformReduce_OuterDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
-  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathTransformReduce.cl", THClTensorMathTransformReduce_getKernelTemplate(), "THClTensor_kernel_transformReduceOuterDimIndex");
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("Apply3 1aa");
+  } else {
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
+
+    kernelBuilder
+      .set("init", init)
+      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+      .set("x_threads", 1)
+      .set("y_threads", 1)
+      .set("pair_operator2", binary_op->pair_operator2())
+    ;
+
+    kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathTransformReduce.cl", THClTensorMathTransformReduce_getKernelTemplate(), "THClTensor_kernel_transformReduceOuterDimIndex");
+  }
 
   THClKernels k(state, kernel);
   k.out( tgt1 );
@@ -107,18 +114,25 @@ void THClTensor_transformReduceInnermostDimIndex(
   dim3 threads(x_threads, y_threads);
   dim3 grid(mymin(getBlockSize(state), THClCeilDiv(num_rows, threads.y())));
 
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-
-  kernelBuilder
-    .set("init", init)
-    .set("x_threads", x_threads)
-    .set("y_threads", y_threads)
-    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-    .set("pair_operator2", binary_op->pair_operator2())
-  ;
-
   std::string uniqueName = "THClTensorMathTransformReduce_InnermostDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
-  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathTransformReduce.cl", THClTensorMathTransformReduce_getKernelTemplate(), "THClTensor_kernel_transformReduceInnermostDimIndex");
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("Apply3 1aa");
+  } else {
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
+
+    kernelBuilder
+      .set("init", init)
+      .set("x_threads", x_threads)
+      .set("y_threads", y_threads)
+      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+      .set("pair_operator2", binary_op->pair_operator2())
+    ;
+
+    kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathTransformReduce.cl", THClTensorMathTransformReduce_getKernelTemplate(), "THClTensor_kernel_transformReduceInnermostDimIndex");
+  }
 
   THClKernels k(state, kernel);
   k.out( tgt1 );

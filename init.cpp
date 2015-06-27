@@ -3,6 +3,8 @@
 #include "EasyCL.h"
 using namespace std;
 
+#include "util/StatefulTimer.h"
+
 //#include "THClTensorRandom.h"
 
 extern "C" {
@@ -105,6 +107,17 @@ namespace cltorch {
     return 1;
   }
 
+  static int cltorch_dumpTimings(lua_State *L)
+  {
+     StatefulTimer::timeCheck("before dump");
+     StatefulTimer::dump( true );
+     StatefulTimer::timeCheck("after dump");
+//    lua_getglobal(L, "cltorch");
+//    lua_getfield(L, -1, "_state");
+//    lua_remove(L, -2);
+    return 0;
+  }
+
   // if you turn this to 1, you will see all copies of data between
   // host and gpu
   // useful for checking we're not doing this too often...
@@ -125,6 +138,7 @@ namespace cltorch {
     {"getDeviceProperties", cltorch_getDeviceProperties},
     {"getState", cltorch_getState},
     {"setTrace", cltorch_setTrace},
+    {"dumpTimings", cltorch_dumpTimings},
     {NULL, NULL}
   };
 }

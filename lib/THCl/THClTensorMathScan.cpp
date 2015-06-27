@@ -46,14 +46,21 @@ void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src,
   unsigned maxGridDim = getBlockSize(state);
   dim3 grid(mymin(maxGridDim, num_orows), mymin(maxGridDim, THClCeilDiv(num_irows, threads.x())));
 
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-  kernelBuilder.set("num_threads_x", 16); // dont need for this kernel, but do need so whole file
-  kernelBuilder.set("num_threads_y", 32); // compiles ok
-  kernelBuilder.set("operator3", binary_op->operator3());
-
   std::string uniqueName = "THClTensorMathScan_scanOuterDim_" + binary_op->operator3();
-  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathScan.cl",
-    THClTensorMathScan_getKernelTemplate(), "THClTensor_kernel_scanOuterDim");
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("Apply3 1aa");
+  } else {
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    kernelBuilder.set("num_threads_x", 16); // dont need for this kernel, but do need so whole file
+    kernelBuilder.set("num_threads_y", 32); // compiles ok
+    kernelBuilder.set("operator3", binary_op->operator3());
+
+    kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathScan.cl",
+      THClTensorMathScan_getKernelTemplate(), "THClTensor_kernel_scanOuterDim");
+  }
 
   THClKernels k(state, kernel);
   k.out(tgt);
@@ -85,14 +92,21 @@ void THClTensor_scanInnermostDim(THClState *state, THClTensor *tgt, THClTensor *
   dim3 threads(x_threads, y_threads);
   dim3 grid(mymin(getBlockSize(state), THClCeilDiv(num_rows, threads.y())));
 
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-  kernelBuilder.set("num_threads_x", x_threads);
-  kernelBuilder.set("num_threads_y", y_threads);
-  kernelBuilder.set("operator3", binary_op->operator3());
-
   std::string uniqueName = "THClTensorMathScan_scanInnermostDim_" + binary_op->operator3();
-  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathScan.cl",
-    THClTensorMathScan_getKernelTemplate(), "THClTensor_kernel_scanInnermostDim");
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("Apply3 1aa");
+  } else {
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    kernelBuilder.set("num_threads_x", x_threads);
+    kernelBuilder.set("num_threads_y", y_threads);
+    kernelBuilder.set("operator3", binary_op->operator3());
+
+    kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorMathScan.cl",
+      THClTensorMathScan_getKernelTemplate(), "THClTensor_kernel_scanInnermostDim");
+  }
 
   THClKernels k(state, kernel);
   k.out(tgt);

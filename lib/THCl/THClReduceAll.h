@@ -16,6 +16,7 @@
 #include "templates/TemplatedKernel.h"
 #include "THClTypeParseTraits.h"
 #include "THClKernels.h"
+#include "util/StatefulTimer.h"
 
 // Size per each reduction block
 //#define THCL_REDUCE_ALL_BLOCK_SIZE 1024L
@@ -100,25 +101,33 @@ void kernelLaunch_THClTensor_reduceAllPass1(
                      const HasOperator3 *reduceOp,
                      CLWrapper* scratch
     ){
-  std::vector< int > dims;
-  if( ADims >= 0 ) {
-    dims.push_back(ADims);
-  }
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-  kernelBuilder
-    .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
-    .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
-    .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
-    .set("dims", dims)
-    .set("dim1", ADims)
-    .set("modify_operation", modifyOp->operator2())
-    .set("reduce_operation", reduceOp->operator3())
-    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-    .set("IndexType", TypeParseTraits<IndexType>::name)
-  ;
-
+  StatefulTimer::timeCheck("ReduceAllPass1 START");
   std::string uniqueName = "THClTensor_reduceAllPass1_" + easycl::toString(ADims) + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
-  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAllPass1" );
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("ReduceAllPass1 1aa");
+  } else {
+    std::vector< int > dims;
+    if( ADims >= 0 ) {
+      dims.push_back(ADims);
+    }
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    kernelBuilder
+      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
+      .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
+      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+      .set("dims", dims)
+      .set("dim1", ADims)
+      .set("modify_operation", modifyOp->operator2())
+      .set("reduce_operation", reduceOp->operator3())
+      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+      .set("IndexType", TypeParseTraits<IndexType>::name)
+    ;
+
+    kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAllPass1" );
+  }
 
   THClKernels k(state, kernel);
   k.in(in);
@@ -127,6 +136,7 @@ void kernelLaunch_THClTensor_reduceAllPass1(
   k.out(scratch);
   k.localFloats(smemSize / sizeof(float));
   k.run(grid, block);
+  StatefulTimer::timeCheck("ReduceAllPass1 END");
 }
 
 template< typename IndexType >
@@ -139,22 +149,30 @@ void kernelLaunch_THClTensor_reduceAllPass2(
                      CLWrapper *scratch,
                      CLWrapper* devOut
     ){
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-  std::vector< int > dims;
-  kernelBuilder
-    .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
-    .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
-    .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
-    .set("dims", dims)
-    .set("dim1", -2)
-//    .set("modify_operation", modifyOp->operator2())
-    .set("reduce_operation", reduceOp->operator3())
-    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-    .set("IndexType", TypeParseTraits<IndexType>::name)
-  ;
-
+  StatefulTimer::timeCheck("ReduceAllPass2 START");
   std::string uniqueName = "THClTensor_reduceAllPass2_" + reduceOp->operator3();
-  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAllPass2" );
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("ReduceAllPass2 1aa");
+  } else {
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    std::vector< int > dims;
+    kernelBuilder
+      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
+      .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
+      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+      .set("dims", dims)
+      .set("dim1", -2)
+  //    .set("modify_operation", modifyOp->operator2())
+      .set("reduce_operation", reduceOp->operator3())
+      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+      .set("IndexType", TypeParseTraits<IndexType>::name)
+    ;
+
+    kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAllPass2" );
+  }
 
   THClKernels k(state, kernel);
   k.in(numPass1Blocks);
@@ -163,6 +181,8 @@ void kernelLaunch_THClTensor_reduceAllPass2(
   k.out(devOut);
   k.localFloats(smemSize / sizeof(float));
   k.run(grid, block);
+
+  StatefulTimer::timeCheck("ReduceAllPass2 End");
 }
 
 template< typename IndexType >
@@ -178,25 +198,33 @@ void kernelLaunch_THClTensor_reduceAll(
                      const HasOperator3 *reduceOp,
                      CLWrapper* devOut
     ){
-  std::vector< int > dims;
-  if( ADims >= 0 ) {
-    dims.push_back(ADims);
-  }
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-  kernelBuilder
-    .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
-    .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
-    .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
-    .set("dims", dims)
-    .set("dim1", ADims)
-    .set("modify_operation", modifyOp->operator2())
-    .set("reduce_operation", reduceOp->operator3())
-    .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-    .set("IndexType", TypeParseTraits<IndexType>::name)
-  ;
-
+  StatefulTimer::timeCheck("ReduceAll START");
   std::string uniqueName = "THClTensor_reduceAll_" + easycl::toString(ADims) + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
-  CLKernel *kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAll" );
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("ReduceAllPass2 1aa");
+  } else {
+    std::vector< int > dims;
+    if( ADims >= 0 ) {
+      dims.push_back(ADims);
+    }
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    kernelBuilder
+      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
+      .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
+      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+      .set("dims", dims)
+      .set("dim1", ADims)
+      .set("modify_operation", modifyOp->operator2())
+      .set("reduce_operation", reduceOp->operator3())
+      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+      .set("IndexType", TypeParseTraits<IndexType>::name)
+    ;
+
+    kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", THClReduceAll_getKernelTemplate(), "THClTensor_reduceAll" );
+  }
 
   THClKernels k(state, kernel);
   k.in(in);
@@ -205,6 +233,7 @@ void kernelLaunch_THClTensor_reduceAll(
   k.out(devOut);
   k.localFloats(smemSize / sizeof(float));
   k.run(grid, block);
+  StatefulTimer::timeCheck("ReduceAll END");
 }
 
 template <typename IndexType>

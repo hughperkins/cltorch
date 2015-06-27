@@ -17,8 +17,8 @@ SET(EASYCL_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/deepcl ${CMAKE_INSTALL_P
 SET(EASYCL_LIBRARIES ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}EasyCL${CMAKE_SHARED_LIBRARY_SUFFIX} )
 SET(EASYCL_FOUND ON)
 
-add_custom_target(easycl_delete_stamp EasyCL-external 
-  ${CMAKE_COMMAND} -E  remove_directory "${CMAKE_BINARY_DIR}/EasyCL/stamp"
+add_custom_target(easycl_delete_stamp ALL 
+  COMMAND ${CMAKE_COMMAND} -E  remove_directory "${CMAKE_BINARY_DIR}/EasyCL/stamp"
 )
-
+add_dependencies(EasyCL-external easycl_delete_stamp)
 

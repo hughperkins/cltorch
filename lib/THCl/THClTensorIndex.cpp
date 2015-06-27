@@ -44,11 +44,18 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
   }
   strideWrapper->copyToDevice();
 
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-
   std::string uniqueName = "THClTensorMathIndex_indexCopy";
-  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
-    THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexCopy");
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("Apply3 1aa");
+  } else {
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
+
+    kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
+      THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexCopy");
+  }
 
   THClKernels k(state, kernel);
   k.inout(res_);
@@ -100,11 +107,18 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
   strideWrapper->copyToDevice();
 
   // launch kernel here....
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-
   std::string uniqueName = "THClTensorMathIndex_indexFill";
-  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
-    THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexFill");
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("Apply3 1aa");
+  } else {
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
+
+    kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
+      THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexFill");
+  }
 
   THClKernels k(state, kernel);
   k.inout(res_);
@@ -157,11 +171,18 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   strideWrapper->copyToDevice();
 
   // launch kernel here....
-  TemplatedKernel kernelBuilder(THClState_getCl(state));
-
   std::string uniqueName = "THClTensorMathIndex_indexSelect";
-  CLKernel *kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
-    THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexSelect");
+  EasyCL *cl = THClState_getCl(state);
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("Apply3 1aa");
+  } else {
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
+
+    kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
+      THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexSelect");
+  }
 
   THClKernels k(state, kernel);
   k.inout(res_);

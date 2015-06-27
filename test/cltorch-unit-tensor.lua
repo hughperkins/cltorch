@@ -830,6 +830,7 @@ end
 --cltorch.setTrace(1)
 luaunit.LuaUnit.run()
 cltorch.setTrace(0)
+cltorch.dumpTimings()
 -- os.exit(_run())
 --os.exit(luaunit.LuaUnit.run())
 
