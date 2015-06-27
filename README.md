@@ -411,6 +411,7 @@ Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn)
 
 * 27th June:
   * fixed more bugs involving Tensor copy.  Hopefully should be fixed permanently now :-P
+  * massive optimization for anything involving apply, reduce, reduceall, index etc => this makes the ltsm script at [karpathy/char-rnn](https://github.com/karpathy/char-rnn) run significantly faster when using OpenCL now :-)
 * 26th June:
   * add addcmul, and unit test
   * add addcdiv, and unit test
