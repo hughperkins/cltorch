@@ -405,7 +405,7 @@ Also, some more technical guidelines on porting, in the [clnn](https://github.co
 
 # Related projects
 
-Started working on a port of cunn at [clnn](https://github.com/hughperkins/clnn).  Early stages for now :-)
+There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/hughperkins/clnn).
 
 # Recent changes
 
