@@ -7,6 +7,7 @@
 #include "util/easycl_stringhelper.h"
 #include "EasyCL.h"
 #include <clBLAS.h>
+#include "util/StatefulTimer.h"
 
 using namespace std;
 
@@ -149,6 +150,7 @@ float THClBlas_dot(THClState *state, long n,
     CLWrapper *xwrapper, long xoffset, long incx, 
     CLWrapper *ywrapper, long yoffset, long incy)
 {
+  StatefulTimer::timeCheck("THClBlas_dot START");
   if(n == 1)
   {
     incx = 1;
@@ -200,6 +202,7 @@ float THClBlas_dot(THClState *state, long n,
     delete resultWrapper;
     delete scratchWrapper;
     delete[] scratch;
+    StatefulTimer::timeCheck("THClBlas_dot END");
     return result;
   }
   THError("Cublas_dot only supports n, incx and incy "
@@ -215,6 +218,8 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha,
     float beta,
      THClTensor *y, long incy)
 {
+  StatefulTimer::timeCheck("THClBlas_gemv START");
+
   CLWrapper *awrapper = THClTensor_wrapper(state, a);
   CLWrapper *xwrapper = THClTensor_wrapper(state, x);
   CLWrapper *ywrapper = THClTensor_wrapper(state, y);
@@ -266,6 +271,7 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha,
 //    clblasTeardown();
 
     ywrapper->markDeviceDirty();
+    StatefulTimer::timeCheck("THClBlas_gemv END");
     return;
   }
   THError("Cublas_gemv only supports m, n, lda, incx, incy"
@@ -278,6 +284,7 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
     THClTensor *y, long incy,
     THClTensor *a, long lda)
 {
+  StatefulTimer::timeCheck("THClBlas_ger START");
   CLWrapper *xwrap = THClTensor_wrapper(state, x);
   CLWrapper *ywrap = THClTensor_wrapper(state, y);
   CLWrapper *awrap = THClTensor_wrapper(state, a);
@@ -330,6 +337,7 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
 //    THClState_getCl(state)->finish();
 
 //      THCublasCheck(cublasSger(*state->blasState->current_handle, i_m, i_n, &alpha, x, i_incx, y, i_incy, a, i_lda));
+      StatefulTimer::timeCheck("THClBlas_ger END");
       return;
     }
   THError("Cublas_ger only supports m, n, lda, incx, incy"
@@ -372,6 +380,7 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
   THClTensor *a, long lda, THClTensor *b, long ldb, float beta, 
   THClTensor *c, long ldc)
 {
+  StatefulTimer::timeCheck("THClBlas_gemm START");
   CLWrapper *aWrapper = THClTensor_wrapper(state, a);
   CLWrapper *bWrapper = THClTensor_wrapper(state, b);
   CLWrapper *cWrapper = THClTensor_wrapper(state, c);
@@ -426,6 +435,7 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
 //    clblasTeardown();
 
 //    THCublasCheck(cublasSgemm(*state->blasState->current_handle, opa, opb, i_m, i_n, i_k, &alpha, a, i_lda, b, i_ldb, &beta, c, i_ldc));
+    StatefulTimer::timeCheck("THClBlas_gemm END");
     return;
   }
   THError("Clblas_gemm only supports m, n, k, lda, ldb, ldc"

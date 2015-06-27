@@ -18,6 +18,7 @@ std::string THClTensorIndex_getKernelTemplate();
 
 void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, THClTensor *src)
 {
+  StatefulTimer::timeCheck("THClTensor_indeCopy START");
   THAssert(THClTensor_checkGPU(state, 2, res_, src));
   THClTensor *indices_;
   int *stride_;
@@ -77,10 +78,12 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
 
   THClTensor_free(state, indices_);
   THClTensor_free(state, src);
+  StatefulTimer::timeCheck("THClTensor_indexCopy START");
 }
 
 void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, float val)
 {
+  StatefulTimer::timeCheck("THClTensor_indexFill START");
   THAssert(THClTensor_checkGPU(state, 1, res_));
   THClTensor *indices_;
   int *stride_;
@@ -135,10 +138,12 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
   delete strideWrapper;
   delete[] stride_;
   THClTensor_free(state, indices_);
+  StatefulTimer::timeCheck("THClTensor_indexFill START");
 }
 
 void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src, int dim, THLongTensor *indices)
 {
+  StatefulTimer::timeCheck("THClTensor_indexSelect START");
   THAssert(THClTensor_checkGPU(state, 2, res_, src));
   THLongStorage *newSize;
   THClTensor *indices_;
@@ -202,6 +207,7 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   delete[] stride_;
 
   THClTensor_free(state, indices_);
+  StatefulTimer::timeCheck("THClTensor_indexSelect START");
 }
 
 std::string THClTensorIndex_getKernelTemplate() {

@@ -89,7 +89,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   k.run(grid, block);
     StatefulTimer::timeCheck("Apply1 8");
   
-THClState_getCl(state)->finish();
+//THClState_getCl(state)->finish();
 
   StatefulTimer::timeCheck("Apply1 END");
 }
@@ -160,7 +160,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   k.run(grid, block);
   StatefulTimer::timeCheck("Apply2 7");
 
-  THClState_getCl(state)->finish();
+//  THClState_getCl(state)->finish();
   StatefulTimer::timeCheck("Apply2 END");
 }
 
@@ -219,7 +219,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   k.in( (int)totalElements );
   k.run(grid, block);
 
-  THClState_getCl(state)->finish();
+//  THClState_getCl(state)->finish();
   StatefulTimer::timeCheck("Apply3 END");
 }
 

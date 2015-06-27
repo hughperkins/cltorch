@@ -124,12 +124,14 @@ static inline int curGPU(THClState *state) {
 THCL_API void
 THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
   long totalElements = THClTensor_nElement(state, dst);
+  StatefulTimer::timeCheck("THClTensor_copy START");
 
   THArgCheck(totalElements == THClTensor_nElement(state, src), 2,
              "sizes do not match");
 
   if (THClTensor_nDimension(state, dst) == 0) {
     // Zero-dim tensor; copy nothing
+    StatefulTimer::timeCheck("THClTensor_copy END (nop)");
     return;
   }
 
@@ -213,4 +215,5 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
     }
 //    throw runtime_error("not implemented");
   }
+  StatefulTimer::timeCheck("THClTensor_copy END");
 }

@@ -50,6 +50,7 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
                                                     long rdim, float init,
                                                    HasPairOperator2 *binary_op)
 {
+  StatefulTimer::timeCheck("THClTensor_transformReduceOuter START");
   unsigned ndim = THClTensor_nDimension(state, src);
   unsigned num_orows = 1;
   for (unsigned dim = 0; dim < rdim; dim++) {
@@ -93,12 +94,14 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
   k.in((int)num_irows);
   k.in((int)row_size);
   k.run(grid, threads);
+  StatefulTimer::timeCheck("THClTensor_transformReduceOuter START");
 }
 
 void THClTensor_transformReduceInnermostDimIndex(
   THClState *state, THClTensor *tgt1, THClTensor *tgt2, THClTensor *src,
   float init, HasPairOperator2 *binary_op)
 {
+  StatefulTimer::timeCheck("THClTensor_transformReduceInner START");
   unsigned ndim = THClTensor_nDimension(state, src);
   unsigned num_rows = 1;
   for (unsigned dim = 0; dim < ndim - 1; dim++) {
@@ -141,6 +144,7 @@ void THClTensor_transformReduceInnermostDimIndex(
   k.in((int)num_rows);
   k.in((int)row_size);
   k.run(grid, threads);
+  StatefulTimer::timeCheck("THClTensor_transformReduceInner START");
 }
 
 void THClTensor_reduceDimIndex(THClState *state, THClTensor *tgt1_, THClTensor *tgt2_, THClTensor *src,
