@@ -19,6 +19,10 @@ SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall")
 
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
+    execute_process(
+      COMMAND "git submodule update --init --force --recursive"
+      )
+
 INCLUDE("${CMAKE_MODULE_PATH}/build_clBLAS.cmake")
 INCLUDE_DIRECTORIES(${CLBLAS_INCLUDE_DIRS})
 LINK_DIRECTORIES(${CLBLAS_LIBRARY_DIR})
