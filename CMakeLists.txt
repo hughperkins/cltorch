@@ -47,17 +47,17 @@ ADD_DEPENDENCIES(cltorchtensormathwrap EasyCL)
 #add_custom_target(
 
 #if( ON_LINUX ) 
-#    execute_process( COMMAND git --version RESULT_VARIABLE git_test ERROR_QUIET )
-#    if( ${git_test} EQUAL 0 )
-#        set( GIT_FOUND 1 )
-#    endif()
-#    if( GIT_FOUND )
-#        add_custom_target( 
-#            git_cltorch_rec
-#            git submodule update --init --force --recursive
-#        )
-#        add_dependencies( cltorch git_cltorch_rec )
-#    endif()
+    execute_process( COMMAND git --version RESULT_VARIABLE git_test ERROR_QUIET )
+    if( ${git_test} EQUAL 0 )
+        set( GIT_FOUND 1 )
+    endif()
+    if( GIT_FOUND )
+        add_custom_target( 
+            git_cltorch_rec
+            git submodule update --init --force --recursive
+        )
+        add_dependencies( cltorch git_cltorch_rec )
+    endif()
 #endif()
 
 TARGET_LINK_LIBRARIES(cltorch luaT THCl )
