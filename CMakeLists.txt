@@ -19,6 +19,11 @@ SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall")
 
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
+execute_process(COMMAND bash -c "echo $PWD")
+execute_process(COMMAND bash -c "echo $PWD"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+execute_process(COMMAND git status
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
     execute_process(
       COMMAND git submodule update --init --force --recursive
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
