@@ -57,6 +57,8 @@ ADD_DEPENDENCIES(cltorchtensormathwrap EasyCL)
             git submodule update --init --force --recursive
         )
         add_dependencies( cltorch git_cltorch_rec )
+        add_dependencies( clBLAS-external git_cltorch_rec )
+        add_dependencies( EasyCL-external git_cltorch_rec )
     endif()
 #endif()
 
