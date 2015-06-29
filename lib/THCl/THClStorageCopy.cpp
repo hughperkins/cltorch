@@ -21,7 +21,7 @@ void THClStorage_copy(THClState *state, THClStorage *self, THClStorage *src)
     self->wrapper->createOnDevice();
   }
   src->wrapper->copyTo( self->wrapper );
-  if(THClStorage_traceOn) cout << "wrapper->copyTo() size" << self->size << endl;
+  if(state->trace) cout << "wrapper->copyTo() size" << self->size << endl;
 }
 
 void THClStorage_copyCl(THClState *state, THClStorage *self, THClStorage *src)
@@ -39,7 +39,7 @@ void THClStorage_copyFloat(THClState *state, THClStorage *self, struct THFloatSt
     self->data[i] = src->data[i];
   }
   self->wrapper->copyToDevice();
-  if(THClStorage_traceOn) cout << "wrapper->copyToDevice() size" << self->size << endl;
+  if(state->trace) cout << "wrapper->copyToDevice() size" << self->size << endl;
  // THClCheck(clMemcpy(self->data, src->data, self->size * sizeof(float), clMemcpyHostToDevice));
 }
 
@@ -71,7 +71,7 @@ void THFloatStorage_copyCl(THClState *state, THFloatStorage *self, struct THClSt
   }
   if( src->wrapper->isDeviceDirty() ) {
     src->wrapper->copyToHost();
-    if(THClStorage_traceOn) cout << "wrapper->copyToHost() size" << self->size << endl;
+    if(state->trace) cout << "wrapper->copyToHost() size" << self->size << endl;
   }
   for( int i = 0; i < self->size; i++ ) {
     self->data[i] = src->data[i];

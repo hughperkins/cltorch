@@ -136,6 +136,7 @@ void kernelLaunch_THClTensor_reduceAllPass1(
   k.out(scratch);
   k.localFloats(smemSize / sizeof(float));
   k.run(grid, block);
+  if(state->addFinish) THClState_getCl(state)->finish();  
   StatefulTimer::timeCheck("ReduceAllPass1 END");
 }
 
@@ -182,6 +183,7 @@ void kernelLaunch_THClTensor_reduceAllPass2(
   k.localFloats(smemSize / sizeof(float));
   k.run(grid, block);
 
+  if(state->addFinish) THClState_getCl(state)->finish();  
   StatefulTimer::timeCheck("ReduceAllPass2 End");
 }
 
@@ -233,6 +235,7 @@ void kernelLaunch_THClTensor_reduceAll(
   k.out(devOut);
   k.localFloats(smemSize / sizeof(float));
   k.run(grid, block);
+  if(state->addFinish) THClState_getCl(state)->finish();  
   StatefulTimer::timeCheck("ReduceAll END");
 }
 

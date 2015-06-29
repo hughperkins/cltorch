@@ -78,7 +78,8 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
 
   THClTensor_free(state, indices_);
   THClTensor_free(state, src);
-  StatefulTimer::timeCheck("THClTensor_indexCopy START");
+  if(state->addFinish) THClState_getCl(state)->finish();  
+  StatefulTimer::timeCheck("THClTensor_indexCopy END");
 }
 
 void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, float val)
@@ -138,7 +139,8 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
   delete strideWrapper;
   delete[] stride_;
   THClTensor_free(state, indices_);
-  StatefulTimer::timeCheck("THClTensor_indexFill START");
+  if(state->addFinish) THClState_getCl(state)->finish();  
+  StatefulTimer::timeCheck("THClTensor_indexFill END");
 }
 
 void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src, int dim, THLongTensor *indices)
@@ -207,7 +209,8 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   delete[] stride_;
 
   THClTensor_free(state, indices_);
-  StatefulTimer::timeCheck("THClTensor_indexSelect START");
+  if(state->addFinish) THClState_getCl(state)->finish();  
+  StatefulTimer::timeCheck("THClTensor_indexSelect END");
 }
 
 std::string THClTensorIndex_getKernelTemplate() {

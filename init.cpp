@@ -123,9 +123,18 @@ namespace cltorch {
   // useful for checking we're not doing this too often...
   static int cltorch_setTrace(lua_State *L)
   {
-//    THClState *state = cltorch_getstate(L);
+    THClState *state = cltorch_getstate(L);
     int trace = luaL_checknumber(L, 1);
-    THClStorage_traceOn = trace;
+    state->trace = trace;
+//    THClStorage_traceOn = trace;
+    return 0;
+  }
+
+  static int cltorch_setAddFinish(lua_State *L)
+  {
+    THClState *state = cltorch_getstate(L);
+    int addFinish = luaL_checknumber(L, 1);
+    state->addFinish = addFinish;
     return 0;
   }
 
@@ -138,6 +147,7 @@ namespace cltorch {
     {"getDeviceProperties", cltorch_getDeviceProperties},
     {"getState", cltorch_getState},
     {"setTrace", cltorch_setTrace},
+    {"setAddFinish", cltorch_setAddFinish},
     {"dumpTimings", cltorch_dumpTimings},
     {NULL, NULL}
   };

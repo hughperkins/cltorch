@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-int THClStorage_traceOn = 0;
+//int state->trace = 0;
 
 //// note to self: this function implementation is a bit rubbish...
 //void THClStorage_set(THClState *state, THClStorage *self, long index, float value)
@@ -17,11 +17,11 @@ int THClStorage_traceOn = 0;
 //  if( self->wrapper->isDeviceDirty() ) { // we have to do this, since we're going to copy it all back again
 //                                         // although I suppose we could set via a kernel perhaps
 //                                         // either way, this function is pretty inefficient right now :-P
-//    if(THClStorage_traceOn) cout << "wrapper->copyToHost() size " << self->size << endl;
+//    if(state->trace) cout << "wrapper->copyToHost() size " << self->size << endl;
 //    self->wrapper->copyToHost();
 //  }
 //  self->data[index] = value;
-//  if(THClStorage_traceOn) cout << "wrapper->copyToDevice() size " << self->size << endl;
+//  if(state->trace) cout << "wrapper->copyToDevice() size " << self->size << endl;
 //  self->wrapper->copyToDevice();
 //}
 
@@ -31,7 +31,7 @@ int THClStorage_traceOn = 0;
 ////  printf("THClStorage_get\n");
 //  THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
 //  if( self->wrapper->isDeviceDirty() ) {
-//    if(THClStorage_traceOn) cout << "wrapper->copyToHost()" << endl;
+//    if(state->trace) cout << "wrapper->copyToHost()" << endl;
 //    self->wrapper->copyToHost();
 //  }
 //  return self->data[index];
@@ -60,8 +60,8 @@ THClStorage* THClStorage_newWithSize(THClState *state, long size)
     float *data = new float[size];
     storage->cl = THClState_getClAndDevice(state, &storage->device);
     CLWrapper *wrapper = storage->cl->wrap( size, data );
-    if(THClStorage_traceOn) cout << "new wrapper, size " << size << endl;
-    if(THClStorage_traceOn) cout << "wrapper->createOnDevice()" << endl;
+    if(state->trace) cout << "new wrapper, size " << size << endl;
+    if(state->trace) cout << "wrapper->createOnDevice()" << endl;
     wrapper->createOnDevice();
     storage->data = data;
     storage->wrapper = wrapper;
@@ -151,7 +151,7 @@ void THClStorage_free(THClState *state, THClStorage *self)
   if (THAtomicDecrementRef(&self->refcount))
   {
     if(self->flag & TH_STORAGE_FREEMEM) {
-      if(THClStorage_traceOn && self->size > 0) cout << "delete wrapper, size " << self->size << endl;
+      if(state->trace && self->size > 0) cout << "delete wrapper, size " << self->size << endl;
       delete self->wrapper;
       delete self->data;
     }
@@ -164,7 +164,7 @@ void THClStorage_fill(THClState *state, THClStorage *self, float value)
     self->data[i] = value;
   }
   self->wrapper->copyToDevice();
-  if(THClStorage_traceOn) cout << "wrapper->copyToDevice() size" << self->size << endl;
+  if(state->trace) cout << "wrapper->copyToDevice() size" << self->size << endl;
 }
 
 void THClStorage_resize(THClState *state, THClStorage *self, long size)
@@ -173,12 +173,12 @@ void THClStorage_resize(THClState *state, THClStorage *self, long size)
     return;
   }
   delete self->wrapper;
-  if(THClStorage_traceOn && self->size > 0) cout << "delete wrapper" << endl;
+  if(state->trace && self->size > 0) cout << "delete wrapper" << endl;
   delete[] self->data;
   self->data = new float[size];
   self->wrapper = THClState_getCl(state)->wrap( size, self->data );
   self->wrapper->createOnDevice();
-    if(THClStorage_traceOn) cout << "new wrapper, size " << size << endl;
+    if(state->trace) cout << "new wrapper, size " << size << endl;
   self->size = size;
 }
 

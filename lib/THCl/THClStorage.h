@@ -8,7 +8,7 @@
 #define TH_STORAGE_RESIZABLE  2
 #define TH_STORAGE_FREEMEM    4
 
-extern int THClStorage_traceOn;
+//extern int THClStorage_traceOn;
 
 typedef struct THClStorage
 {

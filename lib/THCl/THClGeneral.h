@@ -39,6 +39,10 @@ typedef struct THClState
 {
   int allocatedDevices;
   int currentDevice;
+  int trace; // default 0; set to 1 to see message for every gpu buffer alloc, delete,
+             // or device <-> host transfer
+  int addFinish; // default 0, should we add clFinish() after any kernel, enqueue, etc?
+                 // (good for debugging stuff, bad for perf)
   struct THClScratchSpace**scratchSpaceByDevice; // for now, do one 'stream' per device
                                  // can improve later...
   struct DeviceInfo **deviceInfoByDevice;

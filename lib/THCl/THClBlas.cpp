@@ -166,11 +166,6 @@ float THClBlas_dot(THClState *state, long n,
 
     cl_int err;
 
-//    err = clblasSetup();
-//    if (err != CL_SUCCESS) {
-//        THError("clblasSetup() failed with %d", err);
-//    }
-    
     CLWrapper *resultWrapper = THClState_getCl(state)->wrap( 1, &result );
     float *scratch = new float[i_n];
     CLWrapper *scratchWrapper = THClState_getCl(state)->wrap(i_n, scratch);
@@ -189,15 +184,10 @@ float THClBlas_dot(THClState *state, long n,
         THError("clblasSdot() failed with %d", err);
     }
     else {
-        /* Wait for calculations to be finished. */
-//        err = clWaitForEvents(1, &event);
+        if(state->addFinish) err = clWaitForEvents(1, &event);
     }
     resultWrapper->copyToHost();
 //    resultWrapper->markDeviceDirty();
-
-    /* Finalize work with clblas. */
-//    clblasTeardown();
-
 
     delete resultWrapper;
     delete scratchWrapper;
@@ -246,11 +236,6 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha,
 
     cl_int err;
 
-//    err = clblasSetup();
-//    if (err != CL_SUCCESS) {
-//        THError("clblasSetup() failed with %d", err);
-//    }
-
     cl_event event = NULL;
     err = clblasSgemv(clblasColumnMajor, op, i_m, i_n, alpha,
           awrapper->getBuffer(), aoffset, i_lda, 
@@ -258,18 +243,13 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha,
           beta,
           ywrapper->getBuffer(), yoffset, i_incy, 
           1, THClState_getCl(state)->queue, 0, NULL, &event);
-//    THCublasCheck(cublasSgemv(*state->blasState->current_handle, op, i_m, i_n, &alpha, a, i_lda, x, i_incx, &beta, y, i_incy));
     if (err != CL_SUCCESS) {
         THError("clblasSdot() failed with %d", err);
     }
     else {
-        /* Wait for calculations to be finished. */
-//        err = clWaitForEvents(1, &event);
+        if(state->addFinish) err = clWaitForEvents(1, &event);
     }
     clReleaseEvent(event);
-
-    /* Finalize work with clblas. */
-//    clblasTeardown();
 
     ywrapper->markDeviceDirty();
     StatefulTimer::timeCheck("THClBlas_gemv END");
@@ -277,7 +257,6 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha,
   }
   THError("Cublas_gemv only supports m, n, lda, incx, incy"
           "in the range 0 < [val] <= %d", INT_MAX);
-//    THError("Not implemented");
 }
 
 void THClBlas_ger(THClState *state, long m, long n, float alpha, 
@@ -306,13 +285,6 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
 
       cl_int err;
 
-//    THClState_getCl(state)->finish();
-//      err = clblasSetup();
-//      if (err != CL_SUCCESS) {
-//          THError("clblasSetup() failed with %d", err);
-//      }
-//    THClState_getCl(state)->finish();
-
       if(!awrap->isOnDevice()) {
         awrap->createOnDevice();
       }
@@ -328,17 +300,12 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
         THError("clblasSger() failed with %d", err);
       }
       else {
-          /* Wait for calculations to be finished. */
-//          err = clWaitForEvents(1, &event);
+          if(state->addFinish) err = clWaitForEvents(1, &event);
       }
       clReleaseEvent(event);
 //    THClState_getCl(state)->finish();
       awrap->markDeviceDirty();
 
-//      clblasTeardown();
-//    THClState_getCl(state)->finish();
-
-//      THCublasCheck(cublasSger(*state->blasState->current_handle, i_m, i_n, &alpha, x, i_incx, y, i_incy, a, i_lda));
       StatefulTimer::timeCheck("THClBlas_ger END");
       return;
     }
@@ -405,11 +372,6 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
 
     cl_int err;
 
-//    err = clblasSetup();
-//    if (err != CL_SUCCESS) {
-//        THError("clblasSetup() failed with %d", err);
-//    }
-
     if( !aWrapper->isOnDevice() ) {
       aWrapper->createOnDevice();
     }
@@ -430,14 +392,11 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
         THError("clblasSgemm() failed with %d", err);
     }
     else {
-//        err = clWaitForEvents(1, &event);
+        if(state->addFinish) err = clWaitForEvents(1, &event);
     }
     clReleaseEvent(event);
     cWrapper->markDeviceDirty();
 
-//    clblasTeardown();
-
-//    THCublasCheck(cublasSgemm(*state->blasState->current_handle, opa, opb, i_m, i_n, i_k, &alpha, a, i_lda, b, i_ldb, &beta, c, i_ldc));
     StatefulTimer::timeCheck("THClBlas_gemm END");
     return;
   }

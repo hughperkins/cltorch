@@ -29,6 +29,7 @@ inline long getBlockSize(THClState *state) {
 void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src, long dimension,
                                         float init, HasOperator3 *binary_op)
 {
+  StatefulTimer::timeCheck("THClTensorMathScan_scanOuterDim START");
   unsigned ndim = THClTensor_nDimension(state, src);
   // Treat all outer dimensions (i.e. dim < dimension) as one.
   unsigned num_orows = 1;
@@ -71,11 +72,14 @@ void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src,
   k.in(init);
 
   k.run(grid, threads);
+  if(state->addFinish) THClState_getCl(state)->finish();  
+  StatefulTimer::timeCheck("THClTensorMathScan_scanOuterDim END");
 }
 
 
 void THClTensor_scanInnermostDim(THClState *state, THClTensor *tgt, THClTensor *src, float init, HasOperator3 *binary_op)
 {
+  StatefulTimer::timeCheck("THClTensorMathScan_scanInnermostDim START");
   unsigned ndim = THClTensor_nDimension(state, src);
   // Treat all outer dimensions as a single dimension.
   unsigned num_rows = 1;
@@ -116,6 +120,8 @@ void THClTensor_scanInnermostDim(THClState *state, THClTensor *tgt, THClTensor *
   k.in(init);
 
   k.run(grid, threads);
+  if(state->addFinish) THClState_getCl(state)->finish();  
+  StatefulTimer::timeCheck("THClTensorMathScan_scanInnermostDim END");
 }
 
 void THClTensor_scanDim(THClState *state, THClTensor *self_, THClTensor *src, long dimension, float init, HasOperator3 *binary_op)

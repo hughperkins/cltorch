@@ -94,7 +94,8 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
   k.in((int)num_irows);
   k.in((int)row_size);
   k.run(grid, threads);
-  StatefulTimer::timeCheck("THClTensor_transformReduceOuter START");
+  if(state->addFinish) THClState_getCl(state)->finish();  
+  StatefulTimer::timeCheck("THClTensor_transformReduceOuter END");
 }
 
 void THClTensor_transformReduceInnermostDimIndex(
@@ -144,7 +145,8 @@ void THClTensor_transformReduceInnermostDimIndex(
   k.in((int)num_rows);
   k.in((int)row_size);
   k.run(grid, threads);
-  StatefulTimer::timeCheck("THClTensor_transformReduceInner START");
+  if(state->addFinish) THClState_getCl(state)->finish();  
+  StatefulTimer::timeCheck("THClTensor_transformReduceInner END");
 }
 
 void THClTensor_reduceDimIndex(THClState *state, THClTensor *tgt1_, THClTensor *tgt2_, THClTensor *src,

@@ -145,7 +145,7 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
 
   k.run(grid, block);
 
-  THClState_getCl(state)->finish();  
+  if(state->addFinish) THClState_getCl(state)->finish();  
   StatefulTimer::timeCheck("Reduce-noncontig END");
 }
 
@@ -220,8 +220,8 @@ void kernelLaunch_THClTensor_reduceContigDim(
 
   k.run(grid, block);
 
-  THClState_getCl(state)->finish();
-  StatefulTimer::timeCheck("Reduce-config END");
+  if(state->addFinish) THClState_getCl(state)->finish();
+  StatefulTimer::timeCheck("Reduce-contig END");
 }
 
 bool THClTensor_reduceDim(THClState* state,

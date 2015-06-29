@@ -21,6 +21,8 @@ void THClInit(THClState* state)
   state->allocatedDevices = easycl::DevicesInfo::getNumDevices();
   state->clByDevice = new EasyCL *[state->allocatedDevices];
   state->scratchSpaceByDevice = new THClScratchSpace *[state->allocatedDevices];
+  state->trace = 0;
+  state->addFinish = 0;
 //  state->workgroupSizeByDevice = new int[state->allocatedDevices];
   state->deviceInfoByDevice = (struct DeviceInfo **) new easycl::DeviceInfo *[state->allocatedDevices];
   for(int i = 0; i < state->allocatedDevices; i++) {
