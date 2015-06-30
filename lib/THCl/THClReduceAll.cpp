@@ -216,3 +216,41 @@ std::string THClReduceAll_getKernelTemplate() {
   return kernelSource;
 }
 
+template<>
+void kernelLaunch_THClTensor_reduceAllPass2<unsigned long long>(
+                     THClState* state,
+                     dim3 &grid, dim3 &block, size_t smemSize,
+                     int numPass1Blocks,
+                     float init,
+                     const HasOperator3 *reduceOp,
+                     CLWrapper *scratch,
+                     CLWrapper* devOut
+    );
+template<>
+void kernelLaunch_THClTensor_reduceAllPass1<unsigned long long>(
+                     THClState* state,
+                     dim3 &grid, dim3 &block, size_t smemSize,
+                     int ADims,
+                     const TensorInfo<unsigned long long> & in,
+//                     CLWrapper *in_data,
+                     long totalElements,
+                     float init,
+                     const HasOperator2 *modifyOp,
+                     const HasOperator3 *reduceOp,
+                     CLWrapper* scratch
+    );
+template<>
+void kernelLaunch_THClTensor_reduceAll(
+                     THClState* state,
+                     dim3 &grid, dim3 &block, size_t smemSize,
+                     int ADims,
+                     const TensorInfo<unsigned long long> &in,
+//                     CLWrapper *in_data,
+                     long totalElements,
+                     float init,
+                     const HasOperator2 *modifyOp,
+                     const HasOperator3 *reduceOp,
+                     CLWrapper* devOut
+    );
+
+

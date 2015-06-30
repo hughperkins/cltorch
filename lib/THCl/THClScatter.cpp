@@ -15,6 +15,7 @@ using namespace std;
 static std::string getTemplate();
 
 THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, THClTensor *index, THClTensor *src) {
+  StatefulTimer::timeCheck("THClTensor_kernel_ScatterFill START");
   int nDims = index->nDimension;
 
   THArgCheck(nDims >= 2, 2, "Tensors should have at least 2 dimensions"); // I guess?
@@ -87,10 +88,14 @@ THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, T
   k.in( (int)totalElements );
   k.run(grid, block);
 
+
+  if(state->addFinish) THClState_getCl(state)->finish();
+  StatefulTimer::timeCheck("THClTensor_kernel_Scatter END");
 }
 
 
 THCL_API void THClTensor_scatterFill(THClState *state, THClTensor *self, long dim, THClTensor *index, float src_val) {
+  StatefulTimer::timeCheck("THClTensor_kernel_ScatterFill START");
   int nDims = index->nDimension;
 
   THArgCheck(nDims >= 2, 2, "Tensors should have at least 2 dimensions"); // I guess?
@@ -148,6 +153,8 @@ THCL_API void THClTensor_scatterFill(THClState *state, THClTensor *self, long di
   k.in( (int)totalElements );
   k.run(grid, block);
 
+  if(state->addFinish) THClState_getCl(state)->finish();
+  StatefulTimer::timeCheck("THClTensor_kernel_ScatterFill END");
 }
 
 static std::string getTemplate() {

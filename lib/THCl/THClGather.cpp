@@ -15,6 +15,8 @@ using namespace std;
 static std::string getTemplate();
 
 THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *src, long dim, THClTensor *index) {
+  StatefulTimer::timeCheck("THClTensor_kernel_Gather START");
+
   // src will be ndims
   // index will be ndims too, though one of the dims should have length 1
   // self will be ndims
@@ -87,6 +89,8 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   k.in( (int)totalElements );
   k.run(grid, block);
 
+  if(state->addFinish) THClState_getCl(state)->finish();
+  StatefulTimer::timeCheck("THClTensor_kernel_Gather END");
 }
 
 static std::string getTemplate() {

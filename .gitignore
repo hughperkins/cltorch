@@ -36,3 +36,5 @@ non-templated/
 templated-auto/
 templates.manual/
 
+build-*/
+
