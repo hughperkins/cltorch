@@ -25,7 +25,7 @@ function test_scatterFill(its)
 end
 
 cltorch.setAddFinish(1)
---test_apply2(10000)
+test_apply2(10000)
 test_scatterFill(10000)
 
 
