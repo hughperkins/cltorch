@@ -15,5 +15,5 @@ end
 
 
 cltorch.setAddFinish(1)
-test_apply2(100)
+test_apply2(10000)
 
