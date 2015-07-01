@@ -14,8 +14,7 @@ using namespace std;
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-template<class Op>
-void THClTensor_logicalValue(THClState *state, THClTensor *self_, THClTensor *src, Op op)
+void THClTensor_logicalValue(THClState *state, THClTensor *self_, THClTensor *src, HasOperator2 *op)
 {
   THClTensor_resizeAs(state, self_, src);
 
@@ -42,7 +41,8 @@ public:
  void THClTensor_##NAME##Value(THClState *state, THClTensor *self_, THClTensor *src, float value) \
 { \
   THAssert(THClTensor_checkGPU(state, 2, self_, src)); \
-  THClTensor_logicalValue(state, self_, src, TensorGenCompareValueOp(#OP, value)); \
+  TensorGenCompareValueOp op(#OP, value); \
+  THClTensor_logicalValue(state, self_, src, &op); \
 }
 
 GENERATE_THClTensor_LogValue(ge, >=)

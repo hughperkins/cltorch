@@ -44,13 +44,15 @@ void THClTensor_pow(THClState *state, THClTensor *self_, THClTensor *src, float 
 {
   THAssert(THClTensor_checkGPU(state, 2, self_, src));
   if (self_ == src) {
-    if (!THClTensor_pointwiseApply1(state, self_, TensorPowOp(value))) {
+    TensorPowOp op(value);
+    if (!THClTensor_pointwiseApply1(state, self_, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src);
 
-    if (!THClTensor_pointwiseApply2(state, self_, src, TensorPowOp(value))) {
+    TensorPowOp op(value);
+    if (!THClTensor_pointwiseApply2(state, self_, src, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
@@ -74,13 +76,15 @@ void THClTensor_tpow(THClState *state, THClTensor *self_, float value, THClTenso
 {
   THAssert(THClTensor_checkGPU(state, 2, self_, src));
   if (self_ == src) {
-    if (!THClTensor_pointwiseApply1(state, self_, TensorTPowOp(value))) {
+    TensorTPowOp op(value);
+    if (!THClTensor_pointwiseApply1(state, self_, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src);
 
-    if (!THClTensor_pointwiseApply2(state, self_, src, TensorTPowOp(value))) {
+    TensorTPowOp op(value);
+    if (!THClTensor_pointwiseApply2(state, self_, src, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
@@ -131,13 +135,15 @@ void THClTensor_clamp(THClState *state, THClTensor *self_, THClTensor *src, floa
 {
   THAssert(THClTensor_checkGPU(state, 2, self_, src));
   if (self_ == src) {
-    if (!THClTensor_pointwiseApply1(state, self_, TensorClampOp(min_value, max_value))) {
+    TensorClampOp op(min_value, max_value);
+    if (!THClTensor_pointwiseApply1(state, self_, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src);
 
-    if (!THClTensor_pointwiseApply2(state, self_, src, TensorClampOp(min_value, max_value))) {
+    TensorClampOp op(min_value, max_value);
+    if (!THClTensor_pointwiseApply2(state, self_, src, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }

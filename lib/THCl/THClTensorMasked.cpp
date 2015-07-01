@@ -101,7 +101,8 @@ void THClTensor_maskedFill(THClState* state,
              THClTensor_nElement(state, mask),
              2, "sizes do not match");
 
-  if (!THClTensor_pointwiseApply2(state, tensor, mask, TensorMaskedFillOp(value))) {
+  TensorMaskedFillOp op(value);
+  if (!THClTensor_pointwiseApply2(state, tensor, mask, &op)) {
     THArgCheck(false, 2, CLTORCH_DIM_WARNING);
   }
 }
@@ -161,7 +162,7 @@ void THClTensor_maskedCopy(THClState* state,
   TensorMaskedCopyOp maskedCopyOp(
      contigSrc, contigMask, maskPrefixSum);
   bool status = THClTensor_pointwiseApply2(
-    state, tensor, contigMask, maskedCopyOp);
+    state, tensor, contigMask, &maskedCopyOp);
   THError("Not implemented");
 
   THClTensor_free(state, contigSrc);
