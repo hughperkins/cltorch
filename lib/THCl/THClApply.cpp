@@ -14,13 +14,16 @@ void THClTensor_copyIgnoringOverlaps(THClState* state,
                                        THClTensor* src) {
   CopyOp copyOp;
   THClTensor_pointwiseApply2(state, dst, src, &copyOp,
-                               ReadOnly, // ignore overwrites
-                               ReadOnly);
+                               ReadOnly // ignore overwrites
+                               );
 }
 
 dim3 getApplyBlock(THClState *state) {
   return dim3(getWorkgroupSize(state));
 }
+
+static const int THClApplyV3_chunkSize = 16;
+static const int THClApplyV3_workgroupSize = 64;
 
 bool getApplyGrid(THClState* state, long totalElements, dim3& grid) {
 //  int curDevice = -1;
@@ -108,6 +111,18 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   StatefulTimer::timeCheck("Apply1 END");
 }
 
+void transpose(TensorInfo<IndexType> info, int A, int B) {
+  if(A == B) {
+    return;
+  }
+  int tempStride = bInfo.strides[A];
+  int tempSize = bInfo.sizes[A];
+  bInfo.strides[A] = bInfo.strides[B];
+  bInfo.sizes[A] = bInfo.sizes[B];
+  bInfo.strides[B] = tempStride;
+  bInfo.sizes[B] = tempSize;
+}
+
 template< typename IndexType >
 void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, HasOperator2 const*op ) {
   StatefulTimer::timeCheck("Apply2 START");
@@ -117,50 +132,101 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   if( hasScalars != 0 ) {
     numScalars = hasScalars->getNumScalars();
   }
-  std::string uniqueName = "THClApply_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
+
+  // we're going to choose two dimensions to create blocks from
+  // these will be the smallest-stride dimension from b, and the smallest stride dimension from c
+  // we will assume that b and c are read-only (update: removed btype and ctype, so they are always read-only :-) )
+  // we will call these two dims bdim0 and cdim0
+  // let's find out which those are first
+  // hmmmm can/should they be the same dimension?
+  // maybe ... yes?
+  // also, number of dims should be the same across all tensors I reckon...
+  // client can do a reshape first, if they're not
+  int nDims = aInfo.dims;
+
+  int bSmallestDim = 0;
+  int cSmallestDim = 0;
+  int bSmallestStride = bInfo.strides[0];
+  int cSmallestStride = cInfo.strides[0];
+  for(int dim = 1; dim < nDims; dim++) {
+    if(bInfo.strides[dim] < bSmallestStride) {
+      bSmallestDim = dim;
+      bSmallestStride = bInfo.strides[dim];
+    }
+    if(cInfo.strides[dim] < cSmallestStride) {
+      cSmallestDim = dim;
+      cSmallestStride = cInfo.strides[dim];
+    }
+  }
+  // have to transpose both, same way
+  transpose(bInfo, bSmallestDim, nDims - 1);
+  transpose(cInfo, bSmallestDim, nDims - 1);
+  if(bSmallestDim != cSmallestDim) {
+    transpose(bInfo, cSmallestDim, nDims - 2);
+    transpose(cInfo, cSmallestDim, nDims - 2);
+  }
+  // so now the last dimension has smallest stride for b, maybe c
+  // and the second to last might or might not have smallest stride for c
+  // now we can form blocks on these two dimensions, one block of 16 x 16 float4s per workgroup
+  // not sure how best to arrange the other dims, so just leave as-is for now
+ 
+  // ok, now we have to calculate how many workgroups/cuda-blocks we need...
+  // lets first check that all dimensions are the same size, between A and B
+  for(int dim = 0; dim < nDims; dim++) {
+    if(aInfo.sizes[dim] != bInfo.sizes[dim]) {
+      THError("Apply2. tensors must be same size and shape.  Please reshape etc as necessary first.");
+    }
+  }
+  // forbid 1 dimension, for now ...
+  if(nDims < 2) {
+    THError("apply needs at least 2 dimension in tensors for now (this is not a design decision; just a simplification, temporarily");
+  }
+
+  // ok, now all dimensions have the same size (though not necessarily the same stride)
+  // lets block over last two dimensions for now, even if a and b actually have the same
+  // smallestDim dim
+  // so number of workroups is the product of the size of all dimensions, except hte last 
+  // two
+  int numPlanes = 1;
+  for( int dim = 0; dim < nDims - 2; dim++) {
+    numPlanes *= aInfo.sizes[dim];
+  }
+  // hmmm, we also need to multiply by the number of blocks in the last two dimensions, ie those 
+  // sizes divided by 16 (*4)
+  int planeChunkCount1 = (aInfo.sizes[nDims-2] + THClApplyV3_chunkSize - 1)/THClApplyV3_chunkSize;
+  int planeChunkCount2 = (aInfo.sizes[nDims-1] + THClApplyV3_chunkSize - 1)/THClApplyV3_chunkSize;
+  int numChunksPerPlane = planeChunkCount1 * planeChunkCount2;
+  int numWorkgroups = numPlanes * numChunksPerPlane;
+  cout << "chunksPerPlane=" << numChunksPerPlane << " numPlanes=" << numPlanes << " numWorkgroups: " << numWorkgroups << " bSmallestDim " << bSmallestDim << " cSmallestDim " << cSmallestDim << endl;
+  block = dim3(THClApplyV3_workgroupSize); //1-d...
+  grid = dim3(numWorkgroups); // 1-d grid should be fine I suppose?
+
+  std::string uniqueName = "THClApply_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(nDims) + "_" + op->operator2();
   EasyCL *cl = THClState_getCl(state);
   CLKernel *kernel = 0;
   if( cl->kernelExists(uniqueName) ) {
     kernel = cl->getKernel(uniqueName);
-    StatefulTimer::timeCheck("Apply2 1aa");
+    StatefulTimer::timeCheck("Apply2 retrieved kernel");
   } else {
-    StatefulTimer::timeCheck("Apply2 1a");
     TemplatedKernel kernelBuilder( THClState_getCl(state) );
-    kernelBuilder.set("dim1", A);
-    kernelBuilder.set("dim2", B);
-    std::vector<int> dims;
-    StatefulTimer::timeCheck("Apply2 1b");
-    if( A >= 0 ) {
-      dims.push_back(A);
-    }
-    if( B != A && B >= 0 ) {
-      dims.push_back(B);
-    }
+
+    kernelBuilder.set("nDims", nDims);
     std::string operation = op->operator2();
     kernelBuilder.set("num_tensors", numTensors);
     kernelBuilder.set("num_scalars", numScalars);
-    kernelBuilder.set("dims", dims);
     kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
     kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
-    StatefulTimer::timeCheck("Apply2 1c");
-    kernelBuilder.set("WarpSize", 32);
     kernelBuilder.set("operation", operation);
-    StatefulTimer::timeCheck("Apply2 2a");
-    kernelBuilder.set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate());
-    StatefulTimer::timeCheck("Apply2 2");
-    StatefulTimer::timeCheck("Apply2 3");
     try {
-      kernel = kernelBuilder.buildKernel( uniqueName, "THClApply.cl", getApplyDv2_template(), "THClTensor_pointwiseApplyD" );
+      kernel = kernelBuilder.buildKernel( uniqueName, "THClApply.cl", getApplyDV3_template(), "THClTensor_pointwiseApplyD" );
     } catch( std::runtime_error &e ) {
       std::cout << "Error building kernel in apply2 " << __FILE__ << ":" << easycl::toString( __LINE__ ) << ": " << e.what() << std::endl;
       THError( ( std::string("Error building kernel in apply2 ") + __FILE__ + ":" + easycl::toString( __LINE__ ) + ": " + e.what() ).c_str() );
   //    throw e;
     }
-    StatefulTimer::timeCheck("Apply2 4");
+    StatefulTimer::timeCheck("Apply2 built kernel");
   }
-  StatefulTimer::timeCheck("Apply2 5a");
   THClKernels k(state, kernel);
-  StatefulTimer::timeCheck("Apply2 5");
   k.out(aInfo);
   k.in(bInfo);
   for( int i = 0; i < numScalars; i++ ) {
@@ -170,9 +236,8 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   k.in( (int)totalElements );
-  StatefulTimer::timeCheck("Apply2 6");
   k.run(grid, block);
-  StatefulTimer::timeCheck("Apply2 7");
+  StatefulTimer::timeCheck("Apply2 enqueued run kernel");
 
   if(state->addFinish) THClState_getCl(state)->finish();
   StatefulTimer::timeCheck("Apply2 END");
@@ -369,12 +434,19 @@ bool THClTensor_pointwiseApply2(THClState* state,
                                   THClTensor* a,
                                   THClTensor* b,
                                   HasOperator2 const*op,
-                                  TensorArgType aType,
-                                  TensorArgType bType) {
+                                  TensorArgType aType) {
   long totalElements = THClTensor_nElement(state, a);
 
   if (totalElements != THClTensor_nElement(state, b)) {
     std::cout << "apply2 num elements mismatch" << std::endl;
+    return false;
+  }
+
+  int aDims = THClTensor_nDimension(state, a);
+  int bDims = THClTensor_nDimension(state, b);
+
+  if(aDims != bDims) { 
+    THError("apply2 : number of dimensions of tensors should be the same");
     return false;
   }
 
@@ -407,18 +479,18 @@ bool THClTensor_pointwiseApply2(THClState* state,
   // an error, since it is unclear which one should win), but we will
   // preserve this last-writer-wins (in arbitrary copy order) behavior.
   THClTensor* oldA = NULL;
-  THClTensor* oldB = NULL;
+//  THClTensor* oldB = NULL;
 
   if (aType == ReadWrite && THCL_overlappingIndices(state, a)) {
     // Must perform in contiguous space
     oldA = a;
     a = THClTensor_newContiguous(state, a);
   }
-  if (bType == ReadWrite && THCL_overlappingIndices(state, b)) {
-    // Must perform in contiguous space
-    oldB = b;
-    b = THClTensor_newContiguous(state, b);
-  }
+//  if (bType == ReadWrite && THCL_overlappingIndices(state, b)) {
+//    // Must perform in contiguous space
+//    oldB = b;
+//    b = THClTensor_newContiguous(state, b);
+//  }
 
   // It is possible that the tensor dimensions are able to be collapsed,
   // and thus we can reduce the actual code complexity of the copy by
@@ -516,14 +588,14 @@ bool THClTensor_pointwiseApply2(THClState* state,
     a = oldA;
   }
 
-  if (oldB) {
-    // Ignore overlaps when copying back; if we use THClTensor_copy
-    // instead, it will recursively try and invoke ourselves to make
-    // oldB contiguous.
-    THClTensor_copyIgnoringOverlaps(state, oldB, b);
-    THClTensor_free(state, b);
-    b = oldB;
-  }
+//  if (oldB) {
+//    // Ignore overlaps when copying back; if we use THClTensor_copy
+//    // instead, it will recursively try and invoke ourselves to make
+//    // oldB contiguous.
+//    THClTensor_copyIgnoringOverlaps(state, oldB, b);
+//    THClTensor_free(state, b);
+//    b = oldB;
+//  }
 
   return true;
 }
@@ -824,8 +896,98 @@ std::string getApplyDv2_template() {
   return kernelSource;
 }
 
-//template
-//void kernelLaunch_pointwiseApply3< unsigned int >( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo< unsigned int > aInfo, TensorInfo< unsigned int > bInfo, TensorInfo< unsigned int > cInfo, unsigned int totalElements, HasOperator3 const*op );
+std::string getApplyDV3_template() {
+  // [[[cog
+  // import stringify
+  // stringify.write_kernel( "kernel", "THClApplyV3.cl" )
+  // ]]]
+  // generated using cog, from THClApply.cl:
+  const char * kernelSource =  
+  "// OpenCL kernels....\n" 
+  "\n" 
+  "// expected templated values:\n" 
+  "// dims (vector of unique dimension values)\n" 
+  "// operation\n" 
+  "// dim1\n" 
+  "// dim2\n" 
+  "// dim3\n" 
+  "// ... dimD\n" 
+  "// num_input_tensors\n" 
+  "// include_scalar_input\n" 
+  "//\n" 
+  "// maybe should add:\n" 
+  "// IndexType (hardcoded to int for now)\n" 
+  "// MAX_CUTORCH_DIMS (hardcoded to 25 for now)\n" 
+  "\n" 
+  "// (Ported from cutorch's THCApply.cuh)\n" 
+  "\n" 
+  "// Maximum number of dimensions allowed for cutorch\n" 
+  "// #define MAX_CUTORCH_DIMS 25\n" 
+  "\n" 
+  "// Enum that indicates whether tensor arguments are read/write or\n" 
+  "// read-only\n" 
+  "//enum TensorArgType { ReadWrite, ReadOnly };\n" 
+  "\n" 
+  "// not used by this kernel, but used by THClReduceApplyUtils...\n" 
+  "float reduceOp(float _in1, float _in2) {\n" 
+  "  return 0;\n" 
+  "}\n" 
+  "\n" 
+  "{{include_THClReduceApplyUtils}}\n" 
+  "\n" 
+  "{%\n" 
+  " total_opsize = num_tensors\n" 
+  " if include_scalar_input then\n" 
+  "      total_opsize = total_opsize + 1\n" 
+  "   end\n" 
+  " %}\n" 
+  "\n" 
+  "void op( global float *out\n" 
+  "  {% for i=1,(num_tensors-1) do %}\n" 
+  "  , global float *in{{i}}\n" 
+  "  {% end %}\n" 
+  "  {% for i=1,(num_scalars) do %}\n" 
+  "  , float val{{i}}\n" 
+  "  {% end %}\n" 
+  ") {\n" 
+  "    {{operation}};\n" 
+  "}\n" 
+  "\n" 
+  "kernel void\n" 
+  "THClTensor_pointwiseApplyD(\n" 
+  "   {% for input_idx=1,num_tensors do %}\n" 
+  "    global TensorInfoCl *info_{{input_idx}},\n" 
+  "    global float*data_{{input_idx}},\n" 
+  "   {% end %}\n" 
+  "   {% for i=1,num_scalars do %}\n" 
+  "   float val{{i}},\n" 
+  "   {% end %}\n" 
+  "   int totalElements) {\n" 
+  "  for (int linearIndex = get_global_id(0);\n" 
+  "       linearIndex < totalElements;\n" 
+  "       linearIndex += get_global_size(0)) {\n" 
+  "    {% for input_idx=1,num_tensors do %}\n" 
+  "    // Convert `linearIndex` into an offset of `a`\n" 
+  "    const int offset{{input_idx}} =\n" 
+  "      IndexToOffset_{{1000+loadstring('return dim' .. input_idx)()}}_get(linearIndex, info_{{input_idx}}[0]);\n" 
+  "    {% end %}\n" 
+  "\n" 
+  "    op(\n" 
+  "      {% for input_idx=1,num_tensors do %}\n" 
+  "         {% if input_idx > 1 then %} , {% end %}\n" 
+  "         &(data_{{input_idx}}[offset{{input_idx}}])\n" 
+  "      {% end %}\n" 
+  "      {% for i=1,num_scalars do %}\n" 
+  "      , val{{i}}\n" 
+  "      {% end %}\n" 
+  "    );\n" 
+  "  }\n" 
+  "}\n" 
+  "\n" 
+  "";
+  // [[[end]]]
+  return kernelSource;
+}
 
 #define THCLAPPLY_INSTANTIATETEMPLATES(IndexType) \
 template \
@@ -838,7 +1000,4 @@ void kernelLaunch_pointwiseApply3< IndexType >( THClState *state, dim3 grid, dim
 THCLAPPLY_INSTANTIATETEMPLATES (unsigned int);
 THCLAPPLY_INSTANTIATETEMPLATES (unsigned long);
 THCLAPPLY_INSTANTIATETEMPLATES (unsigned long long);
-
-//template< typename IndexType >
-//void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, HasOperator3 const*op ) {
 

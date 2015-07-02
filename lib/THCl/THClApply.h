@@ -21,6 +21,7 @@
 //
 
 std::string getApplyDv2_template();
+std::string getApplyDV3_template();
 
 // Called when we are copying into an overlapping index `dst`, but
 // we don't care which writer wins. Hacky but it works.
@@ -46,8 +47,7 @@ bool THClTensor_pointwiseApply2(THClState* state,
                                   THClTensor* a,
                                   THClTensor* b,
                                   HasOperator2 const*op,
-                                  TensorArgType aType = ReadWrite,
-                                  TensorArgType bType = ReadOnly);
+                                  TensorArgType aType = ReadWrite);  // note: b and c should be readonly
 bool THClTensor_pointwiseApply3(THClState* state,
                                   THClTensor* a,
                                   THClTensor* b,

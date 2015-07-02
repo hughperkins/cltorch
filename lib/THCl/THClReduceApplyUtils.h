@@ -15,9 +15,6 @@
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-// Maximum number of dimensions allowed for cltorch
-#define MAX_CLTORCH_DIMS 25
-
 // Warning string for tensor arguments that are too large or have too
 // many dimensions
 #define CLTORCH_STR(X) #X

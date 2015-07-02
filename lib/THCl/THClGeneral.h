@@ -25,6 +25,10 @@ struct EasyCL;
 struct CLWrapper;
 struct DeviceInfo;
 
+// Maximum number of dimensions allowed for cltorch
+#define MAX_CLTORCH_DIMS 8  // mostly we're using matrices right?  anyway, can increase this later somehow, for some
+                            // special cases
+
 #ifdef __cplusplus
 #include <iostream>
 #endif // __cplusplus
