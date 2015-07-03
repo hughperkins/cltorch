@@ -27,6 +27,8 @@ TARGET_LINK_LIBRARIES( THCl ${EASYCL_LIBRARIES} )
 TARGET_LINK_LIBRARIES( THCl ${CLBLAS_LIBRARIES} )
 add_dependencies( THCl clBLAS )
 add_dependencies( THCl EasyCL )
+add_dependencies( THCl EasyCL-external )
+add_dependencies( THCl clBLAS-external )
 
 if(DEV_RUN_COG)
     add_custom_target(
