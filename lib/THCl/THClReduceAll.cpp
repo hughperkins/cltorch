@@ -7,7 +7,7 @@ using namespace std;
 
 static std::string getKernelTemplate();
 
-long getReduceAllBlockSize(THClState *state) {
+int64 getReduceAllBlockSize(THClState *state) {
   int blockSize = 1024;
   int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[state->currentDevice])->maxWorkGroupSize;
   if( blockSize > maxWorkgroupSize ) {
@@ -21,25 +21,25 @@ long getReduceAllBlockSize(THClState *state) {
 // I wonder if this is a function of the block size above?  logically it 
 // probably is...
 
-long getTwoPassReductionSize(THClState *state) {
+int64 getTwoPassReductionSize(THClState *state) {
   return getReduceAllBlockSize(state) * 2;
 }
 
 // Perform a two-pass reduction if the tensor is large enough to
 // warrant it.
-bool isTwoPassReductionSize(THClState *state, long elements) {
+bool isTwoPassReductionSize(THClState *state, int64 elements) {
   return (elements > getTwoPassReductionSize(state));
 }
 
-long getTwoPassBlocks(THClState* state, long elements) {
-  long numBlocks = THClCeilDiv(elements, getReduceAllBlockSize(state));
+int64 getTwoPassBlocks(THClState* state, int64 elements) {
+  int64 numBlocks = THClCeilDiv(elements, getReduceAllBlockSize(state));
 
   // We can only have as many blocks as there is scratch space
   size_t scratchSpace =
     THClState_getCurrentDeviceScratchSpaceSize(state) / sizeof(float);
   THAssert(scratchSpace > 0);
 
-  if (numBlocks > (long)scratchSpace) {
+  if (numBlocks > (int64)scratchSpace) {
     numBlocks = scratchSpace;
   }
 
@@ -47,20 +47,20 @@ long getTwoPassBlocks(THClState* state, long elements) {
 }
 
 // Get the block/grid size that we want
-void getPass1ReduceBlockGrid(THClState* state, long elements,
+void getPass1ReduceBlockGrid(THClState* state, int64 elements,
                                     dim3& grid, dim3& block) {
   grid = dim3(getTwoPassBlocks(state, elements));
   block = dim3(getReduceAllBlockSize(state));
 }
 
-void getPass2ReduceBlockGrid(THClState* state, long elements,
+void getPass2ReduceBlockGrid(THClState* state, int64 elements,
                                     dim3& grid, dim3& block) {
   grid = dim3(1);
   // We only need as many threads as there were blocks originally
   block = dim3(getTwoPassBlocks(state, elements));
 }
 
-void getSinglePassReduceBlockGrid(THClState *state, long elements,
+void getSinglePassReduceBlockGrid(THClState *state, int64 elements,
                                          dim3& grid, dim3& block) {
   grid = dim3(1);
   block = dim3(getReduceAllBlockSize(state));
@@ -73,7 +73,7 @@ void kernelLaunch_THClTensor_reduceAllPass1(
                      int ADims,
                      const TensorInfo<IndexType> & in,
 //                     CLWrapper *in_data,
-                     long totalElements,
+                     int64 totalElements,
                      float init,
                      const HasOperator2 *modifyOp,
                      const HasOperator3 *reduceOp,
@@ -172,7 +172,7 @@ void kernelLaunch_THClTensor_reduceAll(
                      int ADims,
                      const TensorInfo<IndexType> &in,
 //                     CLWrapper *in_data,
-                     long totalElements,
+                     int64 totalElements,
                      float init,
                      const HasOperator2 *modifyOp,
                      const HasOperator3 *reduceOp,
@@ -221,7 +221,7 @@ template <typename IndexType>
 void callReduceAll(THClState* state,
                    int ADims,
                    const TensorInfo<IndexType>& in,
-                   long totalElements,
+                   int64 totalElements,
                    float init,
                    const HasOperator2 *modifyOp,
                    const HasOperator3 *reduceOp,
@@ -289,7 +289,7 @@ bool THClTensor_reduceAll(THClState* state,
                             const HasOperator3 *reduceOp,
                             float init,
                             float *p_result) {
-  long inElements = THClTensor_nElement(state, in);
+  int64 inElements = THClTensor_nElement(state, in);
 
   if (THClTensor_nDimension(state, in) > MAX_CLTORCH_DIMS) {
     return false;
@@ -349,15 +349,15 @@ bool THClTensor_reduceAll(THClState* state,
 
     HANDLE_IN_CASE(unsigned int, inInfo.dims);
   } else {
-    TensorInfo<unsigned long long> inInfo(state, in);
+    TensorInfo<uint64> inInfo(state, in);
 
     // For large tensors, we only compile the completely contiguous
     // version and the completely generic version, to reduce
     // compilation time.
     if (inInfo.isContiguous()) {
-      HANDLE_IN_CASE(unsigned long long, -2);
+      HANDLE_IN_CASE(uint64, -2);
     } else {
-      HANDLE_IN_CASE(unsigned long long, -1);
+      HANDLE_IN_CASE(uint64, -1);
     }
   }
 #undef HANDLE_CASE
@@ -493,7 +493,7 @@ std::string getKernelTemplate() {
 }
 
 //template
-//void kernelLaunch_THClTensor_reduceAllPass2<unsigned long long>(
+//void kernelLaunch_THClTensor_reduceAllPass2<uint64>(
 //                     THClState* state,
 //                     dim3 &grid, dim3 &block, size_t smemSize,
 //                     int numPass1Blocks,
@@ -503,13 +503,13 @@ std::string getKernelTemplate() {
 //                     CLWrapper* devOut
 //    );
 //template
-//void kernelLaunch_THClTensor_reduceAllPass1<unsigned long long>(
+//void kernelLaunch_THClTensor_reduceAllPass1<uint64>(
 //                     THClState* state,
 //                     dim3 &grid, dim3 &block, size_t smemSize,
 //                     int ADims,
-//                     const TensorInfo<unsigned long long> & in,
+//                     const TensorInfo<uint64> & in,
 ////                     CLWrapper *in_data,
-//                     long totalElements,
+//                     int64 totalElements,
 //                     float init,
 //                     const HasOperator2 *modifyOp,
 //                     const HasOperator3 *reduceOp,
@@ -520,9 +520,9 @@ std::string getKernelTemplate() {
 //                     THClState* state,
 //                     dim3 &grid, dim3 &block, size_t smemSize,
 //                     int ADims,
-//                     const TensorInfo<unsigned long long> &in,
+//                     const TensorInfo<uint64> &in,
 ////                     CLWrapper *in_data,
-//                     long totalElements,
+//                     int64 totalElements,
 //                     float init,
 //                     const HasOperator2 *modifyOp,
 //                     const HasOperator3 *reduceOp,
