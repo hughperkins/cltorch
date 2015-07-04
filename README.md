@@ -169,6 +169,18 @@ torch.Tensor(5,3):bernoulli() -- works now, but basically generates on host side
 </pre></tr>
 </table>
 
+### From [maths.md](https://github.com/torch/torch7/blob/master/doc/serialization.md)
+
+<table>
+
+<tr><td>Component<td>Status<td>Examples of what works now</tr>
+
+<tr><td>Serialization <td>50%<td><pre>
+torch.save('filename.dat', torch.ClTensor{3,5,2})
+a = torch.load('filename.dat')
+</pre></tr>
+</table>
+
 ### From [maths.md](https://github.com/torch/torch7/blob/master/doc/maths.md)
 
 <table>
@@ -409,6 +421,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 # Recent changes
 
+* 4th July:
+  * `torch.save` and `torch.load` implemented
 * 27th June:
   * fixed more bugs involving Tensor copy.  Hopefully should be fixed permanently now :-P
   * added `cltorch.dumpTimings()`, which will dump cumulative timings for various parts of the engine.  It's mostly for usage by maintainers / optimizers.
