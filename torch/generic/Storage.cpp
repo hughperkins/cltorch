@@ -2,6 +2,8 @@
 #define TH_GENERIC_FILE "generic/Storage.c"
 #else
 
+#include "EasyCL.h"
+
 static int torch_Storage_(new)(lua_State *L)
 {
   THClState *state = cltorch_getstate(L);
@@ -55,7 +57,7 @@ static int torch_Storage_(new)(lua_State *L)
   }
   else if(lua_type(L, 1) == LUA_TUSERDATA)
   {
-    THStorage *src = luaT_checkudata(L, 1, torch_Storage);
+    THStorage *src = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
     real *ptr = src->data;
     long offset = luaL_optlong(L, 2, 1) - 1;
     if (offset < 0 || offset >= src->size) {
@@ -88,14 +90,14 @@ static int torch_Storage_(new)(lua_State *L)
 
 static int torch_Storage_(free)(lua_State *L)
 {
-  THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
+  THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
   THStorage_(free)(cltorch_getstate(L), storage);
   return 0;
 }
 
 static int torch_Storage_(resize)(lua_State *L)
 {
-  THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
+  THStorage *storage = static_cast< THStorage * >(luaT_checkudata(L, 1, torch_Storage));
   long size = luaL_checklong(L, 2);
 /*  int keepContent = luaT_optboolean(L, 3, 0); */
   THStorage_(resize)(cltorch_getstate(L), storage, size);/*, keepContent); */
@@ -106,24 +108,24 @@ static int torch_Storage_(resize)(lua_State *L)
 static int torch_Storage_(copy)(lua_State *L)
 {
   THClState *state = cltorch_getstate(L);
-  THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
+  THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
   void *src;
   if( (src = luaT_toudata(L, 2, torch_Storage)) )
-    THStorage_(copy)(state, storage, src);
+    THStorage_(copy)(state, storage, static_cast<THClStorage *>(src));
   else if( (src = luaT_toudata(L, 2, "torch.ByteStorage")) )
-    THStorage_(copyByte)(state, storage, src);
+    THStorage_(copyByte)(state, storage, static_cast<THByteStorage *>(src));
   else if( (src = luaT_toudata(L, 2, "torch.CharStorage")) )
-    THStorage_(copyChar)(state, storage, src);
+    THStorage_(copyChar)(state, storage, static_cast<THCharStorage *>(src));
   else if( (src = luaT_toudata(L, 2, "torch.ShortStorage")) )
-    THStorage_(copyShort)(state, storage, src);
+    THStorage_(copyShort)(state, storage, static_cast<THShortStorage *>(src));
   else if( (src = luaT_toudata(L, 2, "torch.IntStorage")) )
-    THStorage_(copyInt)(state, storage, src);
+    THStorage_(copyInt)(state, storage, static_cast<THIntStorage *>(src));
   else if( (src = luaT_toudata(L, 2, "torch.LongStorage")) )
-    THStorage_(copyLong)(state, storage, src);
+    THStorage_(copyLong)(state, storage, static_cast<THLongStorage *>(src));
   else if( (src = luaT_toudata(L, 2, "torch.FloatStorage")) )
-    THStorage_(copyFloat)(state, storage, src);
+    THStorage_(copyFloat)(state, storage, static_cast<THFloatStorage *>(src));
   else if( (src = luaT_toudata(L, 2, "torch.DoubleStorage")) )
-    THStorage_(copyDouble)(state, storage, src);
+    THStorage_(copyDouble)(state, storage, static_cast<THDoubleStorage *>(src));
   else
     luaL_typerror(L, 2, "torch.*Storage");
   lua_settop(L, 1);
@@ -132,7 +134,7 @@ static int torch_Storage_(copy)(lua_State *L)
 
 static int torch_Storage_(fill)(lua_State *L)
 {
-  THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
+  THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
   double value = luaL_checknumber(L, 2);
   THStorage_(fill)(cltorch_getstate(L), storage, (real)value);
   lua_settop(L, 1);
@@ -141,7 +143,7 @@ static int torch_Storage_(fill)(lua_State *L)
 
 static int torch_Storage_(__len__)(lua_State *L)
 {
-  THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
+  THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
   lua_pushnumber(L, storage->size);
   return 1;
 }
@@ -187,7 +189,7 @@ static int torch_Storage_(__index__)(lua_State *L)
 static int torch_Storage_(string)(lua_State *L)
 {
   printf("torch_Storage_(string)\n");
-  THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
+  THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
   if(lua_isstring(L, -1))
   {
     size_t len = 0;
@@ -205,7 +207,7 @@ static int torch_Storage_(string)(lua_State *L)
 
 static int torch_Storage_(totable)(lua_State *L)
 {
-  THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
+  THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
   long i;
 
   lua_newtable(L);
@@ -219,30 +221,39 @@ static int torch_Storage_(totable)(lua_State *L)
 
 static int torch_Storage_(factory)(lua_State *L)
 {
-  THStorage *storage = THStorage_(new)(cltorch_getstate(L));
+  THStorage *storage = static_cast<THStorage *>(THStorage_(new)(cltorch_getstate(L)));
   luaT_pushudata(L, storage, torch_Storage);
   return 1;
 }
 
 static int torch_Storage_(write)(lua_State *L)
 {
-  THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
-  THFile *file = luaT_checkudata(L, 2, "torch.File");
+  THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
+  THFile *file = static_cast<THFile *>(luaT_checkudata(L, 2, "torch.File"));
+
+  THClState *state = cltorch_getstate(L);
 
   THFile_writeLongScalar(file, storage->size);
-  THFile_writeRealRaw(file, storage->data, storage->size);
+  storage->wrapper->copyToHost();
+  THClState_getCl(state)->finish();
+  
+  THFile_writeFloatRaw(file, storage->data, storage->size);
 
   return 0;
 }
 
 static int torch_Storage_(read)(lua_State *L)
 {
-  THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
-  THFile *file = luaT_checkudata(L, 2, "torch.File");
+  THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
+  THFile *file = static_cast<THFile *>(luaT_checkudata(L, 2, "torch.File"));
   long size = THFile_readLongScalar(file);
 
+  THClState *state = cltorch_getstate(L);
+
   THStorage_(resize)(cltorch_getstate(L), storage, size);
-  THFile_readRealRaw(file, storage->data, storage->size);
+  THFile_readFloatRaw(file, storage->data, storage->size);
+  storage->wrapper->copyToDevice();
+  THClState_getCl(state)->finish();
 
   return 0;
 }
