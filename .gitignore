@@ -30,6 +30,8 @@ port/
 *.app
 
 build/
+share/
+*~
 
 generated/
 non-templated/
