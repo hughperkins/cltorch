@@ -169,7 +169,7 @@ torch.Tensor(5,3):bernoulli() -- works now, but basically generates on host side
 </pre></tr>
 </table>
 
-### From [maths.md](https://github.com/torch/torch7/blob/master/doc/serialization.md)
+### From [serialization.md](https://github.com/torch/torch7/blob/master/doc/serialization.md)
 
 <table>
 
