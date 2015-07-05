@@ -392,7 +392,6 @@ rm -Rf build/EasyCL
 # Dependencies
 
 cltorch has the following build dependencies:
-* [lua 5.1](http://www.lua.org/versions.html) libraries - used for runtime Kernel templating
 * [clBLAS](https://github.com/clMathLibraries/clBLAS) - provides GPU-based matrix operations, such as multiplication
 * [EasyCL](https://github.com/hughperkins/EasyCL) - provides an abstraction layer over the low-level OpenCL API
 * [clew](https://github.com/martijnberger/clew) - similar to glew, means that cltorch can be loaded without any OpenCL library/runtime being present
