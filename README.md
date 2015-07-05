@@ -408,7 +408,7 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 
 # Unit tests / samples
 
-Simple run:
+Simply run:
 ```
 th -l cltorch -e 'cltorch.test()'
 ```
