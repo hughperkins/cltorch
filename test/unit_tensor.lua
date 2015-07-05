@@ -41,7 +41,7 @@ function torch.Tensor.__eq(self, b)
   else
     print('left\n', self)
     print('right\n', b)
-    print('diff\n', self - b)
+--    print('diff\n', self - b)
 --    print('======= eq end FALSE ====')
     return false
   end
@@ -63,7 +63,7 @@ function torch.FloatTensor.__eq(self, b)
   else
     print('left\n', self)
     print('right\n', b)
-    print('diff\n', self - b)
+--    print('diff\n', self - b)
 --    print('======= eq end FALSE ====')
     return false
   end
@@ -85,7 +85,7 @@ function torch.DoubleTensor.__eq(self, b)
   else
     print('left\n', self)
     print('right\n', b)
-    print('diff\n', self - b)
+--    print('diff\n', self - b)
 --    print('======= eq end FALSE ====')
     return false
   end
@@ -100,17 +100,32 @@ function torch.LongTensor.__eq(self, b)
   else
     print('left\n', self)
     print('right\n', b)
-    print('diff\n', self - b)
+--    print('diff\n', self - b)
     return false
   end
 end
 
+function torch.LongStorage.__eq(self, b)
+--  print('LongStorage.__eq()')
+  if self:size() ~= b:size() then
+    return false
+  end
+--  tester:asserteq(self:size(), b:size())
+  for i=1,self:size() do
+    if self[i] ~= b[i] then
+      return false
+    end
+--    tester:asserteq(self[i], b[i])
+  end
+  return true
+end
+
 function torch.ClTensor.__eq(self, b)
-  print('self', self)
+--  print('self', self)
   diff = torch.ne(self, b)
-  print('diff', diff)
+--  print('diff', diff)
   sum = torch.sum(diff)
-  print('sum', sum)
+--  print('sum', sum)
   if sum == 0 then
     return true
   else
@@ -858,6 +873,28 @@ function cltorch.tests.tensor.test_scatterFill()
 
   tester:asserteq(z, zcl:double())
 end
+
+function cltorch.tests.tensor.test_save()
+  a = torch.ClTensor{3,5,4.7, 0/0, 1/0, nil}
+--  print('a', a)
+
+  torch.save('out.dat~', a)
+
+  b = torch.load('out.dat~')
+--  print('b', b)
+  tester:asserteq(torch.type(a), torch.type(b))
+  af = a:float()
+  bf = b:float()
+  tester:asserteq(a:size(), b:size())
+  for i=1,5 do
+    if af[i] == af[i] then
+      tester:asserteq(af[i], bf[i])
+    else
+      tester:assertne(bf[i], bf[i])
+    end
+  end
+end
+
 --local function _run()
 --  --cltorch.setTrace(1)
 --  luaunit.LuaUnit.run()
