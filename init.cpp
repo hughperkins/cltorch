@@ -34,7 +34,7 @@ namespace cltorch {
   }
   static int cltorch_getDeviceCount(lua_State *L)
   {
-    int count = easycl::DevicesInfo::getNumDevices();
+    int count = easycl::DevicesInfo::getNumGpus();
     lua_pushnumber(L, count);
     return 1;
   }
