@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Note: should be called from root directory, the one this script is in
+# Note: should be called from root directory
 
 source ~/torch/activate || exit 1
 luarocks make rocks/cltorch-scm-1.rockspec || exit 1
@@ -11,8 +11,8 @@ if [[ ! -v LUAEXE ]]; then {
 echo using luaexe: ${LUAEXE}
 
 if [[ x${RUNGDB} == x1 ]]; then {
-  rungdb.sh ${LUAEXE} test/test-device.lua
+  rungdb.sh ${LUAEXE} test/test-perf.lua
 } else {
-  ${LUAEXE} test/test-device.lua
+  ${LUAEXE} test/test-perf.lua
 } fi
 

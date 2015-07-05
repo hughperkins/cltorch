@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Note: should be called from root directory, the one this script is in
+# Note: should be called from root directory
 
 source ~/torch/activate || exit 1
 luarocks make rocks/cltorch-scm-1.rockspec || exit 1
