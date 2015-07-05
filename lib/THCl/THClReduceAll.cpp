@@ -386,7 +386,7 @@ std::string getKernelTemplate() {
   const char * kernelSource =  
   "{{include_THClDeviceUtils}}\n" 
   "\n" 
-  "float modifyOp(float _in1) {\n" 
+  "static float modifyOp(float _in1) {\n" 
   "  float _out;\n" 
   "  float *in1 = &_in1;\n" 
   "  float *out = &_out;\n" 
@@ -394,7 +394,7 @@ std::string getKernelTemplate() {
   "  return _out;\n" 
   "}\n" 
   "\n" 
-  "float reduceOp(float _in1, float _in2) {\n" 
+  "static float reduceOp(float _in1, float _in2) {\n" 
   "  // I guess the compiler can sort this stuff out :-P\n" 
   "  float _out;\n" 
   "  float *in1 = &_in1;\n" 

@@ -1,7 +1,7 @@
 // Threads per thread block
 #define THCL_NONCONTIG_REDUCE_BLOCK_SIZE 32 * 16
 
-float modifyOp(float _in1) {
+static float modifyOp(float _in1) {
   float _out;
   float *in1 = &_in1;
   float *out = &_out;
@@ -9,7 +9,7 @@ float modifyOp(float _in1) {
   return _out;
 }
 
-float reduceOp(float _in1, float _in2) {
+static float reduceOp(float _in1, float _in2) {
   // I guess the compiler can sort this stuff out :-P
   float _out;
   float *in1 = &_in1;
@@ -21,7 +21,7 @@ float reduceOp(float _in1, float _in2) {
 
 {{include_THClReduceApplyUtils}}
 
-{{IndexType}} getReduceNoncontigDimSliceIndex() {
+static {{IndexType}} getReduceNoncontigDimSliceIndex() {
   // Each thread handles one slice
   return getLinearBlockId() * THCL_NONCONTIG_REDUCE_BLOCK_SIZE + /*threadIdx.x*/ get_local_id(0);
 }
@@ -62,7 +62,7 @@ THClTensor_reduceNoncontigDim(global TensorInfoCl *out_info,
   out_data[outOffset] = r;
 }
 
-{{IndexType}} getReduceContigDimSliceIndex() {
+static {{IndexType}} getReduceContigDimSliceIndex() {
   // Each block handles one slice
   return getLinearBlockId();
 }

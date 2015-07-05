@@ -24,7 +24,7 @@
 //enum TensorArgType { ReadWrite, ReadOnly };
 
 // not used by this kernel, but used by THClReduceApplyUtils...
-float reduceOp(float _in1, float _in2) {
+static float reduceOp(float _in1, float _in2) {
   return 0;
 }
 
@@ -37,7 +37,7 @@ float reduceOp(float _in1, float _in2) {
    end
  %}
 
-void op( global float *out
+static void op( global float *out
   {% for i=1,(num_tensors-1) do %}
   , global float *in{{i}}
   {% end %}

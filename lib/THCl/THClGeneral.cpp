@@ -18,7 +18,7 @@
 
 void THClInit(THClState* state)
 {
-  state->allocatedDevices = easycl::DevicesInfo::getNumDevices();
+  state->allocatedDevices = easycl::DevicesInfo::getNumGpus();
   state->clByDevice = new EasyCL *[state->allocatedDevices];
   state->scratchSpaceByDevice = new THClScratchSpace *[state->allocatedDevices];
   state->trace = 0;
@@ -96,7 +96,7 @@ EasyCL *THClState_getClAndDevice(THClState* state, int *p_device) {
     THError("Please use setDevice to choose an available device first");
   }
   if( state->clByDevice[device] == 0 ) {
-    EasyCL *cl = EasyCL::createForIndexedDevice(device);
+    EasyCL *cl = EasyCL::createForIndexedGpu(device);
     state->clByDevice[device] = cl;
     THClScratchSpace *scratch = new THClScratchSpace();
     scratch->data = new float[FLOATS_PER_SCRATCH_SPACE];

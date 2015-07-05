@@ -24,7 +24,7 @@ std::string THClDeviceUtils_getKernelTemplate() {
   // ]]]
   // generated using cog, from THClDeviceUtils.cl:
   const char * kernelSource =  
-  "{{IndexType}} THClCeilDiv({{IndexType}} a, {{IndexType}} b) {\n" 
+  "static {{IndexType}} THClCeilDiv({{IndexType}} a, {{IndexType}} b) {\n" 
   "  return (a + b - 1) / b;\n" 
   "}\n" 
   "\n" 
