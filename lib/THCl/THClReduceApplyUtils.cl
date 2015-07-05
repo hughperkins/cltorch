@@ -14,14 +14,14 @@ typedef struct TensorInfoCl {
 } TensorInfoCl;
 // Contiguous tensors of more than one dimension are collapsed down
 // to one tensor
-static inline bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
+inline bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
     return (tensorInfo.dims == 1 && tensorInfo.strides[0] == 1);    
 }
 
 // Translate a linear index for the apply to a float* offset;
 // specialized on `Dims` to reduce nvcc compilation time
 {% for _,dim in ipairs(dims) do %}
-static inline {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, TensorInfoCl info) {
+inline {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, TensorInfoCl info) {
   {{IndexType}} offset = info.offset;
 
   // Use static dims
@@ -43,11 +43,11 @@ static inline {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} line
 }
 {% end %}
 
-static inline {{IndexType}} IndexToOffset_998_get({{IndexType}} linearId, const TensorInfoCl info) {
+inline {{IndexType}} IndexToOffset_998_get({{IndexType}} linearId, const TensorInfoCl info) {
     return linearId + info.offset;
 }
 
-static inline {{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, const TensorInfoCl info) {
+inline {{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, const TensorInfoCl info) {
   {{IndexType}} offset = info.offset;
 
   // Use dynamic dims
@@ -62,7 +62,7 @@ static inline {{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, const 
   return offset;
 }
 
-static inline {{IndexType}} getLinearBlockId() {
+inline {{IndexType}} getLinearBlockId() {
   return get_group_id(2) * get_num_groups(1) * get_num_groups(0) +
     get_group_id(1) * get_num_groups(0) +
     get_group_id(0);
@@ -70,7 +70,7 @@ static inline {{IndexType}} getLinearBlockId() {
 
 // Block-wide reduction in shared memory helper; only /*threadIdx.x*/ get_local_id(0) == 0 will
 // return the reduced value
-static inline float reduceBlock( local float* smem,
+inline float reduceBlock( local float* smem,
                    int numVals,
                    float threadVal,
                    float init) {
