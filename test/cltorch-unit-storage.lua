@@ -1,5 +1,16 @@
 luaunit = require('luaunit')
-require 'cltorch'
+
+local runtests = false
+if not cltorch then
+   require 'cltorch'
+   runtests = true
+end
+
+if not cltorch.tests then
+  cltorch.tests = {}
+end
+
+cltorch.tests.storage = {}
 
 function test_basic()
   luaunit.assertEquals('\n[torch.ClStorage of size 0]\n', tostring(torch.ClStorage()))
@@ -38,5 +49,11 @@ function test_basic()
   luaunit.assertEquals(tostring(c), '\n 1\n 1\n 1\n 1\n 1\n[torch.ClStorage of size 5]\n')
 end
 
-os.exit( luaunit.LuaUnit.run() )
+function cltorch.tests.storage.test()
+  luaunit.LuaUnit.run()
+end
+
+if runtests then
+  os.exit( luaunit.LuaUnit.run() )
+end
 

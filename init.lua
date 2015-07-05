@@ -44,6 +44,7 @@ end
 --torch.ClStorage.__tostring__ = torch.FloatStorage.__tostring__
 torch.ClTensor.__tostring__ = torch.FloatTensor.__tostring__
 
+include('Test.lua')
 include('Tensor.lua')
 include('Random.lua')
 --include('FFI.lua')
