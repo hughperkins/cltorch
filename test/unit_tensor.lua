@@ -860,7 +860,7 @@ end
 --os.exit(luaunit.LuaUnit.run())
 
 local function setUp()
-  cltorch.setDevice(1)
+  --cltorch.setDevice(1)
   print('')
 end
 

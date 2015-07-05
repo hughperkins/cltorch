@@ -61,7 +61,7 @@ function cltorch.tests.storage.test_basic()
 end
 
 local function setUp()
-  cltorch.setDevice(1)
+  -- cltorch.setDevice(1)
   print('')
 end
 
