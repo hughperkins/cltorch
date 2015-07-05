@@ -45,7 +45,7 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/torch")
 
 SET(src init.cpp torch/utils.c Storage.cpp Tensor.c TensorMath.c
   TensorOperator.c)
-SET(luasrc init.lua Tensor.lua Random.lua Test.lua )
+SET(luasrc init.lua Tensor.lua Random.lua Test.lua thirdparty/luaunit.lua test/unit_storage.lua test/unit_tensor.lua )
 
 ADD_TORCH_WRAP(cltorchtensormathwrap TensorMath.lua)
 

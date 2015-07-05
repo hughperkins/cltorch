@@ -13,6 +13,8 @@ echo using luaexe: ${LUAEXE}
 if [[ x${RUNGDB} == x1 ]]; then {
   rungdb.sh ${LUAEXE} test/test-storage.lua
 } else {
-  ${LUAEXE} test/test-storage.lua
+  # ${LUAEXE} test/test-storage.lua
+  # ${LUAEXE} test/test-storage.lua
+  ${LUAEXE} -l cltorch -e "cltorch.test()"
 } fi
 
