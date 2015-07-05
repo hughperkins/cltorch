@@ -176,6 +176,103 @@ function cltorch.tests.tensor.test_equals()
   tester:assertne(c, e)
 end
 
+for _, op in ipairs({'lt', 'gt',
+     'le', 'ge', 'eq', 'ne'}) do
+  cltorch.tests.tensor['inplace_' .. op] = function()
+    c = torch.ClTensor{{4,  2,  -1},
+                       {3.1,1.2, 4.9}}
+    d = torch.ClTensor{{3,  5,  -2},
+                       {2.1,2.2, 3.9}}
+    a = c:float()
+    b = d:float()
+    loadstring('a:' .. op .. '(b)')()
+    loadstring('c:' .. op .. '(d)')()
+    tester:asserteq(a:float(), c:float())
+  end
+end
+
+for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos', 
+   'acos', 'sin', 'asin', 'atan', 'tanh', 'ceil', 'floor', 
+   'abs', 'round'}) do
+  cltorch.tests.tensor['inplace_' .. name] = function()
+    c = torch.ClTensor{{4,  2,  -1},
+                       {3.1,1.2, 4.9}}
+    a = c:float()
+    loadstring('c:' .. name .. '()')()
+    loadstring('a:' .. name .. '()')()
+    tester:asserteq(a, c:float())
+  end
+end
+
+for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv'}) do
+  cltorch.tests.tensor['inplace_' .. op] = function()
+    c = torch.ClTensor{{4,  2,  -1},
+                       {0.8,1.2, 1.9}}
+    d = torch.ClTensor{{3,  5,  -2},
+                       {2.1,2.2, 0.9}}
+    a = c:float()
+    b = d:float()
+    loadstring('a:' .. op .. '(b)')()
+    loadstring('c:' .. op .. '(d)')()
+    tester:asserteq(a, c:float())
+  end
+end
+
+for _, op in ipairs({'lt', 'gt',
+       'le', 'ge', 'eq', 'ne'}) do
+  cltorch.tests.tensor['outplace_' .. op] = function()
+    c = torch.ClTensor{{4,  2,  -1},
+                       {3.1,1.2, 4.9}}
+    d = torch.ClTensor{{3,  5,  -2},
+                       {2.1,2.2, 3.9}}
+    a = c:float()
+    b = d:float()
+    loadstring('a = torch.' .. op .. '(a, b)')()
+    loadstring('c = torch.' .. op .. '(c, d)')()
+    tester:asserteq(a:float(), c:float())
+  end
+end
+
+for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv'}) do
+  cltorch.tests.tensor['outplace_' .. op] = function()
+    c = torch.ClTensor{{4,  2,  -1},
+                       {0.8,1.2, 1.9}}
+    d = torch.ClTensor{{3,  5,  -2},
+                       {2.1,2.2, 0.9}}
+    a = c:float()
+    b = d:float()
+    loadstring('a = torch.' .. op .. '(a, b)')()
+    loadstring('c = torch.' .. op .. '(c, d)')()
+    tester:asserteq(a, c:float())
+  end
+end
+
+for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+  cltorch.tests.tensor['outplace_' .. name] = function()
+    c = torch.ClTensor{{4,  2,  -1},
+                       {3.1,1.2, 4.9}}
+    d = torch.ClTensor{{3,  5,  -2},
+                       {2.1,2.2, 3.9}}
+    a = c:float()
+    b = d:float()
+    print(loadstring('c = torch.' .. name .. '(c,d)')())
+    print(loadstring('a = torch.' .. name .. '(a,b)')())
+    tester:asserteq(a:float(), c:float())
+  end
+end
+
+for _,name in ipairs({'add', 'mul', 'div', 'pow',
+      'lt', 'le', 'gt', 'ge', 'ne', 'eq'}) do
+  cltorch.tests.tensor['outplace_' .. name] = function()
+    c = torch.ClTensor{{4,  2,  -1},
+                       {3.1,1.2, 4.9}}
+    a = c:float()
+    print(loadstring('c = torch.' .. name .. '(c, 3.4)')())
+    print(loadstring('a = torch.' .. name .. '(a, 3.4)')())
+    tester:asserteq(a:float(), c:float())
+  end
+end
+
 function cltorch.tests.tensor.test_perelement()
   c = torch.ClTensor{{4,  2,  -1},
                      {3.1,1.2, 4.9}}
@@ -197,64 +294,6 @@ function cltorch.tests.tensor.test_perelement()
   c:cmul(d)
   tester:asserteq(a, c:float())
 
-  for _, op in ipairs({'lt', 'gt',
-       'le', 'ge', 'eq', 'ne'}) do
-    c = torch.ClTensor{{4,  2,  -1},
-                       {3.1,1.2, 4.9}}
-    d = torch.ClTensor{{3,  5,  -2},
-                       {2.1,2.2, 3.9}}
-    a = c:float()
-    b = d:float()
-    print(op)
-    loadstring('a:' .. op .. '(b)')()
-    loadstring('c:' .. op .. '(d)')()
-    tester:asserteq(a:float(), c:float())
-    print('   ... ok')
-  end
-
-  for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv'}) do
-    c = torch.ClTensor{{4,  2,  -1},
-                       {0.8,1.2, 1.9}}
-    d = torch.ClTensor{{3,  5,  -2},
-                       {2.1,2.2, 0.9}}
-    a = c:float()
-    b = d:float()
-    print(op)
-    loadstring('a:' .. op .. '(b)')()
-    loadstring('c:' .. op .. '(d)')()
-    tester:asserteq(a, c:float())
-    print('   ... ok')
-  end
-
-  for _, op in ipairs({'lt', 'gt',
-       'le', 'ge', 'eq', 'ne'}) do
-    c = torch.ClTensor{{4,  2,  -1},
-                       {3.1,1.2, 4.9}}
-    d = torch.ClTensor{{3,  5,  -2},
-                       {2.1,2.2, 3.9}}
-    a = c:float()
-    b = d:float()
-    print(op)
-    loadstring('a = torch.' .. op .. '(a, b)')()
-    loadstring('c = torch.' .. op .. '(c, d)')()
-    tester:asserteq(a:float(), c:float())
-    print('   ... ok')
-  end
-
-  for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv'}) do
-    c = torch.ClTensor{{4,  2,  -1},
-                       {0.8,1.2, 1.9}}
-    d = torch.ClTensor{{3,  5,  -2},
-                       {2.1,2.2, 0.9}}
-    a = c:float()
-    b = d:float()
-    print(op)
-    loadstring('a = torch.' .. op .. '(a, b)')()
-    loadstring('c = torch.' .. op .. '(c, d)')()
-    tester:asserteq(a, c:float())
-    print('   ... ok')
-  end
-
   for _, op in ipairs({'+', '-'}) do
     c = torch.ClTensor{{4,  2,  -1},
                        {3.1,1.2, 4.9}}
@@ -267,45 +306,6 @@ function cltorch.tests.tensor.test_perelement()
     loadstring('c = c ' .. op .. ' d')()
     tester:asserteq(a, c:float())
     print('   ... ok')
-  end
-
-  for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos', 
-     'acos', 'sin', 'asin', 'atan', 'tanh', 'ceil', 'floor', 
-     'abs', 'round'}) do
-    c = torch.ClTensor{{4,  2,  -1},
-                       {3.1,1.2, 4.9}}
-    a = c:float()
-    print(name)
-    loadstring('c:' .. name .. '()')()
-    loadstring('a:' .. name .. '()')()
-    tester:asserteq(a, c:float())
-    print('   ... ok')
-  end
-
-  for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
-    print(name)
-    c = torch.ClTensor{{4,  2,  -1},
-                       {3.1,1.2, 4.9}}
-    d = torch.ClTensor{{3,  5,  -2},
-                       {2.1,2.2, 3.9}}
-    a = c:float()
-    b = d:float()
-    print(loadstring('c = torch.' .. name .. '(c,d)')())
-    print(loadstring('a = torch.' .. name .. '(a,b)')())
-    tester:asserteq(a:float(), c:float())
-    print('   ... ok')
-  end
-
-  for _,name in ipairs({'add', 'mul', 'div', 'pow',
-      'lt', 'le', 'gt', 'ge', 'ne', 'eq'}) do
-    c = torch.ClTensor{{4,  2,  -1},
-                       {3.1,1.2, 4.9}}
-    a = c:float()
-    print(name)
-    print(loadstring('c = torch.' .. name .. '(c, 3.4)')())
-    print(loadstring('a = torch.' .. name .. '(a, 3.4)')())
-    tester:asserteq(a:float(), c:float())
-    print('   ... ok')    
   end
 
   for _,name in ipairs({'+', '/', '*', '-'}) do
@@ -349,8 +349,8 @@ function cltorch.tests.tensor.test_blas()
   B = D:float()
   A = torch.mm(A,B)
   C = torch.mm(C,D)
-  print('A\n', A)
-  print('C\n', C)
+--  print('A\n', A)
+--  print('C\n', C)
   tester:asserteq(A, C:float())
 
   C = torch.ClTensor{{1,2,-1},
@@ -362,8 +362,8 @@ function cltorch.tests.tensor.test_blas()
   B = D:float()
   A = A * B
   C = C * D
-  print('A\n', A)
-  print('C\n', C)
+--  print('A\n', A)
+--  print('C\n', C)
   tester:asserteq(A, C:float())
 
   c = torch.ClTensor{3,5,1}
