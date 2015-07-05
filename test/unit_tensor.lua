@@ -214,9 +214,9 @@ function cltorch.tests.tensor.test_perelement()
 
   for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv'}) do
     c = torch.ClTensor{{4,  2,  -1},
-                       {3.1,1.2, 4.9}}
+                       {0.8,1.2, 1.9}}
     d = torch.ClTensor{{3,  5,  -2},
-                       {2.1,2.2, 3.9}}
+                       {2.1,2.2, 0.9}}
     a = c:float()
     b = d:float()
     print(op)
@@ -243,9 +243,9 @@ function cltorch.tests.tensor.test_perelement()
 
   for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv'}) do
     c = torch.ClTensor{{4,  2,  -1},
-                       {3.1,1.2, 4.9}}
+                       {0.8,1.2, 1.9}}
     d = torch.ClTensor{{3,  5,  -2},
-                       {2.1,2.2, 3.9}}
+                       {2.1,2.2, 0.9}}
     a = c:float()
     b = d:float()
     print(op)
