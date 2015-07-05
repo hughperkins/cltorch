@@ -369,8 +369,9 @@ th -l cltorch -e 'cltorch.test()'
 
 # Co-existence with cutorch
 
-* You must ensure that cltorch is `require`d after cutorch
-* If you get errors about #1 argument to copy should be tensor, but is userdata, then please double-check that cltorch is `required`d after cutorch (they each monkey-patch torch, but since cutorch was written first, it assumes there is no monkey-patch conflict)
+* It is possible to load cutorch and cltorch at the same time, if you wish
+* If you do this, please load cutorch first, and then load cltorch second
+* If you get errors about #1 argument to copy should be tensor, but is userdata, then please double-check that cutorch is `required`d before cltorch (they each monkey-patch torch, but since cutorch was written first, it assumes there is no monkey-patch conflict)
 
 # Updating
 
