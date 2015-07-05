@@ -199,7 +199,7 @@ std::string THClReduceApplyUtils_getKernelTemplate() {
   "\n" 
   "// Block-wide reduction in shared memory helper; only /*threadIdx.x*/ get_local_id(0) == 0 will\n" 
   "// return the reduced value\n" 
-  "float reduceBlock( local float* smem,\n" 
+  "static float reduceBlock( local float* smem,\n" 
   "                   int numVals,\n" 
   "                   float threadVal,\n" 
   "                   float init) {\n" 

@@ -70,7 +70,7 @@ static {{IndexType}} getLinearBlockId() {
 
 // Block-wide reduction in shared memory helper; only /*threadIdx.x*/ get_local_id(0) == 0 will
 // return the reduced value
-float reduceBlock( local float* smem,
+static float reduceBlock( local float* smem,
                    int numVals,
                    float threadVal,
                    float init) {
