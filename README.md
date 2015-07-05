@@ -422,7 +422,7 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 # Recent changes
 
 * 5th July:
-  * fixed some Mac build/load issues, so builds/loads on Mac now (thank you to mlajtos, szagouyko, centime, luo123n, pdhvip for their enormous help with fixing this :-) )
+  * fixed some Mac build/load issues, so builds/loads on Mac now (thank you to mlajtos, szagouyko, centime, luo123n, and pdhvip for their enormous help with fixing this :-) )
 * 4th July:
   * `torch.save` and `torch.load` implemented
 * 27th June:
