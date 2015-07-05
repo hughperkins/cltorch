@@ -69,7 +69,7 @@ namespace cltorch {
        THError("Device doesnt exist");
     }
 
-    easycl::DeviceInfo deviceInfo = easycl::DevicesInfo::getDeviceInfo( device );
+    easycl::DeviceInfo deviceInfo = easycl::DevicesInfo::getGpuInfo( device );
     lua_newtable(L);
 
     setProperty(L, "maxWorkGroupSize", deviceInfo.maxWorkGroupSize);
