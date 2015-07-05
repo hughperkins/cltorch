@@ -1,6 +1,6 @@
 {{include_THClDeviceUtils}}
 
-float modifyOp(float _in1) {
+static float modifyOp(float _in1) {
   float _out;
   float *in1 = &_in1;
   float *out = &_out;
@@ -8,7 +8,7 @@ float modifyOp(float _in1) {
   return _out;
 }
 
-float reduceOp(float _in1, float _in2) {
+static float reduceOp(float _in1, float _in2) {
   // I guess the compiler can sort this stuff out :-P
   float _out;
   float *in1 = &_in1;

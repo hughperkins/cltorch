@@ -14,14 +14,14 @@ typedef struct TensorInfoCl {
 } TensorInfoCl;
 // Contiguous tensors of more than one dimension are collapsed down
 // to one tensor
-bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
+static bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
     return (tensorInfo.dims == 1 && tensorInfo.strides[0] == 1);    
 }
 
 // Translate a linear index for the apply to a float* offset;
 // specialized on `Dims` to reduce nvcc compilation time
 {% for _,dim in ipairs(dims) do %}
-{{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, TensorInfoCl info) {
+static {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, TensorInfoCl info) {
   {{IndexType}} offset = info.offset;
 
   // Use static dims
@@ -43,11 +43,11 @@ bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
 }
 {% end %}
 
-{{IndexType}} IndexToOffset_998_get({{IndexType}} linearId, const TensorInfoCl info) {
+static {{IndexType}} IndexToOffset_998_get({{IndexType}} linearId, const TensorInfoCl info) {
     return linearId + info.offset;
 }
 
-{{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, const TensorInfoCl info) {
+static {{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, const TensorInfoCl info) {
   {{IndexType}} offset = info.offset;
 
   // Use dynamic dims
@@ -62,7 +62,7 @@ bool TensorInfo_isContiguous( TensorInfoCl tensorInfo ) {
   return offset;
 }
 
-{{IndexType}} getLinearBlockId() {
+static {{IndexType}} getLinearBlockId() {
   return get_group_id(2) * get_num_groups(1) * get_num_groups(0) +
     get_group_id(1) * get_num_groups(0) +
     get_group_id(0);

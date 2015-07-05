@@ -37,7 +37,7 @@ static float reduceOp(float _in1, float _in2) {
    end
  %}
 
-void op( global float *out
+static void op( global float *out
   {% for i=1,(num_tensors-1) do %}
   , global float *in{{i}}
   {% end %}

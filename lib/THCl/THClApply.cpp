@@ -55,7 +55,7 @@ std::string getApplyDv2_template() {
   "   end\n" 
   " %}\n" 
   "\n" 
-  "void op( global float *out\n" 
+  "static void op( global float *out\n" 
   "  {% for i=1,(num_tensors-1) do %}\n" 
   "  , global float *in{{i}}\n" 
   "  {% end %}\n" 
