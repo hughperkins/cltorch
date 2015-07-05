@@ -26,7 +26,7 @@ local function assertStrContains(target, value )
   end
 end
 
--- probalby not ideal to modify the original Tensors, but anyway...
+-- probalby not ideal to modify the original Tensor classes, but anyway...
 
 function torch.Tensor.__eq(self, b)
 --  print('======= eq begin ====')
@@ -261,6 +261,20 @@ for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
   end
 end
 
+for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
+  cltorch.tests.tensor['self_' .. name] = function()
+    c = torch.ClTensor{{4,  2,  -1},
+                       {2, 5, 2}}
+    d = torch.ClTensor{{3,  5,  -1},
+                       {1,5, 3}}
+    a = c:float()
+    b = d:float()
+    print(loadstring('c = c:' .. name .. '(d)')())
+    print(loadstring('a = a:' .. name .. '(b)')())
+    tester:asserteq(a:float(), c:float())
+  end
+end
+
 for _,name in ipairs({'add', 'mul', 'div', 'pow',
       'lt', 'le', 'gt', 'ge', 'ne', 'eq'}) do
   cltorch.tests.tensor['outplace_' .. name] = function()
@@ -270,6 +284,33 @@ for _,name in ipairs({'add', 'mul', 'div', 'pow',
     print(loadstring('c = torch.' .. name .. '(c, 3.4)')())
     print(loadstring('a = torch.' .. name .. '(a, 3.4)')())
     tester:asserteq(a:float(), c:float())
+  end
+end
+
+for _,pair in ipairs({{'plus','+'},{'div', '/'}, {'mul', '*'},{'sub', '-'}}) do
+  cltorch.tests.tensor['operator_' .. pair[1] .. '_scalar'] = function()
+    c = torch.ClTensor{{4,  2,  -1},
+                       {3.1,1.2, 4.9}}
+    name = pair[2]
+    a = c:float()
+    print(loadstring('c = c ' .. name .. ' 3.4')())
+    print(loadstring('a = a ' .. name .. ' 3.4')())
+    tester:asserteq(a, c:float())
+  end
+end
+
+for _, pair in ipairs({{'plus','+'}, {'sub','-'}}) do
+  cltorch.tests.tensor['operator_' .. pair[1]] = function()
+    c = torch.ClTensor{{4,  2,  -1},
+                       {3.1,1.2, 4.9}}
+    d = torch.ClTensor{{3,  5,  -2},
+                       {2.1,2.2, 3.9}}
+    a = c:float()
+    b = d:float()
+    op = pair[2]
+    loadstring('a = a ' .. op .. ' b')()
+    loadstring('c = c ' .. op .. ' d')()
+    tester:asserteq(a, c:float())
   end
 end
 
@@ -294,35 +335,6 @@ function cltorch.tests.tensor.test_perelement()
   c:cmul(d)
   tester:asserteq(a, c:float())
 
-  for _, op in ipairs({'+', '-'}) do
-    c = torch.ClTensor{{4,  2,  -1},
-                       {3.1,1.2, 4.9}}
-    d = torch.ClTensor{{3,  5,  -2},
-                       {2.1,2.2, 3.9}}
-    a = c:float()
-    b = d:float()
-    print(op)
-    loadstring('a = a ' .. op .. ' b')()
-    loadstring('c = c ' .. op .. ' d')()
-    tester:asserteq(a, c:float())
-    print('   ... ok')
-  end
-
-  for _,name in ipairs({'+', '/', '*', '-'}) do
-    c = torch.ClTensor{{4,  2,  -1},
-                       {3.1,1.2, 4.9}}
-    a = c:float()
-    print(name)
-    print(loadstring('c = c ' .. name .. ' 3.4')())
-    print(loadstring('a = a ' .. name .. ' 3.4')())
-    tester:asserteq(a, c:float())
-    print('   ... ok')    
-  end
-
-  for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
-    print('name', name)
-    print(loadstring('return c:' .. name .. '(5)')())
-  end
 
   c = torch.ClTensor{{4,  2,  -1},
                      {3.1,1.2, 4.9}}
