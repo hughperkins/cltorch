@@ -362,6 +362,10 @@ git submodule init
 rmdir clMathLibraries/clBLAS/src
 git submodule update
 ```
+* Please make sure you run the self-tests first.  If any of them fail, please raise an issue.  They should all pass, reliably, every time.  To run the tests:
+```
+th -l cltorch -e 'cltorch.test()'
+```
 
 # Co-existence with cutorch
 
@@ -403,11 +407,10 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 
 # Unit tests / samples
 
-* There are unit tests at:
-  * For ClStorage: [test/cltorch-unit-storage.lua](test/cltorch-unit-storage.lua)
-  * For ClTensor: [test/cltorch-unit-tensor.lua](test/cltorch-unit-tensor.lua)
-* There's also a sample of interrogating devices at:
-  * [test/test-device.lua](test/test-device.lua)
+Simple run:
+```
+th -l cltorch -e 'cltorch.test()'
+```
 
 # Guidelines for contributors
 
