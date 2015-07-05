@@ -78,14 +78,14 @@ float reduceBlock( local float* smem,
     return init;
   }
 
-  if (get_local_id(0) < numVals) {
+  if ((int)get_local_id(0) < numVals) {
     smem[ get_local_id(0)] = threadVal;
   }
 
   // First warp will perform reductions across warps
   barrier(CLK_LOCAL_MEM_FENCE);
   if ((get_local_id(0) / {{WarpSize}}) == 0) {
-    float r = get_local_id(0) < numVals ? smem[get_local_id(0)] : init;
+    float r = (int)get_local_id(0) < numVals ? smem[get_local_id(0)] : init;
 
     for (int i = {{WarpSize}} + get_local_id(0); i < numVals; i += {{WarpSize}}) {
       r = reduceOp(r, smem[i]);

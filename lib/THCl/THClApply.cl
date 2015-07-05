@@ -24,7 +24,7 @@
 //enum TensorArgType { ReadWrite, ReadOnly };
 
 // not used by this kernel, but used by THClReduceApplyUtils...
-float reduceOp(float _in1, float _in2) {
+static float reduceOp(float _in1, float _in2) {
   return 0;
 }
 
