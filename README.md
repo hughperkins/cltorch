@@ -424,6 +424,7 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 * 5th July:
   * fixed some Mac build/load issues, so builds/loads on Mac now (thank you to mlajtos, szagouyko, centime, luo123n, and pdhvip for their enormous help with fixing this :-) )
   * getDeviceProperties and so on now only show GPU and APU devices, ignore pure CPU devices (which pure CPU devices are not supported by cltorch at this time)
+  * added `cltorch.test()`, which runs unit tests
 * 4th July:
   * `torch.save` and `torch.load` implemented
 * 27th June:
