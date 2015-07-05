@@ -104,7 +104,7 @@ EasyCL *THClState_getClAndDevice(THClState* state, int *p_device) {
     scratch->wrapper->createOnDevice();
     state->scratchSpaceByDevice[device] = scratch;
     state->deviceInfoByDevice[device] = (struct DeviceInfo *)new easycl::DeviceInfo();
-    *((easycl::DeviceInfo *)state->deviceInfoByDevice[device]) = easycl::DevicesInfo::getDeviceInfo( device );
+    *((easycl::DeviceInfo *)state->deviceInfoByDevice[device]) = easycl::DevicesInfo::getGpuInfo( device );
   }
   if( p_device != 0 ) {
         *p_device = device;
