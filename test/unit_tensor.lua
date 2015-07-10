@@ -874,6 +874,14 @@ function cltorch.tests.tensor.test_scatterFill()
   tester:asserteq(z, zcl:double())
 end
 
+function cltorch.tests.tensor.test_cmin()
+  local a = torch.Tensor(5,6):uniform() - 0.5
+  local b = torch.Tensor(5,6):uniform() - 0.5
+--  local res = a:cmin(b)
+  local rescl = a:cl():min(b:cl())
+--  tester:asserteq(res, rescl:double())
+end
+
 function cltorch.tests.tensor.test_save()
   a = torch.ClTensor{3,5,4.7, 0/0, 1/0, nil}
 --  print('a', a)

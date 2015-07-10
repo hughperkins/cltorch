@@ -155,6 +155,132 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
   }
 }
 
+class TensorMaxOp : public HasOperator2, public HasOperator3 {
+public:
+  string operator2() const {
+    return "*out = max(*out, *in1)";
+  }
+  string operator3() const {
+    return "*out = max(*in1, *in2)";
+  }
+};
+
+void THClTensor_cmax(THClState *state, THClTensor *self, THClTensor *src1, THClTensor *src2)
+{
+  THAssert(THClTensor_checkGPU(state, 3, self, src1, src2));
+  THArgCheck(THClTensor_nElement(state, src1) ==
+             THClTensor_nElement(state, src2), 2, "sizes do not match");
+
+  if (self == src1) {
+    if (!THClTensor_pointwiseApply2(state, self, src2, TensorMaxOp())) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  } else {
+    THClTensor_resizeAs(state, self, src1);
+    if (!THClTensor_pointwiseApply3(state, self, src1, src2, TensorMaxOp())) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  }
+}
+
+class TensorMinOp : public HasOperator2, public HasOperator3 {
+public:
+  string operator2() const {
+    return "*out = min(*out, *in1)";
+  }
+  string operator3() const {
+    return "*out = min(*in1, *in2)";
+  }
+};
+
+void THClTensor_cmin(THClState *state, THClTensor *self, THClTensor *src1, THClTensor *src2)
+{
+  THAssert(THClTensor_checkGPU(state, 3, self, src1, src2));
+  THArgCheck(THClTensor_nElement(state, src1) ==
+             THClTensor_nElement(state, src2), 2, "sizes do not match");
+
+  if (self == src1) {
+    if (!THClTensor_pointwiseApply2(state, self, src2, TensorMinOp())) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  } else {
+    THClTensor_resizeAs(state, self, src1);
+    if (!THClTensor_pointwiseApply3(state, self, src1, src2, TensorMinOp())) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  }
+}
+
+class TensorMaxValueOp : public HasOperator1, public HasOperator2, public HasScalars {
+public:
+  int getNumScalars() const {
+    return 1;
+  }
+  float getScalar(int index) const {
+    return val;
+  }
+  TensorMaxValueOp(float v) : val(v) {}
+  string operator1() const {
+    return "*out = max(*out, val1)";
+  }
+  string operator2() const {
+    return "*out = max(*in1, val1)";
+  }
+
+  float val;
+};
+
+void THClTensor_cmaxValue(THClState *state, THClTensor *self, THClTensor *src, float value)
+{
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+
+  if (self == src) {
+    if (!THClTensor_pointwiseApply1(state, self, TensorMaxValueOp(value))) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  } else {
+    THClTensor_resizeAs(state, self, src);
+    if (!THClTensor_pointwiseApply2(state, self, src, TensorMaxValueOp(value))) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  }
+}
+
+class TensorMinValueOp : public HasOperator1, public HasOperator2, public HasScalars {
+public:
+  int getNumScalars() const {
+    return 1;
+  }
+  float getScalar(int index) const {
+    return val;
+  }
+  TensorMinValueOp(float v) : val(v) {}
+  string operator1() const {
+    return "*out = min(*out, val1)";
+  }
+  string operator2() const {
+    return "*out = min(*in1, val1)";
+  }
+
+  float val;
+};
+
+void THClTensor_cminValue(THClState *state, THClTensor *self, THClTensor *src, float value)
+{
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+
+  if (self == src) {
+    if (!THClTensor_pointwiseApply1(state, self, TensorMinValueOp(value))) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  } else {
+    THClTensor_resizeAs(state, self, src);
+    if (!THClTensor_pointwiseApply2(state, self, src, TensorMinValueOp(value))) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  }
+}
+
 void THClTensor_csub(THClState *state, THClTensor *self_, THClTensor* src1, float value, THClTensor *src2)
 {
   THAssert(THClTensor_checkGPU(state, 3, self_, src1, src2));

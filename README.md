@@ -255,6 +255,11 @@ C = torch.ClTensor{{3,1,7},{3,2,4},{8,5,3}}
 d = torch.ClTensor{3,2,5}
 e = torch.ClTensor{3,1,2}
 print(torch.addr(C,d,e))
+
+a:cmin(b)
+a:cmax(b)
+a:cmin(0.6)
+a:cmax(0.6)
 </pre></tr>
 
 <tr><td>Logical operations <td>Done<td><pre>
@@ -424,6 +429,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 # Recent changes
 
+* 10th July:
+  * added cmin, cmax, for tensors and scalars (as per https://github.com/torch/cutorch/pull/198/files )
 * 5th July:
   * fixed some Mac build/load issues, so builds/loads on Mac now (thank you to mlajtos, szagouyko, centime, luo123n, and pdhvip for their enormous help with fixing this :-) )
   * getDeviceProperties and so on now only show GPU and APU devices, ignores pure CPU devices (which pure CPU devices are not supported by cltorch at this time)

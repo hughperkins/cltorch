@@ -40,6 +40,11 @@ THCL_API void THClTensor_prod(THClState *state, THClTensor *self, THClTensor *sr
 THCL_API void THClTensor_cumsum(THClState *state, THClTensor *self, THClTensor *src, long dim);
 THCL_API void THClTensor_cumprod(THClState *state, THClTensor *self, THClTensor *src, long dim);
 
+THCL_API void THClTensor_cmin(THClState *state, THClTensor *self, THClTensor *src1, THClTensor *src2);
+THCL_API void THClTensor_cmax(THClState *state, THClTensor *self, THClTensor *src1, THClTensor *src2);
+THCL_API void THClTensor_cminValue(THClState *state, THClTensor *self, THClTensor *src, float value);
+THCL_API void THClTensor_cmaxValue(THClState *state, THClTensor *self, THClTensor *src, float value);
+
 THCL_API void THClTensor_addmv(THClState *state, THClTensor *self, float beta, THClTensor *t, float alpha, THClTensor *mat, THClTensor *vec);
 THCL_API void THClTensor_addmm(THClState *state, THClTensor *self, float beta, THClTensor *t, float alpha, THClTensor *mat1, THClTensor *mat2);
 THCL_API void THClTensor_addr(THClState *state, THClTensor *self, float beta, THClTensor *t, float alpha, THClTensor *vec1, THClTensor *vec2);
