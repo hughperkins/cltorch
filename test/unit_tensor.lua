@@ -878,7 +878,7 @@ function cltorch.tests.tensor.test_cmin()
   local a = torch.Tensor(5,6):uniform() - 0.5
   local b = torch.Tensor(5,6):uniform() - 0.5
 --  local res = a:cmin(b)
-  local rescl = a:cl():min(b:cl())
+  local rescl = a:cl():cmin(b:cl())
 --  tester:asserteq(res, rescl:double())
 end
 
