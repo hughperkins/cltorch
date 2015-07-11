@@ -75,8 +75,12 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
   } else {
     TemplatedKernel kernelBuilder(THClState_getCl(state));
 
+    string initString = easycl::toString(init);
+    if(initString.find(".") != string::npos) {
+      initString = initString + "f";
+    }
     kernelBuilder
-      .set("init", init)
+      .set("init", initString)
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
       .set("x_threads", 1)
       .set("y_threads", 1)
@@ -127,8 +131,12 @@ void THClTensor_transformReduceInnermostDimIndex(
   } else {
     TemplatedKernel kernelBuilder(THClState_getCl(state));
 
+    string initString = easycl::toString(init);
+    if(initString.find(".") != string::npos) {
+      initString = initString + "f";
+    }
     kernelBuilder
-      .set("init", init)
+      .set("init", initString)
       .set("x_threads", x_threads)
       .set("y_threads", y_threads)
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
