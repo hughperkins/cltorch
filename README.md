@@ -429,6 +429,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 # Recent changes
 
+* 12th July:
+  * add `cltorch.about()`, to provide build information
 * 10th July:
   * added cmin, cmax, for tensors and scalars (as per https://github.com/torch/cutorch/pull/198/files )
 * 5th July:

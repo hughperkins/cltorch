@@ -137,6 +137,35 @@ namespace cltorch {
     state->addFinish = addFinish;
     return 0;
   }
+  static int cltorch_about(lua_State *L)
+  {
+    /* [[[cog
+      import subprocess
+      git_out = subprocess.check_output(['git', 'log', '-n', '1', '--oneline'])
+      commit = git_out.split(' ')[0]
+      cog.outl('string commit = "{commit}";'.format(
+        commit=commit))
+    *///]]]
+    string commit = "b3615a3";
+    // [[[end]]]
+    cout << "ctorch. Built from commit " << commit << endl;
+    cout << "website: https://github.com/hughperkins/cltorch" << endl;
+    cout << endl;
+    cout << "most recent commits:" << endl;
+    /* [[[cog
+      import subprocess
+      git_out = subprocess.check_output(['git', 'log', '-n', '3', '--oneline'])
+      for line in git_out.split('\n'):
+        cog.outl('cout << "{line}" << endl;'.format(
+          line=line))
+    *///]]]
+    cout << "b3615a3 Remove cl compile warnings on intel hd5500" << endl;
+    cout << "c344bbc fix buggette in test_cmin" << endl;
+    cout << "864f134 added cmin, cmax, for tensors and scalars" << endl;
+    cout << "" << endl;
+    // [[[end]]]
+    return 0;
+  }
 
   static const struct luaL_Reg cltorch_stuff__ [] = {
     {"getDevice", cltorch_getDevice},
@@ -149,6 +178,7 @@ namespace cltorch {
     {"setTrace", cltorch_setTrace},
     {"setAddFinish", cltorch_setAddFinish},
     {"dumpTimings", cltorch_dumpTimings},
+    {"about", cltorch_about},
     {NULL, NULL}
   };
 }

@@ -56,6 +56,16 @@ ADD_DEPENDENCIES(cltorch EasyCL-external)
 ADD_DEPENDENCIES(cltorchtensormathwrap EasyCL)
 #add_custom_target(
 
+if(DEV_RUN_COG)
+    add_custom_target(
+        cog_cltorch
+        python ${CMAKE_CURRENT_SOURCE_DIR}/EasyCL/thirdparty/cogapp/cog.py -q -I ${CMAKE_CURRENT_SOURCE_DIR}/EasyCL/cog-batteries -r ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    add_dependencies( cltorch cog_cltorch )
+endif(DEV_RUN_COG)
+
+
 #if( ON_LINUX ) 
     execute_process( COMMAND git --version RESULT_VARIABLE git_test ERROR_QUIET )
     if( ${git_test} EQUAL 0 )
