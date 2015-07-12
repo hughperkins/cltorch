@@ -800,6 +800,8 @@ if os.getenv('PROTOTYPING') ~= nil then
     eval('a:add(2)')
     eval('cltorch.setDevice(1)')
     eval('b:add(2)')
+
+    eval('b:sum()')
   else
     print('not enough gpu devices to run multi-device tests')
   end

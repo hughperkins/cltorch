@@ -39,20 +39,20 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
   dim3 nblocks(ceil((float)nRes / nIndex / (16*16)));
 
   stride_ = new int[res_->nDimension];
-  CLWrapper *strideWrapper = THClState_getCl(state)->wrap(res_->nDimension, stride_);
+  EasyCL *cl = src->storage->cl;
+  CLWrapper *strideWrapper = cl->wrap(res_->nDimension, stride_);
   for(int i = 0; i < res_->nDimension; i++ ) {
     stride_[i] = res_->stride[i];
   }
   strideWrapper->copyToDevice();
 
   std::string uniqueName = "THClTensorMathIndex_indexCopy";
-  EasyCL *cl = THClState_getCl(state);
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    TemplatedKernel kernelBuilder(cl);
 
     kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
       THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexCopy");
@@ -78,7 +78,7 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
 
   THClTensor_free(state, indices_);
   THClTensor_free(state, src);
-  if(state->addFinish) THClState_getCl(state)->finish();  
+  if(state->addFinish) cl->finish();  
   StatefulTimer::timeCheck("THClTensor_indexCopy END");
 }
 
@@ -104,7 +104,8 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
   dim3 nblocks(ceil((float)nRes / nIndex / (16*16)));
 
   stride_ = new int[res_->nDimension];
-  CLWrapper *strideWrapper = THClState_getCl(state)->wrap(res_->nDimension, stride_);
+  EasyCL *cl = res_->storage->cl;
+  CLWrapper *strideWrapper = cl->wrap(res_->nDimension, stride_);
   for(int i = 0; i < res_->nDimension; i++ ) {
     stride_[i] = res_->stride[i];
   }
@@ -112,13 +113,12 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
 
   // launch kernel here....
   std::string uniqueName = "THClTensorMathIndex_indexFill";
-  EasyCL *cl = THClState_getCl(state);
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    TemplatedKernel kernelBuilder(cl);
 
     kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
       THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexFill");
@@ -139,7 +139,7 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
   delete strideWrapper;
   delete[] stride_;
   THClTensor_free(state, indices_);
-  if(state->addFinish) THClState_getCl(state)->finish();  
+  if(state->addFinish) cl->finish();  
   StatefulTimer::timeCheck("THClTensor_indexFill END");
 }
 
@@ -163,6 +163,8 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   THClTensor_resize(state, res_, newSize, NULL);
   THLongStorage_free(newSize);
 
+  EasyCL *cl = src->storage->cl;
+
   indices_ = THClTensor_newWithSize1d(state, nIndex);
   THClTensor_copyLong(state, indices_, indices);
 
@@ -171,7 +173,7 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   dim3 nblocks(ceil((float)nRes / nIndex / (16*16)));
 
   stride_ = new int[src->nDimension];
-  CLWrapper *strideWrapper = THClState_getCl(state)->wrap(src->nDimension, stride_);
+  CLWrapper *strideWrapper = cl->wrap(src->nDimension, stride_);
   for(int i = 0; i < src->nDimension; i++ ) {
     stride_[i] = src->stride[i];
   }
@@ -179,13 +181,12 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
 
   // launch kernel here....
   std::string uniqueName = "THClTensorMathIndex_indexSelect";
-  EasyCL *cl = THClState_getCl(state);
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    TemplatedKernel kernelBuilder(cl);
 
     kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
       THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexSelect");
@@ -209,7 +210,7 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   delete[] stride_;
 
   THClTensor_free(state, indices_);
-  if(state->addFinish) THClState_getCl(state)->finish();  
+  if(state->addFinish) cl->finish();  
   StatefulTimer::timeCheck("THClTensor_indexSelect END");
 }
 

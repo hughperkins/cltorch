@@ -48,13 +48,13 @@ void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src,
   dim3 grid(mymin(maxGridDim, num_orows), mymin(maxGridDim, THClCeilDiv(num_irows, threads.x())));
 
   std::string uniqueName = "THClTensorMathScan_scanOuterDim_" + binary_op->operator3();
-  EasyCL *cl = THClState_getCl(state);
+  EasyCL *cl = src->storage->cl;
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    TemplatedKernel kernelBuilder(cl);
     kernelBuilder.set("num_threads_x", 16); // dont need for this kernel, but do need so whole file
     kernelBuilder.set("num_threads_y", 32); // compiles ok
     kernelBuilder.set("operator3", binary_op->operator3());
@@ -72,7 +72,7 @@ void THClTensor_scanOuterDim(THClState *state, THClTensor *tgt, THClTensor *src,
   k.in(init);
 
   k.run(grid, threads);
-  if(state->addFinish) THClState_getCl(state)->finish();  
+  if(state->addFinish) cl->finish();  
   StatefulTimer::timeCheck("THClTensorMathScan_scanOuterDim END");
 }
 
@@ -97,13 +97,13 @@ void THClTensor_scanInnermostDim(THClState *state, THClTensor *tgt, THClTensor *
   dim3 grid(mymin(getBlockSize(state), THClCeilDiv(num_rows, threads.y())));
 
   std::string uniqueName = "THClTensorMathScan_scanInnermostDim_" + binary_op->operator3();
-  EasyCL *cl = THClState_getCl(state);
+  EasyCL *cl = src->storage->cl;
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    TemplatedKernel kernelBuilder(cl);
     kernelBuilder.set("num_threads_x", x_threads);
     kernelBuilder.set("num_threads_y", y_threads);
     kernelBuilder.set("operator3", binary_op->operator3());
@@ -120,7 +120,7 @@ void THClTensor_scanInnermostDim(THClState *state, THClTensor *tgt, THClTensor *
   k.in(init);
 
   k.run(grid, threads);
-  if(state->addFinish) THClState_getCl(state)->finish();  
+  if(state->addFinish) cl->finish();  
   StatefulTimer::timeCheck("THClTensorMathScan_scanInnermostDim END");
 }
 

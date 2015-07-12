@@ -73,18 +73,18 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
   HasOperator2 const*modifyOp,
   HasOperator3 const*reduceOp) {
 
-//  THClState_getCl(state)->finish();
+//  cl->finish();
   StatefulTimer::timeCheck("Reduce-noncontig START");
   std::string uniqueName = "THClTensor_reduceNoncontigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
     TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
-  EasyCL *cl = THClState_getCl(state);
+  EasyCL *cl = in.wrapper->getCl();
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
     // launch kernel here....
-    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    TemplatedKernel kernelBuilder(cl);
 
     std::set<int> dims_set;
     if(ADims >= 0) {
@@ -125,7 +125,7 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
 
   k.run(grid, block);
 
-  if(state->addFinish) THClState_getCl(state)->finish();  
+  if(state->addFinish) cl->finish();  
   StatefulTimer::timeCheck("Reduce-noncontig END");
 }
 
@@ -145,11 +145,11 @@ void kernelLaunch_THClTensor_reduceContigDim(
   HasOperator2 const*modifyOp,
   HasOperator3 const*reduceOp) {
 
-//  THClState_getCl(state)->finish();
+//  cl->finish();
   StatefulTimer::timeCheck("Reduce-contig START");
   std::string uniqueName = "THClTensor_reduceContigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
     TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
-  EasyCL *cl = THClState_getCl(state);
+  EasyCL *cl = in.wrapper->getCl();
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
@@ -158,7 +158,7 @@ void kernelLaunch_THClTensor_reduceContigDim(
 
     // launch kernel here....
 
-    TemplatedKernel kernelBuilder(THClState_getCl(state));
+    TemplatedKernel kernelBuilder(cl);
 
     std::set<int> dims_set;
     if(ADims >= 0) {
@@ -200,7 +200,7 @@ void kernelLaunch_THClTensor_reduceContigDim(
 
   k.run(grid, block);
 
-  if(state->addFinish) THClState_getCl(state)->finish();
+  if(state->addFinish) cl->finish();
   StatefulTimer::timeCheck("Reduce-contig END");
 }
 
