@@ -144,7 +144,7 @@ void THClTensor_addmm(THClState *state, THClTensor *r_, float beta, THClTensor *
   {
     transpose_r = 'n';
 
-    r__ = THClTensor_newWithSize2d(state, r_->size[1], r_->size[0]);
+    r__ = THClTensor_newWithSize2d(state, t->storage->device, r_->size[1], r_->size[0]);
     THClTensor_copy(state, r__, r_);
     THClTensor_transpose(state, r__, NULL, 0, 1);
   }

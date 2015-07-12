@@ -25,6 +25,7 @@ THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, T
   THArgCheck(dim >= 0, 2, "dim out of bounds");
   THArgCheck(nDims < MAX_CLTORCH_DIMS, 2, "Tensors should have less than %i dimensions", MAX_CLTORCH_DIMS); // I guess?
 
+  const int device = src->storage->device;
 //  THLongStorage *newSize;
 
   for( int i = 0; i < nDims; i++ ) {
@@ -48,13 +49,13 @@ THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, T
   THArgCheck(self != src, 1, "self cannot alias src");
   
   std::string uniqueName = __FILE__ ":scatter:" + easycl::toString(nDims);
-  EasyCL *cl = THClState_getCl(state);
+  EasyCL *cl = THClTensor_getCl(state, src);
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder( THClState_getCl(state) );
+    TemplatedKernel kernelBuilder(cl);
     kernelBuilder.set("IndexType", "unsigned int");
     kernelBuilder.set("dims", nDims);
     kernelBuilder.set("scatter", 1);
@@ -66,11 +67,11 @@ THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, T
     TensorInfoCl srcInfoCl(src);
     TensorInfoCl indexInfoCl(index);
 
-  const dim3 block = getApplyBlock(state);
+  const dim3 block = getApplyBlock(state, device);
 
   long totalElements = THClTensor_nElement(state, index);
   dim3 grid;
-  if (!getApplyGrid(state, totalElements, grid)) {
+  if (!getApplyGrid(state, device, totalElements, grid)) {
     THError("Couldnt create appropriate grid dimensions");
   }
 
@@ -89,7 +90,7 @@ THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, T
   k.run(grid, block);
 
 
-  if(state->addFinish) THClState_getCl(state)->finish();
+  if(state->addFinish) cl->finish();
   StatefulTimer::timeCheck("THClTensor_kernel_Scatter END");
 }
 
@@ -113,15 +114,17 @@ THCL_API void THClTensor_scatterFill(THClState *state, THClTensor *self, long di
   // since self is write-only, and index and src are read-only, ie none are read-write
   // so, we dnot need to worry about contiguity (at least, not from point of view of correctness)
   THArgCheck(self != index, 1, "self cannot alias index");
+
+  const int device = self->storage->device;
   
   std::string uniqueName = __FILE__ ":scatterFill:" + easycl::toString(nDims);
-  EasyCL *cl = THClState_getCl(state);
+  EasyCL *cl = THClTensor_getCl(state, self);
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder( THClState_getCl(state) );
+    TemplatedKernel kernelBuilder(cl);
     kernelBuilder.set("IndexType", "unsigned int");
     kernelBuilder.set("dims", nDims);
     kernelBuilder.set("scatterFill", 1);
@@ -132,11 +135,11 @@ THCL_API void THClTensor_scatterFill(THClState *state, THClTensor *self, long di
   TensorInfoCl selfInfoCl(self);
     TensorInfoCl indexInfoCl(index);
 
-  const dim3 block = getApplyBlock(state);
+  const dim3 block = getApplyBlock(state, device);
 
   long totalElements = THClTensor_nElement(state, index);
   dim3 grid;
-  if (!getApplyGrid(state, totalElements, grid)) {
+  if (!getApplyGrid(state, device, totalElements, grid)) {
     THError("Couldnt create appropriate grid dimensions");
   }
 
@@ -153,7 +156,7 @@ THCL_API void THClTensor_scatterFill(THClState *state, THClTensor *self, long di
   k.in( (int)totalElements );
   k.run(grid, block);
 
-  if(state->addFinish) THClState_getCl(state)->finish();
+  if(state->addFinish) cl->finish();
   StatefulTimer::timeCheck("THClTensor_kernel_ScatterFill END");
 }
 
