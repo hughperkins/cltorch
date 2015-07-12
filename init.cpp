@@ -60,7 +60,7 @@ namespace cltorch {
   static int cltorch_synchronize(lua_State *L)
   {
     THClState *state = cltorch_getstate(L);
-    THClState_getClv2(state, state->currentDevice)->finish();
+    THClState_getCl(state)->finish();
     return 0;
   }
   static int cltorch_getDeviceProperties(lua_State *L)

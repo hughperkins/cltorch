@@ -14,13 +14,7 @@ static int cltorch_ClTensorOperator___add__(lua_State *L)
     luaL_error(L, "expecting two Tensors or one Tensor and one number");
   else
   {
-    int device = -1;
-    if(tensor1) {
-      device = tensor1->storage->device;
-    } else {
-      device = tensor2->storage->device;
-    }
-    r = THClTensor_newv2(state, device);
+    r = THClTensor_new(state);
     luaT_pushudata(L, r, "torch.ClTensor");
 
     if(!tensor1 && tensor2)
@@ -57,13 +51,7 @@ static int cltorch_ClTensorOperator___sub__(lua_State *L)
     luaL_error(L, "expecting two Tensors or one Tensor and one number");
   else
   {
-    int device = -1;
-    if(tensor1) {
-      device = tensor1->storage->device;
-    } else {
-      device = tensor2->storage->device;
-    }
-    r = THClTensor_newv2(state, device);
+    r = THClTensor_new(state);
     luaT_pushudata(L, r, "torch.ClTensor");
 
     if(!tensor1 && tensor2)
@@ -95,7 +83,7 @@ static int cltorch_ClTensorOperator___unm__(lua_State *L)
   THClState *state = cltorch_getstate(L);
   THAssert(THClTensor_checkGPU(state, 1, tensor));
 
-  r = THClTensor_newv2(state, tensor->storage->device);
+  r = THClTensor_new(state);
   luaT_pushudata(L, r, "torch.ClTensor");
   THClTensor_resizeAs(state, r, tensor);
   THClTensor_copy(state, r, tensor);
@@ -116,13 +104,7 @@ static int cltorch_ClTensorOperator___mul__(lua_State *L)
     luaL_error(L, "expecting two Tensors or one Tensor and one number");
   else
   {
-    int device = -1;
-    if(tensor1) {
-      device = tensor1->storage->device;
-    } else {
-      device = tensor2->storage->device;
-    }
-    r = THClTensor_newv2(state, device);
+    r = THClTensor_new(state);
     luaT_pushudata(L, r, "torch.ClTensor");
 
     if(!tensor1 && tensor2)
@@ -172,7 +154,7 @@ static int cltorch_ClTensorOperator___div__(lua_State *L)
 
   luaL_argcheck(L, lua_isnumber(L,2), 2, "number expected");
 
-  r = THClTensor_newv2(state, tensor->storage->device);
+  r = THClTensor_new(state);
   luaT_pushudata(L, r, "torch.ClTensor");
 
   THClTensor_resizeAs(state, r, tensor);

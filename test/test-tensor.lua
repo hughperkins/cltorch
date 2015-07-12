@@ -739,7 +739,7 @@ if false then
 
 end
 
-if false then
+if os.getenv('PROTOTYPING') ~= nil then
   x = torch.Tensor(2,5)
   x = x:copy(torch.range(1, x:nElement())):cl()
   print('x\n', x)
@@ -762,65 +762,6 @@ if false then
 
   c:uniform()
   print('c\n', c)
-end
-
- local function eval(expression)
-  loadstring('res=' .. expression)()
-  print(expression, res)
-end
-
-if false then
-  if cltorch.getDeviceCount() >= 2 then
-    -- Switch to dedicated GPU. Everything breaks if we uncomment those lines.
-     cltorch.setDevice(2)
-     cltorch.synchronize()
-     cltorch.finish() -- not sure this line is needed
-     print('Current device: ', cltorch.getDevice()) -- this prints out, but then hangs.
-
-    -- Things print out properly on the integrated GPU (device(1))
-    C = torch.ClTensor{{3,2,4},{9,7,5}}
-    print(C:t())
-    print(C:transpose(1,2))
-
-    eval('cltorch.getDeviceCount()')
-    eval('cltorch.getDevice()')
-
-    b = torch.ClTensor({3,5,2})
-    eval('b')
-    eval('cltorch.setDevice(1)')
-    eval('cltorch.getDevice()')
-    a = torch.ClTensor({2,4,7})
-    eval('a')
-    eval('a:add(2)')
-
-    eval('cltorch.setDevice(2)')
-    eval('b:add(2)')
-
-    eval('a:add(2)')
-    eval('cltorch.setDevice(1)')
-    eval('b:add(2)')
-
-    eval('b:sum()')
-
-    b = torch.ClTensor({{3,5,2},{4,7,8}})
-    eval('b:sum(1)')
-    eval('b:sum(2)')
-  end
-end
-
-if os.getenv('PROTOTYPING') ~= nil then
-  cltorch.setDevice(cltorch.getDeviceCount())
-  local s = torch.LongStorage{60,50}
-  local A = torch.Tensor(s):uniform() - 0.5
-  local B = torch.Tensor(s):uniform() - 0.5
-  local C = torch.Tensor(s):uniform() - 0.5
-  local res = A:cl():addcmul(1.234,B:cl(), C:cl())
---    tester:asserteq(torch.addcmul(A,1.234,B,C), torch.addcmul(A:clone():cl(), 1.234, B:clone():cl(), C:clone():cl()):double())
---    tester:asserteq(A:clone():addcmul(1.234,B,C), (A:clone():cl():addcmul(1.234, B:clone():cl(),C:clone():cl())):double())
-
-  c = torch.ClTensor{{4,  2,  -1},
-                     {3.1,1.2, 4.9}}
-  res = c - 3.4
 
 
   c = torch.ClTensor{{4,  2,  -1},

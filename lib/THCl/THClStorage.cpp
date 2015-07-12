@@ -39,14 +39,8 @@ using namespace std;
 
 THClStorage* THClStorage_new(THClState *state)
 {
-  return THClStorage_newv2(state, state->currentDevice);
-}
-
-THClStorage* THClStorage_newv2(THClState *state, const int device)
-{
   THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
-  storage->device = device;
-  storage->cl = THClState_getClv2(state, storage->device);
+  storage->cl = THClState_getClAndDevice(state, &storage->device);
 //  storage->device = -1;
   storage->data = NULL;
   storage->wrapper = 0;
@@ -56,7 +50,7 @@ THClStorage* THClStorage_newv2(THClState *state, const int device)
   return storage;
 }
 
-THClStorage* THClStorage_newWithSize(THClState *state, int device, long size)
+THClStorage* THClStorage_newWithSize(THClState *state, long size)
 {
   THArgCheck(size >= 0, 2, "invalid size");
 
@@ -64,8 +58,7 @@ THClStorage* THClStorage_newWithSize(THClState *state, int device, long size)
   {
     THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
     float *data = new float[size];
-    storage->device = device;
-    storage->cl = THClState_getClv2(state, storage->device);
+    storage->cl = THClState_getClAndDevice(state, &storage->device);
     CLWrapper *wrapper = storage->cl->wrap( size, data );
     if(state->trace) cout << "new wrapper, size " << size << endl;
     if(state->trace) cout << "wrapper->createOnDevice()" << endl;
@@ -80,11 +73,11 @@ THClStorage* THClStorage_newWithSize(THClState *state, int device, long size)
   }
   else
   {
-    return THClStorage_newv2(state, device);
+    return THClStorage_new(state);
   }
 }
 
-THClStorage* THClStorage_newWithSize1(THClState *state, int device, float data0)
+THClStorage* THClStorage_newWithSize1(THClState *state, float data0)
 {
   THError("not available yet for THClStorage");
   return NULL;
@@ -93,7 +86,7 @@ THClStorage* THClStorage_newWithSize1(THClState *state, int device, float data0)
 //  return self;
 }
 
-THClStorage* THClStorage_newWithSize2(THClState *state, int device, float data0, float data1)
+THClStorage* THClStorage_newWithSize2(THClState *state, float data0, float data1)
 {
   THError("not available yet for THClStorage");
   return NULL;
@@ -103,7 +96,7 @@ THClStorage* THClStorage_newWithSize2(THClState *state, int device, float data0,
 //  return self;
 }
 
-THClStorage* THClStorage_newWithSize3(THClState *state, int device, float data0, float data1, float data2)
+THClStorage* THClStorage_newWithSize3(THClState *state, float data0, float data1, float data2)
 {
   THError("not available yet for THClStorage");
   return NULL;
@@ -114,7 +107,7 @@ THClStorage* THClStorage_newWithSize3(THClState *state, int device, float data0,
 //  return self;
 }
 
-THClStorage* THClStorage_newWithSize4(THClState *state, int device, float data0, float data1, float data2, float data3)
+THClStorage* THClStorage_newWithSize4(THClState *state, float data0, float data1, float data2, float data3)
 {
   THError("not available yet for THClStorage");
   return NULL;
@@ -126,13 +119,13 @@ THClStorage* THClStorage_newWithSize4(THClState *state, int device, float data0,
 //  return self;
 }
 
-THClStorage* THClStorage_newWithMapping(THClState *state, int device, const char *fileName, long size, int isShared)
+THClStorage* THClStorage_newWithMapping(THClState *state, const char *fileName, long size, int isShared)
 {
   THError("not available yet for THClStorage");
   return NULL;
 }
 
-THClStorage* THClStorage_newWithData(THClState *state, int device, float *data, long size)
+THClStorage* THClStorage_newWithData(THClState *state, float *data, long size)
 {
   THError("not available yet for THClStorage");
   return NULL;
@@ -183,8 +176,7 @@ void THClStorage_resize(THClState *state, THClStorage *self, long size)
   if(state->trace && self->size > 0) cout << "delete wrapper" << endl;
   delete[] self->data;
   self->data = new float[size];
-  EasyCL *cl = self->cl;
-  self->wrapper = cl->wrap( size, self->data );
+  self->wrapper = THClState_getCl(state)->wrap( size, self->data );
   self->wrapper->createOnDevice();
     if(state->trace) cout << "new wrapper, size " << size << endl;
   self->size = size;

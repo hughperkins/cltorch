@@ -135,7 +135,7 @@ void THClTensor_maskedCopy(THClState* state,
   }
 
   // Use a prefix sum to determine the copy locations of the masked elements
-  THClTensor* maskPrefixSum = THClTensor_newv2(state, src->storage->device);
+  THClTensor* maskPrefixSum = THClTensor_new(state);
   THClTensor_resizeAs(state, maskPrefixSum, contigMask);
 
   // We are getting elements from `src` based on an offset from

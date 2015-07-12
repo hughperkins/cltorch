@@ -32,23 +32,22 @@ THCL_API long THClStorage_size(THClState *state, const THClStorage*);
 //THCL_API void THClStorage_set(THClState *state, THClStorage*, long, float);
 //THCL_API float THClStorage_get(THClState *state, const THClStorage*, long);
 
-THCL_API THClStorage* THClStorage_new(THClState *state) DEPRECATED_POST;
-THCL_API THClStorage* THClStorage_newv2(THClState *state, int device);
-THCL_API THClStorage* THClStorage_newWithSize(THClState *state, int device, long size);
-THCL_API THClStorage* THClStorage_newWithSize1(THClState *state, int device, float);
-THCL_API THClStorage* THClStorage_newWithSize2(THClState *state, int device, float, float);
-THCL_API THClStorage* THClStorage_newWithSize3(THClState *state, int device, float, float, float);
-THCL_API THClStorage* THClStorage_newWithSize4(THClState *state, int device, float, float, float, float);
-THCL_API THClStorage* THClStorage_newWithMapping(THClState *state, int device, const char *filename, long size, int shared);
+THCL_API THClStorage* THClStorage_new(THClState *state);
+THCL_API THClStorage* THClStorage_newWithSize(THClState *state, long size);
+THCL_API THClStorage* THClStorage_newWithSize1(THClState *state, float);
+THCL_API THClStorage* THClStorage_newWithSize2(THClState *state, float, float);
+THCL_API THClStorage* THClStorage_newWithSize3(THClState *state, float, float, float);
+THCL_API THClStorage* THClStorage_newWithSize4(THClState *state, float, float, float, float);
+THCL_API THClStorage* THClStorage_newWithMapping(THClState *state, const char *filename, long size, int shared);
 
 /* takes ownership of data */
-THCL_API THClStorage* THClStorage_newWithData(THClState *state, int device, float *data, long size);
+THCL_API THClStorage* THClStorage_newWithData(THClState *state, float *data, long size);
 
-THCL_API THClStorage* THClStorage_newWithAllocator(THClState *state, int device, long size,
+THCL_API THClStorage* THClStorage_newWithAllocator(THClState *state, long size,
                                                       THAllocator* allocator,
                                                       void *allocatorContext);
 THCL_API THClStorage* THClStorage_newWithDataAndAllocator(
-    THClState *state, int device, float* data, long size, THAllocator* allocator, void *allocatorContext);
+    THClState *state, float* data, long size, THAllocator* allocator, void *allocatorContext);
 
 THCL_API void THClStorage_setFlag(THClState *state, THClStorage *storage, const char flag);
 THCL_API void THClStorage_clearFlag(THClState *state, THClStorage *storage, const char flag);

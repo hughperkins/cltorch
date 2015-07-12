@@ -84,17 +84,11 @@ void THClState_setDevice(THClState* state, int device) {
 int THClState_getDevice(THClState* state) {
   return state->currentDevice;
 }
-EasyCL *THClState_getCl(THClState* state ) {
-  return THClState_getClv2(state, state->currentDevice);
+EasyCL *THClState_getCl(THClState* state) {
+  return THClState_getClAndDevice(state, 0);
 }
-EasyCL *THClState_getCl(THClState* state, int *p_device) {
-  if( p_device != 0 ) {
-    *p_device = state->currentDevice;
-  }
-  return THClState_getClv2(state, state->currentDevice);
-}
-EasyCL *THClState_getClv2(THClState* state, int device) {
-//  int device = state->currentDevice;
+EasyCL *THClState_getClAndDevice(THClState* state, int *p_device) {
+  int device = state->currentDevice;
   if(state->allocatedDevices == 0) {
     THError("No OpenCL-enabled devices available");
   }
@@ -112,22 +106,22 @@ EasyCL *THClState_getClv2(THClState* state, int device) {
     state->deviceInfoByDevice[device] = (struct DeviceInfo *)new easycl::DeviceInfo();
     *((easycl::DeviceInfo *)state->deviceInfoByDevice[device]) = easycl::DevicesInfo::getGpuInfo( device );
   }
-//  if( p_device != 0 ) {
-//        *p_device = device;
-//  }
+  if( p_device != 0 ) {
+        *p_device = device;
+  }
   return state->clByDevice[device];
 }
 
-//THClScratchSpace* THClState_getCurrentDeviceScratchSpace(THClState* state)
-//{
-////  int device = -1;
-////  THClCheck(cudaGetDevice(&device));
-//  int device = state->currentDevice;
-////  int stream = THClState_getCurrentStreamIndex(state);
-//  int stream = 0;
+THClScratchSpace* THClState_getCurrentDeviceScratchSpace(THClState* state)
+{
+//  int device = -1;
+//  THClCheck(cudaGetDevice(&device));
+  int device = state->currentDevice;
+//  int stream = THClState_getCurrentStreamIndex(state);
+  int stream = 0;
 
-//  return THClState_getDeviceScratchSpace(state, device, stream);
-//}
+  return THClState_getDeviceScratchSpace(state, device, stream);
+}
 
 THClScratchSpace* THClState_getDeviceScratchSpace(THClState* state, int device, int stream)
 {
@@ -142,7 +136,7 @@ THClScratchSpace* THClState_getDeviceScratchSpace(THClState* state, int device, 
   if( stream != 0 ) {
     THError("%d is not a stream", stream);
   }
-  return state->scratchSpaceByDevice[device];
+  return state->scratchSpaceByDevice[state->currentDevice];
 //  return res->devScratchSpacePerStream[stream];
 }
 

@@ -67,13 +67,13 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
   dim3 grid(mymin(maxGridDim, num_orows), mymin(maxGridDim, THClCeilDiv(num_irows, threads.x())));
 
   std::string uniqueName = "THClTensorMathTransformReduce_OuterDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
-  EasyCL *cl = src->storage->cl;
+  EasyCL *cl = THClState_getCl(state);
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder(cl);
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
 
     string initString = easycl::toString(init);
     if(initString.find(".") != string::npos) {
@@ -98,7 +98,7 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
   k.in((int)num_irows);
   k.in((int)row_size);
   k.run(grid, threads);
-  if(state->addFinish) cl->finish();  
+  if(state->addFinish) THClState_getCl(state)->finish();  
   StatefulTimer::timeCheck("THClTensor_transformReduceOuter END");
 }
 
@@ -123,13 +123,13 @@ void THClTensor_transformReduceInnermostDimIndex(
   dim3 grid(mymin(getBlockSize(state), THClCeilDiv(num_rows, threads.y())));
 
   std::string uniqueName = "THClTensorMathTransformReduce_InnermostDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
-  EasyCL *cl = src->storage->cl;
+  EasyCL *cl = THClState_getCl(state);
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder(cl);
+    TemplatedKernel kernelBuilder(THClState_getCl(state));
 
     string initString = easycl::toString(init);
     if(initString.find(".") != string::npos) {
@@ -153,7 +153,7 @@ void THClTensor_transformReduceInnermostDimIndex(
   k.in((int)num_rows);
   k.in((int)row_size);
   k.run(grid, threads);
-  if(state->addFinish) cl->finish();  
+  if(state->addFinish) THClState_getCl(state)->finish();  
   StatefulTimer::timeCheck("THClTensor_transformReduceInner END");
 }
 

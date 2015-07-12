@@ -45,13 +45,13 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   }
   std::string uniqueName = "THClApply_1t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + op->operator1();
 
-  EasyCL *cl = aInfo.wrapper->getCl();
+  EasyCL *cl = THClState_getCl(state);
   CLKernel *kernel = 0;
   if( cl->kernelExists(uniqueName) ) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply1 1aa");
   } else {
-    TemplatedKernel kernelBuilder(cl);
+    TemplatedKernel kernelBuilder( THClState_getCl(state) );
       StatefulTimer::timeCheck("Apply1 2");
     kernelBuilder.set("dim1", A);
     std::vector<int> dims;
@@ -89,7 +89,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   k.run(grid, block);
     StatefulTimer::timeCheck("Apply1 8");
   
-  if(state->addFinish) cl->finish();
+  if(state->addFinish) THClState_getCl(state)->finish();
 
   StatefulTimer::timeCheck("Apply1 END");
 }
@@ -104,14 +104,14 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     numScalars = hasScalars->getNumScalars();
   }
   std::string uniqueName = "THClApply_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
-  EasyCL *cl = aInfo.wrapper->getCl();
+  EasyCL *cl = THClState_getCl(state);
   CLKernel *kernel = 0;
   if( cl->kernelExists(uniqueName) ) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply2 1aa");
   } else {
     StatefulTimer::timeCheck("Apply2 1a");
-    TemplatedKernel kernelBuilder(cl);
+    TemplatedKernel kernelBuilder( THClState_getCl(state) );
     kernelBuilder.set("dim1", A);
     kernelBuilder.set("dim2", B);
     std::vector<int> dims;
@@ -160,7 +160,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   k.run(grid, block);
   StatefulTimer::timeCheck("Apply2 7");
 
-  if(state->addFinish) cl->finish();
+  if(state->addFinish) THClState_getCl(state)->finish();
   StatefulTimer::timeCheck("Apply2 END");
 }
 
@@ -174,13 +174,13 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
     numScalars = hasScalars->getNumScalars();
   }
   std::string uniqueName = "THClApply_3t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + easycl::toString(C) + "_" + op->operator3();
-  EasyCL *cl = aInfo.wrapper->getCl();
+  EasyCL *cl = THClState_getCl(state);
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder(cl);
+    TemplatedKernel kernelBuilder( THClState_getCl(state) );
     kernelBuilder.set("dim1", A);
     kernelBuilder.set("dim2", B);
     kernelBuilder.set("dim3", C);
@@ -219,15 +219,15 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   k.in( (int)totalElements );
   k.run(grid, block);
 
-  if(state->addFinish) cl->finish();
+  if(state->addFinish) THClState_getCl(state)->finish();
   StatefulTimer::timeCheck("Apply3 END");
 }
 
-inline int getWorkgroupSize(THClState *state, int device) {
+inline int getWorkgroupSize(THClState *state) {
 //  return 64;
 
   int workgroupSize = THCL_APPLY_THREADS_PER_BLOCK;
-  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[device])->maxWorkGroupSize;
+  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[state->currentDevice])->maxWorkGroupSize;
 //  std::cout << "maxworkgroupsize=" << maxWorkgroupSize << std::endl;
   if( workgroupSize > maxWorkgroupSize ) {
     workgroupSize = maxWorkgroupSize;
@@ -235,11 +235,11 @@ inline int getWorkgroupSize(THClState *state, int device) {
   return workgroupSize;
 }
 
-inline dim3 getApplyBlock(THClState *state, int device) {
-  return dim3(getWorkgroupSize(state, device));
+inline dim3 getApplyBlock(THClState *state) {
+  return dim3(getWorkgroupSize(state));
 }
 
-inline bool getApplyGrid(THClState* state, int device, long totalElements, dim3& grid) {
+inline bool getApplyGrid(THClState* state, long totalElements, dim3& grid) {
 //  int curDevice = -1;
 //  cudaGetDevice(&curDevice);
 
@@ -258,7 +258,7 @@ inline bool getApplyGrid(THClState* state, int device, long totalElements, dim3&
 
   // 16 warps per block * 4 per SM gives 64 warps per SM at maximum,
   // which seems to be a good sweetspot for latency hiding
-  grid = dim3(mymin(DIVUP(totalElements, (long long) getWorkgroupSize(state, device)),
+  grid = dim3(mymin(DIVUP(totalElements, (long long) getWorkgroupSize(state)),
                   4LL * numSM));
 //  int workgroupSize = getWorkgroupSize(state);
 //  grid = dim3((totalElements + workgroupSize - 1 ) / workgroupSize);
@@ -270,7 +270,6 @@ bool THClTensor_pointwiseApply1(THClState* state,
                                   THClTensor* a,
                                   const Op& op,
                                   TensorArgType aType = ReadWrite) {
-  const int device = a->storage->device;
   long totalElements = THClTensor_nElement(state, a);
 
   if (THClTensor_nDimension(state, a) > MAX_CLTORCH_DIMS) {
@@ -282,10 +281,10 @@ bool THClTensor_pointwiseApply1(THClState* state,
     return true;
   }
 
-  const dim3 block = getApplyBlock(state, device);
+  const dim3 block = getApplyBlock(state);
 
   dim3 grid;
-  if (!getApplyGrid(state, device, totalElements, grid)) {
+  if (!getApplyGrid(state, totalElements, grid)) {
     return false;
   }
 
@@ -391,7 +390,6 @@ bool THClTensor_pointwiseApply2(THClState* state,
                                   TensorArgType aType = ReadWrite,
                                   TensorArgType bType = ReadOnly) {
   long totalElements = THClTensor_nElement(state, a);
-  const int device = b->storage->device;
 
   if (totalElements != THClTensor_nElement(state, b)) {
     std::cout << "apply2 num elements mismatch" << std::endl;
@@ -409,10 +407,10 @@ bool THClTensor_pointwiseApply2(THClState* state,
     return true;
   }
 
-  const dim3 block = getApplyBlock(state, device);
+  const dim3 block = getApplyBlock(state);
 
   dim3 grid;
-  if (!getApplyGrid(state, device, totalElements, grid)) {
+  if (!getApplyGrid(state, totalElements, grid)) {
     std::cout << "apply2 couldnt get apply grid" << std::endl;
     return false;
   }
@@ -559,7 +557,7 @@ bool THClTensor_pointwiseApply3(THClState* state,
                                   TensorArgType bType = ReadOnly,
                                   TensorArgType cType = ReadOnly) {
   long totalElements = THClTensor_nElement(state, a);
-  const int device = b->storage->device;
+
   if (totalElements != THClTensor_nElement(state, b) ||
       totalElements != THClTensor_nElement(state, c)) {
     std::cout << "element size mismatch between b and c" << std::endl;
@@ -578,10 +576,10 @@ bool THClTensor_pointwiseApply3(THClState* state,
     return true;
   }
 
-  const dim3 block = getApplyBlock(state, device);
+  const dim3 block = getApplyBlock(state);
 
   dim3 grid;
-  if (!getApplyGrid(state, device, totalElements, grid)) {
+  if (!getApplyGrid(state, totalElements, grid)) {
     std::cout << "getapplygrid returns false" << std::endl;
     return false;
   }
