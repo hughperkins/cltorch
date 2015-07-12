@@ -841,8 +841,7 @@ int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...)
 #ifdef DISABLE_CHECK_GPU
   return 1;  // Disable GPU checks.
 #else
-//  int curDev = state->currentDevice;
-  int curDev = -1;
+  int curDev = state->currentDevice;
   va_list(args);
   va_start(args, nTensors);
   int valid = 1;
@@ -850,9 +849,6 @@ int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...)
     THClTensor* tensor = va_arg(args, THClTensor*);
     if (tensor == NULL || tensor->storage == 0) {
       continue;
-    }
-    if( curDev == -1 ) {
-      curDev = THClTensor_getDevice(state, tensor);
     }
     int tensorDev = THClTensor_getDevice(state, tensor);
     if (tensorDev != -1 && tensorDev != curDev) {
