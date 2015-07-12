@@ -5,6 +5,8 @@ using namespace std;
 
 #include "util/StatefulTimer.h"
 
+#include "commit_generated.h"
+
 //#include "THClTensorRandom.h"
 
 extern "C" {
@@ -139,31 +141,9 @@ namespace cltorch {
   }
   static int cltorch_about(lua_State *L)
   {
-    /* [[[cog
-      import subprocess
-      git_out = subprocess.check_output(['git', 'log', '-n', '1', '--oneline'])
-      commit = git_out.split(' ')[0]
-      cog.outl('string commit = "{commit}";'.format(
-        commit=commit))
-    *///]]]
-    string commit = "b3615a3";
-    // [[[end]]]
-    cout << "ctorch. Built from commit " << commit << endl;
-    cout << "website: https://github.com/hughperkins/cltorch" << endl;
-    cout << endl;
-    cout << "most recent commits:" << endl;
-    /* [[[cog
-      import subprocess
-      git_out = subprocess.check_output(['git', 'log', '-n', '3', '--oneline'])
-      for line in git_out.split('\n'):
-        cog.outl('cout << "{line}" << endl;'.format(
-          line=line))
-    *///]]]
-    cout << "b3615a3 Remove cl compile warnings on intel hd5500" << endl;
-    cout << "c344bbc fix buggette in test_cmin" << endl;
-    cout << "864f134 added cmin, cmax, for tensors and scalars" << endl;
-    cout << "" << endl;
-    // [[[end]]]
+    cout << "cltorch.  OpenCL backend for Torch" << endl;
+    cout << "Built from commit " << commit << endl;
+    cout << "More info, doc: https://github.com/hughperkins/cltorch" << endl;
     return 0;
   }
 

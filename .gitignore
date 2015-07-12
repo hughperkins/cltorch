@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.obj
+*_generated.*
 
 port/
 

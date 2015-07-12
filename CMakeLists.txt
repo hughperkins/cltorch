@@ -39,8 +39,8 @@ LINK_DIRECTORIES(${EASYCL_LIBRARY_DIR})
 
 ADD_SUBDIRECTORY(lib)
 
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/lib/THCl")
-
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/torch")
 
 SET(src init.cpp torch/utils.c Storage.cpp Tensor.c TensorMath.c
@@ -56,14 +56,20 @@ ADD_DEPENDENCIES(cltorch EasyCL-external)
 ADD_DEPENDENCIES(cltorchtensormathwrap EasyCL)
 #add_custom_target(
 
-if(DEV_RUN_COG)
-    add_custom_target(
-        cog_cltorch
-        python ${CMAKE_CURRENT_SOURCE_DIR}/EasyCL/thirdparty/cogapp/cog.py -q -I ${CMAKE_CURRENT_SOURCE_DIR}/EasyCL/cog-batteries -r ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-    add_dependencies( cltorch cog_cltorch )
-endif(DEV_RUN_COG)
+execute_process( COMMAND git log -n 1 --pretty=%h OUTPUT_VARIABLE git_commit OUTPUT_STRIP_TRAILING_WHITESPACE)
+#execute_process( COMMAND echo string commit="${git_commit}" > ${CMAKE_CURRENT_SOURCE_DIR}/commit.h )
+file(GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/commit_generated.h 
+  CONTENT "string commit=\"${git_commit}\";\n"
+)
+
+#if(DEV_RUN_COG)
+#    add_custom_target(
+#        cog_cltorch
+#        python ${CMAKE_CURRENT_SOURCE_DIR}/EasyCL/thirdparty/cogapp/cog.py -q -I ${CMAKE_CURRENT_SOURCE_DIR}/EasyCL/cog-batteries -r ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+#        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+#    )
+#    add_dependencies( cltorch cog_cltorch )
+#endif(DEV_RUN_COG)
 
 
 #if( ON_LINUX ) 
