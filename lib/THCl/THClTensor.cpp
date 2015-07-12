@@ -825,28 +825,27 @@ int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...)
 {
  // THError("THClTensor_checkGPU Not implemented");
 //  return 0;
-//#ifdef DISABLE_CHECK_GPU
+#ifdef DISABLE_CHECK_GPU
   return 1;  // Disable GPU checks.
-//#else
-//  int curDev = -1;
-//  THClCheck(cudaGetDevice(&curDev));
-//  va_list(args);
-//  va_start(args, nTensors);
-//  int valid = 1;
-//  for (unsigned int i = 0; i < nTensors; i++) {
-//    THClTensor* tensor = va_arg(args, THClTensor*);
-//    if (tensor == NULL) {
-//      continue;
-//    }
-//    int tensorDev = THClTensor_getDevice(state, tensor);
-//    if (tensorDev != -1 && tensorDev != curDev) {
-//      valid = 0;
-//      break;
-//    }
-//  }
-//  va_end(args);
-//  return valid;
-//#endif
+#else
+  int curDev = state->currentDevice;
+  va_list(args);
+  va_start(args, nTensors);
+  int valid = 1;
+  for (unsigned int i = 0; i < nTensors; i++) {
+    THClTensor* tensor = va_arg(args, THClTensor*);
+    if (tensor == NULL) {
+      continue;
+    }
+    int tensorDev = THClTensor_getDevice(state, tensor);
+    if (tensorDev != -1 && tensorDev != curDev) {
+      valid = 0;
+      break;
+    }
+  }
+  va_end(args);
+  return valid;
+#endif
 }
 
 std::string THClTensor_toString(THClState *state, const THClTensor *tensor) {
