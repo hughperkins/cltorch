@@ -769,7 +769,7 @@ end
   print(expression, res)
 end
 
-if false then
+if true then
   if cltorch.getDeviceCount() >= 2 then
     -- Switch to dedicated GPU. Everything breaks if we uncomment those lines.
      cltorch.setDevice(2)
