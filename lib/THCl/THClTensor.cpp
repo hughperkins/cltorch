@@ -873,7 +873,3 @@ std::string THClTensor_toString(THClState *state, const THClTensor *tensor) {
   return res;
 }
 
-EasyCL *THClTensor_getCl(THClState *state, const THClTensor *tensor) {
-  return tensor->storage->cl;
-}
-

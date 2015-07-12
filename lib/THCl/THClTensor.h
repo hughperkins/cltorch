@@ -135,7 +135,6 @@ THCL_API int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...);
 // new
 #ifdef __cplusplus
 THCL_API std::string THClTensor_toString(THClState *state, const THClTensor *tensor);
-THCL_API EasyCL *THClTensor_getCl(THClState *state, const THClTensor *tensor);
 #endif // __cplusplus
 
 #endif
