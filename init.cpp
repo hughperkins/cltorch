@@ -144,6 +144,7 @@ namespace cltorch {
     cout << "cltorch.  OpenCL backend for Torch" << endl;
     cout << "Built from commit " << commit << endl;
     cout << "More info, doc: https://github.com/hughperkins/cltorch" << endl;
+    cout << "Issues: https://github.com/hughperkins/cltorch/issues" << endl;
     return 0;
   }
 
