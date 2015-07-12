@@ -21,6 +21,7 @@ typedef struct THClTensor
 
     char flag;
 
+    int device;
 } THClTensor;
 
 
@@ -42,31 +43,32 @@ THCL_API void THClTensor_clearFlag(THClState *state, THClTensor *self, const cha
 
 
 /**** creation methods ****/
-THCL_API THClTensor *THClTensor_new(THClState *state);
+THCL_API THClTensor *THClTensor_new(THClState *state) DEPRECATED_POST;
+THCL_API THClTensor *THClTensor_newv2(THClState *state, int device);
 THCL_API THClTensor *THClTensor_newWithTensor(THClState *state, THClTensor *tensor);
 /* stride might be NULL */
-THCL_API THClTensor *THClTensor_newWithStorage(THClState *state, THClStorage *storage_, long storageOffset_, THLongStorage *size_, THLongStorage *stride_);
-THCL_API THClTensor *THClTensor_newWithStorage1d(THClState *state, THClStorage *storage_, long storageOffset_,
+THCL_API THClTensor *THClTensor_newWithStorage(THClState *state, int device, THClStorage *storage_, long storageOffset_, THLongStorage *size_, THLongStorage *stride_);
+THCL_API THClTensor *THClTensor_newWithStorage1d(THClState *state, int device, THClStorage *storage_, long storageOffset_,
                                 long size0_, long stride0_);
-THCL_API THClTensor *THClTensor_newWithStorage2d(THClState *state, THClStorage *storage_, long storageOffset_,
+THCL_API THClTensor *THClTensor_newWithStorage2d(THClState *state, int device, THClStorage *storage_, long storageOffset_,
                                 long size0_, long stride0_,
                                 long size1_, long stride1_);
-THCL_API THClTensor *THClTensor_newWithStorage3d(THClState *state, THClStorage *storage_, long storageOffset_,
+THCL_API THClTensor *THClTensor_newWithStorage3d(THClState *state, int device, THClStorage *storage_, long storageOffset_,
                                 long size0_, long stride0_,
                                 long size1_, long stride1_,
                                 long size2_, long stride2_);
-THCL_API THClTensor *THClTensor_newWithStorage4d(THClState *state, THClStorage *storage_, long storageOffset_,
+THCL_API THClTensor *THClTensor_newWithStorage4d(THClState *state, int device, THClStorage *storage_, long storageOffset_,
                                 long size0_, long stride0_,
                                 long size1_, long stride1_,
                                 long size2_, long stride2_,
                                 long size3_, long stride3_);
 
 /* stride might be NULL */
-THCL_API THClTensor *THClTensor_newWithSize(THClState *state, THLongStorage *size_, THLongStorage *stride_);
-THCL_API THClTensor *THClTensor_newWithSize1d(THClState *state, long size0_);
-THCL_API THClTensor *THClTensor_newWithSize2d(THClState *state, long size0_, long size1_);
-THCL_API THClTensor *THClTensor_newWithSize3d(THClState *state, long size0_, long size1_, long size2_);
-THCL_API THClTensor *THClTensor_newWithSize4d(THClState *state, long size0_, long size1_, long size2_, long size3_);
+THCL_API THClTensor *THClTensor_newWithSize(THClState *state, int device, THLongStorage *size_, THLongStorage *stride_);
+THCL_API THClTensor *THClTensor_newWithSize1d(THClState *state, int device, long size0_);
+THCL_API THClTensor *THClTensor_newWithSize2d(THClState *state, int device, long size0_, long size1_);
+THCL_API THClTensor *THClTensor_newWithSize3d(THClState *state, int device, long size0_, long size1_, long size2_);
+THCL_API THClTensor *THClTensor_newWithSize4d(THClState *state, int device, long size0_, long size1_, long size2_, long size3_);
 
 THCL_API THClTensor *THClTensor_newClone(THClState *state, THClTensor *self);
 THCL_API THClTensor *THClTensor_newContiguous(THClState *state, THClTensor *tensor);
@@ -135,6 +137,8 @@ THCL_API int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...);
 // new
 #ifdef __cplusplus
 THCL_API std::string THClTensor_toString(THClState *state, const THClTensor *tensor);
+THCL_API EasyCL *THClTensor_getCl(THClState *state, const THClTensor *tensor);
 #endif // __cplusplus
+THCL_API int THClTensor_getDevice(THClState *state, const THClTensor *tensor);
 
 #endif

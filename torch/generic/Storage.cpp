@@ -13,7 +13,7 @@ static int torch_Storage_(new)(lua_State *L)
     const char *fileName = luaL_checkstring(L, 1);
     int isShared = luaT_optboolean(L, 2, 0);
     long size = luaL_optlong(L, 3, 0);
-    storage = THStorage_(newWithMapping)(state, fileName, size, isShared);
+    storage = THStorage_(newWithMapping)(state, state->currentDevice, fileName, size, isShared);
   }
   else if(lua_type(L, 1) == LUA_TTABLE)
   {
@@ -32,7 +32,7 @@ static int torch_Storage_(new)(lua_State *L)
       lua_pop(L, 1);
     }
 
-    THStorage *storagecl = THStorage_(newWithSize)(state, size);
+    THStorage *storagecl = THStorage_(newWithSize)(state, state->currentDevice, size);
     THStorage_(copyFloat)(state, storagecl, storage);
     THFloatStorage_free(storage);
 
@@ -67,7 +67,7 @@ static int torch_Storage_(new)(lua_State *L)
     if (size < 1 || size > (src->size - offset)) {
       luaL_error(L, "size out of bounds");
     }
-    storage = THStorage_(newWithData)(state, ptr + offset, size);
+    storage = THStorage_(newWithData)(state, state->currentDevice, ptr + offset, size);
     storage->flag = TH_STORAGE_REFCOUNTED | TH_STORAGE_VIEW;
     storage->view = src;
     THStorage_(retain)(state, storage->view);
@@ -76,13 +76,13 @@ static int torch_Storage_(new)(lua_State *L)
   {
     long size = luaL_optlong(L, 1, 0);
     real *ptr = (real *)luaL_optlong(L, 2, 0);
-    storage = THStorage_(newWithData)(state, ptr, size);
+    storage = THStorage_(newWithData)(state, state->currentDevice, ptr, size);
     storage->flag = TH_STORAGE_REFCOUNTED;
   }
   else
   {
     long size = luaL_optlong(L, 1, 0);
-    storage = THStorage_(newWithSize)(state, size);
+    storage = THStorage_(newWithSize)(state, state->currentDevice, size);
   }
   luaT_pushudata(L, storage, torch_Storage);
   return 1;
@@ -221,7 +221,8 @@ static int torch_Storage_(totable)(lua_State *L)
 
 static int torch_Storage_(factory)(lua_State *L)
 {
-  THStorage *storage = static_cast<THStorage *>(THStorage_(new)(cltorch_getstate(L)));
+  THClState *state = cltorch_getstate(L);
+  THStorage *storage = static_cast<THStorage *>(THStorage_(newv2)(cltorch_getstate(L), state->currentDevice));
   luaT_pushudata(L, storage, torch_Storage);
   return 1;
 }
@@ -231,11 +232,10 @@ static int torch_Storage_(write)(lua_State *L)
   THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
   THFile *file = static_cast<THFile *>(luaT_checkudata(L, 2, "torch.File"));
 
-  THClState *state = cltorch_getstate(L);
-
+//  THClState *state = cltorch_getstate(L);
   THFile_writeLongScalar(file, storage->size);
   storage->wrapper->copyToHost();
-  THClState_getCl(state)->finish();
+  storage->cl->finish();
   
   THFile_writeFloatRaw(file, storage->data, storage->size);
 
@@ -248,12 +248,11 @@ static int torch_Storage_(read)(lua_State *L)
   THFile *file = static_cast<THFile *>(luaT_checkudata(L, 2, "torch.File"));
   long size = THFile_readLongScalar(file);
 
-  THClState *state = cltorch_getstate(L);
-
+//  THClState *state = cltorch_getstate(L);
   THStorage_(resize)(cltorch_getstate(L), storage, size);
   THFile_readFloatRaw(file, storage->data, storage->size);
   storage->wrapper->copyToDevice();
-  THClState_getCl(state)->finish();
+  storage->cl->finish();
 
   return 0;
 }

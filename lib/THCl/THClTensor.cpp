@@ -7,6 +7,7 @@
 #include "util/easycl_stringhelper.h"
 
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -28,6 +29,9 @@ int THClTensor_nDimension(THClState *state, const THClTensor *self)
 
 long THClTensor_size(THClState *state, const THClTensor *self, int dim)
 {
+  if( dim < 0 || dim >= self->nDimension) {
+    throw std::runtime_error("out of range");
+  }
   THArgCheck((dim >= 0) && (dim < self->nDimension), 2, "out of range");
   return self->size[dim];
 }
@@ -79,7 +83,7 @@ void THClTensor_clearFlag(THClState *state, THClTensor *self, const char flag)
 
 /**** creation methods ****/
 
-static void THClTensor_rawInit(THClState *state, THClTensor *self);
+static void THClTensor_rawInit(THClState *state, int device, THClTensor *self);
 static void THClTensor_rawSet(THClState *state, THClTensor *self, THClStorage *storage, long storageOffset, int nDimension, long *size, long *stride);
 static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimension, long *size, long *stride);
 
@@ -87,8 +91,12 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
 /* Empty init */
 THClTensor *THClTensor_new(THClState *state)
 {
+  return THClTensor_newv2(state, state->currentDevice);
+}
+THClTensor *THClTensor_newv2(THClState *state, int device)
+{
   THClTensor *self = (THClTensor*)THAlloc(sizeof(THClTensor));
-  THClTensor_rawInit(state, self);
+  THClTensor_rawInit(state, device, self);
   return self;
 }
 
@@ -96,7 +104,7 @@ THClTensor *THClTensor_new(THClState *state)
 THClTensor *THClTensor_newWithTensor(THClState *state, THClTensor *tensor)
 {
   THClTensor *self = (THClTensor*)THAlloc(sizeof(THClTensor));
-  THClTensor_rawInit(state, self);
+  THClTensor_rawInit(state, tensor->device, self);
   THClTensor_rawSet(state,
                       self,
                       tensor->storage,
@@ -108,13 +116,13 @@ THClTensor *THClTensor_newWithTensor(THClState *state, THClTensor *tensor)
 }
 
 /* Storage init */
-THClTensor *THClTensor_newWithStorage(THClState *state, THClStorage *storage, long storageOffset, THLongStorage *size, THLongStorage *stride)
+THClTensor *THClTensor_newWithStorage(THClState *state, int device, THClStorage *storage, long storageOffset, THLongStorage *size, THLongStorage *stride)
 {
   THClTensor *self = (THClTensor*)THAlloc(sizeof(THClTensor));
   if(size && stride)
     THArgCheck(size->size == stride->size, 4, "inconsistent size");
 
-  THClTensor_rawInit(state, self);
+  THClTensor_rawInit(state, device, self);
   THClTensor_rawSet(state,
                       self,
                       storage,
@@ -125,28 +133,28 @@ THClTensor *THClTensor_newWithStorage(THClState *state, THClStorage *storage, lo
 
   return self;
 }
-THClTensor *THClTensor_newWithStorage1d(THClState *state, THClStorage *storage, long storageOffset,
+THClTensor *THClTensor_newWithStorage1d(THClState *state, int device, THClStorage *storage, long storageOffset,
                                long size0, long stride0)
 {
-  return THClTensor_newWithStorage4d(state, storage, storageOffset, size0, stride0, -1, -1,  -1, -1,  -1, -1);
+  return THClTensor_newWithStorage4d(state, device, storage, storageOffset, size0, stride0, -1, -1,  -1, -1,  -1, -1);
 }
 
-THClTensor *THClTensor_newWithStorage2d(THClState *state, THClStorage *storage, long storageOffset,
+THClTensor *THClTensor_newWithStorage2d(THClState *state, int device, THClStorage *storage, long storageOffset,
                                long size0, long stride0,
                                long size1, long stride1)
 {
-  return THClTensor_newWithStorage4d(state, storage, storageOffset, size0, stride0, size1, stride1,  -1, -1,  -1, -1);
+  return THClTensor_newWithStorage4d(state, device, storage, storageOffset, size0, stride0, size1, stride1,  -1, -1,  -1, -1);
 }
 
-THClTensor *THClTensor_newWithStorage3d(THClState *state, THClStorage *storage, long storageOffset,
+THClTensor *THClTensor_newWithStorage3d(THClState *state, int device, THClStorage *storage, long storageOffset,
                                long size0, long stride0,
                                long size1, long stride1,
                                long size2, long stride2)
 {
-  return THClTensor_newWithStorage4d(state, storage, storageOffset, size0, stride0, size1, stride1,  size2, stride2,  -1, -1);
+  return THClTensor_newWithStorage4d(state, device, storage, storageOffset, size0, stride0, size1, stride1,  size2, stride2,  -1, -1);
 }
 
-THClTensor *THClTensor_newWithStorage4d(THClState *state, THClStorage *storage, long storageOffset,
+THClTensor *THClTensor_newWithStorage4d(THClState *state, int device, THClStorage *storage, long storageOffset,
                                long size0, long stride0,
                                long size1, long stride1,
                                long size2, long stride2,
@@ -156,38 +164,38 @@ THClTensor *THClTensor_newWithStorage4d(THClState *state, THClStorage *storage, 
   long stride[4] = {stride0, stride1, stride2, stride3};
 
   THClTensor *self = (THClTensor*)THAlloc(sizeof(THClTensor));
-  THClTensor_rawInit(state, self);
+  THClTensor_rawInit(state, device, self);
   THClTensor_rawSet(state, self, storage, storageOffset, 4, size, stride);
 
   return self;
 }
 
-THClTensor *THClTensor_newWithSize(THClState *state, THLongStorage *size, THLongStorage *stride)
+THClTensor *THClTensor_newWithSize(THClState *state, int device, THLongStorage *size, THLongStorage *stride)
 {
-  return THClTensor_newWithStorage(state, NULL, 0, size, stride);
+  return THClTensor_newWithStorage(state, device, NULL, 0, size, stride);
 }
 
-THClTensor *THClTensor_newWithSize1d(THClState *state, long size0)
+THClTensor *THClTensor_newWithSize1d(THClState *state, int device, long size0)
 {
-  return THClTensor_newWithSize4d(state, size0, -1, -1, -1);
+  return THClTensor_newWithSize4d(state, device, size0, -1, -1, -1);
 }
 
-THClTensor *THClTensor_newWithSize2d(THClState *state, long size0, long size1)
+THClTensor *THClTensor_newWithSize2d(THClState *state, int device, long size0, long size1)
 {
-  return THClTensor_newWithSize4d(state, size0, size1, -1, -1);
+  return THClTensor_newWithSize4d(state, device, size0, size1, -1, -1);
 }
 
-THClTensor *THClTensor_newWithSize3d(THClState *state, long size0, long size1, long size2)
+THClTensor *THClTensor_newWithSize3d(THClState *state, int device, long size0, long size1, long size2)
 {
-  return THClTensor_newWithSize4d(state, size0, size1, size2, -1);
+  return THClTensor_newWithSize4d(state, device, size0, size1, size2, -1);
 }
 
-THClTensor *THClTensor_newWithSize4d(THClState *state, long size0, long size1, long size2, long size3)
+THClTensor *THClTensor_newWithSize4d(THClState *state, int device, long size0, long size1, long size2, long size3)
 {
   long size[4] = {size0, size1, size2, size3};
 
   THClTensor *self = (THClTensor*)THAlloc(sizeof(THClTensor));
-  THClTensor_rawInit(state, self);
+  THClTensor_rawInit(state, device, self);
   THClTensor_rawResize(state, self, 4, size, NULL);
 
   return self;
@@ -195,7 +203,7 @@ THClTensor *THClTensor_newWithSize4d(THClState *state, long size0, long size1, l
 
 THClTensor *THClTensor_newClone(THClState *state, THClTensor *self)
 {
-  THClTensor *tensor = THClTensor_new(state);
+  THClTensor *tensor = THClTensor_newv2(state, self->storage->device);
   THClTensor_resizeAs(state, tensor, self);
   THClTensor_copy(state, tensor, self);
   return tensor;
@@ -612,7 +620,7 @@ void THClTensor_freeCopyTo(THClState *state, THClTensor *self, THClTensor *dst)
 
 /*******************************************************************************/
 
-static void THClTensor_rawInit(THClState *state, THClTensor *self)
+static void THClTensor_rawInit(THClState *state, int device, THClTensor *self)
 {
   self->refcount = 1;
   self->storage = NULL;
@@ -621,6 +629,8 @@ static void THClTensor_rawInit(THClState *state, THClTensor *self)
   self->stride = NULL;
   self->nDimension = 0;
   self->flag = TH_TENSOR_REFCOUNTED;
+  self->device = device;
+//  self->storage = THClStorage_newv2(state, device);
 }
 
 static void THClTensor_rawSet(THClState *state, THClTensor *self, THClStorage *storage, long storageOffset, int nDimension, long *size, long *stride)
@@ -628,11 +638,11 @@ static void THClTensor_rawSet(THClState *state, THClTensor *self, THClStorage *s
   /* storage */
   if(self->storage != storage)
   {
-    if(self->storage)
-      THClStorage_free(state, self->storage);
-
     if(storage)
     {
+      if(self->storage) {
+        THClStorage_free(state, self->storage);
+      }
       self->storage = storage;
       THClStorage_retain(state, self->storage);
     }
@@ -707,7 +717,7 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
     if(totalSize+self->storageOffset > 0)
     {
       if(!self->storage)
-        self->storage = THClStorage_new(state);
+        self->storage = THClStorage_newv2(state, self->device);
       if(totalSize+self->storageOffset > self->storage->size)
         THClStorage_resize(state, self->storage, totalSize+self->storageOffset);
     }
@@ -813,7 +823,8 @@ float THClTensor_get4d(THClState *state, const THClTensor *tensor, long x0, long
 //}
 // from .cu
 THCL_API int THClTensor_getDevice(THClState* state, const THClTensor* thc) {
-  return thc->storage->device;
+  return thc->device;
+//  return thc->storage->device;
 //  THError("THClTensor_getDevice Not implemented");
 //  return 0;
 //  if (!thc->storage) return -1;
@@ -828,14 +839,18 @@ int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...)
 #ifdef DISABLE_CHECK_GPU
   return 1;  // Disable GPU checks.
 #else
-  int curDev = state->currentDevice;
+//  int curDev = state->currentDevice;
+  int curDev = -1;
   va_list(args);
   va_start(args, nTensors);
   int valid = 1;
   for (unsigned int i = 0; i < nTensors; i++) {
     THClTensor* tensor = va_arg(args, THClTensor*);
-    if (tensor == NULL || tensor->storage == 0) {
+    if (tensor == NULL) {
       continue;
+    }
+    if( curDev == -1 ) {
+      curDev = THClTensor_getDevice(state, tensor);
     }
     int tensorDev = THClTensor_getDevice(state, tensor);
     if (tensorDev != -1 && tensorDev != curDev) {
@@ -871,5 +886,9 @@ std::string THClTensor_toString(THClState *state, const THClTensor *tensor) {
   res += ",nElem=" + easycl::toString(THClTensor_nElement(state, tensor));
   res += "}";
   return res;
+}
+
+EasyCL *THClTensor_getCl(THClState *state, const THClTensor *tensor) {
+  return tensor->storage->cl;
 }
 
