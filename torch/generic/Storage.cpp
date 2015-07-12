@@ -231,10 +231,11 @@ static int torch_Storage_(write)(lua_State *L)
   THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
   THFile *file = static_cast<THFile *>(luaT_checkudata(L, 2, "torch.File"));
 
-//  THClState *state = cltorch_getstate(L);
+  THClState *state = cltorch_getstate(L);
+
   THFile_writeLongScalar(file, storage->size);
   storage->wrapper->copyToHost();
-  storage->cl->finish();
+  THClState_getCl(state)->finish();
   
   THFile_writeFloatRaw(file, storage->data, storage->size);
 
@@ -247,11 +248,12 @@ static int torch_Storage_(read)(lua_State *L)
   THFile *file = static_cast<THFile *>(luaT_checkudata(L, 2, "torch.File"));
   long size = THFile_readLongScalar(file);
 
-//  THClState *state = cltorch_getstate(L);
+  THClState *state = cltorch_getstate(L);
+
   THStorage_(resize)(cltorch_getstate(L), storage, size);
   THFile_readFloatRaw(file, storage->data, storage->size);
   storage->wrapper->copyToDevice();
-  storage->cl->finish();
+  THClState_getCl(state)->finish();
 
   return 0;
 }

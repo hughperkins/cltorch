@@ -40,8 +40,7 @@ using namespace std;
 THClStorage* THClStorage_new(THClState *state)
 {
   THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
-  storage->device = state->currentDevice;
-  storage->cl = THClState_getCl(state, storage->device);
+  storage->cl = THClState_getClAndDevice(state, &storage->device);
 //  storage->device = -1;
   storage->data = NULL;
   storage->wrapper = 0;
@@ -59,8 +58,7 @@ THClStorage* THClStorage_newWithSize(THClState *state, long size)
   {
     THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
     float *data = new float[size];
-    storage->device = state->currentDevice;
-    storage->cl = THClState_getCl(state, storage->device);
+    storage->cl = THClState_getClAndDevice(state, &storage->device);
     CLWrapper *wrapper = storage->cl->wrap( size, data );
     if(state->trace) cout << "new wrapper, size " << size << endl;
     if(state->trace) cout << "wrapper->createOnDevice()" << endl;
@@ -178,8 +176,7 @@ void THClStorage_resize(THClState *state, THClStorage *self, long size)
   if(state->trace && self->size > 0) cout << "delete wrapper" << endl;
   delete[] self->data;
   self->data = new float[size];
-  EasyCL *cl = self->cl;
-  self->wrapper = cl->wrap( size, self->data );
+  self->wrapper = THClState_getCl(state)->wrap( size, self->data );
   self->wrapper->createOnDevice();
     if(state->trace) cout << "new wrapper, size " << size << endl;
   self->size = size;
