@@ -763,6 +763,11 @@ if os.getenv('PROTOTYPING') ~= nil then
   c:uniform()
   print('c\n', c)
 
+
+  c = torch.ClTensor{{4,  2,  -1},
+                     {3.1,1.2, 4.9}}
+  torch.div(c, 3.4)
+
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
 --  mask = torch.ByteTensor(2,6):bernoulli():cl()

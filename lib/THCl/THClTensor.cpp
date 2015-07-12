@@ -834,7 +834,7 @@ int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...)
   int valid = 1;
   for (unsigned int i = 0; i < nTensors; i++) {
     THClTensor* tensor = va_arg(args, THClTensor*);
-    if (tensor == NULL) {
+    if (tensor == NULL || tensor->storage == 0) {
       continue;
     }
     int tensorDev = THClTensor_getDevice(state, tensor);
