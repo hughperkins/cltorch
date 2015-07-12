@@ -739,7 +739,7 @@ if false then
 
 end
 
-if os.getenv('PROTOTYPING') ~= nil then
+if false then
   x = torch.Tensor(2,5)
   x = x:copy(torch.range(1, x:nElement())):cl()
   print('x\n', x)
@@ -762,6 +762,47 @@ if os.getenv('PROTOTYPING') ~= nil then
 
   c:uniform()
   print('c\n', c)
+end
+
+ local function eval(expression)
+  loadstring('res=' .. expression)()
+  print(expression, res)
+end
+
+if os.getenv('PROTOTYPING') ~= nil then
+  eval('cltorch.getDevice()')
+  if cltorch.getDeviceCount() >= 2 then
+    -- Switch to dedicated GPU. Everything breaks if we uncomment those lines.
+     cltorch.setDevice(2)
+     cltorch.synchronize()
+     cltorch.finish() -- not sure this line is needed
+     print('Current device: ', cltorch.getDevice()) -- this prints out, but then hangs.
+
+    -- Things print out properly on the integrated GPU (device(1))
+    C = torch.ClTensor{{3,2,4},{9,7,5}}
+    print(C:t())
+    print(C:transpose(1,2))
+
+    eval('cltorch.getDeviceCount()')
+    eval('cltorch.getDevice()')
+
+    b = torch.ClTensor({3,5,2})
+    eval('b')
+    eval('cltorch.setDevice(1)')
+    eval('cltorch.getDevice()')
+    a = torch.ClTensor({2,4,7})
+    eval('a')
+    eval('a:add(2)')
+
+    eval('cltorch.setDevice(2)')
+    eval('b:add(2)')
+
+    eval('a:add(2)')
+    eval('cltorch.setDevice(1)')
+    eval('b:add(2)')
+  else
+    print('not enough gpu devices to run multi-device tests')
+  end
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)

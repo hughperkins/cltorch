@@ -37,6 +37,8 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
     }
   }
 
+  const int device = src->storage->device;
+
   // hmmm ,I wonder if we need this any more, after migration to TensorMath.lua
 //  if( self != src ) {
 //    newSize = THLongStorage_newWithSize(index->nDimension);
@@ -50,13 +52,13 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   
 
   std::string uniqueName = __FILE__ ":gather:" + easycl::toString(nDims);
-  EasyCL *cl = THClState_getCl(state);
+  EasyCL *cl = THClTensor_getCl(state, src);
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("Apply3 1aa");
   } else {
-    TemplatedKernel kernelBuilder( THClState_getCl(state) );
+    TemplatedKernel kernelBuilder(cl);
     kernelBuilder.set("IndexType", "unsigned int");
     kernelBuilder.set("dims", nDims);
     kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
@@ -67,11 +69,11 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
     TensorInfoCl srcInfoCl(src);
     TensorInfoCl indexInfoCl(index);
 
-  const dim3 block = getApplyBlock(state);
+  const dim3 block = getApplyBlock(state, device);
 
   long totalElements = THClTensor_nElement(state, index);
   dim3 grid;
-  if (!getApplyGrid(state, totalElements, grid)) {
+  if (!getApplyGrid(state, device, totalElements, grid)) {
     THError("Couldnt create appropriate grid dimensions");
   }
 
@@ -89,7 +91,7 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   k.in( (int)totalElements );
   k.run(grid, block);
 
-  if(state->addFinish) THClState_getCl(state)->finish();
+  if(state->addFinish) cl->finish();
   StatefulTimer::timeCheck("THClTensor_kernel_Gather END");
 }
 
