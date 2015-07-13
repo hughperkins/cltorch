@@ -373,7 +373,10 @@ bool THClTensor_reduceAll(THClState* state,
 
 //  THError("Not implemented");
 
+  
+  StatefulTimer::timeCheck("ReduceAll before copytohost");
   scratch->wrapper->copyToHost();
+  StatefulTimer::timeCheck("ReduceAll after copytohost");
   *p_result = scratch->data[0];
 
   return true;
