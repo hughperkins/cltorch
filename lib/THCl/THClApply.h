@@ -207,9 +207,11 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   }
 
   THClKernels k(state, kernel);
+  StatefulTimer::timeCheck("Apply3 a");
   k.out(aInfo);
   k.in(bInfo);
   k.in(cInfo);
+  StatefulTimer::timeCheck("Apply3 b");
   for( int i = 0; i < numScalars; i++ ) {
     k.in(hasScalars->getScalar(i));
   }
@@ -217,6 +219,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   k.in( (int)totalElements );
+  StatefulTimer::timeCheck("Apply3 c");
   k.run(grid, block);
 
   if(state->addFinish) cl->finish();

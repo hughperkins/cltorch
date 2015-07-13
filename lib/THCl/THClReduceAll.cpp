@@ -289,7 +289,9 @@ bool THClTensor_reduceAll(THClState* state,
                             const HasOperator2 *modifyOp,
                             const HasOperator3 *reduceOp,
                             float init,
-                            float *p_result) {
+                            CLWrapper *res) {
+//                            float *p_result,
+//                            bool outOnDevice) {
   int64 inElements = THClTensor_nElement(state, in);
 
   if (THClTensor_nDimension(state, in) > MAX_CLTORCH_DIMS) {
@@ -298,18 +300,17 @@ bool THClTensor_reduceAll(THClState* state,
 
   if (THClTensor_nDimension(state, in) == 0) {
     // Zero-dim tensor; do nothing
-    *p_result = init;
+//    *p_result = init;
     return true;
   }
+
+  const int device = in->device;
 
 //  CLWrapper* devOut = out;
 //  float *devOut 
 //  if (!outOnDevice) {
     // Use the stream-specific scratch space for the reduction kernel
     // to write out its value
-  const int device = in->storage->device;
-  THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
-  CLWrapper *devOut = scratch->wrapper;
 //  }
 
   // It is possible that the tensor dimensions are able to be collapsed,
@@ -322,7 +323,7 @@ bool THClTensor_reduceAll(THClState* state,
   // index can be similarly collapsed. That is what this unrolling is for.
 #define HANDLE_CASE(TYPE, IN)                                           \
   callReduceAll<TYPE>(                          \
-    state, device, IN, inInfo, inElements, init, modifyOp, reduceOp, devOut);
+    state, device, IN, inInfo, inElements, init, modifyOp, reduceOp, res);
 
 #define HANDLE_IN_CASE(TYPE, IN)                    \
   {                                                 \
@@ -373,11 +374,12 @@ bool THClTensor_reduceAll(THClState* state,
 
 //  THError("Not implemented");
 
-  
-  StatefulTimer::timeCheck("ReduceAll before copytohost");
-  scratch->wrapper->copyToHost();
-  StatefulTimer::timeCheck("ReduceAll after copytohost");
-  *p_result = scratch->data[0];
+//  if(!outOnDevice) {
+//    StatefulTimer::timeCheck("ReduceAll before copytohost");
+//    scratch->wrapper->copyToHost();
+//    StatefulTimer::timeCheck("ReduceAll after copytohost");
+//    *p_result = scratch->data[0];
+//  }
 
   return true;
 }

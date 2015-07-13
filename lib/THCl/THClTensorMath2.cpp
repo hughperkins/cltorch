@@ -464,23 +464,36 @@ float THClTensor_normall(THClState *state, THClTensor *self, float value)
   if(value == 0.0f) {
     partial_not_equal_functor modifyOp(0.0f);
     TensorAddOp reduceOp;
+    const int device = self->storage->device;
+    THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
     if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-          0.0f, &result)) {
+          0.0f, scratch->wrapper)) {
       THArgCheck(false, 1, CLTORCH_DIM_WARNING);
     }
+    StatefulTimer::timeCheck("normall before copytohost");
+    scratch->wrapper->copyToHost();
+    StatefulTimer::timeCheck("normall after copytohost");
+    result = scratch->data[0];
   } else {
     norm_functor modifyOp(value);
     TensorAddOp reduceOp;
+    const int device = self->storage->device;
+    THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
     if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-          0.0f, &result)) {
+          0.0f, scratch->wrapper)) {
       THArgCheck(false, 1, CLTORCH_DIM_WARNING);
     }
+    StatefulTimer::timeCheck("normall before copytohost");
+    scratch->wrapper->copyToHost();
+    StatefulTimer::timeCheck("normall after copytohost");
+    result = scratch->data[0];
     result = pow(result, (float)1.0/value);
   }
+
   return result;
 }
 /*

@@ -769,7 +769,7 @@ end
   print(expression, res)
 end
 
-if true then
+if false then
   if cltorch.getDeviceCount() >= 2 then
     -- Switch to dedicated GPU. Everything breaks if we uncomment those lines.
      cltorch.setDevice(2)
@@ -826,6 +826,12 @@ if os.getenv('PROTOTYPING') ~= nil then
   c = torch.ClTensor{{4,  2,  -1},
                      {3.1,1.2, 4.9}}
   torch.div(c, 3.4)
+
+  a = torch.ClTensor(20,30):uniform()
+  b = torch.ClTensor()
+  b:sum(a)
+  print('b\n', b)
+  print('a:sum()\n', a:sum())
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)

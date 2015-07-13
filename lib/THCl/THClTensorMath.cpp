@@ -220,12 +220,18 @@ float THClTensor_minall(THClState *state, THClTensor *self)
   float val = (float) THInf;
   CopyOp modifyOp;
   MinOp reduceOp;
+  const int device = self->storage->device;
+  THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
   if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-          (float) THInf, &val)) {
+          (float) THInf, scratch->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
+  StatefulTimer::timeCheck("minall before copytohost");
+  scratch->wrapper->copyToHost();
+  StatefulTimer::timeCheck("minall after copytohost");
+  val = scratch->data[0];
 
   return val;
 }
@@ -236,12 +242,18 @@ float THClTensor_maxall(THClState *state, THClTensor *self)
   float val = (float) -THInf;
   CopyOp modifyOp;
   MaxOp reduceOp;
+  const int device = self->storage->device;
+  THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
   if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-          (float) -THInf, &val)) {
+          (float) -THInf, scratch->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
+  StatefulTimer::timeCheck("maxall before copytohost");
+  scratch->wrapper->copyToHost();
+  StatefulTimer::timeCheck("maxall after copytohost");
+  val = scratch->data[0];
 
   return val;
 }
@@ -252,14 +264,41 @@ float THClTensor_sumall(THClState *state, THClTensor *self)
   float val = 0.0f;
   CopyOp modifyOp;
   TensorAddOp reduceOp;
+  const int device = self->storage->device;
+  THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
+//  CLWrapper *devOut = scratch->wrapper;
   if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-          0.0f, &val)) {
+          0.0f,
+          scratch->wrapper)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
+  StatefulTimer::timeCheck("sumall before copytohost");
+  scratch->wrapper->copyToHost();
+  StatefulTimer::timeCheck("sumall after copytohost");
+  val = scratch->data[0];
+
+  return val;
+}
+
+void THClTensor_sumall_gpu(THClState *state, THClTensor *self, THClTensor *src)
+{
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+//  float val = 0.0f;
+  CopyOp modifyOp;
+  TensorAddOp reduceOp;
+  THClTensor_resize1d(state, self, 1);
+  if (!THClTensor_reduceAll(state, src,
+          &modifyOp,
+          &reduceOp,
+          0.0f, self->storage->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
 
-  return val;
+  // DEBUG
+//  src->storage->wrapper->copyToHost();
+//  cout << "storage[0]" << self->storage->data[0] << endl;
 }
 
 float THClTensor_prodall(THClState *state, THClTensor *self)
@@ -268,12 +307,20 @@ float THClTensor_prodall(THClState *state, THClTensor *self)
   float val = 0.0f;
   CopyOp modifyOp;
   TensorMulOp reduceOp;
+  const int device = self->storage->device;
+  THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
   if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-          1.0f, &val)) {
+          1.0f,
+          scratch->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
+
+  StatefulTimer::timeCheck("prodall before copytohost");
+  scratch->wrapper->copyToHost();
+  StatefulTimer::timeCheck("prodall after copytohost");
+  val = scratch->data[0];
 
   return val;
 }
@@ -321,12 +368,18 @@ int THClTensor_logicalall(THClState *state, THClTensor *self) {
   float val = 0.0f;
   CopyOp modifyOp;
   logicalall_functor reduceOp;
+  const int device = self->storage->device;
+  THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
   if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-          1.0f, &val)) {
+          1.0f, scratch->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
+  StatefulTimer::timeCheck("logicalall before copytohost");
+  scratch->wrapper->copyToHost();
+  StatefulTimer::timeCheck("logicalall after copytohost");
+  val = scratch->data[0];
 
   return val;
 }
@@ -336,12 +389,18 @@ int THClTensor_logicalany(THClState *state, THClTensor *self) {
   float val = 0.0f;
   CopyOp modifyOp;
   logicalany_functor reduceOp;
+  const int device = self->storage->device;
+  THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
   if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-          0.0f, &val)) {
+          0.0f, scratch->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
+  StatefulTimer::timeCheck("logicalany before copytohost");
+  scratch->wrapper->copyToHost();
+  StatefulTimer::timeCheck("logicalany after copytohost");
+  val = scratch->data[0];
 
   return val;
 }

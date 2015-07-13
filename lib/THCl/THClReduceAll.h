@@ -22,5 +22,5 @@ bool THClTensor_reduceAll(THClState* state,
                             const HasOperator2 *modifyOp,
                             const HasOperator3 *reduceOp,
                             float init,
-                            float* p_result);
+                            CLWrapper *res);
 
