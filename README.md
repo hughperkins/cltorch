@@ -357,7 +357,7 @@ c:div(a)  -- ... or div
 
 </table>
 
-# Point tensors: eliminate pipeline stalls!
+# Point tensors: reduce pipeline stalls
 
 Point tensors help to eliminate pipeline stalls associated with ReduceAll operations such as `sometensor:sum()`.  Why does `:sum()` cause pipeline stalls, and how do point tensors eliminate this source of stalls?
 
