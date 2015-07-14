@@ -750,8 +750,11 @@ end
 for _,name in pairs({'all', 'any'}) do
   wrap(name,
        cname('logical' .. name),
-       {{name=Tensor},
-        {name="boolean", creturned=true}})
+         {{name=Tensor},
+         {name="boolean", creturned=true}},
+       cname("logical" .. name .. "_gpu"),
+          {{name=Tensor, default=true, returned=true},
+          {name=Tensor}})
 end
 
 --for _,f in ipairs({{name='geometric'},

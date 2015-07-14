@@ -133,6 +133,8 @@ THCL_API void THClTensor_sumall_gpu(THClState *state, THClTensor *self, THClTens
 THCL_API void THClTensor_prodall_gpu(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_minall_gpu(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_maxall_gpu(THClState *state, THClTensor *self, THClTensor *src);
+THCL_API void THClTensor_logicalall_gpu(THClState *state, THClTensor *self, THClTensor *src);
+THCL_API void THClTensor_logicalany_gpu(THClState *state, THClTensor *self, THClTensor *src);
 
 THCL_API void THClTensor_mul_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
 THCL_API void THClTensor_div_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);

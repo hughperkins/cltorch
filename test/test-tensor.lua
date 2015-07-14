@@ -899,6 +899,22 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('res', res)
   print('c:max()', c:max())
 
+  c = torch.ClTensor({0,0,0})
+  res:all(c)
+  print('res', res)
+  res:any(c)
+  print('res', res)
+  c = torch.ClTensor({0,0,1})
+  res:all(c)
+  print('res', res)
+  res:any(c)
+  print('res', res)
+  c = torch.ClTensor({1,1,1})
+  res:all(c)
+  print('res', res)
+  res:any(c)
+  print('res', res)
+
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)

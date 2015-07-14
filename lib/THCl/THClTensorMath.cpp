@@ -436,6 +436,34 @@ int THClTensor_logicalall(THClState *state, THClTensor *self) {
   return val;
 }
 
+void THClTensor_logicalall_gpu(THClState *state, THClTensor *self, THClTensor *src)
+{
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+  CopyOp modifyOp;
+  logicalall_functor reduceOp;
+  THClTensor_resize0d(state, self);
+  if (!THClTensor_reduceAll(state, src,
+          &modifyOp,
+          &reduceOp,
+          1.0f, self->storage->wrapper)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
+}
+
+void THClTensor_logicalany_gpu(THClState *state, THClTensor *self, THClTensor *src)
+{
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+  CopyOp modifyOp;
+  logicalany_functor reduceOp;
+  THClTensor_resize0d(state, self);
+  if (!THClTensor_reduceAll(state, src,
+          &modifyOp,
+          &reduceOp,
+          0.0f, self->storage->wrapper)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
+}
+
 int THClTensor_logicalany(THClState *state, THClTensor *self) {
   THAssert(THClTensor_checkGPU(state, 1, self));
   float val = 0.0f;
