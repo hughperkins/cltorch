@@ -351,6 +351,10 @@ wrap("add",
      {{name=Tensor, default=true, returned=true, method={default='nil'}},
       {name=Tensor, method={default=1}},
       {name=real}},
+     cname("add_gpu"),
+     {{name=Tensor, default=true, returned=true, method={default='nil'}},
+        {name=Tensor, method={default=1}},
+        {name=Tensor}},
      cname("cadd"),
      {{name=Tensor, default=true, returned=true, method={default='nil'}},
         {name=Tensor, method={default=1}},
@@ -362,6 +366,10 @@ wrap("csub",
      {{name=Tensor, default=true, returned=true, method={default='nil'}},
       {name=Tensor, method={default=1}},
       {name=real}},
+     cname("sub_gpu"),
+     {{name=Tensor, default=true, returned=true, method={default='nil'}},
+        {name=Tensor, method={default=1}},
+        {name=Tensor}},
      cname("csub"),
      {{name=Tensor, default=true, returned=true, method={default='nil'}},
         {name=Tensor, method={default=1}},
@@ -377,31 +385,6 @@ wrap("mul",
      {{name=Tensor, default=true, returned=true, method={default='nil'}},
         {name=Tensor, method={default=1}},
         {name=Tensor}})
-
--- wrap("gather",
---      cname("gather"),
---      {{name=Tensor, default=true, returned=true,
---        init=function(arg)
---                return table.concat(
---                   {
---                      arg.__metatable.init(arg),
---                      string.format("THLongStorage* %s_size = THLongTensor_newSizeOf(%s);", arg:carg(), arg.args[4]:carg()),
---                      string.format("TH%s_resize(%s, %s_size, NULL);", Tensor, arg:carg(), arg:carg()),
---                      string.format("THLongStorage_free(%s_size);", arg:carg())
---                   }, '\n')
---             end
---       },
---       {name=Tensor},
---       {name="index"},
---       {name=Tensor, noreadadd=true}})
-
---function diag(arg)
---  print('diag', arg)
---  for k,v in pairs(arg) do
---    print(k,v)
---  end
---  return ''
---end
 
 wrap("gather",
      cname("gather"),

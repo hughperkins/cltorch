@@ -867,6 +867,12 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('c:mul(c_sum)', c:mul(c_sum))
   print('a:mul(a_sum)', a:mul(a_sum))
 
+  print('c:add(c_sum)', c:add(c_sum))
+  print('a:add(a_sum)', a:add(a_sum))
+
+  print('c:csub(c_sum)', c:csub(c_sum))
+  print('a:add(-a_sum)', a:add(-a_sum))
+
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
 --  mask = torch.ByteTensor(2,6):bernoulli():cl()
