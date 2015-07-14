@@ -372,7 +372,11 @@ wrap("mul",
      cname("mul"),
      {{name=Tensor, default=true, returned=true, method={default='nil'}},
         {name=Tensor, method={default=1}},
-        {name=real}})
+        {name=real}},
+     cname("mul_gpu"),
+     {{name=Tensor, default=true, returned=true, method={default='nil'}},
+        {name=Tensor, method={default=1}},
+        {name=Tensor}})
 
 -- wrap("gather",
 --      cname("gather"),

@@ -59,6 +59,20 @@ public:
   const float val;
 };
 
+class TensorMulPointTensorOp : public HasOperator2, public HasOperator1, public HasPointTensors {
+public:
+  int getNumPointTensors() const { return 1; }
+  const THClTensor *getPointTensor( int index ) const { return val; }
+  TensorMulPointTensorOp(THClTensor *v) : val(v) {}
+  string operator2() const {
+    return "*out = *in1 * *pointTensor1";
+  }
+  string operator1() const {
+    return "*out *= *pointTensor1";
+  }
+  const THClTensor *val;
+};
+
 class TensorDivPointTensorOp : public HasOperator2, public HasOperator1, public HasPointTensors {
 public:
   int getNumPointTensors() const { return 1; }
@@ -84,6 +98,22 @@ void THClTensor_mul(THClState *state, THClTensor *self_, THClTensor *src_, float
     THClTensor_resizeAs(state, self_, src_);
 
     if (!THClTensor_pointwiseApply2(state, self_, src_, TensorMulConstantOp(value))) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  }
+}
+
+void THClTensor_mul_gpu(THClState *state, THClTensor *self_, THClTensor *src_, THClTensor *value_)
+{
+  THAssert(THClTensor_checkGPU(state, 3, self_, src_, value_));
+  if (self_ == src_) {
+    if (!THClTensor_pointwiseApply1(state, self_, TensorMulPointTensorOp(value_))) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  } else {
+    THClTensor_resizeAs(state, self_, src_);
+
+    if (!THClTensor_pointwiseApply2(state, self_, src_, TensorMulPointTensorOp(value_))) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }

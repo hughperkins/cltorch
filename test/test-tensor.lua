@@ -856,12 +856,16 @@ if os.getenv('PROTOTYPING') ~= nil then
 
   c = torch.ClTensor(3,4):uniform()
   a = c:clone()
-  print('a:div(a:sum())', a:div(a:sum()))
+  a_sum = a:sum()
+  print('a:div(a_sum)', a:div(a_sum))
 
   c_sum = torch.ClTensor()
   c_sum:sum(c)
   print('c:div(c_sum)', c:div(c_sum))
   print('c_sum', c_sum)
+
+  print('c:mul(c_sum)', c:mul(c_sum))
+  print('a:mul(a_sum)', a:mul(a_sum))
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)

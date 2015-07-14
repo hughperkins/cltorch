@@ -14,10 +14,7 @@ THCL_API long THClTensor_numel(THClState *state, THClTensor *t);
 
 THCL_API void THClTensor_add(THClState *state, THClTensor *self, THClTensor *src, float value);
 THCL_API void THClTensor_mul(THClState *state, THClTensor *self, THClTensor *src, float value);
-//THCL_API void THClTensor_mul_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
 THCL_API void THClTensor_div(THClState *state, THClTensor *self, THClTensor *src, float value);
-THCL_API void THClTensor_div_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
-
 
 THCL_API void THClTensor_cadd(THClState *state, THClTensor *self, THClTensor *src1, float value, THClTensor *src2);
 THCL_API void THClTensor_cmul(THClState *state, THClTensor *self, THClTensor *src1, THClTensor *src2);
@@ -33,7 +30,6 @@ THCL_API float THClTensor_minall(THClState *state, THClTensor *self);
 THCL_API float THClTensor_maxall(THClState *state, THClTensor *self);
 THCL_API float THClTensor_sumall(THClState *state, THClTensor *self);
 THCL_API float THClTensor_prodall(THClState *state, THClTensor *self);
-THCL_API void THClTensor_sumall_gpu(THClState *state, THClTensor *self, THClTensor *src);
 
 THCL_API void THClTensor_min(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dim);
 THCL_API void THClTensor_max(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dim);
@@ -132,6 +128,11 @@ THCL_API void THClTensor_map2(THClState* state, THClTensor* self, THClTensor* in
 THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *src, long dim, THClTensor *index);
 THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, THClTensor *index, THClTensor *src);
 THCL_API void THClTensor_scatterFill(THClState *state, THClTensor *self, long dim, THClTensor *index, float val);
+
+THCL_API void THClTensor_sumall_gpu(THClState *state, THClTensor *self, THClTensor *src);
+
+THCL_API void THClTensor_mul_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
+THCL_API void THClTensor_div_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
 
 THCL_API float THClTensor_as_float(THClState *state, THClTensor *self);
 
