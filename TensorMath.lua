@@ -435,7 +435,12 @@ wrap("div",
      cname("div"),
      {{name=Tensor, default=true, returned=true, method={default='nil'}},
         {name=Tensor, method={default=1}},
-        {name=real}})
+        {name=real}},
+     cname("div_gpu"),
+     {{name=Tensor, default=true, returned=true, method={default='nil'}},
+        {name=Tensor, method={default=1}},
+        {name=Tensor}}
+)
 
 for _, name in ipairs({"cmul", "cpow", "cdiv"}) do
   wrap(name,
@@ -628,6 +633,11 @@ wrap("dot",
      {{name=Tensor},
       {name=Tensor},
       {name=real, creturned=true}})
+
+wrap("s",
+     cname("as_float"),
+     {{name=Tensor},
+        {name=real, creturned=true}})
 
 wrap("sum",
      cname("sumall"),

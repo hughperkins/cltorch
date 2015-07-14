@@ -258,6 +258,21 @@ float THClTensor_maxall(THClState *state, THClTensor *self)
   return val;
 }
 
+float THClTensor_as_float(THClState *state, THClTensor *self)
+{
+  THAssert(THClTensor_checkGPU(state, 1, self));
+  THArgCheck(self->nDimension == 0, 1, "tensor must be point tensor, zero dimensions");
+  THArgCheck(self->storage != 0, 1, "tensor must have allocated storage");
+  float val = 0.0f;
+//  const int device = self->storage->device;
+  StatefulTimer::timeCheck("THClTensor_as_float before copytohost");
+  self->storage->wrapper->copyToHost();
+  StatefulTimer::timeCheck("THClTensor_as_float after copytohost");
+  val = self->storage->data[self->storageOffset];
+
+  return val;
+}
+
 float THClTensor_sumall(THClState *state, THClTensor *self)
 {
   THAssert(THClTensor_checkGPU(state, 1, self));

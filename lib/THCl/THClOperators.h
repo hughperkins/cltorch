@@ -34,5 +34,11 @@ public:
   virtual std::string getTensorName(int index) const = 0;
 };
 
+class HasPointTensors {
+public:
+  virtual int getNumPointTensors() const = 0;
+  virtual const THClTensor *getPointTensor(int index) const = 0;
+};
+
 #endif // __cplusplus
 
