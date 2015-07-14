@@ -873,6 +873,18 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('c:csub(c_sum)', c:csub(c_sum))
   print('a:add(-a_sum)', a:add(-a_sum))
 
+  c = torch.ClTensor{{4,  2,  -1},
+                     {0.8,1.2, 1.9}}
+  d = torch.ClTensor{{3,  5,  -2},
+                     {2.1,2.2, 0.9}}
+  a = c:float()
+  b = d:float()
+  op = 'add'
+  loadstring('a:' .. op .. '(b)')()
+  loadstring('c:' .. op .. '(d)')()
+  print('a\n', a)
+  print('c\n', c)
+
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
 --  mask = torch.ByteTensor(2,6):bernoulli():cl()
