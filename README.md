@@ -391,7 +391,7 @@ a:div(a:sum())
 - so we have to wait for `a:sum()` to finish processing, and for the results to come back, before we can continue
 
 Looks like this:
-![gpu stall](reduceall_pipelinestall.png)
+![gpu stall](img/reduceall_pipelinestall.png)
 
 Massive pipeline stall.
 
