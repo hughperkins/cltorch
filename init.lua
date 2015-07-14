@@ -41,8 +41,16 @@ function torch.ClStorage.__tostring__(self)
   return string.gsub(floatstorage:__tostring__(), 'FloatStorage', 'ClStorage')
 end
 
+function torch.ClTensor.__tostring__(self)
+  if self:size():size() ~= 0 then
+    return torch.FloatTensor.__tostring__(self)
+  else
+    return tostring(self:s()) .. '\n[torch.ClTensor of 0 dimensions]'
+  end  
+end
+
 --torch.ClStorage.__tostring__ = torch.FloatStorage.__tostring__
-torch.ClTensor.__tostring__ = torch.FloatTensor.__tostring__
+--torch.ClTensor.__tostring__ = torch.FloatTensor.__tostring__
 
 include('Test.lua')
 include('Tensor.lua')

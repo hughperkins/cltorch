@@ -854,6 +854,15 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('c:clone():div(10)\n', c:clone():div(11))
   print('c:clone():div(a)\n', c:clone():div(a))
 
+  c = torch.ClTensor(3,4):uniform()
+  a = c:clone()
+  print('a:div(a:sum())', a:div(a:sum()))
+
+  c_sum = torch.ClTensor()
+  c_sum:sum(c)
+  print('c:div(c_sum)', c:div(c_sum))
+  print('c_sum', c_sum)
+
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
 --  mask = torch.ByteTensor(2,6):bernoulli():cl()
