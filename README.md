@@ -407,7 +407,7 @@ c:div(res)  -- divide c by res
 ```
 We can send this instruction straight away, even before the first `:sum(c)` instruction has arrived at the GPU.  So, no more stall.
 
-By the way, it's possible to print the value of a point tensor, by printing it, or calling the `:s()` operator.  Normally you wouldnt do this except during debugging though, since obviously this will need to wait for the gpu operation to finish, and for the data to come all the way back from the GPU.
+By the way, it's possible to print the value of a point tensor, by printing it, or calling the `:s()` operator.  Normally you wouldnt do this except during debugging though, since obviously this will need to wait for the gpu operation to finish, and for the data to come all the way back from the GPU :-)
 
 # Installation
 
