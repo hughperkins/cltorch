@@ -393,9 +393,9 @@ a:div(a:sum())
 Looks like this:
 ![gpu stall](img/reduceall_pipelinestall.png)
 
-Massive pipeline stall.
+*Classic reduceall => Massive pipeline stall*
 
-Point tensors eliminate this.  When we do the reduceall, the `:sum()` operation, we keep the results on the gpu, like this:
+*Point tensors eliminate this*.  When we do the reduceall, the `:sum()` operation, we keep the results on the gpu, like this:
 ```
 c = torch.Tensor(20,30):uniform():cl() -- create a tensor on the GPU
 res = torch.ClTensor()  -- create a point tensor on the GPU
