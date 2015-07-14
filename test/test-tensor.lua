@@ -851,8 +851,8 @@ if os.getenv('PROTOTYPING') ~= nil then
 
   c = torch.ClTensor(3,4):uniform()
   print('c\n', c)
-  print('c:div(10)\n', c:div(11))
-  print('c:div(a)\n', c:div(a))
+  print('c:clone():div(10)\n', c:clone():div(11))
+  print('c:clone():div(a)\n', c:clone():div(a))
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
