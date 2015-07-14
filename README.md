@@ -358,6 +358,7 @@ c:add(a) -- can pass a into :add
 c:csub(a) -- ... or csub
 c:mul(a)  -- ... or mul
 c:div(a)  -- ... or div
+c:fill9a) -- ... or fill
 </pre></tr>
 
 </table>
@@ -501,6 +502,7 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
     * `:sum()` can return a point tensor, which stays on the GPU, eliminating gpu pipeline stall, see presentation above
     * `add()`, `csub()`, `mul` and `div` can all accept a point tensor in place of their scalar argument
   * `:prod()` can return a point tensor too now, as can `:max()`, `:min()`, `:all()`, and `:any()`
+  * can pass point ClTensor also to `:fill()` now
 * 13th July:
   * possible to use tensors without `:setDevice()` to same device as them first.  Tested with `:sum()`, `:sum(1)`, and `:sum(2)` for now
 * 12th July:

@@ -322,8 +322,11 @@ wrap("zero",
 
 wrap("fill",
      cname("fill"),
-     {{name=Tensor, returned=true},
-      {name=real}})
+       {{name=Tensor, returned=true},
+       {name=real}},
+     cname("fill_gpu"),
+        {{name=Tensor, default=true, returned=true, method={default='nil'}},
+        {name=Tensor}})
 
 wrap("zeros",
      cname("zeros"),

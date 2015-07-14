@@ -28,10 +28,29 @@ public:
   const float val;
 };
 
+class TensorFillPointTensorOp : public HasOperator1, public HasPointTensors {
+public:
+  int getNumPointTensors() const { return 1; }
+  const THClTensor *getPointTensor( int index ) const { return val; }
+  TensorFillPointTensorOp(THClTensor *v) : val(v) {}
+  string operator1() const {
+    return "*out = *pointTensor1";
+  }
+  const THClTensor *val;
+};
+
 void THClTensor_fill(THClState* state, THClTensor *self_, float value)
 {
   THAssert(THClTensor_checkGPU(state, 1, self_));
   if (!THClTensor_pointwiseApply1(state, self_, TensorFillOp(value))) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
+}
+
+void THClTensor_fill_gpu(THClState* state, THClTensor *self_, THClTensor *value)
+{
+  THAssert(THClTensor_checkGPU(state, 2, self_, value));
+  if (!THClTensor_pointwiseApply1(state, self_, TensorFillPointTensorOp(value))) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
 }

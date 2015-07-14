@@ -140,6 +140,7 @@ THCL_API void THClTensor_mul_gpu(THClState *state, THClTensor *self, THClTensor 
 THCL_API void THClTensor_div_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
 THCL_API void THClTensor_add_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
 THCL_API void THClTensor_sub_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
+THCL_API void THClTensor_fill_gpu(THClState *state, THClTensor *self, THClTensor *value);
 
 THCL_API float THClTensor_as_float(THClState *state, THClTensor *self);
 

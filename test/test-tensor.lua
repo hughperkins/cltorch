@@ -915,6 +915,11 @@ if os.getenv('PROTOTYPING') ~= nil then
   res:any(c)
   print('res', res)
 
+  c:fill(res)
+  print('c', c)
+  res:sum(c)
+  c:fill(res)
+  print('c', c)
 
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
