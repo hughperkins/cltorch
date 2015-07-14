@@ -44,6 +44,9 @@ inline void op( global float *out
   {% for i=1,(num_scalars) do %}
   , float val{{i}}
   {% end %}
+   {% for i=1,num_point_tensors do %}
+   , global float *pointTensor{{i}}
+   {% end %}
 ) {
     {{operation}};
 }
@@ -56,6 +59,9 @@ THClTensor_pointwiseApplyD(
    {% end %}
    {% for i=1,num_scalars do %}
    float val{{i}},
+   {% end %}
+   {% for i=1,num_point_tensors do %}
+   global float *pointTensor{{i}},
    {% end %}
    int totalElements) {
   for (int linearIndex = get_global_id(0);
@@ -75,6 +81,9 @@ THClTensor_pointwiseApplyD(
       {% for i=1,num_scalars do %}
       , val{{i}}
       {% end %}
+       {% for i=1,num_point_tensors do %}
+       , pointTensor{{i}}
+       {% end %}
     );
   }
 }

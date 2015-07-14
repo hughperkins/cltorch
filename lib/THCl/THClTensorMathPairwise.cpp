@@ -68,7 +68,7 @@ public:
     return "*out = *in1 / *pointTensor1";
   }
   string operator1() const {
-    return "*out /s= *pointTensor1";
+    return "*out /= *pointTensor1";
   }
   const THClTensor *val;
 };

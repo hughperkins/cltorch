@@ -40,10 +40,15 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   int numTensors = 1;
   int numScalars = 0;
   HasScalars const*hasScalars = dynamic_cast<HasScalars const*>(op);
-  if( hasScalars != 0 ) {
+  if(hasScalars != 0) {
     numScalars = hasScalars->getNumScalars();
   }
-  std::string uniqueName = "THClApply_1t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + op->operator1();
+  int numPointTensors = 0;
+  HasPointTensors const*hasPointTensors = dynamic_cast<HasPointTensors const *>(op);
+  if(hasPointTensors != 0) {
+    numPointTensors = hasPointTensors->getNumPointTensors();
+  }
+  std::string uniqueName = "THClApply_1t" + easycl::toString(numScalars) + "s_" + easycl::toString(numPointTensors) + "pt_" + easycl::toString(A) + "_" + op->operator1();
 
   EasyCL *cl = aInfo.wrapper->getCl();
   CLKernel *kernel = 0;
@@ -63,6 +68,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
     kernelBuilder.set("num_scalars", numScalars);
     kernelBuilder.set("dims", dims);
     kernelBuilder.set("num_tensor_inputs", numTensors);
+    kernelBuilder.set("num_point_tensors", numPointTensors);
     kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
     kernelBuilder.set("WarpSize", 32);
     kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
@@ -103,7 +109,12 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   if( hasScalars != 0 ) {
     numScalars = hasScalars->getNumScalars();
   }
-  std::string uniqueName = "THClApply_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
+  int numPointTensors = 0;
+  HasPointTensors const*hasPointTensors = dynamic_cast<HasPointTensors const *>(op);
+  if(hasPointTensors != 0) {
+    numPointTensors = hasPointTensors->getNumPointTensors();
+  }
+  std::string uniqueName = "THClApply_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(numPointTensors) + "pt_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
   EasyCL *cl = aInfo.wrapper->getCl();
   CLKernel *kernel = 0;
   if( cl->kernelExists(uniqueName) ) {
@@ -126,6 +137,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     kernelBuilder.set("num_tensors", numTensors);
     kernelBuilder.set("num_scalars", numScalars);
     kernelBuilder.set("dims", dims);
+    kernelBuilder.set("num_point_tensors", numPointTensors);
     kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
     kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
     StatefulTimer::timeCheck("Apply2 1c");
@@ -173,7 +185,12 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   if( hasScalars != 0 ) {
     numScalars = hasScalars->getNumScalars();
   }
-  std::string uniqueName = "THClApply_3t" + easycl::toString(numScalars) + "s_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + easycl::toString(C) + "_" + op->operator3();
+  int numPointTensors = 0;
+  HasPointTensors const*hasPointTensors = dynamic_cast<HasPointTensors const *>(op);
+  if(hasPointTensors != 0) {
+    numPointTensors = hasPointTensors->getNumPointTensors();
+  }
+  std::string uniqueName = "THClApply_3t" + easycl::toString(numScalars) + "s_" + easycl::toString(numPointTensors) + "pt_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + easycl::toString(C) + "_" + op->operator3();
   EasyCL *cl = aInfo.wrapper->getCl();
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
@@ -197,6 +214,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
     std::string operation = op->operator3();
     kernelBuilder.set("num_tensors", numTensors);
     kernelBuilder.set("num_scalars", numScalars);
+    kernelBuilder.set("num_point_tensors", numPointTensors);
     kernelBuilder.set("dims", dims);
     kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
     kernelBuilder.set("WarpSize", 32);
