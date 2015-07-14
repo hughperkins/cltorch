@@ -343,9 +343,27 @@ c:map(d, "x = 1000 * x + y * 10")
 c:map2(d, e, "x = sqrt(1000 * x + y * 10 + z * z)")
         -- note: a string, not a lua function
         -- this will be passed to OpenCL kernel
+
+-- Point tensors
+c = torch.ClTensor({3,4,7})
+a = torch.ClTensor()
+a:sum(c) -- a is still a ClTensor
+                              -- on gpu
+c:add(a) -- can pass a into :add
+c:csub(a) -- ... or csub
+c:mul(a)  -- ... or mul
+c:div(a)  -- ... or div
 </pre></tr>
 
 </table>
+
+# Point tensors: eliminate pipeline stalls!
+
+Point tensors help to eliminate pipeline stalls associated with ReduceAll operations such as `sometensor:sum()`.  Why does `:sum()` cause pipeline stalls, and how do point tensors eliminate this source of stalls?
+
+If we send a single instruction (a kernel) to the gpu, there will be some latency whilst the instruction arrives at the gpu, and starts running, and some more latency after the calculations have finished, whilst the results are retrieved back from the GPU:
+
+![gpu single instruction](img/singlegpuoperation.png)
 
 # Installation
 
@@ -429,6 +447,12 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 # Recent changes
 
+* 14th July:
+  * created point tensors:
+    * `:sum()` can return a point tensor, which stays on the GPU, eliminating gpu pipeline stall, see presentation above
+    * `add()`, `csub()`, `mul` and `div` can all accept a point tensor in place of their scalar argumen
+* 13th July:
+  * possible to use tensors without `:setDevice()` to same device as them first.  Tested with `:sum()`, `:sum(1)`, and `:sum(2)` for now
 * 12th July:
   * add `cltorch.about()`, to provide build information
 * 10th July:
