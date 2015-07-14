@@ -663,11 +663,14 @@ for _,name in ipairs({"min", "max"}) do
         cname(name .. "all"),
         {{name=Tensor},
            {name=real, creturned=true}},
-        cname(name),
+           cname(name),
         {{name=Tensor, default=true, returned=true},
            {name=Tensor, default=true, returned=true},
            {name=Tensor},
-           {name="index"}})
+           {name="index"}},
+        cname(name .. "all_gpu"),
+          {{name=Tensor, default=true, returned=true},
+          {name=Tensor}})
 end
 
 for _,name in ipairs({"cmin", "cmax"}) do

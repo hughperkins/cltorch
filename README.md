@@ -349,7 +349,9 @@ c = torch.ClTensor({3,4,7})
 a = torch.ClTensor()
 a:sum(c) -- a is still a ClTensor, stays on GPU
 a:prod(c)  -- a is still a ClTensor, on GPU
-                              -- on gpu
+a:min(c)   -- a is ClTensor, on GPU  
+a:max(c)   -- a is ClTensor, on GPU
+
 c:add(a) -- can pass a into :add
 c:csub(a) -- ... or csub
 c:mul(a)  -- ... or mul
@@ -496,7 +498,7 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
   * created point tensors:
     * `:sum()` can return a point tensor, which stays on the GPU, eliminating gpu pipeline stall, see presentation above
     * `add()`, `csub()`, `mul` and `div` can all accept a point tensor in place of their scalar argument
-  * `:prod()` can return a point tensor too now
+  * `:prod()` can return a point tensor too now, as can `:max()`, `:min()`
 * 13th July:
   * possible to use tensors without `:setDevice()` to same device as them first.  Tested with `:sum()`, `:sum(1)`, and `:sum(2)` for now
 * 12th July:

@@ -891,6 +891,13 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('res', res)
   print('c:prod()', c:prod())
 
+  res:min(c)
+  print('res', res)
+  print('c:min()', c:min())
+
+  res:max(c)
+  print('res', res)
+  print('c:max()', c:max())
 
 
 --  x = torch.range(1,12):double():resize(3,4):cl()

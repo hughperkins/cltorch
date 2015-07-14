@@ -214,6 +214,34 @@ void THClTensor_addcdiv(THClState *state, THClTensor *self_, THClTensor *t, floa
 
 }
 
+void THClTensor_minall_gpu(THClState *state, THClTensor *self, THClTensor *src)
+{
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+  CopyOp modifyOp;
+  MinOp reduceOp;
+  THClTensor_resize0d(state, self);
+  if (!THClTensor_reduceAll(state, src,
+          &modifyOp,
+          &reduceOp,
+          (float) THInf, self->storage->wrapper)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
+}
+
+void THClTensor_maxall_gpu(THClState *state, THClTensor *self, THClTensor *src)
+{
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+  CopyOp modifyOp;
+  MaxOp reduceOp;
+  THClTensor_resize0d(state, self);
+  if (!THClTensor_reduceAll(state, src,
+          &modifyOp,
+          &reduceOp,
+          (float) -THInf, self->storage->wrapper)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
+}
+
 float THClTensor_minall(THClState *state, THClTensor *self)
 {
   THAssert(THClTensor_checkGPU(state, 1, self));
