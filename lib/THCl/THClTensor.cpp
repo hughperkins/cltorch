@@ -670,7 +670,6 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
   int nDimension_;
   long totalSize;
   int hascorrectsize = 1;
-  cout << "rawResize, nDimension=" << nDimension << endl;
 
   nDimension_ = 0;
   for(d = 0; d < nDimension; d++)
@@ -720,7 +719,6 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
       totalSize += (self->size[d]-1)*self->stride[d];
     }
 
-    cout << "   rawResize, totalSize=" << totalSize << endl;
     if(totalSize+self->storageOffset > 0)
     {
       if(!self->storage)
