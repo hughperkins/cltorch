@@ -142,6 +142,13 @@ THCL_API void THClTensor_add_gpu(THClState *state, THClTensor *self, THClTensor 
 THCL_API void THClTensor_sub_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
 THCL_API void THClTensor_fill_gpu(THClState *state, THClTensor *self, THClTensor *value);
 
+THCL_API void THClTensor_ltPointTensor(THClState *state, THClTensor *self_, THClTensor *src, THClTensor *value);
+THCL_API void THClTensor_gtPointTensor(THClState *state, THClTensor *self_, THClTensor *src, THClTensor *value);
+THCL_API void THClTensor_lePointTensor(THClState *state, THClTensor *self_, THClTensor *src, THClTensor *value);
+THCL_API void THClTensor_gePointTensor(THClState *state, THClTensor *self_, THClTensor *src, THClTensor *value);
+THCL_API void THClTensor_eqPointTensor(THClState *state, THClTensor *self_, THClTensor *src, THClTensor *value);
+THCL_API void THClTensor_nePointTensor(THClState *state, THClTensor *self_, THClTensor *src, THClTensor *value);
+
 THCL_API float THClTensor_as_float(THClState *state, THClTensor *self);
 
 #endif

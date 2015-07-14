@@ -358,7 +358,13 @@ c:add(a) -- can pass a into :add
 c:csub(a) -- ... or csub
 c:mul(a)  -- ... or mul
 c:div(a)  -- ... or div
-c:fill9a) -- ... or fill
+c:fill(a) -- ... or fill
+c:lt(a)  -- or any of the logical operators:
+c:gt(a)
+c:eq(a)
+c:ne(a)
+c:le(a)
+c:ge(a)
 </pre></tr>
 
 </table>
@@ -497,6 +503,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 # Recent changes
 
+* 15th July:
+  * can pass point ClTensor now also to `:lt()`, `:gt()`, `:le()`, `:ge()`, `:eq()`, `:ne()`
 * 14th July:
   * created point tensors:
     * `:sum()` can return a point tensor, which stays on the GPU, eliminating gpu pipeline stall, see presentation above

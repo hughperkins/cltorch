@@ -167,6 +167,9 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   for( int i = 0; i < numScalars; i++ ) {
     k.in(hasScalars->getScalar(i));
   }
+  for( int i = 0; i < numPointTensors; i++ ) {
+    k.in(hasPointTensors->getPointTensor(i)->storage->wrapper);
+  }
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
@@ -235,6 +238,9 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   StatefulTimer::timeCheck("Apply3 b");
   for( int i = 0; i < numScalars; i++ ) {
     k.in(hasScalars->getScalar(i));
+  }
+  for( int i = 0; i < numPointTensors; i++ ) {
+    k.in(hasPointTensors->getPointTensor(i)->storage->wrapper);
   }
   if( totalElements > ( 1l << 30 )) {
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));

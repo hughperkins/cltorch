@@ -921,6 +921,20 @@ if os.getenv('PROTOTYPING') ~= nil then
   c:fill(res)
   print('c', c)
 
+  c = torch.ClTensor({1,3,2,5,4,6})
+  a = torch.ClTensor()
+  a:sum(torch.ClTensor({2}))
+  a_s = a:s()
+  print('a', a, 'a_s', a_s)
+  for _,name in pairs({'lt', 'gt', 'eq', 'ne', 'ge', 'le'}) do
+    c = torch.ClTensor({1,3,2,5,4,6})
+    c_clone = c:clone()
+    loadstring('c_clone = c_clone:' .. name .. '(a_s)')()    
+    print(name .. ' c_clone', c_clone)
+    loadstring('c = c:' .. name .. '(a)')()
+    print(name .. ' c', c)
+  end
+
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
 --  mask = torch.ByteTensor(2,6):bernoulli():cl()
