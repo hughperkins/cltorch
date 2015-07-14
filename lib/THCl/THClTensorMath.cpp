@@ -288,7 +288,8 @@ void THClTensor_sumall_gpu(THClState *state, THClTensor *self, THClTensor *src)
 //  float val = 0.0f;
   CopyOp modifyOp;
   TensorAddOp reduceOp;
-  THClTensor_resize1d(state, self, 1);
+//  THClTensor_resize1d(state, self, 1);
+  THClTensor_resize0d(state, self);
   if (!THClTensor_reduceAll(state, src,
           &modifyOp,
           &reduceOp,

@@ -1290,6 +1290,7 @@ static const struct luaL_Reg torch_Tensor_(_) [] = {
   {"select", torch_Tensor_(select)},
   {"index", torch_Tensor_(indexSelect)},
   {"indexCopy", torch_Tensor_(indexCopy)},
+//  {"asFloat", torch_Tensor_(asFloat)},
   {"indexFill", torch_Tensor_(indexFill)},
   {"transpose", torch_Tensor_(transpose)},
   {"t", torch_Tensor_(t)},

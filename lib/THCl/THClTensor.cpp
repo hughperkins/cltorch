@@ -279,6 +279,11 @@ void THClTensor_resizeAs(THClState *state, THClTensor *self, THClTensor *src)
     THClTensor_rawResize(state, self, src->nDimension, src->size, NULL);
 }
 
+void THClTensor_resize0d(THClState *state, THClTensor *tensor)
+{
+  THClTensor_resize4d(state, tensor, -1, -1, -1, -1);
+}
+
 void THClTensor_resize1d(THClState *state, THClTensor *tensor, long size0)
 {
   THClTensor_resize4d(state, tensor, size0, -1, -1, -1);
@@ -627,7 +632,7 @@ static void THClTensor_rawInit(THClState *state, int device, THClTensor *self)
   self->storageOffset = 0;
   self->size = NULL;
   self->stride = NULL;
-  self->nDimension = 0;
+  self->nDimension = -1;
   self->flag = TH_TENSOR_REFCOUNTED;
   self->device = device;
 //  self->storage = THClStorage_newv2(state, device);
@@ -665,6 +670,7 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
   int nDimension_;
   long totalSize;
   int hascorrectsize = 1;
+  cout << "rawResize, nDimension=" << nDimension << endl;
 
   nDimension_ = 0;
   for(d = 0; d < nDimension; d++)
@@ -689,7 +695,7 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
   if(hascorrectsize)
     return;
 
-  if(nDimension > 0)
+  if(nDimension >= 0)
   {
     if(nDimension != self->nDimension)
     {
@@ -714,6 +720,7 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
       totalSize += (self->size[d]-1)*self->stride[d];
     }
 
+    cout << "   rawResize, totalSize=" << totalSize << endl;
     if(totalSize+self->storageOffset > 0)
     {
       if(!self->storage)

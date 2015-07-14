@@ -79,6 +79,7 @@ THCL_API THClTensor *THClTensor_newUnfold(THClState *state, THClTensor *tensor, 
 
 THCL_API void THClTensor_resize(THClState *state, THClTensor *tensor, THLongStorage *size, THLongStorage *stride);
 THCL_API void THClTensor_resizeAs(THClState *state, THClTensor *tensor, THClTensor *src);
+THCL_API void THClTensor_resize0d(THClState *state, THClTensor *tensor);
 THCL_API void THClTensor_resize1d(THClState *state, THClTensor *tensor, long size0_);
 THCL_API void THClTensor_resize2d(THClState *state, THClTensor *tensor, long size0_, long size1_);
 THCL_API void THClTensor_resize3d(THClState *state, THClTensor *tensor, long size0_, long size1_, long size2_);

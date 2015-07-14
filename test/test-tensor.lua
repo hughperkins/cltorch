@@ -833,6 +833,21 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('b\n', b)
   print('a:sum()\n', a:sum())
 
+  print('--------')
+  a = torch.ClTensor(torch.LongStorage())
+  print('a\n', a)
+--  print('a[1]\n', a[1])
+  a_fl = torch.Storage(1)
+  a_fl:copy(a:storage())
+  print('a_fl', a_fl)
+
+  a = torch.ClTensor(torch.LongStorage())
+  a:sum(torch.ClTensor({3,5,2}))
+  print('a\n', a)
+  a_float = torch.Storage(1)
+  a_float:copy(a:storage())
+  print('a_fl', a_float)
+
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
 --  mask = torch.ByteTensor(2,6):bernoulli():cl()

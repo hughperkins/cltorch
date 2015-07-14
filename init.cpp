@@ -148,6 +148,22 @@ namespace cltorch {
     return 0;
   }
 
+//#include "lib/THCl/THClTensor.h"
+//// technically this should be in some other file, but... POC :-Ps
+//static float cltorch_asFloat(lua_State *L)
+//{
+//  THClState *state = cltorch_getstate(L);
+//  THClTensor *tensor = (THClTensor *)luaT_checkudata(L, 1, "torch.ClTensor");  
+//  // no checking for now. POC only.
+//  luaL_argcheck(L, tensor->nDimension == 0, 1, "Must be point tensor");  
+//  luaL_argcheck(L, tensor->storage != 0, 1, "Must contain data");
+//  luaL_argcheck(L, tensor->storage->size == 1, 1, "Storage must contain exactly one value");
+//  lua_pushnumber(L, THClStorage_get(state, tensor->storage, tensor->storageOffset));
+////  tensor->storage->wrapper->copyToHost();
+//  //  lua_pushnumber(L, tensor->storage->data[0]);
+//  return 1;
+//}
+
   static const struct luaL_Reg cltorch_stuff__ [] = {
     {"getDevice", cltorch_getDevice},
     {"setDevice", cltorch_setDevice},
@@ -160,6 +176,7 @@ namespace cltorch {
     {"setAddFinish", cltorch_setAddFinish},
     {"dumpTimings", cltorch_dumpTimings},
     {"about", cltorch_about},
+//    {"asFloat", cltorch_asFloat},
     {NULL, NULL}
   };
 }
