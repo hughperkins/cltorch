@@ -361,9 +361,53 @@ c:div(a)  -- ... or div
 
 Point tensors help to eliminate pipeline stalls associated with ReduceAll operations such as `sometensor:sum()`.  Why does `:sum()` cause pipeline stalls, and how do point tensors eliminate this source of stalls?
 
-If we send a single instruction (a kernel) to the gpu, there will be some latency whilst the instruction arrives at the gpu, and starts running, and some more latency after the calculations have finished, whilst the results are retrieved back from the GPU:
+If we send a single instruction (a kernel) to the gpu, there will be some latency whilst the instruction arrives at the gpu, and starts running, and some more latency after the calculations have finished, whilst the results are retrieved back from the GPU.  Maybe we send:
+
+```
+a:add(1)
+```
+We can draw a picture of what happens.  Time is towards the right.  GPU is at the top.  CPU at the bottom:
 
 ![gpu single instruction](img/singlegpuoperation.png)
+
+But we can send lots of instructions, without waiting for the earlier ones to finish. Maybe we do:
+```
+a:add(b)
+a:mul(3)
+b:mul(a)
+c:add(a)
+```
+This might look like this, we dont have to wait for the previous instruction to finish:
+![gpu pipeline](img/gpupipelinemultiple.png)
+
+But now imagine what happens if we process the following instruction:
+```
+a:div(a:sum())
+```
+- a:sum() is going to take the sum of all the elements in a
+- a:div(a:sum()) is then going to divide all the elements of a by this sum
+- it looks innocent enough
+- but notice that we cannot send the `a:div` instruction until the `a:sum()` results have come back
+- so we have to wait for `a:sum()` to finish processing, and for the results to come back, before we can continue
+
+Looks like this:
+![gpu stall](reduceall_pipelinestall.png)
+
+Massive pipeline stall.
+
+Point tensors eliminate this.  When we do the reduceall, the `:sum()` operation, we keep the results on the gpu, like this:
+```
+c = torch.Tensor(20,30):uniform():cl() -- create a tensor on the GPU
+res = torch.ClTensor()  -- create a point tensor on the GPU
+res:sum(c)    -- sum c, and keep the result in res, on the GPU
+```
+c is a point tensor.  It has zero dimensions.  It contains a single scalar float.  It stays on the GPU.  We can feed it into other operations as follows:
+```
+c:div(res)  -- divide c by res
+```
+We can send this instruction straight away, even before the first `:sum(c)` instruction has arrived at the GPU.  So, no more stall.
+
+By the way, it's possible to print the value of a point tensor, by printing it, or calling the `:s()` operator.  Normally you wouldnt do this except during debugging though, since obviously this will need to wait for the gpu operation to finish, and for the data to come all the way back from the GPU.
 
 # Installation
 
