@@ -885,6 +885,14 @@ if os.getenv('PROTOTYPING') ~= nil then
   print('a\n', a)
   print('c\n', c)
 
+  c = torch.ClTensor(3,4):uniform()
+  res = torch.ClTensor()
+  res:prod(c)
+  print('res', res)
+  print('c:prod()', c:prod())
+
+
+
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
 --  mask = torch.ByteTensor(2,6):bernoulli():cl()

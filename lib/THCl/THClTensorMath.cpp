@@ -300,10 +300,8 @@ float THClTensor_sumall(THClState *state, THClTensor *self)
 void THClTensor_sumall_gpu(THClState *state, THClTensor *self, THClTensor *src)
 {
   THAssert(THClTensor_checkGPU(state, 2, self, src));
-//  float val = 0.0f;
   CopyOp modifyOp;
   TensorAddOp reduceOp;
-//  THClTensor_resize1d(state, self, 1);
   THClTensor_resize0d(state, self);
   if (!THClTensor_reduceAll(state, src,
           &modifyOp,
@@ -311,10 +309,6 @@ void THClTensor_sumall_gpu(THClState *state, THClTensor *self, THClTensor *src)
           0.0f, self->storage->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
-
-  // DEBUG
-//  src->storage->wrapper->copyToHost();
-//  cout << "storage[0]" << self->storage->data[0] << endl;
 }
 
 float THClTensor_prodall(THClState *state, THClTensor *self)
@@ -339,6 +333,20 @@ float THClTensor_prodall(THClState *state, THClTensor *self)
   val = scratch->data[0];
 
   return val;
+}
+
+void THClTensor_prodall_gpu(THClState *state, THClTensor *self, THClTensor *src)
+{
+  THAssert(THClTensor_checkGPU(state, 2, self, src));
+  CopyOp modifyOp;
+  TensorMulOp reduceOp;
+  THClTensor_resize0d(state, self);
+  if (!THClTensor_reduceAll(state, src,
+          &modifyOp,
+          &reduceOp,
+          1.0f, self->storage->wrapper)) {
+    THArgCheck(false, 1, CLTORCH_DIM_WARNING);
+  }
 }
 
 void THClTensor_sum(THClState* state, THClTensor *self, THClTensor *src, long dimension)

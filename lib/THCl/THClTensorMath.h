@@ -130,6 +130,7 @@ THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, T
 THCL_API void THClTensor_scatterFill(THClState *state, THClTensor *self, long dim, THClTensor *index, float val);
 
 THCL_API void THClTensor_sumall_gpu(THClState *state, THClTensor *self, THClTensor *src);
+THCL_API void THClTensor_prodall_gpu(THClState *state, THClTensor *self, THClTensor *src);
 
 THCL_API void THClTensor_mul_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
 THCL_API void THClTensor_div_gpu(THClState *state, THClTensor *self, THClTensor *src, THClTensor *value);
