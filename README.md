@@ -97,7 +97,7 @@ Timings are cumulative across multiple calls to the same kernel.
 
 This uses the wall-clock times to measure the elapsed time in different sections of cltorch code.  The way it works is, each time the cltorch c++ code calls `StatefulTimer::instance()->timeCheck("some status")`, the wall-clock time since the last call to `->timeCheck()` will be added to the cumulative time for `some status`.  You can pass any status as a string.  Then, after running the piece of code under the scrutiny, in your Lua program, simply call `cltorch->dumpTimings()` to dump these cumulative timings.
 
-#### Log GPU buffer allocations and copies
+#### GPU buffer allocations and copies
 
 You can log all GPU buffer allocations, copies to host, and copies to GPU device.  Simply call:
 ```
