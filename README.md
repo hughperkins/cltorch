@@ -390,7 +390,7 @@ Following tools are available to aid with optimization:
 |------|---------|
 |`cltorch.setProfiling(1)` |  turn on opencl kernel profiling |
 |`cltorch.dumpProfiling()` | dump opencl kernel profiling timings since last call|
-|`cltorch.dumpTimings()  | dump cumulative wall-clock timings for cltorch code |
+|`cltorch.dumpTimings()`  | dump cumulative wall-clock timings for cltorch code |
 |`cltorch.setTrace(1)` | print all gpu buffer allocations and copies between host/gpu |
 
 # Point tensors: reduce pipeline stalls
