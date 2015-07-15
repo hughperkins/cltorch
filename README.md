@@ -460,7 +460,18 @@ cltorch.about() -- dump version/build information
 
 </table>
 
-# Optimization tools
+## cltorch-specific features
+
+### apply/map/map2
+
+You can provide opencl code to apply, map and map2, which will run on the gpu, at full speed.  Just provide the opencl as a string to apply, map or map2.  Examples, for `c`, `d`, `e` are identically sized `ClTensor`s:
+```
+c:apply("x = sqrt(x + 3.5)")
+c:map(d, "x = 1000 * x + y * 10")
+c:map2(d, e, "x = sqrt(1000 * x + y * 10 + z * z)")
+```
+
+### Optimization tools
 
 Following tools are available to aid with optimization:
 
@@ -471,7 +482,7 @@ Following tools are available to aid with optimization:
 |`cltorch.dumpTimings()`  | dump cumulative wall-clock timings for cltorch code |
 |`cltorch.setTrace(1)` | print all gpu buffer allocations and copies between host/gpu |
 
-## Point tensors: reduce pipeline stalls
+### Point tensors: reduce pipeline stalls
 
 Point tensors help to eliminate pipeline stalls associated with ReduceAll operations such as `sometensor:sum()`.  Why does `:sum()` cause pipeline stalls, and how do point tensors eliminate this source of stalls?
 
