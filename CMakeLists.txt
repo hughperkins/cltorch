@@ -39,11 +39,11 @@ LINK_DIRECTORIES(${EASYCL_LIBRARY_DIR})
 
 ADD_SUBDIRECTORY(lib)
 
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}")
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/src")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/lib/THCl")
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/torch")
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/src/torch")
 
-SET(src src/init.cpp torch/utils.c src/Storage.cpp src/Tensor.c TensorMath.c
+SET(src src/init.cpp src/torch/utils.c src/Storage.cpp src/Tensor.c TensorMath.c
   src/TensorOperator.c)
 SET(luasrc src/init.lua src/Tensor.lua src/Random.lua src/Test.lua thirdparty/luaunit.lua test/unit_storage.lua test/unit_tensor.lua )
 
