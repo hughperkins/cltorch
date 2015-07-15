@@ -2,7 +2,85 @@
 
 An OpenCL backend for [torch](http://torch.ch/).
 
+## Installation
+
+* First install torch distro, see [https://github.com/torch/distro](https://github.com/torch/distro).
+* Now, do:
+```
+git clone --recursive https://github.com/hughperkins/cltorch.git
+cd cltorch
+luarocks make rocks/cltorch-scm-1.rockspec
+```
+* If you get an error message about some files in EasyCL or clBLAS not existing, then do:
+```
+git submodule init
+git submodule update
+```
+* If, during `git submodule update` command, it says something about `clBLAS/src` directory already exists, then do:
+```
+git submodule init
+rmdir clMathLibraries/clBLAS/src
+git submodule update
+```
+* Please make sure you run the self-tests first.  If any of them fail, please raise an issue.  They should all pass, reliably, every time.  To run the tests:
+```
+th -l cltorch -e 'cltorch.test()'
+```
+
+## Updating
+
+* Sometimes you might want to do `git pull` to pull in new updates
+* If you try this, you might see build errors about EasyCL
+* In the future, these might be handled automatically by the build script :-)
+* For now, note that two possible issues after a `git pull` are
+  * the EasyCL submodule may not have been updated
+  * the EasyCL subproject may not have been rebuilt
+* To solve these issues, after doing `git pull`, you can do the following, which will ensure the EasyCL submodule is up to date, and will be fully rebuilt, and installed:
+```
+git submodule update
+rm -Rf build/EasyCL
+```
+* Now you can run the luarocks make command, as above, and hopefully it will work this time :-)
+  * if it doesnt, please raise an issue.  It might be easy to fix, but I cant help to fix it, if I dont know about it :-)
+
+## Co-existence with cutorch
+
+* It is possible to load cutorch and cltorch at the same time, if you wish
+* If you do this, please load cutorch first, and then load cltorch second
+* If you get errors about #1 argument to copy should be tensor, but is userdata, then please double-check that cutorch is `required`d before cltorch (they each monkey-patch torch, but since cutorch was written first, it assumes there is no monkey-patch conflict)
+
+## Dependencies
+
+cltorch has the following build dependencies:
+* [clBLAS](https://github.com/clMathLibraries/clBLAS) - provides GPU-based matrix operations, such as multiplication
+* [EasyCL](https://github.com/hughperkins/EasyCL) - provides an abstraction layer over the low-level OpenCL API
+* [clew](https://github.com/martijnberger/clew) - similar to glew, means that cltorch can be loaded without any OpenCL library/runtime being present
+
+At runtime, if you want to call any of the cltorch methods, you will also need:
+* OpenCL-compatible GPU
+* OpenCL library/driver (normally provided by the GPU vendor)
+
+## Requests for additional operations etc
+
+* Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
+* (Ditto for any build errors)
+
+## Unit tests / samples
+
+Simply run:
+```
+th -l cltorch -e 'cltorch.test()'
+```
+
+## Guidelines for contributors
+
+You might or might not find [ContributorGuidelines.md](doc/ContributorGuidelines.md) useful.  Not required reading, but it is there if you want to see my own thoughts and ideas on how I am currently approaching cltorch development, and cutorch-porting.
+
+Also, some more technical guidelines on porting, in the [clnn](https://github.com/hughperkins/clnn) repository, at [porting-guidelines.md](https://github.com/hughperkins/clnn/blob/master/doc/porting-guidelines.md).
+
 ## What's working
+
+Most things really :-)  Detailed description below.  Please don't hesitate to raise an issue for anything that's missing that you would like to see added.
 
 ### Import
 
@@ -393,7 +471,7 @@ Following tools are available to aid with optimization:
 |`cltorch.dumpTimings()`  | dump cumulative wall-clock timings for cltorch code |
 |`cltorch.setTrace(1)` | print all gpu buffer allocations and copies between host/gpu |
 
-# Point tensors: reduce pipeline stalls
+## Point tensors: reduce pipeline stalls
 
 Point tensors help to eliminate pipeline stalls associated with ReduceAll operations such as `sometensor:sum()`.  Why does `:sum()` cause pipeline stalls, and how do point tensors eliminate this source of stalls?
 
@@ -445,87 +523,11 @@ We can send this instruction straight away, even before the first `:sum(c)` inst
 
 By the way, it's possible to print the value of a point tensor, by printing it, or calling the `:s()` operator.  Normally you wouldnt do this except during debugging though, since obviously this will need to wait for the gpu operation to finish, and for the data to come all the way back from the GPU :-)
 
-# Installation
-
-* First install torch distro, see [https://github.com/torch/distro](https://github.com/torch/distro).
-* Now, do:
-```
-git clone --recursive https://github.com/hughperkins/cltorch.git
-cd cltorch
-luarocks make rocks/cltorch-scm-1.rockspec
-```
-* If you get an error message about some files in EasyCL or clBLAS not existing, then do:
-```
-git submodule init
-git submodule update
-```
-* If, during `git submodule update` command, it says something about `clBLAS/src` directory already exists, then do:
-```
-git submodule init
-rmdir clMathLibraries/clBLAS/src
-git submodule update
-```
-* Please make sure you run the self-tests first.  If any of them fail, please raise an issue.  They should all pass, reliably, every time.  To run the tests:
-```
-th -l cltorch -e 'cltorch.test()'
-```
-
-# Co-existence with cutorch
-
-* It is possible to load cutorch and cltorch at the same time, if you wish
-* If you do this, please load cutorch first, and then load cltorch second
-* If you get errors about #1 argument to copy should be tensor, but is userdata, then please double-check that cutorch is `required`d before cltorch (they each monkey-patch torch, but since cutorch was written first, it assumes there is no monkey-patch conflict)
-
-# Updating
-
-* Sometimes you might want to do `git pull` to pull in new updates
-* If you try this, you might see build errors about EasyCL
-* In the future, these might be handled automatically by the build script :-)
-* For now, note that two possible issues after a `git pull` are
-  * the EasyCL submodule may not have been updated
-  * the EasyCL subproject may not have been rebuilt
-* To solve these issues, after doing `git pull`, you can do the following, which will ensure the EasyCL submodule is up to date, and will be fully rebuilt, and installed:
-```
-git submodule update
-rm -Rf build/EasyCL
-```
-* Now you can run the luarocks make command, as above, and hopefully it will work this time :-)
-  * if it doesnt, please raise an issue.  It might be easy to fix, but I cant help to fix it, if I dont know about it :-)
-
-# Dependencies
-
-cltorch has the following build dependencies:
-* [clBLAS](https://github.com/clMathLibraries/clBLAS) - provides GPU-based matrix operations, such as multiplication
-* [EasyCL](https://github.com/hughperkins/EasyCL) - provides an abstraction layer over the low-level OpenCL API
-* [clew](https://github.com/martijnberger/clew) - similar to glew, means that cltorch can be loaded without any OpenCL library/runtime being present
-
-At runtime, if you want to call any of the cltorch methods, you will also need:
-* OpenCL-compatible GPU
-* OpenCL library/driver (normally provided by the GPU vendor)
-
-# Requests for additional operations etc
-
-* Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
-* (Ditto for any build errors)
-
-# Unit tests / samples
-
-Simply run:
-```
-th -l cltorch -e 'cltorch.test()'
-```
-
-# Guidelines for contributors
-
-You might or might not find [ContributorGuidelines.md](doc/ContributorGuidelines.md) useful.  Not required reading, but it is there if you want to see my own thoughts and ideas on how I am currently approaching cltorch development, and cutorch-porting.
-
-Also, some more technical guidelines on porting, in the [clnn](https://github.com/hughperkins/clnn) repository, at [porting-guidelines.md](https://github.com/hughperkins/clnn/blob/master/doc/porting-guidelines.md).
-
-# Related projects
+## Related projects
 
 There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/hughperkins/clnn).
 
-# Recent changes
+## Recent changes
 
 * 15th July:
   * can pass point ClTensor now also to `:lt()`, `:gt()`, `:le()`, `:ge()`, `:eq()`, `:ne()`
