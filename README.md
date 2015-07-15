@@ -82,7 +82,7 @@ Following tools are available to aid with optimization:
 
 #### OpenCL Profiling
 
-OpenCL natively provides facilities to measure the execution time of kernels, without needing to call `cltorch.finish()` or similar first, using [clGetEventProfilingInfo]().  In cltorch, you dont need to know how this works ;-)  Simply call, at the start of your code:
+OpenCL natively provides facilities to measure the execution time of kernels, without needing to call `cltorch.finish()` or similar first, using [clGetEventProfilingInfo](https://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clGetEventProfilingInfo.html).  In cltorch, you dont need to know how this works ;-)  Simply call, at the start of your code:
 
 ```
 cltorch.setProfiling(1)
