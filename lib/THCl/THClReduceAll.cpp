@@ -1,8 +1,14 @@
-#include "EasyCL.h"
+#include "THClKernels.h"
 #include "THClReduceAll.h"
 #include "THClTypeParseTraits.h"
+#include "THClReduceApplyUtils.h"
+#include "THClDeviceUtils.h"
+#include "EasyCL.h"
+#include "templates/TemplatedKernel.h"
+#include "util/StatefulTimer.h"
 
 #include <iostream>
+#include <string>
 using namespace std;
 
 static std::string getKernelTemplate();

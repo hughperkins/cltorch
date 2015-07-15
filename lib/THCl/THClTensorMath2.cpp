@@ -10,6 +10,7 @@
 #include "THClTensorMathPointwise.h"
 #include "THClReduceAll.h"
 #include "EasyCL.h"
+#include "util/StatefulTimer.h"
 
 using namespace std;
 
