@@ -5,6 +5,7 @@
 #include "THClTensorCopy.h"
 #include "THClGeneral.h"
 #include "THClTensor.h"
+#include "util/StatefulTimer.h"
 
 #include "EasyCL.h"
 

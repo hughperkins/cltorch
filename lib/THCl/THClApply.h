@@ -1,18 +1,10 @@
 #ifndef THCL_APPLY_INC
 #define THCL_APPLY_INC
 
-#include "THClTensorCopy.h"
+#include "THClGeneral.h"
+#include "THClTensor.h"
+#include "THClOperators.h"
 #include "THClReduceApplyUtils.h"
-#include "templates/TemplatedKernel.h"
-#include "util/easycl_stringhelper.h"
-#include "EasyCL.h"
-#include "CLKernel_structs.h"
-#include "THClTypeParseTraits.h"
-#include "THClKernels.h"
-#include "DeviceInfo.h"
-#include "util/StatefulTimer.h"
-
-#include <string>
 
 //
 // This file contains pointwise operation functions and kernels that

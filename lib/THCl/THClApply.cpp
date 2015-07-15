@@ -1,4 +1,16 @@
 #include "THClApply.h"
+#include "THClKernels.h"
+#include "THClTypeParseTraits.h"
+#include "EasyCL.h"
+#include "CLKernel_structs.h"
+#include "util/easycl_stringhelper.h"
+#include "util/StatefulTimer.h"
+#include "templates/TemplatedKernel.h"
+
+#include <string>
+#include <iostream>
+
+using namespace std;
 
 static std::string get_template();
 // Implementation of copyIgnoringOverlaps, defined after pointwiseApply2.

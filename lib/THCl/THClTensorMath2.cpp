@@ -9,6 +9,7 @@
 //#include "THCReduce.cuh"
 #include "THClTensorMathPointwise.h"
 #include "THClReduceAll.h"
+#include "EasyCL.h"
 
 using namespace std;
 
