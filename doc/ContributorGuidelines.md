@@ -25,10 +25,10 @@ So... for the kernel templates, I quite like the compile-at-runtime approach.  I
 
 # Porting utilities
 
-There is a python script in 'util' called 'port.py'.  It can help do a first-cut port of files, or facilitate meld of existing files.  Run it as follows:
+There is a python script in `src/util` called 'port.py'.  It can help do a first-cut port of files, or facilitate meld of existing files.  Run it as follows:
 * in the parent directory of 'cltorch', clone the 'cutorch' repository
   * currently, it expects the cutorch 'goodies2' branch to be cloned into `cutorch-goodies2` directory, but obviously you can hack port.py a bit to change the exact directory
-* from cltorch directory, run `python util/port.py`
+* from cltorch directory, run `python src/util/port.py`
 * A first-cut port of the files in ../cutorch-goodies2 will pop out in the `port` directory
 * .cuh files will become .h files
 * .cu files will become .cpp files
