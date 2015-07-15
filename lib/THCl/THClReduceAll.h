@@ -1,5 +1,3 @@
-// from lib/THC/THCReduceAll.cuh:
-
 #pragma once
 
 #include "THClGeneral.h"
