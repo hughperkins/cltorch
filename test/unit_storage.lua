@@ -1,5 +1,3 @@
--- local luaunit = require('cltorch.luaunit')
-
 require 'string'
 
 local runtests = false
@@ -74,14 +72,12 @@ for k,v in pairs(cltorch.tests.storage) do
 end
 
 function cltorch.tests.storage.test()
---  luaunit.LuaUnit.runSuite(cltorch.tests.storage)
    tester = torch.Tester()
    tester:add(test)
    tester:run(tests)
 end
 
 if runtests then
---  os.exit( luaunit.LuaUnit.run() )
   cltorch.tests.storage.test()
 end
 

@@ -1,8 +1,5 @@
 -- unit tests for ClTensor class
 
--- luaunit = require('luaunit')
---require 'cltorch'
-
 require 'string'
 
 local runtests = false
@@ -903,19 +900,6 @@ function cltorch.tests.tensor.test_save()
   end
 end
 
---local function _run()
---  --cltorch.setTrace(1)
---  luaunit.LuaUnit.run()
---  -- cltorch.setTrace(0)
---end
-
---cltorch.setTrace(1)
---luaunit.LuaUnit.run()
---cltorch.setTrace(0)
---cltorch.dumpTimings()
--- os.exit(_run())
---os.exit(luaunit.LuaUnit.run())
-
 local function setUp()
   --cltorch.setDevice(1)
   print('')
@@ -930,14 +914,12 @@ for k,v in pairs(cltorch.tests.tensor) do
 end
 
 function cltorch.tests.tensor.test()
---  luaunit.LuaUnit.runSuite(cltorch.tests.storage)
    tester = torch.Tester()
    tester:add(test)
    tester:run(tests)
 end
 
 if runtests then
---  os.exit( luaunit.LuaUnit.run() )
   cltorch.tests.tensor.test()
 end
 
