@@ -17,7 +17,7 @@ SET(CMAKE_C_FLAGS "-std=c99 -Werror=implicit-function-declaration")
 SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall")
 
 
-SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/CMakeModules")
 
 execute_process(COMMAND bash -c "echo $PWD")
 execute_process(COMMAND bash -c "echo $PWD"
