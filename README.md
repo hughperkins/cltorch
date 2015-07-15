@@ -382,6 +382,17 @@ cltorch.about() -- dump version/build information
 
 </table>
 
+# Optimization tools
+
+Following tools are available to aid with optimization:
+
+|Method|Description|
+|------|---------|
+|`cltorch.setProfiling(1)` |  turn on opencl kernel profiling |
+|`cltorch.dumpProfiling()` | dump opencl kernel profiling timings since last call|
+|`cltorch.dumpTimings()  | dump cumulative wall-clock timings for cltorch code |
+|`cltorch.setTrace(1)` | print all gpu buffer allocations and copies between host/gpu |
+
 # Point tensors: reduce pipeline stalls
 
 Point tensors help to eliminate pipeline stalls associated with ReduceAll operations such as `sometensor:sum()`.  Why does `:sum()` cause pipeline stalls, and how do point tensors eliminate this source of stalls?
