@@ -116,7 +116,7 @@ a:add(1)
 ```
 We can draw a picture of what happens.  Time is towards the right.  GPU is at the top.  CPU at the bottom:
 
-![gpu single instruction](img/singlegpuoperation.png)
+![gpu single instruction](doc/img/singlegpuoperation.png)
 
 But we can send lots of instructions, without waiting for the earlier ones to finish. Maybe we do:
 ```
@@ -126,7 +126,7 @@ b:mul(a)
 c:add(a)
 ```
 This might look like this, we dont have to wait for the previous instruction to finish:
-![gpu pipeline](img/gpupipelinemultiple.png)
+![gpu pipeline](doc/img/gpupipelinemultiple.png)
 
 But now imagine what happens if we process the following instruction:
 ```
@@ -139,7 +139,7 @@ a:div(a:sum())
 - so we have to wait for `a:sum()` to finish processing, and for the results to come back, before we can continue
 
 Looks like this:
-![gpu stall](img/reduceall_pipelinestall.png)
+![gpu stall](doc/img/reduceall_pipelinestall.png)
 
 *Classic reduceall => Massive pipeline stall*
 
