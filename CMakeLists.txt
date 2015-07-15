@@ -43,11 +43,11 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/lib/THCl")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/torch")
 
-SET(src init.cpp torch/utils.c Storage.cpp Tensor.c TensorMath.c
-  TensorOperator.c)
-SET(luasrc init.lua Tensor.lua Random.lua Test.lua thirdparty/luaunit.lua test/unit_storage.lua test/unit_tensor.lua )
+SET(src src/init.cpp torch/utils.c src/Storage.cpp src/Tensor.c TensorMath.c
+  src/TensorOperator.c)
+SET(luasrc src/init.lua src/Tensor.lua src/Random.lua src/Test.lua thirdparty/luaunit.lua test/unit_storage.lua test/unit_tensor.lua )
 
-ADD_TORCH_WRAP(cltorchtensormathwrap TensorMath.lua)
+ADD_TORCH_WRAP(cltorchtensormathwrap src/TensorMath.lua)
 
 ADD_TORCH_PACKAGE(cltorch "${src}" "${luasrc}")
 ADD_DEPENDENCIES(cltorch clBLAS)
