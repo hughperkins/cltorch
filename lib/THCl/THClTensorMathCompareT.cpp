@@ -20,7 +20,7 @@ void THClTensor_logicalTensor(THClState *state, THClTensor *self_, THClTensor *s
   THClTensor_resizeAs(state, self_, src1);
   THArgCheck(THClTensor_nElement(state, src1) == THClTensor_nElement(state, src2), 3, "sizes do not match");
 
-  if (!THClTensor_pointwiseApply3(state, self_, src1, src2, *op)) {
+  if (!THClTensor_pointwiseApply3(state, self_, src1, src2, op)) {
     THArgCheck(false, 2, CLTORCH_DIM_WARNING);
   }
 }

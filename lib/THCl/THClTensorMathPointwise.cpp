@@ -19,13 +19,15 @@ using namespace std;
   void THClTensor_##NAME(THClState* state, THClTensor* self_, THClTensor* src) { \
     THAssert(THClTensor_checkGPU(state, 2, self_, src));                \
     if (self_ == src) {                                                 \
-      if (!THClTensor_pointwiseApply1(state, self_, TensorGenOp(#CFUNC))) { \
+      TensorGenOp op(#CFUNC); \
+      if (!THClTensor_pointwiseApply1(state, self_, &op)) { \
         THArgCheck(false, 2, CLTORCH_DIM_WARNING); \
       }                                                                 \
     } else {                                                            \
       THClTensor_resizeAs(state, self_, src);                         \
                                                                         \
-      if (!THClTensor_pointwiseApply2(state, self_, src, TensorGenOp(#CFUNC))) { \
+      TensorGenOp op(#CFUNC); \
+      if (!THClTensor_pointwiseApply2(state, self_, src, &op)) { \
         THArgCheck(false, 2, CLTORCH_DIM_WARNING); \
       }                                                                 \
     }                                                                   \
@@ -62,7 +64,8 @@ void THClTensor_apply(THClState* state, THClTensor* self, char const *_operation
   operation1 = easycl::replaceGlobal(operation1, "x", "(*out)");
   operation1 = easycl::replaceGlobal(operation1, "ejp", "exp");
   operation1 = easycl::replaceGlobal(operation1, "mam", "max");
-    if (!THClTensor_pointwiseApply1(state, self, TensorGenOpFullInline1(operation1))) {
+    TensorGenOpFullInline1 op(operation1);
+    if (!THClTensor_pointwiseApply1(state, self, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
 //  } else {
@@ -84,7 +87,8 @@ void THClTensor_map(THClState* state, THClTensor* self, THClTensor *in1, char co
   operation2 = easycl::replaceGlobal(operation2, "ejp", "exp");
   operation2 = easycl::replaceGlobal(operation2, "mam", "max");
   operation2 = easycl::replaceGlobal(operation2, "y", "(*in1)");
-    if (!THClTensor_pointwiseApply2(state, self, in1, TensorGenOpFullInline2(operation2))) {
+    TensorGenOpFullInline2 op(operation2);
+    if (!THClTensor_pointwiseApply2(state, self, in1, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
 //  } else {
@@ -107,7 +111,8 @@ void THClTensor_map2(THClState* state, THClTensor* self, THClTensor *in1, THClTe
   operation3 = easycl::replaceGlobal(operation3, "y", "(*in1)");
   operation3 = easycl::replaceGlobal(operation3, "z", "(*in2)");
 //  if (self == src) {
-    if (!THClTensor_pointwiseApply3(state, self, in1, in2, TensorGenOpFullInline3(operation3))) {
+    TensorGenOpFullInline3 op(operation3);
+    if (!THClTensor_pointwiseApply3(state, self, in1, in2, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
 //  } else {
@@ -133,12 +138,14 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
   if (self_ == src1) {
     if (value == 1.0f) {
       // self += src2
-      if (!THClTensor_pointwiseApply2(state, self_, src2, TensorAddOp())) {
+      TensorAddOp op;
+      if (!THClTensor_pointwiseApply2(state, self_, src2, &op)) {
         THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     } else {
       // self += value * src2
-      if (!THClTensor_pointwiseApply2(state, self_, src2, TensorCAddOp(value))) {
+      TensorCAddOp op(value);
+      if (!THClTensor_pointwiseApply2(state, self_, src2, &op)) {
         THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     }
@@ -147,12 +154,14 @@ void THClTensor_cadd(THClState *state, THClTensor *self_, THClTensor* src1, floa
 
     if (value == 1.0f) {
       // self = src1 + src2
-      if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorAddOp())) {
+      TensorAddOp op;
+      if (!THClTensor_pointwiseApply3(state, self_, src1, src2, &op)) {
         THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     } else {
       // self = src1 + value * src2
-      if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorCAddOp(value))) {
+      TensorCAddOp op(value);
+      if (!THClTensor_pointwiseApply3(state, self_, src1, src2, &op)) {
         THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     }
@@ -175,13 +184,14 @@ void THClTensor_cmax(THClState *state, THClTensor *self, THClTensor *src1, THClT
   THArgCheck(THClTensor_nElement(state, src1) ==
              THClTensor_nElement(state, src2), 2, "sizes do not match");
 
+  TensorMaxOp op;
   if (self == src1) {
-    if (!THClTensor_pointwiseApply2(state, self, src2, TensorMaxOp())) {
+    if (!THClTensor_pointwiseApply2(state, self, src2, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self, src1);
-    if (!THClTensor_pointwiseApply3(state, self, src1, src2, TensorMaxOp())) {
+    if (!THClTensor_pointwiseApply3(state, self, src1, src2, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
@@ -203,13 +213,14 @@ void THClTensor_cmin(THClState *state, THClTensor *self, THClTensor *src1, THClT
   THArgCheck(THClTensor_nElement(state, src1) ==
              THClTensor_nElement(state, src2), 2, "sizes do not match");
 
+  TensorMinOp op;
   if (self == src1) {
-    if (!THClTensor_pointwiseApply2(state, self, src2, TensorMinOp())) {
+    if (!THClTensor_pointwiseApply2(state, self, src2, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self, src1);
-    if (!THClTensor_pointwiseApply3(state, self, src1, src2, TensorMinOp())) {
+    if (!THClTensor_pointwiseApply3(state, self, src1, src2, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
@@ -238,13 +249,14 @@ void THClTensor_cmaxValue(THClState *state, THClTensor *self, THClTensor *src, f
 {
   THAssert(THClTensor_checkGPU(state, 2, self, src));
 
+  TensorMaxValueOp op(value);
   if (self == src) {
-    if (!THClTensor_pointwiseApply1(state, self, TensorMaxValueOp(value))) {
+    if (!THClTensor_pointwiseApply1(state, self, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self, src);
-    if (!THClTensor_pointwiseApply2(state, self, src, TensorMaxValueOp(value))) {
+    if (!THClTensor_pointwiseApply2(state, self, src, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
@@ -273,13 +285,14 @@ void THClTensor_cminValue(THClState *state, THClTensor *self, THClTensor *src, f
 {
   THAssert(THClTensor_checkGPU(state, 2, self, src));
 
+  TensorMinValueOp op(value);
   if (self == src) {
-    if (!THClTensor_pointwiseApply1(state, self, TensorMinValueOp(value))) {
+    if (!THClTensor_pointwiseApply1(state, self, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self, src);
-    if (!THClTensor_pointwiseApply2(state, self, src, TensorMinValueOp(value))) {
+    if (!THClTensor_pointwiseApply2(state, self, src, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
@@ -298,12 +311,14 @@ void THClTensor_csub(THClState *state, THClTensor *self_, THClTensor* src1, floa
   if (self_ == src1) {
     if (value == 1.0f) {
       // self += src2
-      if (!THClTensor_pointwiseApply2(state, self_, src2, TensorSubOp())) {
+      TensorSubOp op;
+      if (!THClTensor_pointwiseApply2(state, self_, src2, &op)) {
         THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     } else {
       // self += value * src2
-      if (!THClTensor_pointwiseApply2(state, self_, src2, TensorCSubOp(value))) {
+      TensorCSubOp op(value);
+      if (!THClTensor_pointwiseApply2(state, self_, src2, &op)) {
         THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     }
@@ -312,12 +327,14 @@ void THClTensor_csub(THClState *state, THClTensor *self_, THClTensor* src1, floa
 
     if (value == 1.0f) {
       // self = src1 + src2
-      if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorSubOp())) {
+      TensorSubOp op;
+      if (!THClTensor_pointwiseApply3(state, self_, src1, src2, &op)) {
         THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     } else {
       // self = src1 + value * src2
-      if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorCSubOp(value))) {
+      TensorCSubOp op(value);
+      if (!THClTensor_pointwiseApply3(state, self_, src1, src2, &op)) {
         THArgCheck(false, 2, CLTORCH_DIM_WARNING);
       }
     }
@@ -332,14 +349,16 @@ void THClTensor_cmul(THClState *state, THClTensor *self_, THClTensor *src1, THCl
 
   if (self_ == src1) {
     // self *= src2
-    if (!THClTensor_pointwiseApply2(state, self_, src2, TensorMulOp())) {
+    TensorMulOp op;
+    if (!THClTensor_pointwiseApply2(state, self_, src2, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src1);
 
     // self = src1 * src2
-    if (!THClTensor_pointwiseApply3(state, self_, src1, src2, TensorMulOp())) {
+    TensorMulOp op;
+    if (!THClTensor_pointwiseApply3(state, self_, src1, src2, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }

@@ -169,7 +169,7 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
 
       CopyOp copyOp;
       bool succ =
-        THClTensor_pointwiseApply2(state, dst, src, *&copyOp );
+        THClTensor_pointwiseApply2(state, dst, src, &copyOp );
       THArgCheck(succ, 2, CLTORCH_DIM_WARNING);
     } else { // multi-gpu
 //      // empirically, running the kernel on the device that holds the
