@@ -332,6 +332,8 @@ c:csub(d) -- subtracts d from c, element-wise
          -- but stores results into c
 a:neg() -- similar to '- a'
         -- but stores results into a
+
+-- arbitrary apply/map
 c:apply("x = sqrt(x + 3.5)")
         -- note: a string, not a lua function
         -- this will be passed to OpenCL kernel :-)
@@ -353,7 +355,6 @@ a:min(c)   -- a is ClTensor, on GPU
 a:max(c)   -- a is ClTensor, on GPU
 a:all(c)   -- a is ClTensor, on GPU
 a:any(c)   -- a is ClTensor, on GPU
-
 c:add(a) -- can pass a into :add
 c:csub(a) -- ... or csub
 c:mul(a)  -- ... or mul
@@ -365,6 +366,18 @@ c:eq(a)
 c:ne(a)
 c:le(a)
 c:ge(a)
+
+-- optimization tools:
+cltorch.setProfiling(1)  -- turn on opencl kernel profiling
+cltorch.dumpProfiling()  -- dump opencl kernel profiling 
+                         -- timings since last call
+cltorch.dumpTimings()    -- dump cumulative wall-clock timings
+                         -- for cltorch code
+cltorch.setTrace(1)      -- print all gpu buffer allocations
+                         -- and copies between host/gpu
+
+-- misc
+cltorch.about() -- dump version/build information
 </pre></tr>
 
 </table>
