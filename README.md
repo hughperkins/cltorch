@@ -177,5 +177,6 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
   * added `cltorch.test()`, which runs unit tests
 * 4th July:
   * `torch.save` and `torch.load` implemented
-* For older changes, please see [OlderChanges.md](doc/OlderChanges.md)
+
+[OlderChanges.md](doc/OlderChanges.md)
 
