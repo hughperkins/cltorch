@@ -505,6 +505,10 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 * 15th July:
   * can pass point ClTensor now also to `:lt()`, `:gt()`, `:le()`, `:ge()`, `:eq()`, `:ne()`
+  * added profiling:
+    * `cltorch.setProfiling(1)` to enable (has a performance hit obviously, whilst enabled)
+    * `cltorch.dumpProfiling()` to dump timings since last dump
+      * timings are cumulative over kernel filename/kernelname combination
 * 14th July:
   * created point tensors:
     * `:sum()` can return a point tensor, which stays on the GPU, eliminating gpu pipeline stall, see presentation above

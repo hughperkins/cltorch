@@ -114,12 +114,14 @@ namespace cltorch {
      StatefulTimer::timeCheck("before dump");
      StatefulTimer::dump( true );
      StatefulTimer::timeCheck("after dump");
-//    lua_getglobal(L, "cltorch");
-//    lua_getfield(L, -1, "_state");
-//    lua_remove(L, -2);
     return 0;
   }
-
+  static int cltorch_dumpProfiling(lua_State *L)
+  {
+    THClState *state = cltorch_getstate(L);
+    THClState_getClv2(state, state->currentDevice)->dumpProfiling();
+    return 0;
+  }
   // if you turn this to 1, you will see all copies of data between
   // host and gpu
   // useful for checking we're not doing this too often...
@@ -128,10 +130,20 @@ namespace cltorch {
     THClState *state = cltorch_getstate(L);
     int trace = luaL_checknumber(L, 1);
     state->trace = trace;
-//    THClStorage_traceOn = trace;
     return 0;
   }
-
+  static int cltorch_setProfiling(lua_State *L)
+  {
+    THClState *state = cltorch_getstate(L);
+    int trace = luaL_checknumber(L, 1);
+    THClState_getClv2(state, state->currentDevice)->setProfiling(trace);
+    if(trace) {
+      cout << "Profiling activated" << endl;
+    } else {
+      cout << "Profiling disabled" << endl;
+    }
+    return 0;
+  }
   static int cltorch_setAddFinish(lua_State *L)
   {
     THClState *state = cltorch_getstate(L);
@@ -148,22 +160,6 @@ namespace cltorch {
     return 0;
   }
 
-//#include "lib/THCl/THClTensor.h"
-//// technically this should be in some other file, but... POC :-Ps
-//static float cltorch_asFloat(lua_State *L)
-//{
-//  THClState *state = cltorch_getstate(L);
-//  THClTensor *tensor = (THClTensor *)luaT_checkudata(L, 1, "torch.ClTensor");  
-//  // no checking for now. POC only.
-//  luaL_argcheck(L, tensor->nDimension == 0, 1, "Must be point tensor");  
-//  luaL_argcheck(L, tensor->storage != 0, 1, "Must contain data");
-//  luaL_argcheck(L, tensor->storage->size == 1, 1, "Storage must contain exactly one value");
-//  lua_pushnumber(L, THClStorage_get(state, tensor->storage, tensor->storageOffset));
-////  tensor->storage->wrapper->copyToHost();
-//  //  lua_pushnumber(L, tensor->storage->data[0]);
-//  return 1;
-//}
-
   static const struct luaL_Reg cltorch_stuff__ [] = {
     {"getDevice", cltorch_getDevice},
     {"setDevice", cltorch_setDevice},
@@ -175,6 +171,8 @@ namespace cltorch {
     {"setTrace", cltorch_setTrace},
     {"setAddFinish", cltorch_setAddFinish},
     {"dumpTimings", cltorch_dumpTimings},
+    {"setProfiling", cltorch_setProfiling},
+    {"dumpProfiling", cltorch_dumpProfiling},
     {"about", cltorch_about},
 //    {"asFloat", cltorch_asFloat},
     {NULL, NULL}
