@@ -54,11 +54,19 @@ These tests should systematically run clean.  They do on the systems I've tested
 
 ### apply/map/map2
 
-You can provide opencl code to apply, map and map2, which will run on the gpu, at full speed.  Just provide the opencl as a string to apply, map or map2.  Examples, for `c`, `d`, `e` are identically sized `ClTensor`s:
+`apply`, `map`, `map2` exist in torch, but how to make them work on the GPU?  Cannot just pass in lua functions, at least not a the moment.
+
+What we do is, you can provide opencl code directly to apply, map and map2, as a string expression.  This will run on the gpu, at full speed.  Examples, for `x`, `y`, `z` being identically sized `torch.ClTensor`s:
 ```
-c:apply("x = sqrt(x + 3.5)")
-c:map(d, "x = 1000 * x + y * 10")
-c:map2(d, e, "x = sqrt(1000 * x + y * 10 + z * z)")
+x:apply("x = sqrt(x + 3.5)")
+x:map(y, "x = 1000 * x + y * 10")
+x:map2(y, z, "x = sqrt(1000 * x + y * 10 + z * z)")
+```
+* note that the variables in the OpenCL string expression must be named as above, ie `x`, `y`, `z`.  For convenience, these were named the same as the tensors in the example.  If the tensors have different names, please continue to use `x`, `y`, `z` in the expressions, eg:
+```
+a:apply("x = sqrt(x + 3.5)")
+a:map(b, "x = 1000 * x + y * 10")
+a:map2(b, c, "x = sqrt(1000 * x + y * 10 + z * z)")
 ```
 
 ### Optimization tools
@@ -71,6 +79,31 @@ Following tools are available to aid with optimization:
 |`cltorch.dumpProfiling()` | dump opencl kernel profiling timings since last call|
 |`cltorch.dumpTimings()`  | dump cumulative wall-clock timings for cltorch code |
 |`cltorch.setTrace(1)` | print all gpu buffer allocations and copies between host/gpu |
+
+#### OpenCL Profiling
+
+OpenCL natively provides facilities to measure the execution time of kernels, without needing to call `cltorch.finish()` or similar first, using [clGetEventProfilingInfo]().  In cltorch, you dont need to know how this works ;-)  Simply call, at the start of your code:
+
+```
+cltorch.setProfiling(1)
+```
+Then, after running the piece of code under scrutiny, simply call:
+```
+cltorch.dumpProfiling()
+```
+Timings are cumulative across multiple calls to the same kernel.
+
+#### DumpTimings
+
+This uses the wall-clock times to measure the elapsed time in different sections of cltorch code.  The way it works is, each time the cltorch c++ code calls `StatefulTimer::instance()->timeCheck("some status")`, the wall-clock time since the last call to `->timeCheck()` will be added to the cumulative time for `some status`.  You can pass any status as a string.  Then, after running the piece of code under the scrutiny, in your Lua program, simply call `cltorch->dumpTimings()` to dump these cumulative timings.
+
+#### Log GPU buffer allocations and copies
+
+You can log all GPU buffer allocations, copies to host, and copies to GPU device.  Simply call:
+```
+cltorch.setTrace(1)
+```
+Any buffer allocations, and copies between host and device, will now be printed to stdout.
 
 ### Point tensors: reduce pipeline stalls
 
