@@ -33,7 +33,7 @@ add_dependencies( THCl clBLAS-external )
 if(DEV_RUN_COG)
     add_custom_target(
         cog_thcl
-        python ${CMAKE_CURRENT_SOURCE_DIR}/../../EasyCL/thirdparty/cogapp/cog.py -q -I ${CMAKE_CURRENT_SOURCE_DIR}/../../EasyCL/cog-batteries -r ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+        python ${CMAKE_CURRENT_SOURCE_DIR}/../EasyCL/thirdparty/cogapp/cog.py -q -I ${CMAKE_CURRENT_SOURCE_DIR}/../EasyCL/cog-batteries -r ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
     add_dependencies( THCl cog_thcl )
