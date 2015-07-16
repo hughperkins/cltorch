@@ -45,9 +45,9 @@ THClTensor_reduceNoncontigDim(global TensorInfoCl *out_info,
   // Each thread picks a point in `out` and `in` for which it is
   // producing the reduction
   const {{IndexType}} outOffset =
-    IndexToOffset_{{1000 + dim1}}_get(sliceIndex, out_info[0]);
+    IndexToOffset_{{1000 + dim1}}_get(sliceIndex, &out_info[0]);
   const {{IndexType}} inBaseOffset =
-    IndexToOffset_{{1000 + dim2}}_get(sliceIndex, in_info[0]);
+    IndexToOffset_{{1000 + dim2}}_get(sliceIndex, &in_info[0]);
 
   // For each point in reductionSize, reduce into `r`
   {{IndexType}} inOffset = inBaseOffset;
@@ -86,11 +86,11 @@ THClTensor_reduceContigDim(global TensorInfoCl *out_info,
 
   // Get the offset in `out` for the reduction
   const {{IndexType}} outOffset =
-    IndexToOffset_{{1000 + dim1}}_get(sliceIndex, out_info[0]);
+    IndexToOffset_{{1000 + dim1}}_get(sliceIndex, &out_info[0]);
 
   // Get the base offset in `in` for this block's reduction
   const {{IndexType}} inBaseOffset =
-    IndexToOffset_{{1000 + dim2}}_get(sliceIndex, in_info[0]);
+    IndexToOffset_{{1000 + dim2}}_get(sliceIndex, &in_info[0]);
 
   // Each thread in the block will reduce some subset of elements in
   // the slice. The elements are guaranteed contiguous starting at

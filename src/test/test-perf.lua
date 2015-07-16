@@ -1,11 +1,24 @@
 require 'cltorch'
 
+function test_apply1(its)
+  a = torch.ClTensor(50, 500)
+  a:uniform()
+  a:add(1)
+  cltorch.dumpProfiling()
+  cltorch.dumpTimings()
+  for it=1,its do
+    a:add(it)    
+  end
+  cltorch.dumpTimings()
+end
+
 function test_apply2(its)
   a = torch.ClTensor(50, 500)
   a:uniform()
   b = torch.ClTensor(50, 500)
   b:uniform()
   a:add(b)
+  cltorch.dumpProfiling()
   cltorch.dumpTimings()
   for it=1,its do
     a:add(b)    
@@ -24,8 +37,12 @@ function test_scatterFill(its)
   cltorch.dumpTimings()
 end
 
-cltorch.setAddFinish(1)
-test_apply2(10000)
-test_scatterFill(10000)
+--cltorch.setAddFinish(1)
+cltorch.setDevice(1)
+cltorch.setProfiling(1)
+test_apply1(500)
+--test_apply2(500)
+-- test_scatterFill(10000)
+cltorch.dumpProfiling()
 
 

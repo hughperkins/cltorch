@@ -31,7 +31,7 @@ THClTensor_reduceAll(global TensorInfoCl *in_info,
   // With a block-wide stride, have each thread perform its own reduction.
   float r = init;
   for ({{IndexType}} i = get_local_id(0); i < totalElements; i += get_local_size(0)) {
-    const {{IndexType}} inOffset = IndexToOffset_{{1000 + dim1}}_get(i, in_info[0]);
+    const {{IndexType}} inOffset = IndexToOffset_{{1000 + dim1}}_get(i, &in_info[0]);
     r = reduceOp(r, modifyOp(in_data[inOffset]));
   }
 
@@ -68,7 +68,7 @@ THClTensor_reduceAllPass1(global TensorInfoCl *in_info,
   // With a block-wide stride, have each thread perform its own reduction.
   float r = init;
   for ({{IndexType}} i = startIndex + get_local_id(0); i < endIndex; i += get_local_size(0)) {
-    const {{IndexType}} inOffset = IndexToOffset_{{1000 + dim1}}_get(i, in_info[0]);
+    const {{IndexType}} inOffset = IndexToOffset_{{1000 + dim1}}_get(i, &in_info[0]);
     r = reduceOp(r, modifyOp(in_data[inOffset]));
   }
 

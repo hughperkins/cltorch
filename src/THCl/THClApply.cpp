@@ -33,15 +33,14 @@ void THClTensor_copyIgnoringOverlaps(THClState* state,
                                        THClTensor* src);
 
 int getWorkgroupSize(THClState *state, int device) {
-//  return 64;
+  return 64;
 
-  int workgroupSize = THCL_APPLY_THREADS_PER_BLOCK;
-  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[device])->maxWorkGroupSize;
-//  std::cout << "maxworkgroupsize=" << maxWorkgroupSize << std::endl;
-  if( workgroupSize > maxWorkgroupSize ) {
-    workgroupSize = maxWorkgroupSize;
-  }
-  return workgroupSize;
+//  int workgroupSize = THCL_APPLY_THREADS_PER_BLOCK;
+//  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[device])->maxWorkGroupSize;
+//  if( workgroupSize > maxWorkgroupSize ) {
+//    workgroupSize = maxWorkgroupSize;
+//  }
+//  return workgroupSize;
 }
 
 dim3 getApplyBlock(THClState *state, int device) {
@@ -63,14 +62,15 @@ bool getApplyGrid(THClState* state, int device, long totalElements, dim3& grid) 
   // dont think we can get number of SMs in OpenCL? (at least, not in opencl 1.1?)
   // just hardcode to 16 for now...
   // FIXME
-  int numSM = 16;
+//  int numSM = 16;
 
-  // 16 warps per block * 4 per SM gives 64 warps per SM at maximum,
-  // which seems to be a good sweetspot for latency hiding
-  grid = dim3(mymin(DIVUP(totalElements, (long long) getWorkgroupSize(state, device)),
-                  4LL * numSM));
-//  int workgroupSize = getWorkgroupSize(state);
-//  grid = dim3((totalElements + workgroupSize - 1 ) / workgroupSize);
+//  // 16 warps per block * 4 per SM gives 64 warps per SM at maximum,
+//  // which seems to be a good sweetspot for latency hiding
+//  grid = dim3(mymin(DIVUP(totalElements, (long long) getWorkgroupSize(state, device)),
+//                  4LL * numSM));
+  int workgroupSize = getWorkgroupSize(state, device);
+  grid = dim3((totalElements + workgroupSize - 1 ) / workgroupSize);
+
   return true;
 }
 
@@ -124,6 +124,7 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   StatefulTimer::timeCheck("Apply1 6");
 
   k.out(aInfo);
+//  k.out(aInfo.wrapper);
   for( int i = 0; i < numScalars; i++ ) {
     k.in(hasScalars->getScalar(i));
   }
@@ -855,10 +856,12 @@ std::string get_template() {
   "  for (int linearIndex = get_global_id(0);\n" 
   "       linearIndex < totalElements;\n" 
   "       linearIndex += get_global_size(0)) {\n" 
+  "//    int linearIndex = get_global_id(0);\n" 
   "    {% for input_idx=1,num_tensors do %}\n" 
+  "//  int offset{{input_idx}} = linearIndex;\n" 
   "    // Convert `linearIndex` into an offset of `a`\n" 
   "    const int offset{{input_idx}} =\n" 
-  "      IndexToOffset_{{1000+loadstring('return dim' .. input_idx)()}}_get(linearIndex, info_{{input_idx}}[0]);\n" 
+  "      IndexToOffset_{{1000+loadstring('return dim' .. input_idx)()}}_get(linearIndex, &info_{{input_idx}}[0]);\n" 
   "    {% end %}\n" 
   "\n" 
   "    op(\n" 

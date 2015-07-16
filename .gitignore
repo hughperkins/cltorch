@@ -33,6 +33,7 @@ port/
 build/
 share/
 /share
+/back
 *~
 
 generated/
