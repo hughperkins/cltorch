@@ -1,4 +1,4 @@
-# Implemeneted Details
+# Implemented Details
 
 Here's a list of the functionalities in [torch](https://github.com/torch/torch7), and the status of their implementation in [cltorch](https://github.com/hughperkins/cltorch).
 
