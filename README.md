@@ -186,6 +186,10 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 16th July:
+  * Did some cleaning:
+    * source code now all in `src` directory, to keep the front page on github clean
+    * moved a bunch of stuff from this page to other pages, ie older changes, and list of what works
 * 15th July:
   * can pass point ClTensor now also to `:lt()`, `:gt()`, `:le()`, `:ge()`, `:eq()`, `:ne()`
   * added profiling:
