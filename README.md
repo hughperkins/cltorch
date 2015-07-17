@@ -190,7 +190,7 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
   * Did some cleaning:
     * source code now all in `src` directory, to keep the front page on github clean
     * moved a bunch of stuff from this page to other pages, ie older changes, and list of what works
-    * MASSIVE 20X SPEED BOOST FOR APPLY AND CHAR-RNN!!!! Finally figured out why it's so slow :-D
+    * 20x speed boost for Apply kernel, and char-rnn, on Intel HD5500 GPU
 * 15th July:
   * can pass point ClTensor now also to `:lt()`, `:gt()`, `:le()`, `:ge()`, `:eq()`, `:ne()`
   * added profiling:
