@@ -156,7 +156,8 @@ public:
 int getNumElementsFromTensorArg(lua_State *L, ClKernelArgTensor *arg) {
   THClState *state = cltorch_getstate(L);
   luaT_getfieldcheckudata(L, -1, arg->name.c_str(), "torch.ClTensor");
-  THClTensor *tensor = (THClTensor *)luaT_checkudata(L, -1, "torch.ClTensor");  
+  THClTensor *tensor = (THClTensor *)luaT_checkudata(L, -1, "torch.ClTensor");
+  lua_pop(L, 1);
   return THClTensor_nElement(state, tensor);
 }
 class ClKernel {
@@ -294,41 +295,69 @@ static int ClKernel_print(lua_State *L) {
 static int ClKernel_run(lua_State *L) {
   THClState *state = cltorch_getstate(L);
   if(lua_type(L, 2) != LUA_TTABLE) {
-    THError("run method expects one parameter: a table, with named arg values in");
+    THError("usage  :run(inputParamsTable [,optionsTable]");
     return 0;
   }
   // now we can assume we have a table :-)
 
   ClKernel *self = (ClKernel *)luaT_checkudata(L, 1, "torch.ClKernel");
-  try {
-    THClKernels k(state, self->kernel);
-    
-    int numElements = -1;
-    for(int i = 0; i < (int)self->args.size(); i++) {
-      // what we need to do here is:
-      // - loop through each parameter object
-      // - for each parameter object, get the value from the passed in parameters, which
-      //   were hopefully passed into this method, as values in a table
-      // - and then write this value to the kernel
-      // presumably, we can get each arg to extract itself from the table, as long as
-      // the table is top of the stack
-      // we can ignore extra values in the table for now
-      // what we do is, throw error on missing values
-      self->args[i]->writeToKernel(L, self, &k);
-      if(numElements == -1 && self->args[i]->direction != input && dynamic_cast< ClKernelArgTensor *>( self->args[i] ) != 0) {
-        numElements = getNumElementsFromTensorArg(L, dynamic_cast< ClKernelArgTensor *>(self->args[i]));
-      }
+  THClKernels k(state, self->kernel);
+  
+  lua_pushvalue(L, 2);
+  int numElements = -1;
+  for(int i = 0; i < (int)self->args.size(); i++) {
+    // what we need to do here is:
+    // - loop through each parameter object
+    // - for each parameter object, get the value from the passed in parameters, which
+    //   were hopefully passed into this method, as values in a table
+    // - and then write this value to the kernel
+    // presumably, we can get each arg to extract itself from the table, as long as
+    // the table is top of the stack
+    // we can ignore extra values in the table for now
+    // what we do is, throw error on missing values
+    self->args[i]->writeToKernel(L, self, &k);
+    if(numElements == -1 && self->args[i]->direction != input && dynamic_cast< ClKernelArgTensor *>( self->args[i] ) != 0) {
+      numElements = getNumElementsFromTensorArg(L, dynamic_cast< ClKernelArgTensor *>(self->args[i]));
     }
-    if(numElements == -1) {
-      THError("Must provide at least one output, or inout, ClTensor");
-    }
-    int workgroupSize = 64;  // should make this an option
-    int numWorkgroups = (numElements + workgroupSize - 1) / workgroupSize;
-    int globalSize = workgroupSize * numWorkgroups;
-    self->kernel->run_1d(globalSize, workgroupSize);
-  } catch(runtime_error &e) {
-    THError("Error: %s", e.what());
   }
+  if(numElements == -1) {
+    THError("Must provide at least one output, or inout, ClTensor");
+  }
+  lua_pop(L, 1);
+
+  // process any options
+  // any unrecognized option => error
+  int workgroupSize = 64;
+  int numWorkgroups = (numElements + workgroupSize - 1) / workgroupSize;
+  if(lua_gettop(L) >= 3) {
+    if(lua_type(L, 3) != LUA_TTABLE) {
+      THError("usage  :run(inputParamsTable [,optionsTable]");
+      return 0;
+    }
+    lua_pushnil(L);
+    while(lua_next(L, -2) != 0) {
+      if(!lua_isstring(L, -2)) {
+        THError("Options keys should be strings");
+      }
+      string key = lua_tostring(L, -2);
+      if(key == "workgroupSize") {
+        if(!lua_isnumber(L, -1) ) {
+          THError("workgroupSize should be an integer");
+        }
+        workgroupSize = lua_tonumber(L, -1);
+      } else if(key == "numWorkgroups") {
+        if(!lua_isnumber(L, -1) ) {
+          THError("numWorkgroups should be an integer");
+        }
+        numWorkgroups = lua_tonumber(L, -1);
+      } else {
+        THError("option %s not recognized", key.c_str());
+      }
+      lua_pop(L, 1);
+    }
+  }
+  int globalSize = workgroupSize * numWorkgroups;
+  self->kernel->run_1d(globalSize, workgroupSize);
   return 0;
 }
 static const struct luaL_Reg ClKernel_funcs [] = {

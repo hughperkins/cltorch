@@ -14,7 +14,7 @@ y = torch.ClTensor({6,4,2})
 print('x before\n', x)
 print('y before\n', y)
 
-k:run({nElements=3, input=x, output=y})
+k:run({nElements=3, input=x, output=y}, {numWorkgroups=10, workgroupSize=32})
 
 print('y after\n', y)
 
