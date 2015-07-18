@@ -13,6 +13,12 @@ extern "C" {
 #include <vector>
 using namespace std;
 
+enum ClKernelDirection {
+  input,
+  output,
+  inout
+};
+
 class ClKernelArg {
 public:
   string name;
@@ -100,42 +106,49 @@ static void printStack(string name, lua_State *L) {
     cout << "  stack[" << i << "] type=" << lua_typename(L, lua_type(L, i)) << " " << lua_type(L, i) << endl;
   }
 }
+static void loadParameters(lua_State *L, ClKernelDirection direction, ClKernel *self) {
+  // assume that stack top is a table iwth the parameters
+  // each parameter comprises name as key, and type as string value
+  // valid typenames: int, float, torch.ClTensor, maybe ClTensor as shorthand
+  // iterate this table...
+  lua_pushnil(L);
+  int argIndex = (int)self->args.size();
+  while(lua_next(L, -2) != 0) {
+    string name = lua_tostring(L, -2);
+    string paramType = lua_tostring(L, -1);
+    cout << "param name=" << name << " type=" << paramType << endl;
+    if(paramType == "float") {
+      ClKernelArg *arg = new ClKernelArgFloat(name);
+      self->args.push_back(arg);
+    } else if(paramType == "int") {
+      ClKernelArg *arg = new ClKernelArgInt(name);
+      self->args.push_back(arg);
+    } else if(paramType == "torch.ClTensor" || paramType == "ClTensor") {
+      ClKernelArg *arg = new ClKernelArgTensor(name);
+      self->args.push_back(arg);
+    } else {
+      THError("Unrecognized typename %s", paramType.c_str());
+    }
+    lua_pop(L, 1);
+  }
+}
 static int ClKernel_new(lua_State *L) {
   cout << "ClKernel_new()" << endl;
   ClKernel *self = (ClKernel*)THAlloc(sizeof(ClKernel));
   self = new(self) ClKernel();
   ClKernel_rawInit(self);
 
-  printStack("start", L);
   if(lua_type(L, 1) == LUA_TTABLE) {
-//    cout << "first param is a table " << lua_typename(L, lua_type(L, 1)) << endl;
-//    lua_getfield(L, 1, "src");
-//    const char*src_char = lua_tostring(L, -1);
-//    lua_pop(L, 1);
-//    string source = src_char;
-//    cout << source << endl;
-//    self->source = source;
-
-    // get args ...
-//    cout << "gettop " << lua_gettop(L) << endl;
-    cout << "gettop " << lua_gettop(L) << endl;
-    printStack("before get input", L);
-//    lua_getfield(L, 1, "input");
-//    printStack("after get input", L);
-//    cout << "after get input gettop " << lua_gettop(L) << endl;
-//    cout << "is_table " << lua_istable(L, 1) << endl;
-//    cout << "gettop, after pop " << lua_gettop(L) << endl;
-//    cout << "gettop " << lua_gettop(L) << endl;
     lua_pushnil(L);
     while(lua_next(L, -2) != 0) {
-//      printStack("after next", L);
-//      cout << "  k,v=" << lua_tostring(L, -2) << " " << lua_tostring(L, -1) << endl;
       string key = lua_tostring(L, -2);
       cout << "key " << key << endl;
-//      string value = lua_tostring(L, -1);  // could do a bit more validation here...
       if(key == "input") {
+        loadParameters(L, ClKernelDirection::input, self);
       } else if( key == "output") {
+        loadParameters(L, ClKernelDirection::output, self);
       } else if( key == "inout") {
+        loadParameters(L, ClKernelDirection::inout, self);
       } else if( key == "name") {
         self->kernelName = lua_tostring(L, -1); // probably should use luaT for this
       } else if( key == "src") {
@@ -147,8 +160,7 @@ static int ClKernel_new(lua_State *L) {
       }
       lua_pop(L, 1);
     }
-    cout << "gettop " << lua_gettop(L) << endl;
-    lua_pop(L, 1);
+//    lua_pop(L, 1);
     cout << "gettop " << lua_gettop(L) << endl;
 
     // validate a bit
