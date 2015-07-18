@@ -5,6 +5,8 @@ extern "C" {
   #include "utils.h"
   #include "luaT.h"
 }
+#include "EasyCL.h"
+#include "THClKernels.h"
 
 #include <iostream>
 #include <string>
@@ -14,6 +16,9 @@ class ClKernel {
 public:
   int refCount;
   string source;
+  string kernelName;
+  string generatedSource;
+  CLKernel *kernel;
 };
 //} ClKernel;
 
@@ -46,9 +51,21 @@ static int ClKernel_new(lua_State *L) {
   if(lua_type(L, 1) == LUA_TTABLE) {
     cout << "first param is a table" << endl;
     lua_getfield(L, 1, "src");
-    const char*src = lua_tostring(L, -1);
-    cout << src << endl;
-    self->source = src;
+    const char*src_char = lua_tostring(L, -1);
+    string source = src_char;
+    cout << source << endl;
+    self->source = source;
+    THClState *state = cltorch_getstate(L);
+    EasyCL *cl = THClState_getClv2(state, state->currentDevice);
+    string kernelName = "user_kernel";  // can override by param, in future
+    string generatedSource = "kernel void " + kernelName + "(";
+    generatedSource += ") {\n";   // probalby should use ostringstream for this really, for speed
+    generatedSource += source + "\n";
+    generatedSource += "}\n";
+    cout << "generatedSource: " << generatedSource << endl;
+    self->generatedSource = generatedSource;
+    self->kernelName = kernelName;
+    self->kernel = cl->buildKernelFromString(generatedSource, kernelName, "", "user_kernel");
   } else {
     THError("First parameter to torch.ClKernel should be a table");
   }
@@ -65,6 +82,7 @@ static int ClKernel_free(lua_State *L) {
   }
   if(THAtomicDecrementRef(&self->refCount))
   {
+    delete self->kernel;
     self->~ClKernel();
     THFree(self);
   }
@@ -81,8 +99,15 @@ static int ClKernel_print(lua_State *L) {
   cout << "refCount=" << self->refCount << " source=" << self->source << endl;
   return 0;
 }
+static int ClKernel_run(lua_State *L) {
+  cout << "ClKernel_run()" << endl;
+  ClKernel *self = (ClKernel *)luaT_checkudata(L, 1, "torch.ClKernel");
+  cout << "refCount=" << self->refCount << " source=" << self->source << endl;
+  return 0;
+}
 static const struct luaL_Reg ClKernel_funcs [] = {
   {"print", ClKernel_print},
+  {"run", ClKernel_run},
   {0,0}
 };
 void cltorch_UserKernel_init(lua_State *L)

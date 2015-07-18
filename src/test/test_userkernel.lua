@@ -10,12 +10,11 @@ k = cltorch.kernel()
 eval('k')
 
 eval('torch.ClKernel')
-src = [[
-   bunch of source code...
-]]
-eval('src')
-b = torch.ClKernel({src=src})
+b = torch.ClKernel({input={a='torch.ClTensor'},output={b='torch.ClTensor'},src=[[
+   int linearId = get_global_id(0);  // exciting stuff :-P
+]]})
 print('b', b)
 b:print()
-eval('torch.ClKernel({src=' .. src .. '})')
+-- eval('torch.ClKernel({src=' .. src .. '})')
+b:run()
 
