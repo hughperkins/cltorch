@@ -21,13 +21,18 @@ enum ClKernelDirection {
   inout
 };
 
+class ClKernel;
+
 class ClKernelArg {
 public:
+  ClKernelDirection direction;
   string name;
-  ClKernelArg(string name) :
+  ClKernelArg(ClKernelDirection direction, string name) :
+    direction(direction),
     name(name) {
   }
   virtual std::string asParameterString() const = 0;
+  virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) = 0;
   virtual ~ClKernelArg() {
   }
 };
@@ -35,20 +40,36 @@ public:
 class ClKernelArgInt : public ClKernelArg {
 public:
 //  int value;
-  ClKernelArgInt(string name) :
-    ClKernelArg(name) {
+  ClKernelArgInt(ClKernelDirection direction, string name) :
+      ClKernelArg(direction, name) {
+    if(direction != input) {
+      THError("ints can only be input parameters, not output, or inout");
+    }
 //    value(value) {
   }
   virtual std::string asParameterString() const {
     return "int " + name;
+  }
+  virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) {
+    lua_getfield(L, -1, name.c_str());
+    // should do some checking here, or use luaT, or both...
+    int value = lua_tonumber(L, -1);
+    cout << "int value: " << value << endl;
+    switch(direction) {
+      case input:
+        k->in(value);
+        break;
+      default:
+        THError("ints can only be input parameters, not output, or inout");
+    }
   }
 };
 
 class ClKernelArgTensor : public ClKernelArg {
 public:
 //   value;
-  ClKernelArgTensor(string name) :
-    ClKernelArg(name) {
+  ClKernelArgTensor(ClKernelDirection direction, string name) :
+      ClKernelArg(direction, name) {
 //  ClKernelArgTensor(int value) :
 //    value(value) {
   }
@@ -57,18 +78,68 @@ public:
     res += ", global struct THClTensorInfoCl *" + name + "_info";
     return res;
   }
+  virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) {
+    lua_getfield(L, -1, name.c_str());
+    // should do some checking here, or use luaT, or both...
+    THClTensor *value = (THClTensor *)luaT_checkudata(L, 1, "torch.ClTensor");
+    if(value == 0) {
+      THError("Tensor is null.  this is odd actually, raise an issue");
+    }
+    if(value->storage == 0) {
+      if(direction != output){
+        THError("Output tensor has no data");
+        return;
+      } else {
+        // I guess we should resize here, somehow, in the future
+        THError("resize not implemented yet.  It should be.  Please remind me to add this, eg raise an issue");
+        return;
+      }
+    }
+    if(value->storage->wrapper == 0) {
+      THError("resize not implemented yet.  It should be.  Please remind me to add this, eg raise an issue");
+      return;
+    }
+    cout << "tensor value numElements " << value->storage->wrapper->size() << endl;
+    switch(direction) {
+      case input:
+        k->in(value);
+        break;
+      case output:
+        k->out(value);
+        break;
+      case inout:
+        k->inout(value);
+        break;
+    }
+  }
 };
 
 class ClKernelArgFloat : public ClKernelArg {
 public:
 //  float value;
-  ClKernelArgFloat(string name) :
-    ClKernelArg(name) {
+  ClKernelArgFloat(ClKernelDirection direction, string name) :
+      ClKernelArg(direction, name) {
 //  ClKernelArgFloat(float value) :
 //    value(value) {
+    if(direction != input) {
+      THError("floats can only be input parameters, not output, or inout");
+    }
   }
   virtual std::string asParameterString() const {
     return "float " + name;
+  }
+  virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) {
+    lua_getfield(L, -1, name.c_str());
+    // should do some checking here, or use luaT, or both...
+    float value = lua_tonumber(L, -1);
+    cout << "float value: " << value << endl;
+    switch(direction) {
+      case input:
+        k->in(value);
+        break;
+      default:
+        THError("ints can only be input parameters, not output, or inout");
+    }
   }
 };
 
@@ -134,13 +205,13 @@ static void loadParameters(lua_State *L, ClKernelDirection direction, ClKernel *
     string paramType = lua_tostring(L, -1);
     cout << "param name=" << name << " type=" << paramType << endl;
     if(paramType == "float") {
-      ClKernelArg *arg = new ClKernelArgFloat(name);
+      ClKernelArg *arg = new ClKernelArgFloat(direction, name);
       self->args.push_back(arg);
     } else if(paramType == "int") {
-      ClKernelArg *arg = new ClKernelArgInt(name);
+      ClKernelArg *arg = new ClKernelArgInt(direction, name);
       self->args.push_back(arg);
     } else if(paramType == "torch.ClTensor" || paramType == "ClTensor") {
-      ClKernelArg *arg = new ClKernelArgTensor(name);
+      ClKernelArg *arg = new ClKernelArgTensor(direction, name);
       self->args.push_back(arg);
     } else {
       THError("Unrecognized typename %s", paramType.c_str());
@@ -239,10 +310,35 @@ static int ClKernel_print(lua_State *L) {
 }
 static int ClKernel_run(lua_State *L) {
   cout << "ClKernel_run()" << endl;
-//  THClState *state = cltorch_getstate(L);
+  THClState *state = cltorch_getstate(L);
+  if(lua_type(L, 1) != LUA_TTABLE) {
+    THError("run method expects one parameter: a table, with named arg values in");
+    return 0;
+  }
+  // now we can assume we have a table :-)
+
   ClKernel *self = (ClKernel *)luaT_checkudata(L, 1, "torch.ClKernel");
   cout << "refCount=" << self->refCount << " source=" << self->source << endl;
-  self->kernel->run_1d(64, 64);  // obviously shoudl get these from somewhere, in future
+  try {
+    THClKernels k(state, self->kernel);
+    
+    for(int i = 0; i < (int)self->args.size(); i++) {
+      // what we need to do here is:
+      // - loop through each parameter object
+      // - for each parameter object, get the value from the passed in parameters, which
+      //   were hopefully passed into this method, as values in a table
+      // - and then write this value to the kernel
+      // presumably, we can get each arg to extract itself from the table, as long as
+      // the table is top of the stack
+      // we can ignore extra values in the table for now
+      // what we do is, throw error on missing values
+      self->args[i]->writeToKernel(L, self, &k);
+//      self->args->
+    }
+    self->kernel->run_1d(64, 64);  // obviously shoudl get these from somewhere, in future
+  } catch(runtime_error &e) {
+    THError("Error: %s", e.what());
+  }
 //  EasyCL *cl = THClState_getClv2(state, state->currentDevice);
 //  cl->finish();  // not sure if we want this actually
   return 0;
