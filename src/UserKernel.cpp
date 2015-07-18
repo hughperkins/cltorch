@@ -184,20 +184,12 @@ static void ClKernel_rawInit(ClKernel *self) {
   self->refCount = 1;
   self->source = "";
 }
-static void printStack(string name, lua_State *L) {
-  int top = lua_gettop(L);
-  cout << name << " top: " << top << endl;
-  for(int i = 1; i <= top; i++ ) {
-    cout << "  stack[" << i << "] type=" << lua_typename(L, lua_type(L, i)) << " " << lua_type(L, i) << endl;
-  }
-}
 static void loadParameters(lua_State *L, ClKernelDirection direction, ClKernel *self) {
   // assume that stack top is a table iwth the parameters
   // each parameter comprises name as key, and type as string value
   // valid typenames: int, float, torch.ClTensor, maybe ClTensor as shorthand
   // iterate this table...
   lua_pushnil(L);
-  int argIndex = (int)self->args.size();
   while(lua_next(L, -2) != 0) {
     string name = lua_tostring(L, -2);
     string paramType = lua_tostring(L, -1);
@@ -249,11 +241,10 @@ static int ClKernel_new(lua_State *L) {
 
     THClState *state = cltorch_getstate(L);
     EasyCL *cl = THClState_getClv2(state, state->currentDevice);
-    string kernelName = "user_kernel";  // can override by param, in future
     string generatedSource = "";
     generatedSource += easycl::replaceGlobal(getTensorInfoClSrc(), "{{MAX_CLTORCH_DIMS}}", easycl::toString(MAX_CLTORCH_DIMS)) + "\n";
     generatedSource += self->extraSource + "\n";
-    generatedSource += "kernel void " + kernelName + "(\n";
+    generatedSource += "kernel void " + self->kernelName + "(\n";
     for(int i = 0; i < (int)self->args.size(); i++) {
       if(i > 0) {
         generatedSource += ",\n";
@@ -264,8 +255,7 @@ static int ClKernel_new(lua_State *L) {
     generatedSource += self->source + "\n";
     generatedSource += "}\n";
     self->generatedSource = generatedSource;
-    self->kernelName = kernelName;
-    self->kernel = cl->buildKernelFromString(generatedSource, kernelName, "", "user_kernel");
+    self->kernel = cl->buildKernelFromString(generatedSource, self->kernelName, "", "UserKernel");
   } else {
     THError("First parameter to torch.ClKernel should be a table");
   }
@@ -292,7 +282,13 @@ static int ClKernel_factory(lua_State *L) {
 }
 static int ClKernel_print(lua_State *L) {
   ClKernel *self = (ClKernel *)luaT_checkudata(L, 1, "torch.ClKernel");
-  cout << "source=" << self->source << endl;
+  cout << "Original source\n"
+       << "===============\n"
+       << self->source << endl;
+  cout << endl;
+  cout << "Generated source\n"
+       << "================\n"
+       << self->generatedSource << endl;
   return 0;
 }
 static int ClKernel_run(lua_State *L) {
