@@ -157,6 +157,95 @@ We can send this instruction straight away, even before the first `:sum(c)` inst
 
 By the way, it's possible to print the value of a point tensor, by printing it, or calling the `:s()` operator.  Normally you wouldnt do this except during debugging though, since obviously this will need to wait for the gpu operation to finish, and for the data to come all the way back from the GPU :-)
 
+### Custom user kernels
+
+Custom user kernels let you run OpenCL code directly from Torch Lua!  Of course, you can already do this with `apply`, `map`, and `map2`, see above.  But now you can provide whole kernel functions, and other functions, and pass ClTensors into these kernels!
+
+Example of how to use:
+
+```
+require 'cltorch'
+
+k = torch.ClKernel({input={nElements='int', input='torch.ClTensor'},output={output='torch.ClTensor'},src=[[
+   int linearId = get_global_id(0);
+   if(linearId < nElements) {
+     output_data[linearId] = input_data[linearId] + 3.0f;
+   }
+]]})
+print('k', k)
+k:print()
+
+x = torch.ClTensor({3,5,2})
+y = torch.ClTensor({6,4,2})
+print('x before\n', x)
+print('y before\n', y)
+
+k:run({nElements=3, input=x, output=y})
+
+print('y after\n', y)
+```
+
+Output from this example:
+```
+Using Intel platform: Intel Gen OCL Driver
+Using device: Intel(R) HD Graphics BroadWell U-Processor GT2
+k	torch.ClKernel
+Original source
+===============
+   int linearId = get_global_id(0);
+   if(linearId < nElements) {
+     output_data[linearId] = input_data[linearId] + 3.0f;
+   }
+
+
+Generated source
+================
+typedef struct THClTensorInfoCl {
+  unsigned int sizes[25];
+  unsigned int strides[25];
+  int offset;
+  int dims;
+} TensorInfoCl;
+
+
+
+kernel void user_kernel(
+    global struct THClTensorInfoCl *input_info, global float * input_data,
+    int nElements,
+    global struct THClTensorInfoCl *output_info, global float * output_data
+) {
+   int linearId = get_global_id(0);
+   if(linearId < nElements) {
+     output_data[linearId] = input_data[linearId] + 3.0f;
+   }
+
+}
+
+x before
+	 3
+ 5
+ 2
+[torch.ClTensor of size 3]
+
+y before
+	 6
+ 4
+ 2
+[torch.ClTensor of size 3]
+
+y after
+	 6
+ 8
+ 5
+[torch.ClTensor of size 3]
+
+```
+
+If you want, you can specify the number of workgroups, and the workgroupsize, yourself:
+```
+k:run({nElements=3, input=x, output=y}, {numWorkgroups=10, workgroupSize=32}
+```
+
 ## Co-existence with cutorch
 
 * It is possible to load cutorch and cltorch at the same time, if you wish
@@ -186,6 +275,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 18th July:
+  * Added custom user kernels
 * 16th July:
   * Did some cleaning:
     * source code now all in `src` directory, to keep the front page on github clean
