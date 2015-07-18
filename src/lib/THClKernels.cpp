@@ -46,6 +46,40 @@ THClKernels *THClKernels::out(THClTensor *tensor) {
   }
   return this;
 }
+// CLTensors v2 =====================
+THClKernels *THClKernels::inv2(THClTensor *tensor) {
+  try {
+    TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
+    kernel->in(1, tensorInfoCl);
+    kernel->in(THClTensor_wrapper(state, tensor));
+    tensorInfoCls.push_back(tensorInfoCl);
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
+  return this;
+}
+THClKernels *THClKernels::inoutv2(THClTensor *tensor) {
+  try {
+    TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
+    kernel->in(1, tensorInfoCl);
+    kernel->inout(THClTensor_wrapper(state, tensor));
+    tensorInfoCls.push_back(tensorInfoCl);
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
+  return this;
+}
+THClKernels *THClKernels::outv2(THClTensor *tensor) {
+  try {
+    TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
+    kernel->in(1, tensorInfoCl);
+    kernel->out(THClTensor_wrapper(state, tensor));
+    tensorInfoCls.push_back(tensorInfoCl);
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
+  return this;
+}
 // scalars ==================
 THClKernels *THClKernels::in(int value) {
   try {

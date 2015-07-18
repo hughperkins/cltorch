@@ -35,6 +35,9 @@ public:
   virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) = 0;
   virtual ~ClKernelArg() {
   }
+  virtual std::string toString() const {
+    return "ClKernelArg{name=" + name + "}";
+  }
 };
 
 class ClKernelArgInt : public ClKernelArg {
@@ -51,9 +54,10 @@ public:
     return "int " + name;
   }
   virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) {
-    lua_getfield(L, -1, name.c_str());
+    luaT_getfieldchecknumber(L, -1, name.c_str());
     // should do some checking here, or use luaT, or both...
     int value = lua_tonumber(L, -1);
+    lua_pop(L, 1);
     cout << "int value: " << value << endl;
     switch(direction) {
       case input:
@@ -62,6 +66,9 @@ public:
       default:
         THError("ints can only be input parameters, not output, or inout");
     }
+  }
+  virtual std::string toString() const {
+    return "ClKernelArgInt{name=" + name + "}";
   }
 };
 
@@ -74,14 +81,15 @@ public:
 //    value(value) {
   }
   virtual std::string asParameterString() const {
-    string res = "global float * " + name + "_data";
-    res += ", global struct THClTensorInfoCl *" + name + "_info";
+    string res = "";
+    res += "global struct THClTensorInfoCl *" + name + "_info, ";
+    res += "global float * " + name + "_data";
     return res;
   }
   virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) {
-    lua_getfield(L, -1, name.c_str());
+    luaT_getfieldcheckudata(L, -1, name.c_str(), "torch.ClTensor");
     // should do some checking here, or use luaT, or both...
-    THClTensor *value = (THClTensor *)luaT_checkudata(L, 1, "torch.ClTensor");
+    THClTensor *value = (THClTensor *)luaT_checkudata(L, -1, "torch.ClTensor");
     if(value == 0) {
       THError("Tensor is null.  this is odd actually, raise an issue");
     }
@@ -102,15 +110,28 @@ public:
     cout << "tensor value numElements " << value->storage->wrapper->size() << endl;
     switch(direction) {
       case input:
-        k->in(value);
+        if(!value->storage->wrapper->isOnDevice()) {
+          value->storage->wrapper->copyToDevice();
+        }
+        k->inv2(value);
         break;
       case output:
-        k->out(value);
+        if(!value->storage->wrapper->isOnDevice()) {
+          value->storage->wrapper->createOnDevice();
+        }
+        k->outv2(value);
         break;
       case inout:
-        k->inout(value);
+        if(!value->storage->wrapper->isOnDevice()) {
+          value->storage->wrapper->copyToDevice();
+        }
+        k->inoutv2(value);
         break;
     }
+    lua_pop(L, 1);
+  }
+  virtual std::string toString() const {
+    return "ClKernelArgTensor{name=" + name + "}";
   }
 };
 
@@ -129,9 +150,10 @@ public:
     return "float " + name;
   }
   virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) {
-    lua_getfield(L, -1, name.c_str());
+    luaT_getfieldchecknumber(L, -1, name.c_str());
     // should do some checking here, or use luaT, or both...
     float value = lua_tonumber(L, -1);
+    lua_pop(L, 1);
     cout << "float value: " << value << endl;
     switch(direction) {
       case input:
@@ -140,6 +162,9 @@ public:
       default:
         THError("ints can only be input parameters, not output, or inout");
     }
+  }
+  virtual std::string toString() const {
+    return "ClKernelArgFloat{name=" + name + "}";
   }
 };
 
@@ -311,7 +336,8 @@ static int ClKernel_print(lua_State *L) {
 static int ClKernel_run(lua_State *L) {
   cout << "ClKernel_run()" << endl;
   THClState *state = cltorch_getstate(L);
-  if(lua_type(L, 1) != LUA_TTABLE) {
+  printStack("run begin", L);
+  if(lua_type(L, 2) != LUA_TTABLE) {
     THError("run method expects one parameter: a table, with named arg values in");
     return 0;
   }
@@ -323,6 +349,8 @@ static int ClKernel_run(lua_State *L) {
     THClKernels k(state, self->kernel);
     
     for(int i = 0; i < (int)self->args.size(); i++) {
+      printStack("before get arg", L);
+      cout << " processing arg " << i << " " << self->args[i]->toString() << endl;
       // what we need to do here is:
       // - loop through each parameter object
       // - for each parameter object, get the value from the passed in parameters, which
@@ -334,8 +362,11 @@ static int ClKernel_run(lua_State *L) {
       // what we do is, throw error on missing values
       self->args[i]->writeToKernel(L, self, &k);
 //      self->args->
+      cout << " ... arg done" << endl;
     }
+    cout << "running kernel..." << endl;
     self->kernel->run_1d(64, 64);  // obviously shoudl get these from somewhere, in future
+    cout << "... launched" << endl;
   } catch(runtime_error &e) {
     THError("Error: %s", e.what());
   }

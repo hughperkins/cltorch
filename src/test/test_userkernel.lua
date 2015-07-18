@@ -18,7 +18,7 @@ eval('torch.ClKernel')
 b = torch.ClKernel({input={nElements='int', input='torch.ClTensor'},output={output='torch.ClTensor'},src=[[
    int linearId = get_global_id(0);  // exciting stuff :-P
    if(linearId < nElements) {
-     output_data[linearId] = input_data[linearId] = 3.0f;
+     output_data[linearId] = input_data[linearId] + 3.0f;
    }
 ]]})
 print('b', b)

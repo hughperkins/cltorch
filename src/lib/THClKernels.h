@@ -78,6 +78,10 @@ public:
   THClKernels *inout(THClTensor *tensor);
   THClKernels *out(THClTensor *tensor);
 
+  THClKernels *inv2(THClTensor *tensor); // expects kernel parameters as `global struct THClTensorInfoCl *a_info, global float *a_data`
+  THClKernels *inoutv2(THClTensor *tensor);
+  THClKernels *outv2(THClTensor *tensor);
+
   template< typename IndexType >
   THClKernels *in(TensorInfo<IndexType>tensorInfo);
   template< typename IndexType >
