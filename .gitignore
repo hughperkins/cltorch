@@ -6,6 +6,8 @@
 *_generated.*
 
 port/
+/lua
+/luaT
 
 # Precompiled Headers
 *.gch

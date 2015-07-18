@@ -18,6 +18,7 @@ extern "C" {
   extern void cltorch_ClTensor_init(lua_State* L);
   extern void cltorch_ClTensorMath_init(lua_State* L);
   extern void cltorch_ClTensorOperator_init(lua_State* L);
+  extern void cltorch_UserKernel_init(lua_State*L);
 }
 
 #include "THClGeneral.h"
@@ -174,7 +175,6 @@ namespace cltorch {
     {"setProfiling", cltorch_setProfiling},
     {"dumpProfiling", cltorch_dumpProfiling},
     {"about", cltorch_about},
-//    {"asFloat", cltorch_asFloat},
     {NULL, NULL}
   };
 }
@@ -190,6 +190,7 @@ int luaopen_libcltorch( lua_State *L ) {
   cltorch_ClTensor_init(L);
   cltorch_ClTensorMath_init(L);
   cltorch_ClTensorOperator_init(L);
+  cltorch_UserKernel_init(L);
 
   lua_pushlightuserdata(L, state);
   lua_setfield(L, -2, "_state");
