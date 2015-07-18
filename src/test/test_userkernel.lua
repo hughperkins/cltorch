@@ -16,5 +16,6 @@ src = [[
 eval('src')
 b = torch.ClKernel({src=src})
 print('b', b)
+b:print()
 eval('torch.ClKernel({src=' .. src .. '})')
 

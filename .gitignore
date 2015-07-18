@@ -8,6 +8,7 @@
 port/
 /lua
 /luaT
+/TH
 
 # Precompiled Headers
 *.gch
