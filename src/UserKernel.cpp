@@ -167,7 +167,12 @@ public:
     return "ClKernelArgFloat{name=" + name + "}";
   }
 };
-
+int getNumElementsFromTensorArg(lua_State *L, ClKernelArgTensor *arg) {
+  THClState *state = cltorch_getstate(L);
+  luaT_getfieldcheckudata(L, -1, arg->name.c_str(), "torch.ClTensor");
+  THClTensor *tensor = (THClTensor *)luaT_checkudata(L, -1, "torch.ClTensor");  
+  return THClTensor_nElement(state, tensor);
+}
 class ClKernel {
 public:
   int refCount;
@@ -348,6 +353,7 @@ static int ClKernel_run(lua_State *L) {
   try {
     THClKernels k(state, self->kernel);
     
+    int numElements = -1;
     for(int i = 0; i < (int)self->args.size(); i++) {
       printStack("before get arg", L);
       cout << " processing arg " << i << " " << self->args[i]->toString() << endl;
@@ -361,11 +367,20 @@ static int ClKernel_run(lua_State *L) {
       // we can ignore extra values in the table for now
       // what we do is, throw error on missing values
       self->args[i]->writeToKernel(L, self, &k);
+      if(numElements == -1 && self->args[i]->direction != input && dynamic_cast< ClKernelArgTensor *>( self->args[i] ) != 0) {
+        numElements = getNumElementsFromTensorArg(L, dynamic_cast< ClKernelArgTensor *>(self->args[i]));
+      }
 //      self->args->
       cout << " ... arg done" << endl;
     }
+    if(numElements == -1) {
+      THError("Must provide at least one output, or inout, ClTensor");
+    }
     cout << "running kernel..." << endl;
-    self->kernel->run_1d(64, 64);  // obviously shoudl get these from somewhere, in future
+    int workgroupSize = 64;  // should make this an option
+    int numWorkgroups = (numElements + workgroupSize - 1) / workgroupSize;
+    int globalSize = workgroupSize * numWorkgroups;
+    self->kernel->run_1d(globalSize, workgroupSize);
     cout << "... launched" << endl;
   } catch(runtime_error &e) {
     THError("Error: %s", e.what());
