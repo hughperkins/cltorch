@@ -42,23 +42,19 @@ public:
 
 class ClKernelArgInt : public ClKernelArg {
 public:
-//  int value;
   ClKernelArgInt(ClKernelDirection direction, string name) :
       ClKernelArg(direction, name) {
     if(direction != input) {
       THError("ints can only be input parameters, not output, or inout");
     }
-//    value(value) {
   }
   virtual std::string asParameterString() const {
     return "int " + name;
   }
   virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) {
     luaT_getfieldchecknumber(L, -1, name.c_str());
-    // should do some checking here, or use luaT, or both...
     int value = lua_tonumber(L, -1);
     lua_pop(L, 1);
-    cout << "int value: " << value << endl;
     switch(direction) {
       case input:
         k->in(value);
@@ -74,11 +70,8 @@ public:
 
 class ClKernelArgTensor : public ClKernelArg {
 public:
-//   value;
   ClKernelArgTensor(ClKernelDirection direction, string name) :
       ClKernelArg(direction, name) {
-//  ClKernelArgTensor(int value) :
-//    value(value) {
   }
   virtual std::string asParameterString() const {
     string res = "";
@@ -88,7 +81,6 @@ public:
   }
   virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) {
     luaT_getfieldcheckudata(L, -1, name.c_str(), "torch.ClTensor");
-    // should do some checking here, or use luaT, or both...
     THClTensor *value = (THClTensor *)luaT_checkudata(L, -1, "torch.ClTensor");
     if(value == 0) {
       THError("Tensor is null.  this is odd actually, raise an issue");
@@ -137,11 +129,8 @@ public:
 
 class ClKernelArgFloat : public ClKernelArg {
 public:
-//  float value;
   ClKernelArgFloat(ClKernelDirection direction, string name) :
       ClKernelArg(direction, name) {
-//  ClKernelArgFloat(float value) :
-//    value(value) {
     if(direction != input) {
       THError("floats can only be input parameters, not output, or inout");
     }
@@ -151,7 +140,6 @@ public:
   }
   virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) {
     luaT_getfieldchecknumber(L, -1, name.c_str());
-    // should do some checking here, or use luaT, or both...
     float value = lua_tonumber(L, -1);
     lua_pop(L, 1);
     cout << "float value: " << value << endl;
@@ -194,24 +182,6 @@ public:
     args.clear();
   }
 };
-//} ClKernel;
-
-static int kernel(lua_State *L) {
-  lua_pushstring(L, "hi there :-)");
-//  UserKernel kernel;
-  return 1;
-}
-//lua_State *L, const char *tname, const char *parenttname,
-//                                       lua_CFunction constructor, lua_CFunction destructor, lua_CFunction factory);
-static int printKernel(lua_State *L) {
-  lua_pushstring(L, "hi there :-)");
-  return 1;
-}
-static const struct luaL_Reg funcs[] = {
-  {"kernel", kernel},
-  {"printKernel", printKernel},
-  {NULL, NULL}
-};
 static void ClKernel_rawInit(ClKernel *self) {
   self->refCount = 1;
   self->source = "";
@@ -233,7 +203,6 @@ static void loadParameters(lua_State *L, ClKernelDirection direction, ClKernel *
   while(lua_next(L, -2) != 0) {
     string name = lua_tostring(L, -2);
     string paramType = lua_tostring(L, -1);
-    cout << "param name=" << name << " type=" << paramType << endl;
     if(paramType == "float") {
       ClKernelArg *arg = new ClKernelArgFloat(direction, name);
       self->args.push_back(arg);
@@ -250,7 +219,6 @@ static void loadParameters(lua_State *L, ClKernelDirection direction, ClKernel *
   }
 }
 static int ClKernel_new(lua_State *L) {
-  cout << "ClKernel_new()" << endl;
   ClKernel *self = (ClKernel*)THAlloc(sizeof(ClKernel));
   self = new(self) ClKernel();
   ClKernel_rawInit(self);
@@ -259,7 +227,6 @@ static int ClKernel_new(lua_State *L) {
     lua_pushnil(L);
     while(lua_next(L, -2) != 0) {
       string key = lua_tostring(L, -2);
-      cout << "key " << key << endl;
       if(key == "input") {
         loadParameters(L, ClKernelDirection::input, self);
       } else if( key == "output") {
@@ -277,10 +244,7 @@ static int ClKernel_new(lua_State *L) {
       }
       lua_pop(L, 1);
     }
-//    lua_pop(L, 1);
-    cout << "gettop " << lua_gettop(L) << endl;
 
-    // validate a bit
     if(self->source == "") {
       THError("Missing parameter src, or was empty");
     }
@@ -301,7 +265,6 @@ static int ClKernel_new(lua_State *L) {
     generatedSource += "\n) {\n";   // probalby should use ostringstream for this really, for speed
     generatedSource += self->source + "\n";
     generatedSource += "}\n";
-    cout << "generatedSource: " << generatedSource << endl;
     self->generatedSource = generatedSource;
     self->kernelName = kernelName;
     self->kernel = cl->buildKernelFromString(generatedSource, kernelName, "", "user_kernel");
@@ -310,11 +273,9 @@ static int ClKernel_new(lua_State *L) {
   }
 
   luaT_pushudata(L, self, "torch.ClKernel");
-  cout << "ClKernel_new() finish" << endl;
   return 1;
 }
 static int ClKernel_free(lua_State *L) {
-  cout << "ClKernel_free()" << endl;
   ClKernel *self = (ClKernel*)THAlloc(sizeof(ClKernel));
   if(!self) {
     return 0;
@@ -328,20 +289,16 @@ static int ClKernel_free(lua_State *L) {
   return 0;
 }
 static int ClKernel_factory(lua_State *L) {
-  cout << "ClKernel_factory()" << endl;
-  THError("not implemented");
+  THError("ClKernel_factory not implemented");
   return 0;
 }
 static int ClKernel_print(lua_State *L) {
-  cout << "ClKernel_print()" << endl;
   ClKernel *self = (ClKernel *)luaT_checkudata(L, 1, "torch.ClKernel");
-  cout << "refCount=" << self->refCount << " source=" << self->source << endl;
+  cout << "source=" << self->source << endl;
   return 0;
 }
 static int ClKernel_run(lua_State *L) {
-  cout << "ClKernel_run()" << endl;
   THClState *state = cltorch_getstate(L);
-  printStack("run begin", L);
   if(lua_type(L, 2) != LUA_TTABLE) {
     THError("run method expects one parameter: a table, with named arg values in");
     return 0;
@@ -349,14 +306,11 @@ static int ClKernel_run(lua_State *L) {
   // now we can assume we have a table :-)
 
   ClKernel *self = (ClKernel *)luaT_checkudata(L, 1, "torch.ClKernel");
-  cout << "refCount=" << self->refCount << " source=" << self->source << endl;
   try {
     THClKernels k(state, self->kernel);
     
     int numElements = -1;
     for(int i = 0; i < (int)self->args.size(); i++) {
-      printStack("before get arg", L);
-      cout << " processing arg " << i << " " << self->args[i]->toString() << endl;
       // what we need to do here is:
       // - loop through each parameter object
       // - for each parameter object, get the value from the passed in parameters, which
@@ -370,23 +324,17 @@ static int ClKernel_run(lua_State *L) {
       if(numElements == -1 && self->args[i]->direction != input && dynamic_cast< ClKernelArgTensor *>( self->args[i] ) != 0) {
         numElements = getNumElementsFromTensorArg(L, dynamic_cast< ClKernelArgTensor *>(self->args[i]));
       }
-//      self->args->
-      cout << " ... arg done" << endl;
     }
     if(numElements == -1) {
       THError("Must provide at least one output, or inout, ClTensor");
     }
-    cout << "running kernel..." << endl;
     int workgroupSize = 64;  // should make this an option
     int numWorkgroups = (numElements + workgroupSize - 1) / workgroupSize;
     int globalSize = workgroupSize * numWorkgroups;
     self->kernel->run_1d(globalSize, workgroupSize);
-    cout << "... launched" << endl;
   } catch(runtime_error &e) {
     THError("Error: %s", e.what());
   }
-//  EasyCL *cl = THClState_getClv2(state, state->currentDevice);
-//  cl->finish();  // not sure if we want this actually
   return 0;
 }
 static const struct luaL_Reg ClKernel_funcs [] = {
@@ -396,8 +344,6 @@ static const struct luaL_Reg ClKernel_funcs [] = {
 };
 void cltorch_UserKernel_init(lua_State *L)
 {
-  luaL_setfuncs(L, funcs, 0);
-
   luaT_newmetatable(L, "torch.ClKernel", NULL,
                     ClKernel_new, ClKernel_free, ClKernel_factory);
   luaL_setfuncs(L, ClKernel_funcs, 0);

@@ -1,7 +1,7 @@
 require 'cltorch'
 
 k = torch.ClKernel({input={nElements='int', input='torch.ClTensor'},output={output='torch.ClTensor'},src=[[
-   int linearId = get_global_id(0);  // exciting stuff :-P
+   int linearId = get_global_id(0);
    if(linearId < nElements) {
      output_data[linearId] = input_data[linearId] + 3.0f;
    }
