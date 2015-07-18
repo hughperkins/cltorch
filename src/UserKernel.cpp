@@ -99,7 +99,6 @@ public:
       THError("resize not implemented yet.  It should be.  Please remind me to add this, eg raise an issue");
       return;
     }
-    cout << "tensor value numElements " << value->storage->wrapper->size() << endl;
     switch(direction) {
       case input:
         if(!value->storage->wrapper->isOnDevice()) {
@@ -142,7 +141,6 @@ public:
     luaT_getfieldchecknumber(L, -1, name.c_str());
     float value = lua_tonumber(L, -1);
     lua_pop(L, 1);
-    cout << "float value: " << value << endl;
     switch(direction) {
       case input:
         k->in(value);
