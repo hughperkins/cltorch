@@ -13,6 +13,8 @@ extern "C" {
 #include <vector>
 using namespace std;
 
+static std::string getTensorInfoClSrc();
+
 enum ClKernelDirection {
   input,
   output,
@@ -25,6 +27,9 @@ public:
   ClKernelArg(string name) :
     name(name) {
   }
+  virtual std::string asParameterString() const = 0;
+  virtual ~ClKernelArg() {
+  }
 };
 
 class ClKernelArgInt : public ClKernelArg {
@@ -33,6 +38,9 @@ public:
   ClKernelArgInt(string name) :
     ClKernelArg(name) {
 //    value(value) {
+  }
+  virtual std::string asParameterString() const {
+    return "int " + name;
   }
 };
 
@@ -44,6 +52,11 @@ public:
 //  ClKernelArgTensor(int value) :
 //    value(value) {
   }
+  virtual std::string asParameterString() const {
+    string res = "global float * " + name + "_data";
+    res += ", global struct THClTensorInfoCl *" + name + "_info";
+    return res;
+  }
 };
 
 class ClKernelArgFloat : public ClKernelArg {
@@ -53,6 +66,9 @@ public:
     ClKernelArg(name) {
 //  ClKernelArgFloat(float value) :
 //    value(value) {
+  }
+  virtual std::string asParameterString() const {
+    return "float " + name;
   }
 };
 
@@ -172,9 +188,16 @@ static int ClKernel_new(lua_State *L) {
     EasyCL *cl = THClState_getClv2(state, state->currentDevice);
     string kernelName = "user_kernel";  // can override by param, in future
     string generatedSource = "";
+    generatedSource += easycl::replaceGlobal(getTensorInfoClSrc(), "{{MAX_CLTORCH_DIMS}}", easycl::toString(MAX_CLTORCH_DIMS)) + "\n";
     generatedSource += self->extraSource + "\n";
-    generatedSource += "kernel void " + kernelName + "(";
-    generatedSource += ") {\n";   // probalby should use ostringstream for this really, for speed
+    generatedSource += "kernel void " + kernelName + "(\n";
+    for(int i = 0; i < (int)self->args.size(); i++) {
+      if(i > 0) {
+        generatedSource += ",\n";
+      }
+      generatedSource += "    " + self->args[i]->asParameterString();
+    }
+    generatedSource += "\n) {\n";   // probalby should use ostringstream for this really, for speed
     generatedSource += self->source + "\n";
     generatedSource += "}\n";
     cout << "generatedSource: " << generatedSource << endl;
@@ -237,5 +260,23 @@ void cltorch_UserKernel_init(lua_State *L)
                     ClKernel_new, ClKernel_free, ClKernel_factory);
   luaL_setfuncs(L, ClKernel_funcs, 0);
   lua_pop(L, 1);
+}
+static std::string getTensorInfoClSrc() {
+  // [[[cog
+  // import stringify
+  // stringify.write_kernel( "kernel", "src/lib/THClTensorInfoCl.cl" )
+  // ]]]
+  // generated using cog, from src/lib/THClTensorInfoCl.cl:
+  const char * kernelSource =  
+  "typedef struct THClTensorInfoCl {\n" 
+  "  unsigned int sizes[{{MAX_CLTORCH_DIMS}}];\n" 
+  "  unsigned int strides[{{MAX_CLTORCH_DIMS}}];\n" 
+  "  int offset;\n" 
+  "  int dims;\n" 
+  "} TensorInfoCl;\n" 
+  "\n" 
+  "";
+  // [[[end]]]
+  return kernelSource;
 }
 

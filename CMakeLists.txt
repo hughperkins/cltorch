@@ -62,14 +62,14 @@ file(GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/commit_generated.h
   CONTENT "string commit=\"${git_commit}\";\n"
 )
 
-#if(DEV_RUN_COG)
-#    add_custom_target(
-#        cog_cltorch
-#        python ${CMAKE_CURRENT_SOURCE_DIR}/EasyCL/thirdparty/cogapp/cog.py -q -I ${CMAKE_CURRENT_SOURCE_DIR}/EasyCL/cog-batteries -r ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h
-#        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-#    )
-#    add_dependencies( cltorch cog_cltorch )
-#endif(DEV_RUN_COG)
+if(DEV_RUN_COG)
+    add_custom_target(
+        cog_cltorch
+        python ${CMAKE_CURRENT_SOURCE_DIR}/src/EasyCL/thirdparty/cogapp/cog.py -q -I ${CMAKE_CURRENT_SOURCE_DIR}/src/EasyCL/cog-batteries -r ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    add_dependencies( cltorch cog_cltorch )
+endif(DEV_RUN_COG)
 
 
 #if( ON_LINUX ) 
