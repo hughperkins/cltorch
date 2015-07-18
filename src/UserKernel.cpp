@@ -101,8 +101,12 @@ static int ClKernel_print(lua_State *L) {
 }
 static int ClKernel_run(lua_State *L) {
   cout << "ClKernel_run()" << endl;
+  THClState *state = cltorch_getstate(L);
   ClKernel *self = (ClKernel *)luaT_checkudata(L, 1, "torch.ClKernel");
   cout << "refCount=" << self->refCount << " source=" << self->source << endl;
+  self->kernel->run_1d(64, 64);  // obviously shoudl get these from somewhere, in future
+  EasyCL *cl = THClState_getClv2(state, state->currentDevice);
+//  cl->finish();  // not sure if we want this actually
   return 0;
 }
 static const struct luaL_Reg ClKernel_funcs [] = {
