@@ -76,7 +76,7 @@ bool getApplyGrid(THClState* state, int device, long totalElements, dim3& grid) 
 
 template< typename IndexType >
 void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int A, TensorInfo<IndexType> aInfo, IndexType totalElements, HasOperator1 const * op ) {
-  StatefulTimer::timeCheck("Apply1 start");
+  if(StatefulTimer::enabled) StatefulTimer::timeCheck("Apply1 start");
   int numTensors = 1;
   int numScalars = 0;
   HasScalars const*hasScalars = dynamic_cast<HasScalars const*>(op);
@@ -88,16 +88,15 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   if(hasPointTensors != 0) {
     numPointTensors = hasPointTensors->getNumPointTensors();
   }
-  std::string uniqueName = "THClApply_1t" + easycl::toString(numScalars) + "s_" + easycl::toString(numPointTensors) + "pt_" + easycl::toString(A) + "_" + op->operator1();
-
+  ostringstream oss;
+  oss << "Apply1t_" << numScalars << "s_" << numPointTensors << "pt_" << A << "_" << op->operator1();
   EasyCL *cl = aInfo.wrapper->getCl();
   CLKernel *kernel = 0;
-  if( cl->kernelExists(uniqueName) ) {
-    kernel = cl->getKernel(uniqueName);
-    StatefulTimer::timeCheck("Apply1 1aa");
+  if( cl->kernelExists(oss.str()) ) {
+    kernel = cl->getKernel(oss.str());
   } else {
+    string uniqueName = oss.str();
     TemplatedKernel kernelBuilder(cl);
-      StatefulTimer::timeCheck("Apply1 2");
     kernelBuilder.set("dim1", A);
     std::vector<int> dims;
     if( A >= 0 ) {
@@ -114,17 +113,11 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
     kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
     kernelBuilder.set("operation", operation);
     kernelBuilder.set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate());
-      StatefulTimer::timeCheck("Apply1 3");
-      StatefulTimer::timeCheck("Apply1 4");
     kernel = kernelBuilder.buildKernel( uniqueName, "THClApply.cl", get_template(), "THClTensor_pointwiseApplyD" );
-      StatefulTimer::timeCheck("Apply1 5");
+      StatefulTimer::timeCheck("Apply1 compiled");
   }
-  StatefulTimer::timeCheck("Apply1 6a");
   THClKernels k(state, kernel);
-  StatefulTimer::timeCheck("Apply1 6");
-
   k.out(aInfo);
-//  k.out(aInfo.wrapper);
   for( int i = 0; i < numScalars; i++ ) {
     k.in(hasScalars->getScalar(i));
   }
@@ -135,13 +128,9 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   k.in( (int)totalElements );
-    StatefulTimer::timeCheck("Apply1 7");
   k.run(grid, block);
-    StatefulTimer::timeCheck("Apply1 8");
-  
   if(state->addFinish) cl->finish();
-
-  StatefulTimer::timeCheck("Apply1 END");
+  if(StatefulTimer::enabled) StatefulTimer::timeCheck("Apply1 END");
 }
 
 template< typename IndexType >
@@ -158,11 +147,12 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   if(hasPointTensors != 0) {
     numPointTensors = hasPointTensors->getNumPointTensors();
   }
-  std::string uniqueName = "THClApply_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(numPointTensors) + "pt_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
-  if(StatefulTimer::enabled) {
-    ostringstream oss;
-    oss << "Apply2 END A=" << A << " B=" << B << " operator=[" << op->operator2() << "] numpointtensors=" << numPointTensors << 
-      " numscalars=" << numScalars << " dims=" << aInfo.dims;
+  ostringstream oss;
+  oss << "Apply2t_" << numScalars << "s_" << numPointTensors << "pt_" << A << "_" << B << "_" << op->operator2();
+//  std::string uniqueName = "THClApply_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(numPointTensors) + "pt_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
+  if(false && StatefulTimer::enabled) {
+//    ostringstream oss;
+    oss << " dims=" << aInfo.dims;
     oss << "tensor a: ";
     oss << " sizes={";
     for(int d=0; d < aInfo.dims; d++) {
@@ -198,15 +188,16 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     }
     oss << "}";
     oss << " nelements=" << totalElements;
-    uniqueName = oss.str();
+//    uniqueName = oss.str();
     //    StatefulTimer::timeCheck(oss.str().c_str());
   }
   EasyCL *cl = aInfo.wrapper->getCl();
   CLKernel *kernel = 0;
-  if( cl->kernelExists(uniqueName) ) {
-    kernel = cl->getKernel(uniqueName);
+  if( cl->kernelExists(oss.str()) ) {
+    kernel = cl->getKernel(oss.str());
 //    StatefulTimer::timeCheck("Apply2 1aa");
   } else {
+    string uniqueName = oss.str();
 //    StatefulTimer::timeCheck("Apply2 1a");
     TemplatedKernel kernelBuilder(cl);
     kernelBuilder.set("dim1", A);
@@ -262,7 +253,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
 //  StatefulTimer::timeCheck("Apply2 7");
 
   if(state->addFinish) cl->finish();
-  if(StatefulTimer::enabled) StatefulTimer::timeCheck(("Apply2 END " + uniqueName).c_str());
+  if(StatefulTimer::enabled) StatefulTimer::timeCheck(("Apply2 END " + oss.str()).c_str());
 }
 
 template< typename IndexType >
@@ -279,11 +270,12 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   if(hasPointTensors != 0) {
     numPointTensors = hasPointTensors->getNumPointTensors();
   }
-  std::string uniqueName = "THClApply_3t" + easycl::toString(numScalars) + "s_" + easycl::toString(numPointTensors) + "pt_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + easycl::toString(C) + "_" + op->operator3();
-  if(StatefulTimer::enabled) {
-    ostringstream oss;
-    oss << "Apply3 END A=" << A << " B=" << B << " operator=[" << op->operator3() << "] numpointtensors=" << numPointTensors << 
-      " numscalars=" << numScalars << " dims=" << aInfo.dims;
+  StatefulTimer::timeCheck("Apply3 getname");
+  ostringstream oss;
+  oss << "Apply_3t_" << numScalars << "s_" << numPointTensors << "pt_" << A << "_" << B << "_" << C << "_" << op->operator3();
+  StatefulTimer::timeCheck("Apply3 gotname");
+  if(false && StatefulTimer::enabled) {
+    oss << " dims=" << aInfo.dims;
     oss << "tensor a: ";
     oss << " sizes={";
     for(int d=0; d < aInfo.dims; d++) {
@@ -336,13 +328,14 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
     }
     oss << "}";
     oss << " nelements=" << totalElements;
-    uniqueName = oss.str();
+//    uniqueName = oss.str();
   }
   EasyCL *cl = aInfo.wrapper->getCl();
   CLKernel *kernel = 0;
-  if(cl->kernelExists(uniqueName)) {
-    kernel = cl->getKernel(uniqueName);
+  if(cl->kernelExists(oss.str())) {
+    kernel = cl->getKernel(oss.str());
   } else {
+    string uniqueName = oss.str();
     TemplatedKernel kernelBuilder(cl);
     kernelBuilder.set("dim1", A);
     kernelBuilder.set("dim2", B);
@@ -371,6 +364,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
 //    cout << kernelBuilder.getRenderedKernel(get_template()) << endl;
     StatefulTimer::timeCheck("Apply3 compiled");
   }
+  StatefulTimer::timeCheck("Apply3 got kernel");
 
   THClKernels k(state, kernel);
 //  StatefulTimer::timeCheck("Apply3 a");
@@ -392,7 +386,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   k.run(grid, block);
 
   if(state->addFinish) cl->finish();
-  if(StatefulTimer::enabled) StatefulTimer::timeCheck(("Apply3 END " + uniqueName).c_str());
+  if(StatefulTimer::enabled) StatefulTimer::timeCheck(("Apply3 END " + oss.str()).c_str());
 }
 
 bool THClTensor_pointwiseApply1(THClState* state,
