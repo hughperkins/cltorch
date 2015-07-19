@@ -14,9 +14,11 @@ typedef struct TensorInfoCl {
 } TensorInfoCl;
 // Contiguous tensors of more than one dimension are collapsed down
 // to one tensor
+{% if defiscontiguous==1 then %}
 inline bool TensorInfo_isContiguous( global TensorInfoCl *tensorInfo ) {
     return (tensorInfo->dims == 1 && tensorInfo->strides[0] == 1);    
 }
+{% end %}
 
 // Translate a linear index for the apply to a float* offset;
 // specialized on `Dims` to reduce nvcc compilation time
@@ -70,6 +72,7 @@ inline {{IndexType}} getLinearBlockId() {
 
 // Block-wide reduction in shared memory helper; only /*threadIdx.x*/ get_local_id(0) == 0 will
 // return the reduced value
+{% if defreduceblock == 1 then %}
 inline float reduceBlock( local float* smem,
                    int numVals,
                    float threadVal,
@@ -119,4 +122,5 @@ inline float reduceBlock( local float* smem,
 
   return r;
 }
+{% end %}
 

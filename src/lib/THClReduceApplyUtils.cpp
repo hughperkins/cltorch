@@ -143,9 +143,11 @@ std::string THClReduceApplyUtils_getKernelTemplate() {
   "} TensorInfoCl;\n" 
   "// Contiguous tensors of more than one dimension are collapsed down\n" 
   "// to one tensor\n" 
+  "{% if defiscontiguous==1 then %}\n" 
   "inline bool TensorInfo_isContiguous( global TensorInfoCl *tensorInfo ) {\n" 
   "    return (tensorInfo->dims == 1 && tensorInfo->strides[0] == 1);\n" 
   "}\n" 
+  "{% end %}\n" 
   "\n" 
   "// Translate a linear index for the apply to a float* offset;\n" 
   "// specialized on `Dims` to reduce nvcc compilation time\n" 
@@ -199,6 +201,7 @@ std::string THClReduceApplyUtils_getKernelTemplate() {
   "\n" 
   "// Block-wide reduction in shared memory helper; only /*threadIdx.x*/ get_local_id(0) == 0 will\n" 
   "// return the reduced value\n" 
+  "{% if defreduceblock == 1 then %}\n" 
   "inline float reduceBlock( local float* smem,\n" 
   "                   int numVals,\n" 
   "                   float threadVal,\n" 
@@ -248,6 +251,7 @@ std::string THClReduceApplyUtils_getKernelTemplate() {
   "\n" 
   "  return r;\n" 
   "}\n" 
+  "{% end %}\n" 
   "\n" 
   "";
   // [[[end]]]

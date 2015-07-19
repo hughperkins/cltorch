@@ -104,6 +104,7 @@ void kernelLaunch_THClTensor_reduceAllPass1(
       .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
       .set("dims", dims)
       .set("dim1", ADims)
+      .set("defreduceblock", 1)
       .set("modify_operation", modifyOp->operator2())
       .set("reduce_operation", reduceOp->operator3())
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
@@ -150,6 +151,7 @@ void kernelLaunch_THClTensor_reduceAllPass2(
       .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
       .set("dims", dims)
       .set("dim1", -2)
+      .set("defreduceblock", 1)
   //    .set("modify_operation", modifyOp->operator2())
       .set("reduce_operation", reduceOp->operator3())
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
@@ -203,6 +205,7 @@ void kernelLaunch_THClTensor_reduceAll(
       .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
       .set("dims", dims)
       .set("dim1", ADims)
+      .set("defreduceblock", 1)
       .set("modify_operation", modifyOp->operator2())
       .set("reduce_operation", reduceOp->operator3())
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)

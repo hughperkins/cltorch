@@ -368,7 +368,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
     kernelBuilder.set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate());
     kernelBuilder.set("operation", operation);
     kernel = kernelBuilder.buildKernel( uniqueName, uniqueName, get_template(), "THClTensor_pointwiseApplyD" );
-    cout << kernelBuilder.getRenderedKernel(get_template()) << endl;
+//    cout << kernelBuilder.getRenderedKernel(get_template()) << endl;
     StatefulTimer::timeCheck("Apply3 compiled");
   }
 
@@ -914,9 +914,9 @@ std::string get_template() {
   "//enum TensorArgType { ReadWrite, ReadOnly };\n" 
   "\n" 
   "// not used by this kernel, but used by THClReduceApplyUtils...\n" 
-  "inline float reduceOp(float _in1, float _in2) {\n" 
-  "  return 0;\n" 
-  "}\n" 
+  "//inline float reduceOp(float _in1, float _in2) {\n" 
+  "//  return 0;\n" 
+  "//}\n" 
   "\n" 
   "{{include_THClReduceApplyUtils}}\n" 
   "\n" 

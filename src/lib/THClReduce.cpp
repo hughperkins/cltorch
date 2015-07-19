@@ -105,6 +105,7 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
       .set("dims", dims)
       .set("dim1", ADims)
       .set("dim2", BDims)
+      .set("defreduceblock", 1)
       .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
       .set("IndexType", indexType)
@@ -178,6 +179,7 @@ void kernelLaunch_THClTensor_reduceContigDim(
       .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
       .set("dims", dims)
       .set("dim1", ADims)
+      .set("defreduceblock", 1)
       .set("dim2", BDims)
       .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
