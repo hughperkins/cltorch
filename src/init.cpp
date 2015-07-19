@@ -185,6 +185,7 @@ namespace cltorch {
     {"dumpTimings", cltorch_dumpTimings},
     {"setProfiling", cltorch_setProfiling},
     {"setEnableTiming", cltorch_setEnableTiming},
+    {"setTiming", cltorch_setEnableTiming},
     {"dumpProfiling", cltorch_dumpProfiling},
     {"about", cltorch_about},
     {NULL, NULL}
