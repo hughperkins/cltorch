@@ -368,6 +368,7 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
     kernelBuilder.set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate());
     kernelBuilder.set("operation", operation);
     kernel = kernelBuilder.buildKernel( uniqueName, uniqueName, get_template(), "THClTensor_pointwiseApplyD" );
+    cout << kernelBuilder.getRenderedKernel(get_template()) << endl;
     StatefulTimer::timeCheck("Apply3 compiled");
   }
 
