@@ -64,10 +64,10 @@ THClTensor_pointwiseApplyD(
    global float *pointTensor{{i}},
    {% end %}
    int totalElements) {
-  for (int linearIndex = get_global_id(0);
-       linearIndex < totalElements;
-       linearIndex += get_global_size(0)) {
-//    int linearIndex = get_global_id(0);
+//  for (int linearIndex = get_global_id(0);
+   int linearIndex = get_global_id(0);
+   if(linearIndex < totalElements ) {
+//       linearIndex += get_global_size(0)) {
     {% for input_idx=1,num_tensors do %}
 //  int offset{{input_idx}} = linearIndex;
     // Convert `linearIndex` into an offset of `a`
