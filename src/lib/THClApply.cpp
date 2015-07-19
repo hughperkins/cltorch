@@ -163,14 +163,14 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   CLKernel *kernel = 0;
   if( cl->kernelExists(uniqueName) ) {
     kernel = cl->getKernel(uniqueName);
-    StatefulTimer::timeCheck("Apply2 1aa");
+//    StatefulTimer::timeCheck("Apply2 1aa");
   } else {
-    StatefulTimer::timeCheck("Apply2 1a");
+//    StatefulTimer::timeCheck("Apply2 1a");
     TemplatedKernel kernelBuilder(cl);
     kernelBuilder.set("dim1", A);
     kernelBuilder.set("dim2", B);
     std::vector<int> dims;
-    StatefulTimer::timeCheck("Apply2 1b");
+//    StatefulTimer::timeCheck("Apply2 1b");
     if( A >= 0 ) {
       dims.push_back(A);
     }
@@ -198,11 +198,11 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
       THError( ( std::string("Error building kernel in apply2 ") + __FILE__ + ":" + easycl::toString( __LINE__ ) + ": " + e.what() ).c_str() );
   //    throw e;
     }
-    StatefulTimer::timeCheck("Apply2 4");
+    StatefulTimer::timeCheck("Apply2 compiled");
   }
-  StatefulTimer::timeCheck("Apply2 5a");
+//  StatefulTimer::timeCheck("Apply2 5a");
   THClKernels k(state, kernel);
-  StatefulTimer::timeCheck("Apply2 5");
+//  StatefulTimer::timeCheck("Apply2 5");
   k.out(aInfo);
   k.in(bInfo);
   for( int i = 0; i < numScalars; i++ ) {
@@ -215,12 +215,33 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   k.in( (int)totalElements );
-  StatefulTimer::timeCheck("Apply2 6");
+//  StatefulTimer::timeCheck("Apply2 6");
   k.run(grid, block);
-  StatefulTimer::timeCheck("Apply2 7");
+//  StatefulTimer::timeCheck("Apply2 7");
 
   if(state->addFinish) cl->finish();
-  StatefulTimer::timeCheck("Apply2 END");
+  if(StatefulTimer::enabled) {
+    ostringstream oss;
+    oss << "Apply2 END A=" << A << " B=" << B << " operator=" << op->operator2() << " numpointtensors=" << numPointTensors << 
+      " numscalars=" << numScalars << " dims=" << aInfo.dims;
+    oss << " sizes={";
+    for(int d=0; d < aInfo.dims; d++) {
+      if(d > 0) {
+        oss << ",";
+      }
+      oss << aInfo.sizes[d];
+    }
+    oss << " strides={";
+    for(int d=0; d < aInfo.dims; d++) {
+      if(d > 0) {
+        oss << ",";
+      }
+      oss << aInfo.strides[d];
+    }
+    oss << " nelements=" << totalElements;
+    StatefulTimer::timeCheck(oss.str().c_str());
+  }
+//  StatefulTimer::timeCheck("Apply2 END");
 }
 
 template< typename IndexType >
