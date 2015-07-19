@@ -222,8 +222,9 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   if(state->addFinish) cl->finish();
   if(StatefulTimer::enabled) {
     ostringstream oss;
-    oss << "Apply2 END A=" << A << " B=" << B << " operator=" << op->operator2() << " numpointtensors=" << numPointTensors << 
+    oss << "Apply2 END A=" << A << " B=" << B << " operator=[" << op->operator2() << "] numpointtensors=" << numPointTensors << 
       " numscalars=" << numScalars << " dims=" << aInfo.dims;
+    oss << "tensor a: ";
     oss << " sizes={";
     for(int d=0; d < aInfo.dims; d++) {
       if(d > 0) {
@@ -231,6 +232,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
       }
       oss << aInfo.sizes[d];
     }
+    oss << "}";
     oss << " strides={";
     for(int d=0; d < aInfo.dims; d++) {
       if(d > 0) {
@@ -238,6 +240,24 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
       }
       oss << aInfo.strides[d];
     }
+    oss << "}";
+    oss << "tensor b: ";
+    oss << " sizes={";
+    for(int d=0; d < bInfo.dims; d++) {
+      if(d > 0) {
+        oss << ",";
+      }
+      oss << bInfo.sizes[d];
+    }
+    oss << "}";
+    oss << " strides={";
+    for(int d=0; d < bInfo.dims; d++) {
+      if(d > 0) {
+        oss << ",";
+      }
+      oss << bInfo.strides[d];
+    }
+    oss << "}";
     oss << " nelements=" << totalElements;
     StatefulTimer::timeCheck(oss.str().c_str());
   }
@@ -263,7 +283,6 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
-    StatefulTimer::timeCheck("Apply3 1aa");
   } else {
     TemplatedKernel kernelBuilder(cl);
     kernelBuilder.set("dim1", A);
@@ -290,14 +309,15 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
     kernelBuilder.set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate());
     kernelBuilder.set("operation", operation);
     kernel = kernelBuilder.buildKernel( uniqueName, "THClApply.cl", get_template(), "THClTensor_pointwiseApplyD" );
+    StatefulTimer::timeCheck("Apply3 compiled");
   }
 
   THClKernels k(state, kernel);
-  StatefulTimer::timeCheck("Apply3 a");
+//  StatefulTimer::timeCheck("Apply3 a");
   k.out(aInfo);
   k.in(bInfo);
   k.in(cInfo);
-  StatefulTimer::timeCheck("Apply3 b");
+//  StatefulTimer::timeCheck("Apply3 b");
   for( int i = 0; i < numScalars; i++ ) {
     k.in(hasScalars->getScalar(i));
   }
@@ -308,11 +328,68 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
     throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
   }
   k.in( (int)totalElements );
-  StatefulTimer::timeCheck("Apply3 c");
+//  StatefulTimer::timeCheck("Apply3 c");
   k.run(grid, block);
 
   if(state->addFinish) cl->finish();
-  StatefulTimer::timeCheck("Apply3 END");
+  if(StatefulTimer::enabled) {
+    ostringstream oss;
+    oss << "Apply3 END A=" << A << " B=" << B << " operator=[" << op->operator3() << "] numpointtensors=" << numPointTensors << 
+      " numscalars=" << numScalars << " dims=" << aInfo.dims;
+    oss << "tensor a: ";
+    oss << " sizes={";
+    for(int d=0; d < aInfo.dims; d++) {
+      if(d > 0) {
+        oss << ",";
+      }
+      oss << aInfo.sizes[d];
+    }
+    oss << "}";
+    oss << " strides={";
+    for(int d=0; d < aInfo.dims; d++) {
+      if(d > 0) {
+        oss << ",";
+      }
+      oss << aInfo.strides[d];
+    }
+    oss << "}";
+    oss << "tensor b: ";
+    oss << " sizes={";
+    for(int d=0; d < bInfo.dims; d++) {
+      if(d > 0) {
+        oss << ",";
+      }
+      oss << bInfo.sizes[d];
+    }
+    oss << "}";
+    oss << " strides={";
+    for(int d=0; d < bInfo.dims; d++) {
+      if(d > 0) {
+        oss << ",";
+      }
+      oss << bInfo.strides[d];
+    }
+    oss << "}";
+    oss << "tensor c: ";
+    oss << " sizes={";
+    for(int d=0; d < cInfo.dims; d++) {
+      if(d > 0) {
+        oss << ",";
+      }
+      oss << cInfo.sizes[d];
+    }
+    oss << "}";
+    oss << " strides={";
+    for(int d=0; d < cInfo.dims; d++) {
+      if(d > 0) {
+        oss << ",";
+      }
+      oss << cInfo.strides[d];
+    }
+    oss << "}";
+    oss << " nelements=" << totalElements;
+    StatefulTimer::timeCheck(oss.str().c_str());
+  }
 }
 
 bool THClTensor_pointwiseApply1(THClState* state,
