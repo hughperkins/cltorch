@@ -77,6 +77,7 @@ Following tools are available to aid with optimization:
 |------|---------|
 |`cltorch.setProfiling(1)` |  turn on opencl kernel profiling |
 |`cltorch.dumpProfiling()` | dump opencl kernel profiling timings since last call|
+|`cltorch.setEnableTiming(1)`  | enable collection of cumulative wall-clock timings for cltorch code |
 |`cltorch.dumpTimings()`  | dump cumulative wall-clock timings for cltorch code |
 |`cltorch.setTrace(1)` | print all gpu buffer allocations and copies between host/gpu |
 
@@ -95,7 +96,9 @@ Timings are cumulative across multiple calls to the same kernel.
 
 #### DumpTimings
 
-This uses the wall-clock times to measure the elapsed time in different sections of cltorch code.  The way it works is, each time the cltorch c++ code calls `StatefulTimer::instance()->timeCheck("some status")`, the wall-clock time since the last call to `->timeCheck()` will be added to the cumulative time for `some status`.  You can pass any status as a string.  Then, after running the piece of code under the scrutiny, in your Lua program, simply call `cltorch->dumpTimings()` to dump these cumulative timings.
+This uses the wall-clock times to measure the elapsed time in different sections of cltorch code.  The way it works is, each time the cltorch c++ code calls `StatefulTimer::instance()->timeCheck("some status")`, the wall-clock time since the last call to `->timeCheck()` will be added to the cumulative time for `some status`.  You can pass any status as a string.  Then, after running the piece of code under the scrutiny, in your Lua program, simply call `cltorch.dumpTimings()` to dump these cumulative timings.
+
+Update: please first call `cltorch.setEnableTiming(true)` to enable collection of timing information.  This is global across all devices.
 
 #### GPU buffer allocations and copies
 
@@ -275,6 +278,10 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 19th July:
+  * Upgrade EasyCL version
+  * Need to explicitly enable timing now (just in case impacts performance)
+  * DumpTimings now shows count of number of calls, as well as timings
 * 18th July:
   * Added custom user kernels
 * 16th July:

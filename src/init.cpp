@@ -109,12 +109,23 @@ namespace cltorch {
     lua_remove(L, -2);
     return 1;
   }
-
   static int cltorch_dumpTimings(lua_State *L)
   {
      StatefulTimer::timeCheck("before dump");
      StatefulTimer::dump( true );
      StatefulTimer::timeCheck("after dump");
+    return 0;
+  }
+  // note: this is global, not per-device
+  static int cltorch_setEnableTiming(lua_State *L)
+  {
+    int trace = luaL_checknumber(L, 1);
+    StatefulTimer::setEnabled(trace);
+    if(trace) {
+      cout << "Timing activated" << endl;
+    } else {
+      cout << "Timing disabled" << endl;
+    }
     return 0;
   }
   static int cltorch_dumpProfiling(lua_State *L)
@@ -173,6 +184,7 @@ namespace cltorch {
     {"setAddFinish", cltorch_setAddFinish},
     {"dumpTimings", cltorch_dumpTimings},
     {"setProfiling", cltorch_setProfiling},
+    {"setEnableTiming", cltorch_setEnableTiming},
     {"dumpProfiling", cltorch_dumpProfiling},
     {"about", cltorch_about},
     {NULL, NULL}
