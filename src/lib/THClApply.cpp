@@ -257,7 +257,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
 }
 
 template< typename IndexType >
-void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, HasOperator3 const*op ) {
+void kernelLaunch_pointwiseApply3(THClState *state, const int device, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, HasOperator3 const*op) {
   StatefulTimer::timeCheck("Apply3 START");
   int numTensors = 3;
   int numScalars = 0;
@@ -368,10 +368,24 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
 
   THClKernels k(state, kernel);
 //  StatefulTimer::timeCheck("Apply3 a");
-  k.out(aInfo);
-  k.in(bInfo);
-  k.in(cInfo);
-//  StatefulTimer::timeCheck("Apply3 b");
+
+  struct THClScratchSpace* scratchSpace = THClState_getDeviceScratchSpace(state, device, 0);
+  initTensorInfoCl(&scratchSpace->info1, aInfo);
+  initTensorInfoCl(&scratchSpace->info2, bInfo);
+  initTensorInfoCl(&scratchSpace->info3, cInfo);
+  scratchSpace->info1Wrap->copyToDevice();
+  scratchSpace->info2Wrap->copyToDevice();
+  scratchSpace->info3Wrap->copyToDevice();
+
+  k.in(scratchSpace->info1Wrap);
+  k.out(aInfo.wrapper);
+
+  k.in(scratchSpace->info2Wrap);
+  k.in(bInfo.wrapper);
+
+  k.in(scratchSpace->info3Wrap);
+  k.in(cInfo.wrapper);
+
   for( int i = 0; i < numScalars; i++ ) {
     k.in(hasScalars->getScalar(i));
   }
@@ -739,7 +753,7 @@ bool THClTensor_pointwiseApply3(THClState* state,
 
 #define HANDLE_CASE(TYPE, A, B, C)                                      \
     /* kernel launch ... */ \
-   kernelLaunch_pointwiseApply3<TYPE>(state, grid, block, A, B, C, aInfo, bInfo, cInfo, (TYPE) totalElements, op ); \
+   kernelLaunch_pointwiseApply3<TYPE>(state, device, grid, block, A, B, C, aInfo, bInfo, cInfo, (TYPE) totalElements, op ); \
   /* THClTensor_pointwiseApply3<Op, TYPE, A, B, C> */                      \
     /* <<<grid, block, 0, THClState_getCurrentStream(state)>>>(             \
       aInfo, bInfo, cInfo, (TYPE) totalElements, op); */
