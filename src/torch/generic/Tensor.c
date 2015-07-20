@@ -1225,9 +1225,12 @@ static int torch_Tensor_(write)(lua_State *L)
   THTensor *tensor = luaT_checkudata(L, 1, torch_Tensor);
   THFile *file = luaT_checkudata(L, 2, "torch.File");
 
+/*  printf("torch tensor write ndimension %i\n", tensor->nDimension);*/
   THFile_writeIntScalar(file, tensor->nDimension);
-  THFile_writeLongRaw(file, tensor->size, tensor->nDimension);
-  THFile_writeLongRaw(file, tensor->stride, tensor->nDimension);
+  if(tensor->nDimension > 0) {
+    THFile_writeLongRaw(file, tensor->size, tensor->nDimension);
+    THFile_writeLongRaw(file, tensor->stride, tensor->nDimension);
+  };
   THFile_writeLongScalar(file, tensor->storageOffset+1); /* to respect Lua convention */
 
   lua_getfield(L, 2, "writeObject"); /* the method */
@@ -1252,10 +1255,12 @@ static int torch_Tensor_(read)(lua_State *L)
   THFile *file = luaT_checkudata(L, 2, "torch.File");
 
   tensor->nDimension = THFile_readIntScalar(file);
-  tensor->size = THAlloc(sizeof(long)*tensor->nDimension);
-  tensor->stride = THAlloc(sizeof(long)*tensor->nDimension);
-  THFile_readLongRaw(file, tensor->size, tensor->nDimension);
-  THFile_readLongRaw(file, tensor->stride, tensor->nDimension);
+  if(tensor->nDimension > 0) {
+    tensor->size = THAlloc(sizeof(long)*tensor->nDimension);
+    tensor->stride = THAlloc(sizeof(long)*tensor->nDimension);
+    THFile_readLongRaw(file, tensor->size, tensor->nDimension);
+    THFile_readLongRaw(file, tensor->stride, tensor->nDimension);
+  }
   tensor->storageOffset = THFile_readLongScalar(file);
   tensor->storageOffset--;  /* to respect Lua convention */
 

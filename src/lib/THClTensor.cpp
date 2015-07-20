@@ -128,7 +128,7 @@ THClTensor *THClTensor_newWithStorage(THClState *state, int device, THClStorage 
                       self,
                       storage,
                       storageOffset,
-                      (size ? size->size : (stride ? stride->size : 0)),
+                      (size ? size->size : (stride ? stride->size : -1)),
                       (size ? size->data : NULL),
                       (stride ? stride->data : NULL));
 
@@ -335,7 +335,7 @@ void THClTensor_setStorage(THClState *state, THClTensor *self, THClStorage *stor
                       self,
                       storage_,
                       storageOffset_,
-                      (size_ ? size_->size : (stride_ ? stride_->size : 0)),
+                      (size_ ? size_->size : (stride_ ? stride_->size : -1)),
                       (size_ ? size_->data : NULL),
                       (stride_ ? stride_->data : NULL));
 }
@@ -702,7 +702,7 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
   long totalSize;
   int hascorrectsize = 1;
 
-  nDimension_ = 0;
+  nDimension_ = nDimension >= 0 ? 0 : -1  ;
   for(d = 0; d < nDimension; d++)
   {
     if(size[d] > 0)
@@ -764,9 +764,19 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
     }
   }
   else {
-    self->nDimension = 0;
+    self->nDimension = -1;
   }
 
+  // DEBUG
+  static int count = 0;
+//  if( self->nDimension == 0 && self->size[0] == 1 ) {
+  if( self->nDimension == 0 ) {
+    count++;
+    if(count > 1000){
+      throw runtime_error("new size 1");
+      THError("new size 1");
+    }    
+  }
   THClTensor_resyncInfo(state, self);
 }
 

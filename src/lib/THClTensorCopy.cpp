@@ -39,6 +39,7 @@ void THClTensor_copyFloat(THClState *state, THClTensor *self, struct THFloatTens
 #define IMPLEMENT_TH_CL_TENSOR_COPY(TYPEC)                            \
 void THClTensor_copy##TYPEC(THClState *state, THClTensor *self, struct TH##TYPEC##Tensor *src) \
 {                                                                       \
+   cout << "nelement self " << THClTensor_nElement(state, self) << " dims " << self->nDimension << " nelement src " << TH##TYPEC##Tensor_nElement(src) << " src ndimension " << src->nDimension << endl; \
   THArgCheck(THClTensor_nElement(state, self) == TH##TYPEC##Tensor_nElement(src), 2, "sizes do not match"); \
                                                                         \
   {                                                                     \
