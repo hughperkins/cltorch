@@ -63,9 +63,13 @@ THCL_API void THClTensor_scatter(THClState *state, THClTensor *self, long dim, T
     kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_scatter" );
   }
 
-  TensorInfoCl selfInfoCl(self);
-    TensorInfoCl srcInfoCl(src);
-    TensorInfoCl indexInfoCl(index);
+  TensorInfoCl selfInfoCl;
+  TensorInfoCl srcInfoCl;
+  TensorInfoCl indexInfoCl;
+
+  initTensorInfoCl(&selfInfoCl, self);
+  initTensorInfoCl(&srcInfoCl, src);
+  initTensorInfoCl(&indexInfoCl, index);
 
   const dim3 block = getApplyBlock(state, device);
 
@@ -132,8 +136,11 @@ THCL_API void THClTensor_scatterFill(THClState *state, THClTensor *self, long di
     kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_scatterFill" );
   }
 
-  TensorInfoCl selfInfoCl(self);
-    TensorInfoCl indexInfoCl(index);
+  TensorInfoCl selfInfoCl;
+  TensorInfoCl indexInfoCl;
+
+  initTensorInfoCl(&selfInfoCl, self);
+  initTensorInfoCl(&indexInfoCl, index);
 
   const dim3 block = getApplyBlock(state, device);
 

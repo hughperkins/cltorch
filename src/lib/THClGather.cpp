@@ -65,9 +65,13 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
     kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getTemplate(), "THClTensor_kernel_gather" );
   }
 
-  TensorInfoCl selfInfoCl(self);
-    TensorInfoCl srcInfoCl(src);
-    TensorInfoCl indexInfoCl(index);
+  TensorInfoCl selfInfoCl;
+    TensorInfoCl srcInfoCl;
+    TensorInfoCl indexInfoCl;
+
+  initTensorInfoCl(&selfInfoCl, self);
+  initTensorInfoCl(&srcInfoCl, src);
+  initTensorInfoCl(&indexInfoCl, index);
 
   const dim3 block = getApplyBlock(state, device);
 

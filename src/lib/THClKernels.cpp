@@ -49,7 +49,8 @@ THClKernels *THClKernels::out(THClTensor *tensor) {
 // CLTensors v2 =====================
 THClKernels *THClKernels::inv2(THClTensor *tensor) {
   try {
-    TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
+    TensorInfoCl *tensorInfoCl = new TensorInfoCl();
+    initTensorInfoCl(tensorInfoCl, tensor);
     kernel->in(1, tensorInfoCl);
     kernel->in(THClTensor_wrapper(state, tensor));
     tensorInfoCls.push_back(tensorInfoCl);
@@ -60,7 +61,8 @@ THClKernels *THClKernels::inv2(THClTensor *tensor) {
 }
 THClKernels *THClKernels::inoutv2(THClTensor *tensor) {
   try {
-    TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
+    TensorInfoCl *tensorInfoCl = new TensorInfoCl();
+    initTensorInfoCl(tensorInfoCl, tensor);
     kernel->in(1, tensorInfoCl);
     kernel->inout(THClTensor_wrapper(state, tensor));
     tensorInfoCls.push_back(tensorInfoCl);
@@ -71,7 +73,8 @@ THClKernels *THClKernels::inoutv2(THClTensor *tensor) {
 }
 THClKernels *THClKernels::outv2(THClTensor *tensor) {
   try {
-    TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
+    TensorInfoCl *tensorInfoCl = new TensorInfoCl();
+    initTensorInfoCl(tensorInfoCl, tensor);
     kernel->in(1, tensorInfoCl);
     kernel->out(THClTensor_wrapper(state, tensor));
     tensorInfoCls.push_back(tensorInfoCl);
@@ -100,7 +103,8 @@ THClKernels *THClKernels::in(float value) {
 // CLTensorInfos ================
 template< typename IndexType >
 THClKernels *THClKernels::in(TensorInfo<IndexType>tensorInfo) {
-  TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensorInfo);
+  TensorInfoCl *tensorInfoCl = new TensorInfoCl();
+  initTensorInfoCl(tensorInfoCl, tensorInfo);
   kernel->in(1, tensorInfoCl);
   kernel->in(tensorInfo.wrapper);
   tensorInfoCls.push_back(tensorInfoCl);
@@ -108,7 +112,8 @@ THClKernels *THClKernels::in(TensorInfo<IndexType>tensorInfo) {
 }
 template< typename IndexType >
 THClKernels *THClKernels::inout(TensorInfo<IndexType>tensorInfo) {
-  TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensorInfo);
+  TensorInfoCl *tensorInfoCl = new TensorInfoCl();
+  initTensorInfoCl(tensorInfoCl, tensorInfo);
   kernel->in(1, tensorInfoCl);
   kernel->inout(tensorInfo.wrapper);
   tensorInfoCls.push_back(tensorInfoCl);
@@ -116,7 +121,8 @@ THClKernels *THClKernels::inout(TensorInfo<IndexType>tensorInfo) {
 }
 template< typename IndexType >
 THClKernels *THClKernels::out(TensorInfo<IndexType>tensorInfo) {
-  TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensorInfo);
+  TensorInfoCl *tensorInfoCl = new TensorInfoCl();
+  initTensorInfoCl(tensorInfoCl, tensorInfo);
   if( !tensorInfo.wrapper->isOnDevice() ) {
     tensorInfo.wrapper->createOnDevice();
   }

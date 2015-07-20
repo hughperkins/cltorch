@@ -15,9 +15,6 @@
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-// Maximum number of dimensions allowed for cltorch
-#define MAX_CLTORCH_DIMS 25
-
 // Warning string for tensor arguments that are too large or have too
 // many dimensions
 #define CLTORCH_STR(X) #X
@@ -170,60 +167,10 @@ TensorInfo<IndexType>::TensorInfo(THClState* state,
 }
 
 
-typedef struct TensorInfoCl {
-  TensorInfoCl( TensorInfo<unsigned int> info ) {
-    dims = info.dims;
-    if( info.offset > ( 1l << 30 ) ) {
-      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
-    }
-    offset = (int)info.offset;
-    for( int i = 0; i < dims; i++ ) {
-      sizes[i] = info.sizes[i];
-      strides[i] = info.strides[i];
-    }
-  }
-  TensorInfoCl( TensorInfo<unsigned long> info ) {
-    dims = info.dims;
-    if( info.offset > ( 1l << 30 ) ) {
-      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
-    }
-    offset = (int)info.offset;
-    for( int i = 0; i < dims; i++ ) {
-      if( info.sizes[i] > ( 1l << 31 ) ) {
-        throw std::runtime_error("size " + easycl::toString(info.sizes[i]) + " out of bounds");
-      }
-      sizes[i] = info.sizes[i];
-      strides[i] = info.strides[i];
-    }
-  }
-  TensorInfoCl( TensorInfo<unsigned long long> info ) {
-    dims = info.dims;
-    if( info.offset > ( 1l << 30 ) ) {
-      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
-    }
-    offset = (int)info.offset;
-    for( int i = 0; i < dims; i++ ) {
-      if( info.sizes[i] > ( 1l << 31 ) ) {
-        throw std::runtime_error("size " + easycl::toString(info.sizes[i]) + " out of bounds");
-      }
-      sizes[i] = info.sizes[i];
-      strides[i] = info.strides[i];
-    }
-  }
-  TensorInfoCl(THClTensor *tensor ) {
-    dims = tensor->nDimension;
-    for( int i = 0; i < dims; i++ ) {
-      sizes[i] = tensor->size[i];
-      strides[i] = tensor->stride[i];
-    }
-    offset = tensor->storageOffset;
-  }
-  unsigned int sizes[MAX_CLTORCH_DIMS];
-  unsigned int strides[MAX_CLTORCH_DIMS];
-  int offset;
-  int dims;
-} TensorInfoCl;
-
+void initTensorInfoCl(TensorInfoCl *self, TensorInfo<unsigned int> info );
+void initTensorInfoCl(TensorInfoCl *self, TensorInfo<unsigned long> info );
+void initTensorInfoCl(TensorInfoCl *self, TensorInfo<unsigned long long> info );
+void initTensorInfoCl(TensorInfoCl *self, THClTensor *tensor );
 
 // Translate a linear index for the apply to a float* offset;
 // specialized on `Dims` to reduce nvcc compilation time

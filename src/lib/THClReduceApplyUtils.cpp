@@ -120,6 +120,54 @@ bool THCL_overlappingIndices(THClState* state, THClTensor* t) {
   return false;
 }
 
+void initTensorInfoCl(TensorInfoCl *self, TensorInfo<unsigned int> info ) {
+    self->dims = info.dims;
+    if( info.offset > ( 1l << 30 ) ) {
+      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
+    }
+    self->offset = (int)info.offset;
+    for( int i = 0; i < self->dims; i++ ) {
+      self->sizes[i] = info.sizes[i];
+      self->strides[i] = info.strides[i];
+    }
+  }
+void initTensorInfoCl(TensorInfoCl *self, TensorInfo<unsigned long> info ) {
+    self->dims = info.dims;
+    if( info.offset > ( 1l << 30 ) ) {
+      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
+    }
+    self->offset = (int)info.offset;
+    for( int i = 0; i < self->dims; i++ ) {
+      if( info.sizes[i] > ( 1l << 31 ) ) {
+        throw std::runtime_error("size " + easycl::toString(info.sizes[i]) + " out of bounds");
+      }
+      self->sizes[i] = info.sizes[i];
+      self->strides[i] = info.strides[i];
+    }
+  }
+void initTensorInfoCl(TensorInfoCl *self, TensorInfo<unsigned long long> info ) {
+    self->dims = info.dims;
+    if( info.offset > ( 1l << 30 ) ) {
+      throw std::runtime_error("size " + easycl::toString(info.offset) + " out of bounds");
+    }
+    self->offset = (int)info.offset;
+    for( int i = 0; i < self->dims; i++ ) {
+      if( info.sizes[i] > ( 1l << 31 ) ) {
+        throw std::runtime_error("size " + easycl::toString(info.sizes[i]) + " out of bounds");
+      }
+      self->sizes[i] = info.sizes[i];
+      self->strides[i] = info.strides[i];
+    }
+  }
+void initTensorInfoCl(TensorInfoCl *self, THClTensor *tensor ) {
+    self->dims = tensor->nDimension;
+    for( int i = 0; i < self->dims; i++ ) {
+      self->sizes[i] = tensor->size[i];
+      self->strides[i] = tensor->stride[i];
+    }
+    self->offset = tensor->storageOffset;
+  }
+
 std::string THClReduceApplyUtils_getKernelTemplate() {
   // [[[cog
   // import stringify

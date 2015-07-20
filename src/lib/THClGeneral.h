@@ -3,6 +3,7 @@
 
 #include "THGeneral.h"
 #include "THAllocator.h"
+//#include "THClReduceApplyUtils.h"
 #undef log1p
 
 #ifdef __cplusplus
@@ -43,9 +44,25 @@ struct DeviceInfo;
 #include <iostream>
 #endif // __cplusplus
 
+// Maximum number of dimensions allowed for cltorch
+#define MAX_CLTORCH_DIMS 25
+
+typedef struct TensorInfoCl {
+  unsigned int sizes[MAX_CLTORCH_DIMS];
+  unsigned int strides[MAX_CLTORCH_DIMS];
+  int offset;
+  int dims;
+} TensorInfoCl;
+
 typedef struct THClScratchSpace {
   struct CLWrapper *wrapper;
   float *data;
+  TensorInfoCl info1;
+  TensorInfoCl info2;
+  TensorInfoCl info3;
+  struct CLWrapper *info1Wrap;
+  struct CLWrapper *info2Wrap;
+  struct CLWrapper *info3Wrap;
 } THClScratchSpace;
 
 /* Global state to be held in the cltorch table. */
