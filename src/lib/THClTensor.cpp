@@ -566,6 +566,7 @@ void THClTensor_resyncInfo(THClState *state, THClTensor *self) {
     delete self->infoWrappers[i];
   }
   self->infosCount = 0;
+//  cout << "thcltensor_resync" << endl;
 //  self->infoWrappers.clear();
 //  self->infos.clear();
 }
@@ -955,8 +956,11 @@ THCL_API CLWrapper *THClTensor_getInfoWrapper(THClState *state, THClTensor *self
       return self->infoWrappers[i];
     }
   }
-  cout << "creating new infowrapper..." << endl;
   int idx = (int)self->infosCount;
+//  if(idx >= 25) {
+//    THError("too many resizes; please raise an issue");
+//  }
+//  cout << "creating new infowrapper..." << idx << endl;
   self->infosCount++;
   self->infos[idx] = *info;
   EasyCL *cl = THClState_getClv2(state, self->device);

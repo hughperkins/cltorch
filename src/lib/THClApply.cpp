@@ -236,8 +236,22 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
 //  StatefulTimer::timeCheck("Apply2 5a");
   THClKernels k(state, kernel);
 //  StatefulTimer::timeCheck("Apply2 5");
-  k.out(aInfo);
-  k.in(bInfo);
+
+
+  TensorInfoCl aInfoCl;
+  TensorInfoCl bInfoCl;
+  initTensorInfoCl(&aInfoCl, aInfo);
+  initTensorInfoCl(&bInfoCl, bInfo);
+
+  CLWrapper *aInfoWrap = THClTensor_getInfoWrapper(state, aInfo.tensor, &aInfoCl);
+  CLWrapper *bInfoWrap = THClTensor_getInfoWrapper(state, bInfo.tensor, &bInfoCl);
+
+  k.in(aInfoWrap);
+  k.out(aInfo.wrapper);
+
+  k.in(bInfoWrap);
+  k.in(bInfo.wrapper);
+
   for( int i = 0; i < numScalars; i++ ) {
     k.in(hasScalars->getScalar(i));
   }
