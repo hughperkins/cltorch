@@ -59,13 +59,14 @@ struct TensorInfo {
   IndexType sizes[MAX_CLTORCH_DIMS];
   IndexType strides[MAX_CLTORCH_DIMS];
   int dims;
+  THClTensor *tensor;
 };
 
 template <typename IndexType>
 TensorInfo<IndexType>::TensorInfo(THClState* state,
                                   THClTensor* t,
                                   int reduceDim)
-    : wrapper(NULL), offset(0), dims(0) {
+    : wrapper(NULL), offset(0), dims(0), tensor(t) {
   int origDims = THClTensor_nDimension(state, t);
   assert(origDims <= MAX_CLTORCH_DIMS);
   assert(reduceDim < origDims);

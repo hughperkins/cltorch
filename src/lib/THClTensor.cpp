@@ -4,6 +4,7 @@
     #include "THClTensorCopy.h"
     #include "THAtomic.h"
 //}
+#include "EasyCL.h"
 #include "util/easycl_stringhelper.h"
 
 #include <iostream>
@@ -401,6 +402,7 @@ void THClTensor_narrow(THClState *state, THClTensor *self, THClTensor *src, int 
     self->storageOffset += firstIndex*self->stride[dimension];
 
   self->size[dimension] = size;
+  THClTensor_resyncInfo(state, self);
 }
 
 void THClTensor_select(THClState *state, THClTensor *self, THClTensor *src, int dimension, long sliceIndex)
@@ -422,6 +424,7 @@ void THClTensor_select(THClState *state, THClTensor *self, THClTensor *src, int 
     self->stride[d] = self->stride[d+1];
   }
   self->nDimension--;
+  THClTensor_resyncInfo(state, self);
 }
 
 void THClTensor_transpose(THClState *state, THClTensor *self, THClTensor *src, int dimension1, int dimension2)
@@ -446,6 +449,7 @@ void THClTensor_transpose(THClState *state, THClTensor *self, THClTensor *src, i
   z = self->size[dimension1];
   self->size[dimension1] = self->size[dimension2];
   self->size[dimension2] = z;
+  THClTensor_resyncInfo(state, self);
 }
 
 void THClTensor_unfold(THClState *state, THClTensor *self, THClTensor *src, int dimension, long size, long step)
@@ -489,6 +493,7 @@ void THClTensor_unfold(THClState *state, THClTensor *self, THClTensor *src, int 
   self->size = newSize;
   self->stride = newStride;
   self->nDimension++;
+  THClTensor_resyncInfo(state, self);
 }
 
 /* we have to handle the case where the result is a number */
@@ -523,6 +528,7 @@ void THClTensor_squeeze(THClState *state, THClTensor *self, THClTensor *src)
     ndim = 1;
   }
   self->nDimension = ndim;
+  THClTensor_resyncInfo(state, self);
 }
 
 void THClTensor_squeeze1d(THClState *state, THClTensor *self, THClTensor *src, int dimension)
@@ -545,6 +551,23 @@ void THClTensor_squeeze1d(THClState *state, THClTensor *self, THClTensor *src, i
     }
     self->nDimension--;
   }
+  THClTensor_resyncInfo(state, self);
+}
+
+void THClTensor_resyncInfo(THClState *state, THClTensor *self) {
+//  self->info.dims = self->nDimension;
+//  self->info.offset = self->storageOffset;
+//  for(int d = 0; d < self->info.dims; d++ ) {
+//    self->info.sizes[d] = self->size[d];
+//    self->info.strides[d] = self->stride[d];
+//  }
+//  self->infoWrapper->copyToDevice();  
+  for(int i = 0; i < (int)self->infosCount; i++) {
+    delete self->infoWrappers[i];
+  }
+  self->infosCount = 0;
+//  self->infoWrappers.clear();
+//  self->infos.clear();
 }
 
 int THClTensor_isContiguous(THClState *state, const THClTensor *self)
@@ -606,6 +629,9 @@ void THClTensor_free(THClState *state, THClTensor *self)
   {
     if(THAtomicDecrementRef(&self->refcount))
     {
+      for(int i = 0; i < (int)self->infosCount; i++) {
+        delete self->infoWrappers[i];
+      }
       THFree(self->size);
       THFree(self->stride);
       if(self->storage)
@@ -635,7 +661,11 @@ static void THClTensor_rawInit(THClState *state, int device, THClTensor *self)
   self->nDimension = -1;
   self->flag = TH_TENSOR_REFCOUNTED;
   self->device = device;
-//  self->storage = THClStorage_newv2(state, device);
+  self->infosCount = 0;
+//  EasyCL *cl = THClState_getClv2(state, device);
+//  self->info.dims = -1;
+//  self->infoWrapper = cl->wrap((sizeof(TensorInfoCl) + sizeof(unsigned char)-1) / sizeof(unsigned char), reinterpret_cast< unsigned char * >(&(self->info)));
+//  self->infoWrapper->copyToDevice();
 }
 
 static void THClTensor_rawSet(THClState *state, THClTensor *self, THClStorage *storage, long storageOffset, int nDimension, long *size, long *stride)
@@ -677,22 +707,27 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
     if(size[d] > 0)
     {
       nDimension_++;
-      if((self->nDimension > d) && (size[d] != self->size[d]))
+      if((self->nDimension > d) && (size[d] != self->size[d])) {
         hascorrectsize = 0;
+      }
 
-      if((self->nDimension > d) && stride && (stride[d] >= 0) && (stride[d] != self->stride[d]))
+      if((self->nDimension > d) && stride && (stride[d] >= 0) && (stride[d] != self->stride[d])) {
         hascorrectsize = 0;
+      }
     }
-    else
+    else {
       break;
+    }
   }
   nDimension = nDimension_;
 
-  if(nDimension != self->nDimension)
+  if(nDimension != self->nDimension) {
     hascorrectsize = 0;
+  }
 
-  if(hascorrectsize)
+  if(hascorrectsize) {
     return;
+  }
 
   if(nDimension >= 0)
   {
@@ -727,8 +762,11 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
         THClStorage_resize(state, self->storage, totalSize+self->storageOffset);
     }
   }
-  else
+  else {
     self->nDimension = 0;
+  }
+
+  THClTensor_resyncInfo(state, self);
 }
 
 void THClTensor_set1d(THClState *state, THClTensor *tensor, long x0, float value)
@@ -894,6 +932,37 @@ std::string THClTensor_toString(THClState *state, const THClTensor *tensor) {
 }
 
 EasyCL *THClTensor_getCl(THClState *state, const THClTensor *tensor) {
-  return tensor->storage->cl;
+  return THClState_getClv2(state, tensor->device);
+}
+
+THCL_API CLWrapper *THClTensor_getInfoWrapper(THClState *state, THClTensor *self, TensorInfoCl *info) {
+  for(int i = 0; i < (int)self->infosCount; i++) {
+    bool candidateOk = true;
+    TensorInfoCl *candidate = &(self->infos[i]);
+    if(info->dims != candidate->dims) {
+      continue;
+    }
+    if(info->offset != candidate->offset) {
+      continue;
+    }
+    for(int d = 0; candidateOk && d < info->dims; d++) {
+      if(info->sizes[d] != candidate->sizes[d] || info->strides[d] != candidate->strides[d]) {
+        candidateOk = false;
+        break;
+      }
+    }
+    if(candidateOk) {
+      return self->infoWrappers[i];
+    }
+  }
+  cout << "creating new infowrapper..." << endl;
+  int idx = (int)self->infosCount;
+  self->infosCount++;
+  self->infos[idx] = *info;
+  EasyCL *cl = THClState_getClv2(state, self->device);
+  CLWrapper *wrapper = cl->wrap((sizeof(TensorInfoCl) + sizeof(unsigned char)-1) / sizeof(unsigned char), reinterpret_cast< unsigned char * >(&(self->infos[idx])));
+  self->infoWrappers[idx] = wrapper;
+  wrapper->copyToDevice();
+  return wrapper;
 }
 

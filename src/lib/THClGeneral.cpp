@@ -58,9 +58,6 @@ void THClShutdown(THClState* state)
   for( int i = 0; i < state->allocatedDevices; i++ ) {
     delete state->clByDevice[i];
     delete state->scratchSpaceByDevice[i]->wrapper;
-    delete state->scratchSpaceByDevice[i]->info1Wrap;
-    delete state->scratchSpaceByDevice[i]->info2Wrap;
-    delete state->scratchSpaceByDevice[i]->info3Wrap;
     delete[] state->scratchSpaceByDevice[i]->data;
     delete (easycl::DeviceInfo*)state->deviceInfoByDevice[i];
   }
@@ -111,10 +108,6 @@ EasyCL *THClState_getClv2(THClState* state, int device) {
     scratch->data = new float[FLOATS_PER_SCRATCH_SPACE];
     scratch->wrapper = cl->wrap(FLOATS_PER_SCRATCH_SPACE, scratch->data);
     scratch->wrapper->createOnDevice();
-    int infoSizeFloats = (sizeof(TensorInfoCl) + sizeof(float) - 1) / sizeof(float);
-    scratch->info1Wrap = cl->wrap(infoSizeFloats, reinterpret_cast< float *>(&(scratch->info1)));
-    scratch->info2Wrap = cl->wrap(infoSizeFloats, reinterpret_cast< float *>(&(scratch->info2)));
-    scratch->info3Wrap = cl->wrap(infoSizeFloats, reinterpret_cast< float *>(&(scratch->info3)));
     state->scratchSpaceByDevice[device] = scratch;
     state->deviceInfoByDevice[device] = (struct DeviceInfo *)new easycl::DeviceInfo();
     *((easycl::DeviceInfo *)state->deviceInfoByDevice[device]) = easycl::DevicesInfo::getGpuInfo( device );

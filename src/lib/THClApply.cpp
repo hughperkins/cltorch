@@ -369,21 +369,24 @@ void kernelLaunch_pointwiseApply3(THClState *state, const int device, dim3 grid,
   THClKernels k(state, kernel);
 //  StatefulTimer::timeCheck("Apply3 a");
 
-  struct THClScratchSpace* scratchSpace = THClState_getDeviceScratchSpace(state, device, 0);
-  initTensorInfoCl(&scratchSpace->info1, aInfo);
-  initTensorInfoCl(&scratchSpace->info2, bInfo);
-  initTensorInfoCl(&scratchSpace->info3, cInfo);
-  scratchSpace->info1Wrap->copyToDevice();
-  scratchSpace->info2Wrap->copyToDevice();
-  scratchSpace->info3Wrap->copyToDevice();
+  TensorInfoCl aInfoCl;
+  TensorInfoCl bInfoCl;
+  TensorInfoCl cInfoCl;
+  initTensorInfoCl(&aInfoCl, aInfo);
+  initTensorInfoCl(&bInfoCl, bInfo);
+  initTensorInfoCl(&cInfoCl, cInfo);
 
-  k.in(scratchSpace->info1Wrap);
+  CLWrapper *aInfoWrap = THClTensor_getInfoWrapper(state, aInfo.tensor, &aInfoCl);
+  CLWrapper *bInfoWrap = THClTensor_getInfoWrapper(state, bInfo.tensor, &bInfoCl);
+  CLWrapper *cInfoWrap = THClTensor_getInfoWrapper(state, cInfo.tensor, &cInfoCl);
+
+  k.in(aInfoWrap);
   k.out(aInfo.wrapper);
 
-  k.in(scratchSpace->info2Wrap);
+  k.in(bInfoWrap);
   k.in(bInfo.wrapper);
 
-  k.in(scratchSpace->info3Wrap);
+  k.in(cInfoWrap);
   k.in(cInfo.wrapper);
 
   for( int i = 0; i < numScalars; i++ ) {
