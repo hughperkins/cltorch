@@ -135,7 +135,8 @@ def process_dir(cutorch_dir, port_dir, rel_dir):
       clfilename = original_filename.replace('.cuh', '.cl')
       clfilename = clfilename.replace('.cu', '.cl')
       clfilename = clfilename.replace('THC', 'THCl')
-      f = open(jp(cltorch_dst, filename), 'a')
+      clfilepath = jp(cltorch_dst, clfilename)
+      f = open(clfilepath, 'a')
       f.write('// from {rel_dir}/{filename}:\n\n'.format(
         rel_dir=rel_dir,
         filename=original_filename))
