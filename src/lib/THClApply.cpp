@@ -243,8 +243,9 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   initTensorInfoCl(&aInfoCl, aInfo);
   initTensorInfoCl(&bInfoCl, bInfo);
 
-  CLWrapper *aInfoWrap = THClTensor_getInfoWrapper(state, aInfo.tensor, &aInfoCl);
-  CLWrapper *bInfoWrap = THClTensor_getInfoWrapper(state, bInfo.tensor, &bInfoCl);
+  const int device = bInfo.tensor->device;
+  CLWrapper *aInfoWrap = THClGeneral_getInfoWrapper(state, device, &aInfoCl);
+  CLWrapper *bInfoWrap = THClGeneral_getInfoWrapper(state, device, &bInfoCl);
 
   k.in(aInfoWrap);
   k.out(aInfo.wrapper);
@@ -390,9 +391,9 @@ void kernelLaunch_pointwiseApply3(THClState *state, const int device, dim3 grid,
   initTensorInfoCl(&bInfoCl, bInfo);
   initTensorInfoCl(&cInfoCl, cInfo);
 
-  CLWrapper *aInfoWrap = THClTensor_getInfoWrapper(state, aInfo.tensor, &aInfoCl);
-  CLWrapper *bInfoWrap = THClTensor_getInfoWrapper(state, bInfo.tensor, &bInfoCl);
-  CLWrapper *cInfoWrap = THClTensor_getInfoWrapper(state, cInfo.tensor, &cInfoCl);
+  CLWrapper *aInfoWrap = THClGeneral_getInfoWrapper(state, device, &aInfoCl);
+  CLWrapper *bInfoWrap = THClGeneral_getInfoWrapper(state, device, &bInfoCl);
+  CLWrapper *cInfoWrap = THClGeneral_getInfoWrapper(state, device, &cInfoCl);
 
   k.in(aInfoWrap);
   k.out(aInfo.wrapper);

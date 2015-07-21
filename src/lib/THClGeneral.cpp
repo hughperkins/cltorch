@@ -12,6 +12,9 @@
 //#include "THCBlas.h"
 //#include "THCAllocator.h"
 
+#include <iostream>
+using namespace std;
+
 /* Size of scratch space available in global memory per each SM + stream */
 #define FLOATS_PER_SCRATCH_SPACE 4
 #define GLOBAL_SCRATCH_SPACE_PER_SM_STREAM (FLOATS_PER_SCRATCH_SPACE) * sizeof(float)
@@ -23,7 +26,6 @@ void THClInit(THClState* state)
   state->scratchSpaceByDevice = new THClScratchSpace *[state->allocatedDevices];
   state->trace = 0;
   state->addFinish = 0;
-//  state->workgroupSizeByDevice = new int[state->allocatedDevices];
   state->deviceInfoByDevice = (struct DeviceInfo **) new easycl::DeviceInfo *[state->allocatedDevices];
   for(int i = 0; i < state->allocatedDevices; i++) {
     state->clByDevice[i] = 0;
@@ -31,15 +33,11 @@ void THClInit(THClState* state)
     state->deviceInfoByDevice[i] = 0;
   }
   state->currentDevice = 0;
-  //state->cl = EasyCL::createForFirstGpuOtherwiseCpu(); // obviously this should change...
 
-    cl_int err;
-
-    err = clblasSetup();
-    if (err != CL_SUCCESS) {
-        THError("clblasSetup() failed with %d", err);
-    }
-
+  cl_int err = clblasSetup();
+  if (err != CL_SUCCESS) {
+      THError("clblasSetup() failed with %d", err);
+  }
 }
 
 void THClShutdown(THClState* state)
@@ -56,6 +54,13 @@ void THClShutdown(THClState* state)
 //  delete state->clByDevice;
     clblasTeardown();
   for( int i = 0; i < state->allocatedDevices; i++ ) {
+    THClScratchSpace *scratch = state->scratchSpaceByDevice[i];
+    if(scratch != 0) {
+      for(int j = 0; j < scratch->infosCount; j++) {
+        delete scratch->infos[j];
+        delete scratch->infoWrappers[j];
+      }
+    }
     delete state->clByDevice[i];
     delete state->scratchSpaceByDevice[i]->wrapper;
     delete[] state->scratchSpaceByDevice[i]->data;
@@ -108,6 +113,7 @@ EasyCL *THClState_getClv2(THClState* state, int device) {
     scratch->data = new float[FLOATS_PER_SCRATCH_SPACE];
     scratch->wrapper = cl->wrap(FLOATS_PER_SCRATCH_SPACE, scratch->data);
     scratch->wrapper->createOnDevice();
+    scratch->infosCount = 0;
     state->scratchSpaceByDevice[device] = scratch;
     state->deviceInfoByDevice[device] = (struct DeviceInfo *)new easycl::DeviceInfo();
     *((easycl::DeviceInfo *)state->deviceInfoByDevice[device]) = easycl::DevicesInfo::getGpuInfo( device );
@@ -162,5 +168,62 @@ size_t THClState_getDeviceScratchSpaceSize(THClState* state, int device)
   return GLOBAL_SCRATCH_SPACE_PER_SM_STREAM; // true currently since we only have
              // one stream per device, currently
 //  return res->scratchSpacePerStream;
+}
+
+template< typename T >
+void swap( T*array, int first, int second) {
+  T old = array[first];
+  array[first] = array[second];
+  array[second] = old;
+}
+
+// I guess we can just scan from the start of the infos, and swap with the one earlier than it
+// each time
+// which should approximately make the most common ones first, and is easy to do :-P
+// we probably want to somehow make an associative array of course...
+THCL_API CLWrapper *THClGeneral_getInfoWrapper(THClState *state, int device, TensorInfoCl *info) {
+  THClScratchSpace *scratch = state->scratchSpaceByDevice[device];
+  for(int i = 0; i < scratch->infosCount; i++) {
+    bool candidateOk = true;
+    TensorInfoCl *candidate = scratch->infos[i];
+    if(info->dims != candidate->dims) {
+      continue;
+    }
+    if(info->offset != candidate->offset) {
+      continue;
+    }
+    for(int d = 0; candidateOk && d < info->dims; d++) {
+      if(info->sizes[d] != candidate->sizes[d] || info->strides[d] != candidate->strides[d]) {
+        candidateOk = false;
+        break;
+      }
+    }
+    if(candidateOk) {
+      CLWrapper *wrapper = scratch->infoWrappers[i];
+      if(i > 0 ) {
+        int prev = i - 1;
+        swap(scratch->infoWrappers, prev, i);
+        swap(scratch->infos, prev, i);
+      }
+      return wrapper;
+    }
+  }
+  int idx = scratch->infosCount;
+  cout << "allocate new info, idx " << idx << endl;
+  if(idx >= MAX_INFOS) {
+    idx = scratch->infosCount - 1;
+    *(scratch->infos[idx]) = *info;
+    scratch->infoWrappers[idx]->copyToDevice();
+    return scratch->infoWrappers[idx];
+  }
+  scratch->infosCount++;
+  scratch->infos[idx] = new TensorInfoCl();
+  *(scratch->infos[idx]) = *info;
+  EasyCL *cl = THClState_getClv2(state, device);
+  CLWrapper *wrapper = cl->wrap((sizeof(TensorInfoCl) + sizeof(unsigned char)-1) / sizeof(unsigned char), reinterpret_cast< unsigned char * >(scratch->infos[idx]));
+  scratch->infoWrappers[idx] = wrapper;
+  wrapper->copyToDevice();
+
+  return wrapper;
 }
 

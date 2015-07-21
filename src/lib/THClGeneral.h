@@ -47,9 +47,24 @@ struct DeviceInfo;
 // Maximum number of dimensions allowed for cltorch
 #define MAX_CLTORCH_DIMS 25
 
+typedef struct TensorInfoCl {
+  unsigned int sizes[MAX_CLTORCH_DIMS];
+  unsigned int strides[MAX_CLTORCH_DIMS];
+  int offset;
+  int dims;
+} TensorInfoCl;
+
+#define MAX_INFOS 100
+
 typedef struct THClScratchSpace {
   struct CLWrapper *wrapper;
   float *data;
+
+  int infosCount;
+  TensorInfoCl *infos[MAX_INFOS];
+  struct CLWrapper *infoWrappers[MAX_INFOS];
+//    std::vector< TensorInfoCl > infos;
+//    std::vector< CLWrapper *> infoWrappers;
 } THClScratchSpace;
 
 /* Global state to be held in the cltorch table. */
@@ -68,6 +83,8 @@ typedef struct THClState
   struct EasyCL **clByDevice;
  // EasyCL *getCl();  
 } THClState;
+
+THCL_API struct CLWrapper *THClGeneral_getInfoWrapper(THClState *state, int device, TensorInfoCl *info);
 
 THCL_API void THClInit(THClState* state);
 THCL_API void THClShutdown(THClState* state);

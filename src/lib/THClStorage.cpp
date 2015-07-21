@@ -179,14 +179,24 @@ void THClStorage_resize(THClState *state, THClStorage *self, long size)
   if( size <= self->size ) {
     return;
   }
+  if(state->trace && self->wrapper != 0) cout << "resize storage delete wrapper size " << self->size << endl;
   delete self->wrapper;
-  if(state->trace && self->size > 0) cout << "delete wrapper" << endl;
+
+   static int count  = 0;
+  if( size == 50 ) {
+    count++;
+    if(count >=600) {
+//      THError("count size 50");
+    }
+  }
+
+//  if(state->trace && self->size > 0) cout << "resize storage delete wrapper"   << endl;
   delete[] self->data;
   self->data = new float[size];
   EasyCL *cl = self->cl;
   self->wrapper = cl->wrap( size, self->data );
   self->wrapper->createOnDevice();
-    if(state->trace) cout << "new wrapper, size " << size << endl;
+  if(state->trace) cout << "resize storage new wrapper, size " << size << endl;
   self->size = size;
 }
 

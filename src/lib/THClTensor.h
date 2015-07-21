@@ -5,18 +5,7 @@
 #include "THClStorage.h"
 #include "THClGeneral.h"
 
-//#include <vector>
-
 #define TH_TENSOR_REFCOUNTED 1
-
-//struct CLWrapper;
-
-typedef struct TensorInfoCl {
-  unsigned int sizes[MAX_CLTORCH_DIMS];
-  unsigned int strides[MAX_CLTORCH_DIMS];
-  int offset;
-  int dims;
-} TensorInfoCl;
 
 typedef struct THClTensor
 {
@@ -29,18 +18,9 @@ typedef struct THClTensor
     int refcount;
 
     char flag;
-
     int device;
-
-    int infosCount;
-    TensorInfoCl infos[25];
-    struct CLWrapper *infoWrappers[25];
-//    std::vector< TensorInfoCl > infos;
-//    std::vector< CLWrapper *> infoWrappers;
 } THClTensor;
 
-
-THCL_API struct CLWrapper *THClTensor_getInfoWrapper(THClState *state, THClTensor *self, TensorInfoCl *info);
 
 /**** access methods ****/
 THCL_API THClStorage* THClTensor_storage(THClState *state, const THClTensor *self);
@@ -151,8 +131,6 @@ THCL_API float THClTensor_get4d(THClState *state, const THClTensor *tensor, long
 //THCL_API cudaTextureObject_t THClTensor_getTextureObject(THClState *state, THClTensor *self);
 THCL_API int THClTensor_getDevice(THClState *state, const THClTensor *self);
 THCL_API int THClTensor_checkGPU(THClState *state, unsigned int nTensors, ...);
-
-void THClTensor_resyncInfo(THClState *state, THClTensor *self);
 
 // new
 #ifdef __cplusplus
