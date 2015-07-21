@@ -88,6 +88,13 @@ static int torch_Storage_(new)(lua_State *L)
   return 1;
 }
 
+static int torch_Storage_(retain)(lua_State *L)
+{
+  THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
+  THStorage_(retain)(cltorch_getstate(L), storage);
+  return 0;
+}
+
 static int torch_Storage_(free)(lua_State *L)
 {
   THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
@@ -258,6 +265,8 @@ static int torch_Storage_(read)(lua_State *L)
 }
 
 static const struct luaL_Reg torch_Storage_(_) [] = {
+  {"retain", torch_Storage_(retain)},
+  {"free", torch_Storage_(free)},
   {"size", torch_Storage_(__len__)},
   {"__len__", torch_Storage_(__len__)},
   {"__newindex__", torch_Storage_(__newindex__)},
