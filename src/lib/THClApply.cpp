@@ -979,7 +979,7 @@ std::string get_template() {
   "kernel void\n" 
   "THClTensor_pointwiseApplyD(\n" 
   "   {% for input_idx=1,num_tensors do %}\n" 
-  "    constant TensorInfoCl *info_{{input_idx}},\n" 
+  "    INFO_MEMTYPE TensorInfoCl *info_{{input_idx}},\n" 
   "    global float*data_{{input_idx}},\n" 
   "   {% end %}\n" 
   "   {% for i=1,num_scalars do %}\n" 

@@ -1,3 +1,5 @@
+#define INFO_MEMTYPE global
+
 // kernel argument that defines tensor layout
 typedef struct TensorInfoCl {
   // Extracts size/stride information for the kernel.
@@ -15,7 +17,7 @@ typedef struct TensorInfoCl {
 // Contiguous tensors of more than one dimension are collapsed down
 // to one tensor
 {% if defiscontiguous==1 then %}
-inline bool TensorInfo_isContiguous( constant TensorInfoCl *tensorInfo ) {
+inline bool TensorInfo_isContiguous( INFO_MEMTYPE TensorInfoCl *tensorInfo ) {
     return (tensorInfo->dims == 1 && tensorInfo->strides[0] == 1);    
 }
 {% end %}
@@ -23,7 +25,7 @@ inline bool TensorInfo_isContiguous( constant TensorInfoCl *tensorInfo ) {
 // Translate a linear index for the apply to a float* offset;
 // specialized on `Dims` to reduce nvcc compilation time
 {% for _,dim in ipairs(dims) do %}
-inline {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, constant TensorInfoCl *info) {
+inline {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, INFO_MEMTYPE TensorInfoCl *info) {
   {{IndexType}} offset = info->offset;
 
   // Use static dims
@@ -45,11 +47,11 @@ inline {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, c
 }
 {% end %}
 
-inline {{IndexType}} IndexToOffset_998_get({{IndexType}} linearId, constant const TensorInfoCl *info) {
+inline {{IndexType}} IndexToOffset_998_get({{IndexType}} linearId, INFO_MEMTYPE const TensorInfoCl *info) {
     return linearId + info->offset;
 }
 
-inline {{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, constant const TensorInfoCl *info) {
+inline {{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, INFO_MEMTYPE const TensorInfoCl *info) {
   {{IndexType}} offset = info->offset;
 
   // Use dynamic dims
