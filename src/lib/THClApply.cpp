@@ -117,7 +117,16 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
       StatefulTimer::timeCheck("Apply1 compiled");
   }
   THClKernels k(state, kernel);
-  k.out(aInfo);
+
+  const int device = aInfo.tensor->device;
+
+  TensorInfoCl aInfoCl;
+  initTensorInfoCl(&aInfoCl, aInfo);
+  CLWrapper *aInfoWrap = THClGeneral_getInfoWrapper(state, device, &aInfoCl);
+
+  k.in(aInfoWrap);
+  k.inout(aInfo.wrapper);
+
   for( int i = 0; i < numScalars; i++ ) {
     k.in(hasScalars->getScalar(i));
   }
