@@ -30,10 +30,8 @@ THCL_API float THClTensor_minall(THClState *state, THClTensor *self);
 THCL_API float THClTensor_maxall(THClState *state, THClTensor *self);
 THCL_API float THClTensor_sumall(THClState *state, THClTensor *self);
 THCL_API float THClTensor_prodall(THClState *state, THClTensor *self);
-
 THCL_API void THClTensor_min(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dim);
 THCL_API void THClTensor_max(THClState *state, THClTensor *values, THClTensor *indices, THClTensor *src, long dim);
-
 THCL_API void THClTensor_sum(THClState *state, THClTensor *self, THClTensor *src, long dim);
 THCL_API void THClTensor_prod(THClState *state, THClTensor *self, THClTensor *src, long dim);
 THCL_API void THClTensor_cumsum(THClState *state, THClTensor *self, THClTensor *src, long dim);
@@ -71,7 +69,7 @@ THCL_API void THClTensor_floor(THClState *state, THClTensor *self, THClTensor *s
 THCL_API void THClTensor_abs(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_sign(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_round(THClState *state, THClTensor *self, THClTensor *src);
-TH_API void THClTensor_atan2(THClState *state, THClTensor *r_, THClTensor *tx, THClTensor *ty);
+THCL_API void THClTensor_atan2(THClState *state, THClTensor *r_, THClTensor *tx, THClTensor *ty);
 
 
 THCL_API void THClTensor_ltValue(THClState *state, THClTensor *self_, THClTensor *src, float value);
@@ -102,17 +100,21 @@ THCL_API float THClTensor_dist(THClState *state, THClTensor *self, THClTensor *s
 THCL_API void THClTensor_rand(THClState *state, THClTensor *r_, THLongStorage *size);
 THCL_API void THClTensor_randn(THClState *state, THClTensor *r_, THLongStorage *size);
 
-THCL_API void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, THClTensor *src);
-THCL_API void THClTensor_indexFill(THClState *state, THClTensor *tensor, int dim, THLongTensor *index, float val);
-THCL_API void THClTensor_indexSelect(THClState *state, THClTensor *tensor, THClTensor *src, int dim, THLongTensor *index);
+THCL_API void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THClTensor *indices, THClTensor *src);
+THCL_API void THClTensor_indexFill(THClState *state, THClTensor *tensor, int dim, THClTensor *index, float val);
+THCL_API void THClTensor_indexSelect(THClState *state, THClTensor *tensor, THClTensor *src, int dim, THClTensor *index);
 
-THCL_API void THClTensor_maskedFill(THClState *state, THClTensor *tensor, THClTensor *mask, float value);
-THCL_API void THClTensor_maskedCopy(THClState *state, THClTensor *tensor, THClTensor *mask, THClTensor *src);
-THCL_API void THClTensor_maskedSelect(THClState *state, THClTensor *tensor, THClTensor *src, THClTensor *mask);
+THCL_API void THClTensor_indexCopy_long(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, THClTensor *src);
+THCL_API void THClTensor_indexFill_long(THClState *state, THClTensor *tensor, int dim, THLongTensor *index, float val);
+THCL_API void THClTensor_indexSelect_long(THClState *state, THClTensor *tensor, THClTensor *src, int dim, THLongTensor *index);
 
-THCL_API void THClTensor_maskedFillByte(THClState *state, THClTensor *tensor, THByteTensor *mask, float value);
-THCL_API void THClTensor_maskedCopyByte(THClState *state, THClTensor *tensor, THByteTensor *mask, THClTensor *src);
-THCL_API void THClTensor_maskedSelectByte(THClState *state, THClTensor *tensor, THClTensor *src, THByteTensor *mask);
+THCL_API void THClTensor_maskedFill(THClState* state, THClTensor *tensor, THClTensor *mask, float value);
+THCL_API void THClTensor_maskedCopy(THClState* state, THClTensor *tensor, THClTensor *mask, THClTensor *src);
+THCL_API void THClTensor_maskedSelect(THClState* state, THClTensor *tensor, THClTensor *src, THClTensor *mask);
+
+THCL_API void THClTensor_maskedFillByte(THClState* state, THClTensor *tensor, THByteTensor *mask, float value);
+THCL_API void THClTensor_maskedCopyByte(THClState* state, THClTensor *tensor, THByteTensor *mask, THClTensor *src);
+THCL_API void THClTensor_maskedSelectByte(THClState* state, THClTensor *tensor, THClTensor *src, THByteTensor *mask);
 
 THCL_API int THClTensor_logicalall(THClState *state, THClTensor *self);
 THCL_API int THClTensor_logicalany(THClState *state, THClTensor *self);
