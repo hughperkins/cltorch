@@ -14,13 +14,24 @@ using namespace std;
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
-std::string THClTensorIndex_getKernelTemplate();
+static std::string getKernelTemplate();
 
-void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, THClTensor *src)
+void THClTensor_indexCopy_long(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, THClTensor *src)
+{
+  THAssert(THClTensor_checkGPU(state, 1, res_));
+
+  THClTensor *indices_ = THClTensor_newWithSize1d(state, src->storage->device, indices->size[0]);
+  THClTensor_copyLong(state, indices_, indices);
+
+  THClTensor_indexCopy(state, res_, dim, indices_, src);
+
+  THClTensor_free(state, indices_);
+}
+
+void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THClTensor *indices, THClTensor *src)
 {
   StatefulTimer::timeCheck("THClTensor_indeCopy START");
   THAssert(THClTensor_checkGPU(state, 2, res_, src));
-  THClTensor *indices_;
   int *stride_;
   int nIndex = indices->size[0];
   int nRes;
@@ -31,8 +42,7 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
   THArgCheck(nIndex == src->size[dim], 4, "length of src.size[dim] is not equal to length of indices");
 
   src = THClTensor_newContiguous(state, src);
-  indices_ = THClTensor_newWithSize1d(state, src->storage->device, nIndex);
-  THClTensor_copyLong(state, indices_, indices);
+  indices = THClTensor_newContiguous(state, indices);
 
   nRes = THClTensor_nElement(state, res_);
   dim3 nthreads(16, 16);
@@ -55,14 +65,14 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
     TemplatedKernel kernelBuilder(cl);
 
     kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
-      THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexCopy");
+      getKernelTemplate(), "THClTensor_kernel_indexCopy");
   }
 
   THClKernels k(state, kernel);
   k.inout(res_);
   k.in(src);
   k.in(strideWrapper);
-  k.in(indices_);
+  k.in(indices);
 
   k.in((int)(res_->nDimension));
   k.in((int)dim);
@@ -76,17 +86,28 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THLongTen
   delete strideWrapper;
   delete[] stride_;
 
-  THClTensor_free(state, indices_);
+  THClTensor_free(state, indices);
   THClTensor_free(state, src);
   if(state->addFinish) cl->finish();  
   StatefulTimer::timeCheck("THClTensor_indexCopy END");
 }
 
-void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, float val)
+void THClTensor_indexFill_long(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, float val)
+{
+  THAssert(THClTensor_checkGPU(state, 1, res_));
+
+  THClTensor *indices_ = THClTensor_newWithSize1d(state, res_->storage->device, indices->size[0]);
+  THClTensor_copyLong(state, indices_, indices);
+
+  THClTensor_indexFill(state, res_, dim, indices_, val);
+
+  THClTensor_free(state, indices_);
+}
+
+void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THClTensor *indices, float val)
 {
   StatefulTimer::timeCheck("THClTensor_indexFill START");
   THAssert(THClTensor_checkGPU(state, 1, res_));
-  THClTensor *indices_;
   int *stride_;
   long nIndex = indices->size[0];
   long nRes;
@@ -95,10 +116,8 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
   THArgCheck(dim < res_->nDimension,4,"Indexing dim is out of bounds");
   THArgCheck(res_->nDimension > 0, 2, "Source tensor is empty");
 
-  indices_ = THClTensor_newWithSize1d(state, res_->storage->device, nIndex);
-  THClTensor_copyLong(state, indices_, indices);
-
   nRes = THClTensor_nElement(state, res_) / res_->size[dim] * nIndex;
+  indices = THClTensor_newContiguous(state, indices);
 
   dim3 nthreads(16, 16);
   dim3 nblocks(ceil((float)nRes / nIndex / (16*16)));
@@ -121,13 +140,13 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
     TemplatedKernel kernelBuilder(cl);
 
     kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
-      THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexFill");
+      getKernelTemplate(), "THClTensor_kernel_indexFill");
   }
 
   THClKernels k(state, kernel);
   k.inout(res_);
   k.in(strideWrapper);
-  k.in(indices_);
+  k.in(indices);
   k.in((int)(res_->nDimension));
   k.in((int)dim);
   k.in((int)nIndex);
@@ -138,17 +157,29 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THLongTen
 
   delete strideWrapper;
   delete[] stride_;
-  THClTensor_free(state, indices_);
+  THClTensor_free(state, indices);
   if(state->addFinish) cl->finish();  
   StatefulTimer::timeCheck("THClTensor_indexFill END");
 }
 
-void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src, int dim, THLongTensor *indices)
+void THClTensor_indexSelect_long(THClState *state, THClTensor *res_, THClTensor *src, int dim, THLongTensor *indices)
+{
+  THAssert(THClTensor_checkGPU(state, 2, res_, src));
+
+  THClTensor *indices_ = THClTensor_newWithSize1d(state, src->storage->device, indices->size[0]);
+  THClTensor_copyLong(state, indices_, indices);
+
+  THClTensor_indexSelect(state, res_, src, dim, indices_);
+
+  THClTensor_free(state, indices_);
+}
+
+void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src, int dim, THClTensor *indices)
 {
   StatefulTimer::timeCheck("THClTensor_indexSelect START");
   THAssert(THClTensor_checkGPU(state, 2, res_, src));
+  THClTensor *res;
   THLongStorage *newSize;
-  THClTensor *indices_;
   int *stride_;
   int nIndex = indices->size[0];
   int nRes;
@@ -163,12 +194,12 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   THClTensor_resize(state, res_, newSize, NULL);
   THLongStorage_free(newSize);
 
+  res = THClTensor_newContiguous(state, res_);
+  indices = THClTensor_newContiguous(state, indices);
+
   EasyCL *cl = src->storage->cl;
 
-  indices_ = THClTensor_newWithSize1d(state, src->storage->device, nIndex);
-  THClTensor_copyLong(state, indices_, indices);
-
-  nRes = THClTensor_nElement(state, res_);
+  nRes = THClTensor_nElement(state, res);
   dim3 nthreads(16, 16);
   dim3 nblocks(ceil((float)nRes / nIndex / (16*16)));
 
@@ -184,19 +215,19 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
-    StatefulTimer::timeCheck("Apply3 1aa");
   } else {
     TemplatedKernel kernelBuilder(cl);
 
     kernel = kernelBuilder.buildKernel(uniqueName, "THClTensorIndex.cl",
-      THClTensorIndex_getKernelTemplate(), "THClTensor_kernel_indexSelect");
+      getKernelTemplate(), "THClTensor_kernel_indexSelect");
+    StatefulTimer::timeCheck("IndexSelect compiled kernel");
   }
 
   THClKernels k(state, kernel);
-  k.inout(res_);
+  k.inout(res);
   k.in(src);
   k.in(strideWrapper);
-  k.in(indices_);
+  k.in(indices);
 
   k.in((int)(src->nDimension));
   k.in((int)dim);
@@ -209,12 +240,13 @@ void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src,
   delete strideWrapper;
   delete[] stride_;
 
-  THClTensor_free(state, indices_);
+  THClTensor_free(state, indices);
+  THClTensor_freeCopyTo(state, res, res_);
   if(state->addFinish) cl->finish();  
   StatefulTimer::timeCheck("THClTensor_indexSelect END");
 }
 
-std::string THClTensorIndex_getKernelTemplate() {
+std::string getKernelTemplate() {
   // [[[cog
   // import stringify
   // stringify.write_kernel( "kernel", "THClTensorIndex.cl" )
