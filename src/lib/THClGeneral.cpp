@@ -5,6 +5,7 @@
 #include "EasyCL.h"
 #include <clBLAS.h>
 #include "DeviceInfo.h"
+#include "util/StatefulTimer.h"
 
 //using namespace easycl;
 
@@ -182,6 +183,7 @@ void swap( T*array, int first, int second) {
 // which should approximately make the most common ones first, and is easy to do :-P
 // we probably want to somehow make an associative array of course...
 THCL_API CLWrapper *THClGeneral_getInfoWrapper(THClState *state, int device, TensorInfoCl *info) {
+  StatefulTimer::timeCheck("THClGeneral_getInfoWrapper START");
   THClScratchSpace *scratch = state->scratchSpaceByDevice[device];
   for(int i = 0; i < scratch->infosCount; i++) {
     bool candidateOk = true;
@@ -205,6 +207,7 @@ THCL_API CLWrapper *THClGeneral_getInfoWrapper(THClState *state, int device, Ten
         swap(scratch->infoWrappers, prev, i);
         swap(scratch->infos, prev, i);
       }
+      StatefulTimer::timeCheck("THClGeneral_getInfoWrapper END");
       return wrapper;
     }
   }
@@ -214,6 +217,7 @@ THCL_API CLWrapper *THClGeneral_getInfoWrapper(THClState *state, int device, Ten
     idx = scratch->infosCount - 1;
     *(scratch->infos[idx]) = *info;
     scratch->infoWrappers[idx]->copyToDevice();
+    StatefulTimer::timeCheck("THClGeneral_getInfoWrapper END");
     return scratch->infoWrappers[idx];
   }
   scratch->infosCount++;
@@ -224,6 +228,7 @@ THCL_API CLWrapper *THClGeneral_getInfoWrapper(THClState *state, int device, Ten
   scratch->infoWrappers[idx] = wrapper;
   wrapper->copyToDevice();
 
+  StatefulTimer::timeCheck("THClGeneral_getInfoWrapper END");
   return wrapper;
 }
 

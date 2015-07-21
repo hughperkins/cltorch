@@ -45,7 +45,7 @@ struct DeviceInfo;
 #endif // __cplusplus
 
 // Maximum number of dimensions allowed for cltorch
-#define MAX_CLTORCH_DIMS 25
+#define MAX_CLTORCH_DIMS 5
 
 typedef struct TensorInfoCl {
   unsigned int sizes[MAX_CLTORCH_DIMS];

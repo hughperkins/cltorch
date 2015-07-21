@@ -28,9 +28,9 @@ inline {{IndexType}} getReduceNoncontigDimSliceIndex() {
 
 // Kernel that handles an entire reduction of a slice of a tensor per each thread
 kernel void
-THClTensor_reduceNoncontigDim(global TensorInfoCl *out_info,
+THClTensor_reduceNoncontigDim(constant TensorInfoCl *out_info,
                               global float *out_data,
-                              global TensorInfoCl *in_info,
+                              constant TensorInfoCl *in_info,
                               global float *in_data,
                               int reductionStride,
                               int reductionSize,
@@ -70,9 +70,9 @@ inline {{IndexType}} getReduceContigDimSliceIndex() {
 // Kernel that handles an entire reduction of a slice of a tensor per
 // each block
 kernel void
-THClTensor_reduceContigDim(global TensorInfoCl *out_info,
+THClTensor_reduceContigDim(constant TensorInfoCl *out_info,
                            global float *out_data,
-                           global TensorInfoCl *in_info,
+                           constant TensorInfoCl *in_info,
                            global float *in_data,
                            int reductionSize,
                            int totalSlices,

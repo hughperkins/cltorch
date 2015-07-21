@@ -115,7 +115,16 @@ void kernelLaunch_THClTensor_reduceAllPass1(
   }
 
   THClKernels k(state, kernel);
-  k.in(in);
+
+  int device = in.tensor->device;
+  TensorInfoCl aInfoCl;
+  initTensorInfoCl(&aInfoCl, in);
+  CLWrapper *aInfoWrap = THClGeneral_getInfoWrapper(state, device, &aInfoCl);
+
+  k.in(aInfoWrap);
+  k.inout(in.wrapper);
+
+//  k.in(in);
   k.in((int)totalElements);
   k.in(init);
   k.out(scratch);
@@ -216,7 +225,16 @@ void kernelLaunch_THClTensor_reduceAll(
   }
 
   THClKernels k(state, kernel);
-  k.in(in);
+
+  int device = in.tensor->device;
+  TensorInfoCl aInfoCl;
+  initTensorInfoCl(&aInfoCl, in);
+  CLWrapper *aInfoWrap = THClGeneral_getInfoWrapper(state, device, &aInfoCl);
+
+  k.in(aInfoWrap);
+  k.inout(in.wrapper);
+
+//  k.in(in);
   k.in((int)totalElements);
   k.in(init);
   k.out(devOut);
@@ -424,7 +442,7 @@ std::string getKernelTemplate() {
   "\n" 
   "// Kernel that handles an entire reduction of a tensor in one pass\n" 
   "kernel void\n" 
-  "THClTensor_reduceAll(global TensorInfoCl *in_info,\n" 
+  "THClTensor_reduceAll(constant TensorInfoCl *in_info,\n" 
   "                     global float *in_data,\n" 
   "                     {{IndexType}} totalElements,\n" 
   "                     float init,\n" 
@@ -458,7 +476,7 @@ std::string getKernelTemplate() {
   "\n" 
   "// Kernel that handles an entire reduction of a tensor in two passes\n" 
   "kernel void\n" 
-  "THClTensor_reduceAllPass1(global TensorInfoCl *in_info,\n" 
+  "THClTensor_reduceAllPass1(constant TensorInfoCl *in_info,\n" 
   "                          global float *in_data,\n" 
   "                          {{IndexType}} totalElements,\n" 
   "                          float init,\n" 

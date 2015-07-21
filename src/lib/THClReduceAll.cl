@@ -22,7 +22,7 @@ inline float reduceOp(float _in1, float _in2) {
 
 // Kernel that handles an entire reduction of a tensor in one pass
 kernel void
-THClTensor_reduceAll(global TensorInfoCl *in_info,
+THClTensor_reduceAll(constant TensorInfoCl *in_info,
                      global float *in_data,
                      {{IndexType}} totalElements,
                      float init,
@@ -56,7 +56,7 @@ inline {{IndexType}} getEndIndex({{IndexType}} totalSize) {
 
 // Kernel that handles an entire reduction of a tensor in two passes
 kernel void
-THClTensor_reduceAllPass1(global TensorInfoCl *in_info,
+THClTensor_reduceAllPass1(constant TensorInfoCl *in_info,
                           global float *in_data,
                           {{IndexType}} totalElements,
                           float init,

@@ -117,8 +117,22 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
   }
 
   THClKernels k(state, kernel);
-  k.out(out);
-  k.in(in);
+
+  TensorInfoCl aInfoCl;
+  TensorInfoCl bInfoCl;
+  initTensorInfoCl(&aInfoCl, out);
+  initTensorInfoCl(&bInfoCl, in);
+
+  const int device = in.tensor->device;
+  CLWrapper *aInfoWrap = THClGeneral_getInfoWrapper(state, device, &aInfoCl);
+  CLWrapper *bInfoWrap = THClGeneral_getInfoWrapper(state, device, &bInfoCl);
+
+  k.in(aInfoWrap);
+  k.out(out.wrapper);
+
+  k.in(bInfoWrap);
+  k.in(in.wrapper);
+
   k.in((int)reductionStride);
   k.in((int)reductionSize);
   k.in((int)totalSlices);
@@ -193,8 +207,22 @@ void kernelLaunch_THClTensor_reduceContigDim(
   }
 
   THClKernels k(state, kernel);
-  k.out(out);
-  k.in(in);
+
+  TensorInfoCl aInfoCl;
+  TensorInfoCl bInfoCl;
+  initTensorInfoCl(&aInfoCl, out);
+  initTensorInfoCl(&bInfoCl, in);
+
+  const int device = in.tensor->device;
+  CLWrapper *aInfoWrap = THClGeneral_getInfoWrapper(state, device, &aInfoCl);
+  CLWrapper *bInfoWrap = THClGeneral_getInfoWrapper(state, device, &bInfoCl);
+
+  k.in(aInfoWrap);
+  k.out(out.wrapper);
+
+  k.in(bInfoWrap);
+  k.in(in.wrapper);
+
   k.in((int)reductionSize);
   k.in((int)totalSlices);
   k.in(init);
@@ -395,9 +423,9 @@ std::string THClReduce_getKernelSource() {
   "\n" 
   "// Kernel that handles an entire reduction of a slice of a tensor per each thread\n" 
   "kernel void\n" 
-  "THClTensor_reduceNoncontigDim(global TensorInfoCl *out_info,\n" 
+  "THClTensor_reduceNoncontigDim(constant TensorInfoCl *out_info,\n" 
   "                              global float *out_data,\n" 
-  "                              global TensorInfoCl *in_info,\n" 
+  "                              constant TensorInfoCl *in_info,\n" 
   "                              global float *in_data,\n" 
   "                              int reductionStride,\n" 
   "                              int reductionSize,\n" 
@@ -437,9 +465,9 @@ std::string THClReduce_getKernelSource() {
   "// Kernel that handles an entire reduction of a slice of a tensor per\n" 
   "// each block\n" 
   "kernel void\n" 
-  "THClTensor_reduceContigDim(global TensorInfoCl *out_info,\n" 
+  "THClTensor_reduceContigDim(constant TensorInfoCl *out_info,\n" 
   "                           global float *out_data,\n" 
-  "                           global TensorInfoCl *in_info,\n" 
+  "                           constant TensorInfoCl *in_info,\n" 
   "                           global float *in_data,\n" 
   "                           int reductionSize,\n" 
   "                           int totalSlices,\n" 

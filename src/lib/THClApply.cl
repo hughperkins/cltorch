@@ -54,7 +54,7 @@ inline void op( global float *out
 kernel void
 THClTensor_pointwiseApplyD(
    {% for input_idx=1,num_tensors do %}
-    global TensorInfoCl *info_{{input_idx}},
+    constant TensorInfoCl *info_{{input_idx}},
     global float*data_{{input_idx}},
    {% end %}
    {% for i=1,num_scalars do %}
