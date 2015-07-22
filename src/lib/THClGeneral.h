@@ -54,17 +54,15 @@ typedef struct TensorInfoCl {
   int dims;
 } TensorInfoCl;
 
-#define MAX_INFOS 100
+#define MAX_INFOS 256
 
 typedef struct THClScratchSpace {
   struct CLWrapper *wrapper;
   float *data;
 
   int infosCount;
-  TensorInfoCl *infos[MAX_INFOS];
-  struct CLWrapper *infoWrappers[MAX_INFOS];
-//    std::vector< TensorInfoCl > infos;
-//    std::vector< CLWrapper *> infoWrappers;
+  TensorInfoCl infos[MAX_INFOS];
+  struct CLWrapper *infosWrapper;
 } THClScratchSpace;
 
 /* Global state to be held in the cltorch table. */
