@@ -281,7 +281,7 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 * 22th July:
   * Performance improvement:
     * All per-element operations are around 2-5 faster on NVIDIA and AMD now
-    * In the specific, this means that times for Karpathy's [char-rnn](http://github.com/karpath/char-rnn) are around 2-3 times faster on NVIDIA and AMD cards, compared to before
+    * In the specific, this means that times for Karpathy's [char-rnn](http://github.com/karpathy/char-rnn) are around 2-3 times faster on NVIDIA and AMD cards, compared to before
 * 19th July:
   * Upgrade EasyCL version
   * Need to explicitly enable timing now (just in case impacts performance)
