@@ -282,6 +282,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
   * Performance improvement:
     * All per-element operations are around 2-5 faster on NVIDIA and AMD now
     * In the specific, this means that times for Karpathy's [char-rnn](http://github.com/karpathy/char-rnn) are around 2-3 times faster on NVIDIA and AMD cards, compared to before
+  * [colesbury](https://github.com/colesbury)'s pull request [#176](https://github.com/torch/cutorch/pull/176) ported to cltorch, 'Allow CudaTensors as indices'
+  * [andresy](https://github.com/andresy)'s pull request [#203](https://github.com/torch/cutorch/pull/203) ported to cltorch, 'expose retain and free for CudaStorage/CudaTensor'
 * 19th July:
   * Upgrade EasyCL version
   * Need to explicitly enable timing now (just in case impacts performance)
