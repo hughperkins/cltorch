@@ -23,29 +23,22 @@
 // read-only
 //enum TensorArgType { ReadWrite, ReadOnly };
 
-// not used by this kernel, but used by THClReduceApplyUtils...
-//inline float reduceOp(float _in1, float _in2) {
-//  return 0;
-//}
-
-{{include_THClReduceApplyUtils}}
-
 {%
- total_opsize = num_tensors
+ local total_opsize = num_tensors
  if include_scalar_input then 
       total_opsize = total_opsize + 1
    end
  %}
 
 inline void op( global float *out
-  {% for i=1,(num_tensors-1) do %}
-  , global float *in{{i}}
+  {% for t=1,(num_tensors-1) do %}
+  , global float *in{{t}}
   {% end %}
-  {% for i=1,(num_scalars) do %}
-  , float val{{i}}
+  {% for s=1,(num_scalars) do %}
+  , float val{{s}}
   {% end %}
-   {% for i=1,num_point_tensors do %}
-   , global float *pointTensor{{i}}
+   {% for pt=1,num_point_tensors do %}
+   , global float *pointTensor{{pt}}
    {% end %}
 ) {
     {{operation}};
@@ -53,9 +46,14 @@ inline void op( global float *out
 
 kernel void
 THClTensor_pointwiseApplyD(
-   {% for input_idx=1,num_tensors do %}
-    global TensorInfoCl *info_{{input_idx}},
-    global float*data_{{input_idx}},
+   {% for t=1,num_tensors do %}
+    int offset_{{t}},
+    {% local thisdims = loadstring('return dims' .. t)() %}
+    {% for d=1,thisdims do %}
+      int size_{{t}}_{{d}},
+      int stride_{{t}}_{{d}},
+    {% end %}
+    global float*data_{{t}},
    {% end %}
    {% for i=1,num_scalars do %}
    float val{{i}},
@@ -64,27 +62,42 @@ THClTensor_pointwiseApplyD(
    global float *pointTensor{{i}},
    {% end %}
    int totalElements) {
-//  for (int linearIndex = get_global_id(0);
    int linearIndex = get_global_id(0);
    if(linearIndex < totalElements ) {
-//       linearIndex += get_global_size(0)) {
-    {% for input_idx=1,num_tensors do %}
-//  int offset{{input_idx}} = linearIndex;
-    // Convert `linearIndex` into an offset of `a`
-    const int offset{{input_idx}} =
-      IndexToOffset_{{1000+loadstring('return dim' .. input_idx)()}}_get(linearIndex, &info_{{input_idx}}[0]);
+      {{IndexType}} curDimIndex;
+      {{IndexType}} curDimOffset;
+      int thisLinearId;
+    {% for t=1,num_tensors do %}
+      {% local thisdims = loadstring('return dims' .. t)() %}
+      {% if thisdims == -2 then %}
+         int derived_offset_{{t}} = linearIndex + offset_{{t}};
+      {% else %}
+         {{IndexType}} derived_offset_{{t}} = offset_{{t}};
+         thisLinearId = linearIndex;
+        {% for d=thisdims-1,0,-1 do %}  // bake this in....
+          curDimIndex = thisLinearId % size_{{t}}_{{d}};
+          curDimOffset = curDimIndex * stride_{{t}}_{{d}};
+          derived_offset_{{t}} += curDimOffset;
+          {% if d > 0 then %}
+            thisLinearId /= size_{{t}}_{{d}};
+          {% end %}
+        {% end %}
+
+      {% end %}
     {% end %}
 
     op( 
-      {% for input_idx=1,num_tensors do %}
-         {% if input_idx > 1 then %} , {% end %}
-         &(data_{{input_idx}}[offset{{input_idx}}])
+      {% for t=1,num_tensors do %}
+         {% if t > 1 then %} , {% end %}
+         &(data_{{t}}[derived_offset_{{t}}])
       {% end %}
-      {% for i=1,num_scalars do %}
-      , val{{i}}
+
+      {% for s=1,num_scalars do %}
+      , val{{s}}
       {% end %}
-       {% for i=1,num_point_tensors do %}
-       , pointTensor{{i}}
+
+       {% for pt=1,num_point_tensors do %}
+       , pointTensor{{pt}}
        {% end %}
     );
   }
