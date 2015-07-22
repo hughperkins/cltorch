@@ -933,6 +933,16 @@ if os.getenv('PROTOTYPING') ~= nil then
     print(name .. ' c', c)
   end
 
+  local x = torch.Tensor(60,50):uniform() - 0.5
+
+  xcopy = x:clone()
+  xcopy:select(1, 2):fill(2) -- select row 2 and fill up
+  xcopy:select(2, 5):fill(5) -- select column 5 and fill up
+
+  xcopycl = x:cl()
+  xcopycl:select(1, 2):fill(2) -- select row 2 and fill up
+  xcopycl:select(2, 5):fill(5) -- select column 5 and fill up
+
 --  x = torch.range(1,12):double():resize(3,4):cl()
 --  print('x', x)
 --  mask = torch.ByteTensor(2,6):bernoulli():cl()

@@ -74,7 +74,7 @@ THClTensor_pointwiseApplyD(
       {% else %}
          {{IndexType}} derived_offset_{{t}} = offset_{{t}};
          thisLinearId = linearIndex;
-        {% for d=thisdims-1,0,-1 do %}  // bake this in....
+        {% for d=thisdims,1,-1 do %}  // bake this in....
           curDimIndex = thisLinearId % size_{{t}}_{{d}};
           curDimOffset = curDimIndex * stride_{{t}}_{{d}};
           derived_offset_{{t}} += curDimOffset;

@@ -832,7 +832,7 @@ std::string get_template() {
   "      {% else %}\n" 
   "         {{IndexType}} derived_offset_{{t}} = offset_{{t}};\n" 
   "         thisLinearId = linearIndex;\n" 
-  "        {% for d=thisdims-1,0,-1 do %}  // bake this in....\n" 
+  "        {% for d=thisdims,1,-1 do %}  // bake this in....\n" 
   "          curDimIndex = thisLinearId % size_{{t}}_{{d}};\n" 
   "          curDimOffset = curDimIndex * stride_{{t}}_{{d}};\n" 
   "          derived_offset_{{t}} += curDimOffset;\n" 
