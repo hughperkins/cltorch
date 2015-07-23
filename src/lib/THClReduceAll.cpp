@@ -78,7 +78,6 @@ void kernelLaunch_THClTensor_reduceAllPass1(
                      dim3 &grid, dim3 &block, size_t smemSize,
                      int ADims,
                      const TensorInfo<IndexType> & in,
-//                     CLWrapper *in_data,
                      int64 totalElements,
                      float init,
                      const HasOperator2 *modifyOp,
@@ -152,7 +151,6 @@ void kernelLaunch_THClTensor_reduceAllPass2(
       .set("dims", dims)
       .set("dim1", -2)
       .set("defreduceblock", 1)
-  //    .set("modify_operation", modifyOp->operator2())
       .set("reduce_operation", reduceOp->operator3())
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
       .set("IndexType", TypeParseTraits<IndexType>::name)
@@ -179,7 +177,6 @@ void kernelLaunch_THClTensor_reduceAll(
                      dim3 &grid, dim3 &block, size_t smemSize,
                      int ADims,
                      const TensorInfo<IndexType> &in,
-//                     CLWrapper *in_data,
                      int64 totalElements,
                      float init,
                      const HasOperator2 *modifyOp,
@@ -251,43 +248,27 @@ void callReduceAll(THClState* state,
           in,
            (IndexType) totalElements, init, modifyOp, reduceOp,
         THClState_getDeviceScratchSpace(state, device, 0)->wrapper);
-//    THClTensor_reduceAllPass1<ModifyOp, ReduceOp, IndexType, ADims>
-//      <<<grid, block, smemSize, THClState_getCurrentStream(state)>>>(
-//        in, (IndexType) totalElements, init, modifyOp, reduceOp,
-//        (float*) THClState_getCurrentDeviceScratchSpace(state));
 
     int numPass1Blocks = grid.x();
     getPass2ReduceBlockGrid(state, device, totalElements, grid, block);
     smemSize = block.x() * sizeof(float);
 
-//    THError("not implemented");
     kernelLaunch_THClTensor_reduceAllPass2<IndexType>(
         state,
         grid, block, smemSize,
         numPass1Blocks, init, reduceOp,
         THClState_getDeviceScratchSpace(state, device, 0)->wrapper,
         devOut);
-//    THClTensor_reduceAllPass2<ReduceOp, IndexType>
-//      <<<grid, block, smemSize, THClState_getCurrentStream(state)>>>(
-//        numPass1Blocks, init, reduceOp,
-//        (float*) THClState_getCurrentDeviceScratchSpace(state),
-//        devOut);
-//    THError("Not implemented");
   } else {
     getSinglePassReduceBlockGrid(state, device, totalElements, grid, block);
     size_t smemSize = block.x() * sizeof(float);
 
-//    THError("Not implemented");
     kernelLaunch_THClTensor_reduceAll<IndexType>(
         state,
         grid, block, smemSize,
         ADims, 
         in,
-//        in.wrapper,
         (IndexType) totalElements, init, modifyOp, reduceOp, devOut);
-//    THClTensor_reduceAll<ModifyOp, ReduceOp, IndexType, ADims>
-//      <<<grid, block, smemSize, THClState_getCurrentStream(state)>>>(
-//        in, (IndexType) totalElements, init, modifyOp, reduceOp, devOut);
   }
 }
 
@@ -299,8 +280,6 @@ bool THClTensor_reduceAll(THClState* state,
                             const HasOperator3 *reduceOp,
                             float init,
                             CLWrapper *res) {
-//                            float *p_result,
-//                            bool outOnDevice) {
   int64 inElements = THClTensor_nElement(state, in);
 
   if (THClTensor_nDimension(state, in) > MAX_CLTORCH_DIMS) {
@@ -309,18 +288,10 @@ bool THClTensor_reduceAll(THClState* state,
 
   if (THClTensor_nDimension(state, in) == 0) {
     // Zero-dim tensor; do nothing
-//    *p_result = init;
     return true;
   }
 
   const int device = in->device;
-
-//  CLWrapper* devOut = out;
-//  float *devOut 
-//  if (!outOnDevice) {
-    // Use the stream-specific scratch space for the reduction kernel
-    // to write out its value
-//  }
 
   // It is possible that the tensor dimensions are able to be collapsed,
   // and thus we can reduce the actual code complexity of the copy by
@@ -330,66 +301,18 @@ bool THClTensor_reduceAll(THClState* state,
   // (or vice versa), the contiguous tensor can be collapsed to one
   // dimension, and the loop to translate the linear index to the array
   // index can be similarly collapsed. That is what this unrolling is for.
-#define HANDLE_CASE(TYPE, IN)                                           \
-  callReduceAll<TYPE>(                          \
-    state, device, IN, inInfo, inElements, init, modifyOp, reduceOp, res);
-
-#define HANDLE_IN_CASE(TYPE, IN)                    \
-  {                                                 \
-    if (inInfo.isContiguous()) {                    \
-      HANDLE_CASE(TYPE, -2);                        \
-    } else {                                        \
-      switch (IN) {                                 \
-        case 1:                                     \
-          HANDLE_CASE(TYPE, 1);                     \
-          break;                                    \
-        case 2:                                     \
-          HANDLE_CASE(TYPE, 2);                     \
-          break;                                    \
-        case 3:                                     \
-          HANDLE_CASE(TYPE, 3);                     \
-          break;                                    \
-        default:                                    \
-          HANDLE_CASE(TYPE, -1);                    \
-          break;                                    \
-      }                                             \
-    }                                               \
-  }
 
   if (THCL_canUse32BitIndexMath(state, in)) {
-    TensorInfo<unsigned int> inInfo(state, in);
-
-    HANDLE_IN_CASE(unsigned int, inInfo.dims);
+    TensorInfo<uint32> inInfo(state, in);
+    int IN = inInfo.isContiguous() ? -2 : inInfo.dims;
+    callReduceAll<uint32>(
+      state, device, IN, inInfo, inElements, init, modifyOp, reduceOp, res);
   } else {
     TensorInfo<uint64> inInfo(state, in);
-
-    // For large tensors, we only compile the completely contiguous
-    // version and the completely generic version, to reduce
-    // compilation time.
-    if (inInfo.isContiguous()) {
-      HANDLE_IN_CASE(uint64, -2);
-    } else {
-      HANDLE_IN_CASE(uint64, -1);
-    }
+    int IN = inInfo.isContiguous() ? -2 : inInfo.dims;
+    callReduceAll<uint64>(
+      state, device, IN, inInfo, inElements, init, modifyOp, reduceOp, res);
   }
-#undef HANDLE_CASE
-#undef HANDLE_IN_CASE
-
-  // If our destination is not on the device, copy the value back to
-  // the host (synchronous!)
-//  if (!outOnDevice) {
-//    cudaMemcpy(out, devOut, sizeof(float), cudaMemcpyDeviceToHost);
-//  }
-
-//  THError("Not implemented");
-
-//  if(!outOnDevice) {
-//    StatefulTimer::timeCheck("ReduceAll before copytohost");
-//    scratch->wrapper->copyToHost();
-//    StatefulTimer::timeCheck("ReduceAll after copytohost");
-//    *p_result = scratch->data[0];
-//  }
-
   return true;
 }
 
