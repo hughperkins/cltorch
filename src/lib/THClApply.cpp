@@ -320,30 +320,28 @@ bool THClTensor_pointwiseApply2(THClState* state,
   return true;
 }
 
-bool THClTensor_pointwiseApply3(THClState* state,
-                                  THClTensor* a,
-                                  THClTensor* b,
-                                  THClTensor* c,
-                                  const HasOperator3 *op,
-                                  TensorArgType aType,
-                                  TensorArgType bType,
-                                  TensorArgType cType) {
-  long totalElements = THClTensor_nElement(state, a);
-  const int device = b->storage->device;
-  if (totalElements != THClTensor_nElement(state, b) ||
-      totalElements != THClTensor_nElement(state, c)) {
-    std::cout << "element size mismatch between b and c" << std::endl;
-    return false;
+bool THClTensor_pointwiseApply(THClState* state,
+                               int numTensors,
+                               THClTensor** tensors,
+                               const OpBase *op,
+                               string operationString,
+                               TensorArgType *types) {
+  long totalElements = THClTensor_nElement(state, tensors[0]);
+  const int device = tensors[0]->storage->device;
+  for(int t=1; t < numTensors; t++) {
+    if (totalElements != THClTensor_nElement(state, tensors[t])) {
+      THError("element size mismatch between tensors 1 and %i", t+1);
+      return false;
+    }
+  }
+  for(int t=0; t < numTensors; t++) {
+    if (THClTensor_nDimension(state, tensors[t]) > MAX_CLTORCH_DIMS) {
+      THError("Apply: too many dimensions in tensor %i", (t+1));
+      return false;
+    }
   }
 
-  if (THClTensor_nDimension(state, a) > MAX_CLTORCH_DIMS ||
-      THClTensor_nDimension(state, b) > MAX_CLTORCH_DIMS ||
-      THClTensor_nDimension(state, c) > MAX_CLTORCH_DIMS) {
-    std::cout << "too many dimensions" << std::endl;
-    return false;
-  }
-
-  if (THClTensor_nDimension(state, a) == -1) {
+  if (THClTensor_nDimension(state, tensors[0]) == -1) {
     return true;
   }
 
@@ -351,7 +349,7 @@ bool THClTensor_pointwiseApply3(THClState* state,
 
   dim3 grid;
   if (!getApplyGrid(state, device, totalElements, grid)) {
-    std::cout << "getapplygrid returns false" << std::endl;
+    THError("Apply: getapplygrid returns false");
     return false;
   }
 
@@ -364,64 +362,81 @@ bool THClTensor_pointwiseApply3(THClState* state,
   // indices of a tensor with overlapping indices should probably be
   // an error, since it is unclear which one should win), but we will
   // preserve this last-writer-wins (in arbitrary copy order) behavior.
-  THClTensor* oldA = NULL;
-  THClTensor* oldB = NULL;
-  THClTensor* oldC = NULL;
-
-  if (aType == ReadWrite && THCL_overlappingIndices(state, a)) {
-    oldA = a;
-    a = THClTensor_newContiguous(state, a);
-  }
-  if (bType == ReadWrite && THCL_overlappingIndices(state, b)) {
-    oldB = b;
-    b = THClTensor_newContiguous(state, b);
-  }
-  if (cType == ReadWrite && THCL_overlappingIndices(state, c)) {
-    oldC = c;
-    c = THClTensor_newContiguous(state, c);
+  THClTensor *oldTensors[numTensors];
+  memset(oldTensors, 0, sizeof(THClTensor *) * numTensors);
+  for(int t=0; t < numTensors; t++) {
+    if (types[t] == ReadWrite && THCL_overlappingIndices(state, tensors[t])) {
+      oldTensors[t] = tensors[t];
+      tensors[t] = THClTensor_newContiguous(state, tensors[t]);
+    }
   }
 
-  if (THCL_canUse32BitIndexMath(state, a) &&
-      THCL_canUse32BitIndexMath(state, b) &&
-      THCL_canUse32BitIndexMath(state, c)) {
-    TensorInfo<unsigned int> aInfo(state, a);
-    TensorInfo<unsigned int> bInfo(state, b);
-    TensorInfo<unsigned int> cInfo(state, c);
-    int A = aInfo.dims;
-    int B = bInfo.dims;
-    int C = cInfo.dims;
-    if(aInfo.isContiguous()) A = -2;
-    if(bInfo.isContiguous()) B = -2;
-    if(cInfo.isContiguous()) C = -2;
-    kernelLaunch_pointwiseApply3< unsigned int >(state, grid, block, A, B, C, aInfo, bInfo, cInfo, (unsigned int) totalElements, op );
+  bool canUse32BitIndexMath = true;
+  for(int t=0; t < numTensors; t++) {
+    if(!THCL_canUse32BitIndexMath(state, tensors[t])) {
+      canUse32BitIndexMath = false;
+    }
+  }
+  if(canUse32BitIndexMath) {
+    TensorInfo<uint32> *infos[numTensors];
+    for(int t=0; t < numTensors; t++) {
+      infos[t] = new TensorInfo<uint32>(state, tensors[t]);
+    }
+    int dims[numTensors];
+    for(int t=0; t < numTensors; t++) {
+      dims[t] = infos[t]->dims;
+      if(infos[t]->isContiguous()) dims[t] = -2;
+    }
+    kernelLaunch_pointwiseApply< uint32 >(state, grid, block, numTensors, dims, infos, (unsigned int) totalElements, op, operationString);
+    for(int t=0; t < numTensors; t++) {
+      delete infos[t];
+    }
   } else {
-    TensorInfo<unsigned long> aInfo(state, a);
-    TensorInfo<unsigned long> bInfo(state, b);
-    TensorInfo<unsigned long> cInfo(state, c);
-
-    if (aInfo.isContiguous() && bInfo.isContiguous() && cInfo.isContiguous()) {
+    TensorInfo<uint64> *infos[numTensors];
+    bool allContiguous = true;
+    for(int t=0; t < numTensors; t++) {
+      infos[t] = new TensorInfo<uint64>(state, tensors[t]);
+      if(!infos[t]->isContiguous()) {
+        allContiguous = false;
+      }
+    }
+    if (allContiguous) {
       THError("Not implemented");
     } else {
       THError("Not implemented");
     }
+    for(int t=0; t < numTensors; t++) {
+      delete infos[t];
+    }
   }
 
-  if (oldA) {
-    THClTensor_copyIgnoringOverlaps(state, oldA, a);
-    THClTensor_free(state, a);
-    a = oldA;
-  }
-  if (oldB) {
-    THClTensor_copyIgnoringOverlaps(state, oldB, b);
-    THClTensor_free(state, b);
-    b = oldB;
-  }
-  if (oldC) {
-    THClTensor_copyIgnoringOverlaps(state, oldC, c);
-    THClTensor_free(state, c);
-    c = oldC;
+  for(int t=0; t < numTensors; t++) {
+    if (oldTensors[t]) {
+      THClTensor_copyIgnoringOverlaps(state, oldTensors[t], tensors[t]);
+      THClTensor_free(state, tensors[t]);
+      tensors[t] = oldTensors[t];
+    }
   }
   return true;
+}
+bool THClTensor_pointwiseApply3(THClState* state,
+                                  THClTensor* a,
+                                  THClTensor* b,
+                                  THClTensor* c,
+                                  const HasOperator3 *op,
+                                  TensorArgType aType,
+                                  TensorArgType bType,
+                                  TensorArgType cType) {
+  THClTensor *tensors[3];
+  tensors[0] = a;
+  tensors[1] = b;
+  tensors[2] = c;
+  TensorArgType types[3];
+  types[0] = aType;
+  types[1] = bType;
+  types[2] = cType;
+  return THClTensor_pointwiseApply(
+    state, 3, tensors, op, op->operator3(), types);
 }
 
 std::string get_template() {
