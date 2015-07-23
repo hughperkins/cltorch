@@ -173,22 +173,32 @@ float THClBlas_dot(THClState *state, long n,
     scratchWrapper->createOnDevice();
     resultWrapper->createOnDevice();
 
-    cl_event event = NULL;
+    cl_event *event = 0;
+//    if(state->addFinish) {
+      event = new cl_event();
+//    }
     err = clblasSdot( i_n, resultWrapper->getBuffer(), 0, 
           xwrapper->getBuffer(), xoffset, i_incx, 
           ywrapper->getBuffer(), yoffset, i_incy, 
           scratchWrapper->getBuffer(),
-          1, cl->queue, 0, NULL, &event);
-//    THCublasCheck(cublasSdot(*state->blasState->current_handle, i_n, x, i_incx, y, i_incy, &result));
-//    ClDeviceSynchronize();
+          1, cl->queue, 0, NULL, event);
     if (err != CL_SUCCESS) {
         THError("clblasSdot() failed with %d", err);
     }
     else {
-        if(state->addFinish) err = clWaitForEvents(1, &event);
+//      if(state->addFinish) {
+        err = clWaitForEvents(1, event);
+        if (err != CL_SUCCESS) {
+//              throw runtime_error("clblasSger() failed with " + easycl::toString(err));
+          THError("clblasSger: wait for event failed with %d", err);
+        }
+        clReleaseEvent(*event);
+        delete event;
+//      }
     }
+    // TODO: NOT copy to host here, use pointtensor
     resultWrapper->copyToHost();
-//    resultWrapper->markDeviceDirty();
+    //resultWrapper->markDeviceDirty();
 
     delete resultWrapper;
     delete scratchWrapper;
@@ -238,20 +248,30 @@ void THClBlas_gemv(THClState *state, char trans, long m, long n, float alpha,
     cl_int err;
 
     EasyCL *cl = ywrapper->getCl();
-    cl_event event = NULL;
+    cl_event *event = 0;
+    if(state->addFinish) {
+      event = new cl_event();
+    }
     err = clblasSgemv(clblasColumnMajor, op, i_m, i_n, alpha,
           awrapper->getBuffer(), aoffset, i_lda, 
           xwrapper->getBuffer(), xoffset, i_incx, 
           beta,
           ywrapper->getBuffer(), yoffset, i_incy, 
-          1, cl->queue, 0, NULL, &event);
+          1, cl->queue, 0, NULL, event);
     if (err != CL_SUCCESS) {
         THError("clblasSdot() failed with %d", err);
     }
     else {
-        if(state->addFinish) err = clWaitForEvents(1, &event);
+      if(state->addFinish) {
+        err = clWaitForEvents(1, event);
+        if (err != CL_SUCCESS) {
+//              throw runtime_error("clblasSger() failed with " + easycl::toString(err));
+          THError("clblasSger: wait for event failed with %d", err);
+        }
+        clReleaseEvent(*event);
+        delete event;
+      }
     }
-    clReleaseEvent(event);
 
     ywrapper->markDeviceDirty();
     StatefulTimer::timeCheck("THClBlas_gemv END");
@@ -267,12 +287,6 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
     THClTensor *a, long lda)
 {
   StatefulTimer::timeCheck("THClBlas_ger START");
-  CLWrapper *xwrap = THClTensor_wrapper(state, x);
-  CLWrapper *ywrap = THClTensor_wrapper(state, y);
-  CLWrapper *awrap = THClTensor_wrapper(state, a);
-  long x_offset = THClTensor_storageOffset(state, x);
-  long y_offset = THClTensor_storageOffset(state, y);
-  long a_offset = THClTensor_storageOffset(state, a);
 
   if(n == 1)
     lda = m;
@@ -287,26 +301,42 @@ void THClBlas_ger(THClState *state, long m, long n, float alpha,
 
       cl_int err;
 
+      CLWrapper *xwrap = THClTensor_wrapper(state, x);
+      CLWrapper *ywrap = THClTensor_wrapper(state, y);
+      CLWrapper *awrap = THClTensor_wrapper(state, a);
+      long x_offset = THClTensor_storageOffset(state, x);
+      long y_offset = THClTensor_storageOffset(state, y);
+      long a_offset = THClTensor_storageOffset(state, a);
+
       if(!awrap->isOnDevice()) {
         awrap->createOnDevice();
       }
 
       EasyCL *cl = ywrap->getCl();
-      cl_event event = NULL;
+      cl_event *event = 0;
+      if(state->addFinish) {
+        event = new cl_event();
+      }
       err = clblasSger(clblasColumnMajor, i_m, i_n, alpha,
                        xwrap->getBuffer(), x_offset, i_incx,
                        ywrap->getBuffer(), y_offset, i_incy,
                        awrap->getBuffer(), a_offset, i_lda,
-                       1, (cl->queue), 0, NULL, &event);
+                       1, (cl->queue), 0, NULL, event);
       if (err != CL_SUCCESS) {
-        throw runtime_error("clblasSger() failed with " + easycl::toString(err));
+//        throw runtime_error("clblasSger() failed with " + easycl::toString(err));
         THError("clblasSger() failed with %d", err);
       }
       else {
-          if(state->addFinish) err = clWaitForEvents(1, &event);
+        if(state->addFinish) {
+          err = clWaitForEvents(1, event);
+          if (err != CL_SUCCESS) {
+//              throw runtime_error("clblasSger() failed with " + easycl::toString(err));
+            THError("clblasSger: wait for event failed with %d", err);
+          }
+          clReleaseEvent(*event);
+          delete event;
+        }
       }
-      clReleaseEvent(event);
-//    THClState_getCl(state)->finish();
       awrap->markDeviceDirty();
 
       StatefulTimer::timeCheck("THClBlas_ger END");
@@ -386,19 +416,29 @@ void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, l
     }
 
     EasyCL *cl = cWrapper->getCl();
-    cl_event event = NULL;
+    cl_event *event = 0;
+    if(state->addFinish) {
+      event = new cl_event();
+    }
     err = clblasSgemm(clblasColumnMajor, opa, opb, i_m, i_n, i_k,
                          alpha, aWrapper->getBuffer(), offseta, i_lda,
                          bWrapper->getBuffer(), offsetb, i_ldb, beta,
                          cWrapper->getBuffer(), offsetc, i_ldc,
-                         1, cl->queue, 0, NULL, &event);
+                         1, cl->queue, 0, NULL, event);
     if (err != CL_SUCCESS) {
         THError("clblasSgemm() failed with %d", err);
     }
     else {
-        if(state->addFinish) err = clWaitForEvents(1, &event);
+      if(state->addFinish) {
+        err = clWaitForEvents(1, event);
+        if (err != CL_SUCCESS) {
+//              throw runtime_error("clblasSger() failed with " + easycl::toString(err));
+          THError("clblasSger: wait for event failed with %d", err);
+        }
+        clReleaseEvent(*event);
+        delete event;
+      }
     }
-    clReleaseEvent(event);
     cWrapper->markDeviceDirty();
 
     StatefulTimer::timeCheck("THClBlas_gemm END");
