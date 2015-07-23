@@ -278,6 +278,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 23rd July:
+  * Fixed memory leak on Intel HD Graphics
 * 22th July:
   * Performance improvement:
     * All per-element operations are around 2-5 faster on NVIDIA and AMD now
