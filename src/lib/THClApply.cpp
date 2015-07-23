@@ -41,180 +41,6 @@ bool getApplyGrid(THClState* state, int device, long totalElements, dim3& grid) 
 }
 
 template< typename IndexType >
-void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int A, TensorInfo<IndexType> aInfo, IndexType totalElements, HasOperator1 const * op ) {
-  if(StatefulTimer::enabled) StatefulTimer::timeCheck("Apply1 start");
-  int numTensors = 1;
-  int numScalars = 0;
-  HasScalars const*hasScalars = dynamic_cast<HasScalars const*>(op);
-  if(hasScalars != 0) {
-    numScalars = hasScalars->getNumScalars();
-  }
-  int numPointTensors = 0;
-  HasPointTensors const*hasPointTensors = dynamic_cast<HasPointTensors const *>(op);
-  if(hasPointTensors != 0) {
-    numPointTensors = hasPointTensors->getNumPointTensors();
-  }
-  ostringstream oss;
-  oss << "Apply1t_" << numScalars << "s_" << numPointTensors << "pt_" << A << "_" << op->operator1();
-  EasyCL *cl = aInfo.wrapper->getCl();
-  CLKernel *kernel = 0;
-  if( cl->kernelExists(oss.str()) ) {
-    kernel = cl->getKernel(oss.str());
-  } else {
-    string uniqueName = oss.str();
-    TemplatedKernel kernelBuilder(cl);
-    kernelBuilder.set("dims1", A);
-    std::string operation = op->operator1();
-    kernelBuilder.set("num_tensors", numTensors);
-    kernelBuilder.set("num_scalars", numScalars);
-    kernelBuilder.set("num_tensor_inputs", numTensors);
-    kernelBuilder.set("num_point_tensors", numPointTensors);
-    kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
-    kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
-    kernelBuilder.set("operation", operation);
-    kernel = kernelBuilder.buildKernel( uniqueName, "THClApply.cl", get_template(), "THClTensor_pointwiseApplyD" );
-      StatefulTimer::timeCheck("Apply1 compiled");
-  }
-  THClKernels k(state, kernel);
-
-  k.in((int)aInfo.offset);
-  for(int d=0; d < A; d++ ) {
-    k.in((int)aInfo.sizes[d]);
-    k.in((int)aInfo.strides[d]);
-  }
-  k.out(aInfo.wrapper);
-
-  for( int i = 0; i < numScalars; i++ ) {
-    k.in(hasScalars->getScalar(i));
-  }
-  for( int i = 0; i < numPointTensors; i++ ) {
-    k.in(hasPointTensors->getPointTensor(i)->storage->wrapper);
-  }
-  if( totalElements > ( 1l << 30 )) {
-    throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
-  }
-  k.in( (int)totalElements );
-  k.run(grid, block);
-  if(state->addFinish) cl->finish();
-  if(StatefulTimer::enabled) StatefulTimer::timeCheck("Apply1 END");
-}
-
-template< typename IndexType >
-void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, HasOperator2 const*op ) {
-  StatefulTimer::timeCheck("Apply2 START");
-  int numTensors = 2;
-  int numScalars = 0;
-  HasScalars const*hasScalars = dynamic_cast<HasScalars const*>(op);
-  if( hasScalars != 0 ) {
-    numScalars = hasScalars->getNumScalars();
-  }
-  int numPointTensors = 0;
-  HasPointTensors const*hasPointTensors = dynamic_cast<HasPointTensors const *>(op);
-  if(hasPointTensors != 0) {
-    numPointTensors = hasPointTensors->getNumPointTensors();
-  }
-  ostringstream oss;
-  oss << "Apply2t_" << numScalars << "s_" << numPointTensors << "pt_" << A << "_" << B << "_" << op->operator2();
-//  std::string uniqueName = "THClApply_" + easycl::toString(numTensors) + "t" + easycl::toString(numScalars) + "s_" + easycl::toString(numPointTensors) + "pt_" + easycl::toString(A) + "_" + easycl::toString(B) + "_" + op->operator2();
-  if(false && StatefulTimer::enabled) {
-//    ostringstream oss;
-    oss << " dims=" << aInfo.dims;
-    oss << "tensor a: ";
-    oss << " sizes={";
-    for(int d=0; d < aInfo.dims; d++) {
-      if(d > 0) {
-        oss << ",";
-      }
-      oss << aInfo.sizes[d];
-    }
-    oss << "}";
-    oss << " strides={";
-    for(int d=0; d < aInfo.dims; d++) {
-      if(d > 0) {
-        oss << ",";
-      }
-      oss << aInfo.strides[d];
-    }
-    oss << "}";
-    oss << "tensor b: ";
-    oss << " sizes={";
-    for(int d=0; d < bInfo.dims; d++) {
-      if(d > 0) {
-        oss << ",";
-      }
-      oss << bInfo.sizes[d];
-    }
-    oss << "}";
-    oss << " strides={";
-    for(int d=0; d < bInfo.dims; d++) {
-      if(d > 0) {
-        oss << ",";
-      }
-      oss << bInfo.strides[d];
-    }
-    oss << "}";
-    oss << " nelements=" << totalElements;
-//    uniqueName = oss.str();
-    //    StatefulTimer::timeCheck(oss.str().c_str());
-  }
-  EasyCL *cl = aInfo.wrapper->getCl();
-  CLKernel *kernel = 0;
-  if( cl->kernelExists(oss.str()) ) {
-    kernel = cl->getKernel(oss.str());
-  } else {
-    string uniqueName = oss.str();
-    TemplatedKernel kernelBuilder(cl);
-    kernelBuilder.set("dims1", A);
-    kernelBuilder.set("dims2", B);
-    std::string operation = op->operator2();
-    kernelBuilder.set("num_tensors", numTensors);
-    kernelBuilder.set("num_scalars", numScalars);
-    kernelBuilder.set("num_point_tensors", numPointTensors);
-    kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
-    kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
-    kernelBuilder.set("operation", operation);
-    try {
-      kernel = kernelBuilder.buildKernel( uniqueName, uniqueName, get_template(), "THClTensor_pointwiseApplyD" );
-    } catch( std::runtime_error &e ) {
-      std::cout << "Error building kernel in apply2 " << __FILE__ << ":" << easycl::toString( __LINE__ ) << ": " << e.what() << std::endl;
-      THError( ( std::string("Error building kernel in apply2 ") + __FILE__ + ":" + easycl::toString( __LINE__ ) + ": " + e.what() ).c_str() );
-  //    throw e;
-    }
-    StatefulTimer::timeCheck("Apply2 compiled");
-  }
-  THClKernels k(state, kernel);
-
-  k.in((int)aInfo.offset);
-  for(int d=0; d < A; d++ ) {
-    k.in((int)aInfo.sizes[d]);
-    k.in((int)aInfo.strides[d]);
-  }
-  k.out(aInfo.wrapper);
-
-  k.in((int)bInfo.offset);
-  for(int d=0; d < B; d++ ) {
-    k.in((int)bInfo.sizes[d]);
-    k.in((int)bInfo.strides[d]);
-  }
-  k.in(bInfo.wrapper);
-
-  for( int i = 0; i < numScalars; i++ ) {
-    k.in(hasScalars->getScalar(i));
-  }
-  for( int i = 0; i < numPointTensors; i++ ) {
-    k.in(hasPointTensors->getPointTensor(i)->storage->wrapper);
-  }
-  if( totalElements > ( 1l << 30 )) {
-    throw std::runtime_error("Error: out of bounds for totalelements=" + easycl::toString(totalElements));
-  }
-  k.in( (int)totalElements );
-  k.run(grid, block);
-
-  if(state->addFinish) cl->finish();
-  if(StatefulTimer::enabled) StatefulTimer::timeCheck(("Apply2 END " + oss.str()).c_str());
-}
-
-template< typename IndexType >
 void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int numTensors, int *dims, TensorInfo<IndexType> **infos, IndexType totalElements, OpBase const*op, string operationString) {
   int numScalars = 0;
   HasScalars const*hasScalars = dynamic_cast<HasScalars const*>(op);
@@ -309,6 +135,26 @@ void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int n
 
   if(state->addFinish) cl->finish();
   if(StatefulTimer::enabled) StatefulTimer::timeCheck(("Apply END " + oss.str()).c_str());
+}
+
+template< typename IndexType >
+void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int A, TensorInfo<IndexType> aInfo, IndexType totalElements, HasOperator1 const * op ) {
+  int dims[1];
+  dims[0] = A;
+  TensorInfo<IndexType> *infos[1];
+  infos[0] = &aInfo;
+  kernelLaunch_pointwiseApply(state, grid, block, 1, dims, infos, totalElements, op, op->operator1());
+}
+
+template< typename IndexType >
+void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, HasOperator2 const*op ) {
+  int dims[2];
+  dims[0] = A;
+  dims[1] = B;
+  TensorInfo<IndexType> *infos[2];
+  infos[0] = &aInfo;
+  infos[1] = &bInfo;
+  kernelLaunch_pointwiseApply(state, grid, block, 2, dims, infos, totalElements, op, op->operator2());
 }
 
 template< typename IndexType >
