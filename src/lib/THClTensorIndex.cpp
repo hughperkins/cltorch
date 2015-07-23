@@ -18,6 +18,7 @@ static std::string getKernelTemplate();
 
 void THClTensor_indexCopy_long(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, THClTensor *src)
 {
+  StatefulTimer::timeCheck("THClTensor_indexCopy_long START");
   THAssert(THClTensor_checkGPU(state, 1, res_));
 
   THClTensor *indices_ = THClTensor_newWithSize1d(state, src->storage->device, indices->size[0]);
@@ -26,11 +27,14 @@ void THClTensor_indexCopy_long(THClState *state, THClTensor *res_, int dim, THLo
   THClTensor_indexCopy(state, res_, dim, indices_, src);
 
   THClTensor_free(state, indices_);
+  EasyCL *cl = src->storage->cl;
+  if(state->addFinish) cl->finish();  
+  StatefulTimer::timeCheck("THClTensor_indexCopy_long END");
 }
 
 void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THClTensor *indices, THClTensor *src)
 {
-  StatefulTimer::timeCheck("THClTensor_indeCopy START");
+  StatefulTimer::timeCheck("THClTensor_indexCopy START");
   THAssert(THClTensor_checkGPU(state, 2, res_, src));
   int *stride_;
   int nIndex = indices->size[0];
@@ -94,6 +98,7 @@ void THClTensor_indexCopy(THClState *state, THClTensor *res_, int dim, THClTenso
 
 void THClTensor_indexFill_long(THClState *state, THClTensor *res_, int dim, THLongTensor *indices, float val)
 {
+  StatefulTimer::timeCheck("THClTensor_indexFill_long START");
   THAssert(THClTensor_checkGPU(state, 1, res_));
 
   THClTensor *indices_ = THClTensor_newWithSize1d(state, res_->storage->device, indices->size[0]);
@@ -102,6 +107,9 @@ void THClTensor_indexFill_long(THClState *state, THClTensor *res_, int dim, THLo
   THClTensor_indexFill(state, res_, dim, indices_, val);
 
   THClTensor_free(state, indices_);
+  EasyCL *cl = res_->storage->cl;
+  if(state->addFinish) cl->finish();  
+  StatefulTimer::timeCheck("THClTensor_indexFill_long END");
 }
 
 void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THClTensor *indices, float val)
@@ -164,6 +172,7 @@ void THClTensor_indexFill(THClState *state, THClTensor *res_, int dim, THClTenso
 
 void THClTensor_indexSelect_long(THClState *state, THClTensor *res_, THClTensor *src, int dim, THLongTensor *indices)
 {
+  StatefulTimer::timeCheck("THClTensor_indexSelect_long START");
   THAssert(THClTensor_checkGPU(state, 2, res_, src));
 
   THClTensor *indices_ = THClTensor_newWithSize1d(state, src->storage->device, indices->size[0]);
@@ -172,6 +181,9 @@ void THClTensor_indexSelect_long(THClState *state, THClTensor *res_, THClTensor 
   THClTensor_indexSelect(state, res_, src, dim, indices_);
 
   THClTensor_free(state, indices_);
+  EasyCL *cl = src->storage->cl;
+  if(state->addFinish) cl->finish();  
+  StatefulTimer::timeCheck("THClTensor_indexSelect_long END");
 }
 
 void THClTensor_indexSelect(THClState *state, THClTensor *res_, THClTensor *src, int dim, THClTensor *indices)
