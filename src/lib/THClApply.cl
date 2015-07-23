@@ -64,8 +64,6 @@ THClTensor_pointwiseApplyD(
    int totalElements) {
    int linearIndex = get_global_id(0);
    if(linearIndex < totalElements ) {
-      {{IndexType}} curDimIndex;
-      {{IndexType}} curDimOffset;
       int thisLinearId;
     {% for t=1,num_tensors do %}
       {% local thisdims = loadstring('return dims' .. t)() %}
@@ -75,9 +73,7 @@ THClTensor_pointwiseApplyD(
          {{IndexType}} derived_offset_{{t}} = offset_{{t}};
          thisLinearId = linearIndex;
         {% for d=thisdims,1,-1 do %}  // bake this in....
-          curDimIndex = thisLinearId % size_{{t}}_{{d}};
-          curDimOffset = curDimIndex * stride_{{t}}_{{d}};
-          derived_offset_{{t}} += curDimOffset;
+          derived_offset_{{t}} += (thisLinearId % size_{{t}}_{{d}}) * stride_{{t}}_{{d}};
           {% if d > 0 then %}
             thisLinearId /= size_{{t}}_{{d}};
           {% end %}
