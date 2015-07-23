@@ -3,6 +3,7 @@
 #include "THAtomic.h"
 
 #include "EasyCL.h"
+#include "util/StatefulTimer.h"
 #include <stdexcept>
 #include <iostream>
 using namespace std;
@@ -62,6 +63,7 @@ THClStorage* THClStorage_newWithSize(THClState *state, int device, long size)
 
   if(size > 0)
   {
+    StatefulTimer::timeCheck("THClStorage_newWithSize START");
     THClStorage *storage = (THClStorage*)THAlloc(sizeof(THClStorage));
     float *data = new float[size];
     storage->device = device;
@@ -76,6 +78,7 @@ THClStorage* THClStorage_newWithSize(THClState *state, int device, long size)
     storage->size = size;
     storage->refcount = 1;
     storage->flag = TH_STORAGE_REFCOUNTED | TH_STORAGE_RESIZABLE | TH_STORAGE_FREEMEM;
+    StatefulTimer::timeCheck("THClStorage_newWithSize END");
     return storage;
   }
   else
@@ -158,24 +161,29 @@ void THClStorage_free(THClState *state, THClStorage *self)
   if (THAtomicDecrementRef(&self->refcount))
   {
     if(self->flag & TH_STORAGE_FREEMEM) {
+      StatefulTimer::timeCheck("THClStorage_free START");
       if(state->trace && self->size > 0) cout << "delete wrapper, size " << self->size << endl;
       delete self->wrapper;
       delete self->data;
+      StatefulTimer::timeCheck("THClStorage_newWithSize END");
     }
     THFree(self);
   }
 }
 void THClStorage_fill(THClState *state, THClStorage *self, float value)
 {
+ StatefulTimer::timeCheck("THClStorage_fill START");
   for( int i = 0; i < self->size; i++ ) {
     self->data[i] = value;
   }
   self->wrapper->copyToDevice();
   if(state->trace) cout << "wrapper->copyToDevice() size" << self->size << endl;
+  StatefulTimer::timeCheck("THClStorage_fill END");
 }
 
 void THClStorage_resize(THClState *state, THClStorage *self, long size)
 {
+  StatefulTimer::timeCheck("THClStorage_resize START");
   if( size <= self->size ) {
     return;
   }
@@ -188,5 +196,6 @@ void THClStorage_resize(THClState *state, THClStorage *self, long size)
   self->wrapper->createOnDevice();
     if(state->trace) cout << "new wrapper, size " << size << endl;
   self->size = size;
+  StatefulTimer::timeCheck("THClStorage_resize END");
 }
 

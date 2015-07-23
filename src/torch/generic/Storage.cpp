@@ -3,9 +3,11 @@
 #else
 
 #include "EasyCL.h"
+#include "util/StatefulTimer.h"
 
 static int torch_Storage_(new)(lua_State *L)
 {
+  StatefulTimer::timeCheck("storage new START");
   THClState *state = cltorch_getstate(L);
   THStorage *storage;
   if(lua_type(L, 1) == LUA_TSTRING)
@@ -36,8 +38,9 @@ static int torch_Storage_(new)(lua_State *L)
     THStorage_(copyFloat)(state, storagecl, storage);
     THFloatStorage_free(storage);
 
-  luaT_pushudata(L, storagecl, "torch.ClStorage");
-  return 1;
+    luaT_pushudata(L, storagecl, "torch.ClStorage");
+    StatefulTimer::timeCheck("storage new END");
+    return 1;
 
 //    THError("Please create like this: torch.Tensor(mytable):cl()");
 //    long size = lua_objlen(L, 1);
@@ -85,6 +88,7 @@ static int torch_Storage_(new)(lua_State *L)
     storage = THStorage_(newWithSize)(state, state->currentDevice, size);
   }
   luaT_pushudata(L, storage, torch_Storage);
+  StatefulTimer::timeCheck("storage new END");
   return 1;
 }
 
