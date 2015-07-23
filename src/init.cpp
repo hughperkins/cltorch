@@ -193,21 +193,24 @@ namespace cltorch {
 }
 
 int luaopen_libcltorch( lua_State *L ) {
-  lua_newtable(L);
-  luaL_setfuncs(L, cltorch::cltorch_stuff__, 0);
+  try {
+    lua_newtable(L);
+    luaL_setfuncs(L, cltorch::cltorch_stuff__, 0);
 
-  THClState* state = (THClState*)malloc(sizeof(THClState));
-  THClInit(state);
+    THClState* state = (THClState*)malloc(sizeof(THClState));
+    THClInit(state);
 
-  cltorch_ClStorage_init(L);
-  cltorch_ClTensor_init(L);
-  cltorch_ClTensorMath_init(L);
-  cltorch_ClTensorOperator_init(L);
-  cltorch_UserKernel_init(L);
+    cltorch_ClStorage_init(L);
+    cltorch_ClTensor_init(L);
+    cltorch_ClTensorMath_init(L);
+    cltorch_ClTensorOperator_init(L);
+    cltorch_UserKernel_init(L);
 
-  lua_pushlightuserdata(L, state);
-  lua_setfield(L, -2, "_state");
-
+    lua_pushlightuserdata(L, state);
+    lua_setfield(L, -2, "_state");
+  } catch(runtime_error &e) {
+    THError("Something went wrong: %s", e.what());
+  }
   return 1;
 }
 
