@@ -2,8 +2,11 @@
 
 #ifdef __cplusplus
 
+#include <string>
+
 class OpBase {
 public:
+  virtual std::string getName() const { return "OpBase"; } // just to make this class polymorphic
 };
 
 class HasScalars : public OpBase {

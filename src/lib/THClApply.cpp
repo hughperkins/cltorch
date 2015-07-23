@@ -215,9 +215,7 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
 }
 
 template< typename IndexType >
-void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, HasOperator3 const*op ) {
-  StatefulTimer::timeCheck("Apply3 START");
-  int numTensors = 3;
+void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int numTensors, int *dims, TensorInfo<IndexType> **infos, IndexType totalElements, OpBase const*op, string operationString) {
   int numScalars = 0;
   HasScalars const*hasScalars = dynamic_cast<HasScalars const*>(op);
   if( hasScalars != 0 ) {
@@ -228,111 +226,75 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   if(hasPointTensors != 0) {
     numPointTensors = hasPointTensors->getNumPointTensors();
   }
-  StatefulTimer::timeCheck("Apply3 getname");
+  StatefulTimer::timeCheck("Apply getname");
   ostringstream oss;
-  oss << "Apply_3t_" << numScalars << "s_" << numPointTensors << "pt_" << A << "_" << B << "_" << C << "_" << op->operator3();
-  StatefulTimer::timeCheck("Apply3 gotname");
+  oss << "Apply_" << numTensors << "t_" << numScalars << "s_" << numPointTensors << "pt_";
+  for(int t=0; t < numTensors; t++) {
+    oss << dims[t] << "_";
+  }
+  oss << operationString;
+  StatefulTimer::timeCheck("Apply gotname");
   if(false && StatefulTimer::enabled) {
-    oss << " dims=" << aInfo.dims;
-    oss << "tensor a: ";
-    oss << " sizes={";
-    for(int d=0; d < aInfo.dims; d++) {
-      if(d > 0) {
-        oss << ",";
+    for(int t=0; t < numTensors; t++) {
+      TensorInfo<IndexType> *info = infos[t];
+      oss << "tensor " << t << ": ";
+      oss << " dims=" << info->dims;
+      oss << " sizes={";
+      for(int d=0; d < info->dims; d++) {
+        if(d > 0) {
+          oss << ",";
+        }
+        oss << info->sizes[d];
       }
-      oss << aInfo.sizes[d];
-    }
-    oss << "}";
-    oss << " strides={";
-    for(int d=0; d < aInfo.dims; d++) {
-      if(d > 0) {
-        oss << ",";
+      oss << "}";
+      oss << " strides={";
+      for(int d=0; d < info->dims; d++) {
+        if(d > 0) {
+          oss << ",";
+        }
+        oss << info->strides[d];
       }
-      oss << aInfo.strides[d];
+      oss << "}";
     }
-    oss << "}";
-    oss << "tensor b: ";
-    oss << " sizes={";
-    for(int d=0; d < bInfo.dims; d++) {
-      if(d > 0) {
-        oss << ",";
-      }
-      oss << bInfo.sizes[d];
-    }
-    oss << "}";
-    oss << " strides={";
-    for(int d=0; d < bInfo.dims; d++) {
-      if(d > 0) {
-        oss << ",";
-      }
-      oss << bInfo.strides[d];
-    }
-    oss << "}";
-    oss << "tensor c: ";
-    oss << " sizes={";
-    for(int d=0; d < cInfo.dims; d++) {
-      if(d > 0) {
-        oss << ",";
-      }
-      oss << cInfo.sizes[d];
-    }
-    oss << "}";
-    oss << " strides={";
-    for(int d=0; d < cInfo.dims; d++) {
-      if(d > 0) {
-        oss << ",";
-      }
-      oss << cInfo.strides[d];
-    }
-    oss << "}";
     oss << " nelements=" << totalElements;
 //    uniqueName = oss.str();
   }
-  EasyCL *cl = aInfo.wrapper->getCl();
+  EasyCL *cl = infos[numTensors - 1]->wrapper->getCl();
   CLKernel *kernel = 0;
   if(cl->kernelExists(oss.str())) {
     kernel = cl->getKernel(oss.str());
   } else {
     string uniqueName = oss.str();
     TemplatedKernel kernelBuilder(cl);
-    kernelBuilder.set("dims1", A);
-    kernelBuilder.set("dims2", B);
-    kernelBuilder.set("dims3", C);
-    std::string operation = op->operator3();
+    for(int t=0; t < numTensors; t++) {
+      kernelBuilder.set("dims" + easycl::toString(t + 1), dims[t]);
+    }
     kernelBuilder.set("num_tensors", numTensors);
     kernelBuilder.set("num_scalars", numScalars);
     kernelBuilder.set("num_point_tensors", numPointTensors);
     kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
-    kernelBuilder.set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS);
-    kernelBuilder.set("operation", operation);
+    kernelBuilder.set("operation", operationString);
     kernel = kernelBuilder.buildKernel( uniqueName, uniqueName, get_template(), "THClTensor_pointwiseApplyD" );
 //    cout << kernelBuilder.getRenderedKernel(get_template()) << endl;
-    StatefulTimer::timeCheck("Apply3 compiled");
+    StatefulTimer::timeCheck("Apply compiled");
   }
-  StatefulTimer::timeCheck("Apply3 got kernel");
+  StatefulTimer::timeCheck("Apply got kernel");
 
   THClKernels k(state, kernel);
 
-  k.in((int)aInfo.offset);
-  for(int d=0; d < A; d++ ) {
-    k.in((int)aInfo.sizes[d]);
-    k.in((int)aInfo.strides[d]);
+  for(int t=0; t < numTensors; t++) {
+    TensorInfo<IndexType> *info = infos[t];
+    k.in((int)info->offset);
+    for(int d=0; d < dims[t]; d++ ) {
+      k.in((int)info->sizes[d]);
+      k.in((int)info->strides[d]);
+    }
+    if(t == 0) {
+      k.inout(info->wrapper);
+    } else {
+      k.in(info->wrapper);
+    }
   }
-  k.out(aInfo.wrapper);
-
-  k.in((int)bInfo.offset);
-  for(int d=0; d < B; d++ ) {
-    k.in((int)bInfo.sizes[d]);
-    k.in((int)bInfo.strides[d]);
-  }
-  k.in(bInfo.wrapper);
-
-  k.in((int)cInfo.offset);
-  for(int d=0; d < C; d++ ) {
-    k.in((int)cInfo.sizes[d]);
-    k.in((int)cInfo.strides[d]);
-  }
-  k.in(cInfo.wrapper);
   for( int i = 0; i < numScalars; i++ ) {
     k.in(hasScalars->getScalar(i));
   }
@@ -346,7 +308,20 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   k.run(grid, block);
 
   if(state->addFinish) cl->finish();
-  if(StatefulTimer::enabled) StatefulTimer::timeCheck(("Apply3 END " + oss.str()).c_str());
+  if(StatefulTimer::enabled) StatefulTimer::timeCheck(("Apply END " + oss.str()).c_str());
+}
+
+template< typename IndexType >
+void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, HasOperator3 const*op ) {
+  int dims[3];
+  dims[0] = A;
+  dims[1] = B;
+  dims[2] = C;
+  TensorInfo<IndexType> *infos[3];
+  infos[0] = &aInfo;
+  infos[1] = &bInfo;
+  infos[2] = &cInfo;
+  kernelLaunch_pointwiseApply(state, grid, block, 3, dims, infos, totalElements, op, op->operator3());
 }
 
 bool THClTensor_pointwiseApply1(THClState* state,
