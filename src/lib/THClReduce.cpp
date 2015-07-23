@@ -99,7 +99,6 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
     }
 
     std::string indexType = TypeParseTraits<IndexType>::name;
-  //  indexType = easycl::replace(indexType, " ", "");
     kernelBuilder
       .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
       .set("dims", dims)
@@ -146,7 +145,6 @@ void kernelLaunch_THClTensor_reduceContigDim(
   HasOperator2 const*modifyOp,
   HasOperator3 const*reduceOp) {
 
-//  cl->finish();
   StatefulTimer::timeCheck("Reduce-contig START");
   std::string uniqueName = "THClTensor_reduceContigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
     TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
@@ -174,7 +172,6 @@ void kernelLaunch_THClTensor_reduceContigDim(
     }
 
     std::string indexType = TypeParseTraits<IndexType>::name;
-  //  indexType = easycl::replace(indexType, " ", "");
     kernelBuilder
       .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
       .set("dims", dims)
@@ -259,102 +256,43 @@ bool THClTensor_reduceDim(THClState* state,
   THClTensor_resize(state, out, sizes, NULL);
   THLongStorage_free(sizes);
 
-  // It is possible that the tensor dimensions are able to be collapsed,
-  // and thus we can reduce the actual code complexity of the copy by
-  // exploiting this knowledge statically, since the div/mod is the
-  // most expensive part of the operation, more so than memory accesses.
-  // For instance, when copying a non-contiguous to a contiguous tensor
-  // (or vice versa), the contiguous tensor can be collapsed to one
-  // dimension, and the loop to translate the linear index to the array
-  // index can be similarly collapsed. That is what this unrolling is for.
-#define HANDLE_CASE(TYPE, OUT, IN)                                      \
-  if (contigReduction) {                                                \
-    kernelLaunch_THClTensor_reduceContigDim<TYPE> (    \
-        state, grid, block, smemSize, OUT, IN, outInfo, inInfo, (TYPE) reductionSize,                                 \
-        (TYPE) outElements, init, modifyOp, reduceOp);                  \
-    /* THClTensor_reduceContigDim<ModifyOp, ReduceOp, TYPE, OUT, IN>     \
-      <<<grid, block, smemSize, THClState_getCurrentStream(state)>>>(    \
-        outInfo, inInfo, (TYPE) reductionSize,                                 \
-        (TYPE) outElements, init, modifyOp, reduceOp);  */                \
-         /* THError("Not implemented"); */  \
-  } else {                                                              \
-     kernelLaunch_THClTensor_reduceNoncontigDim<TYPE> (  \
-        state, grid, block, OUT, IN, outInfo, inInfo, (TYPE) reductionStride, (TYPE) reductionSize,                \
-        (TYPE) outElements, init, modifyOp, reduceOp);                   \
-    /* THClTensor_reduceNoncontigDim<ModifyOp, ReduceOp, TYPE, OUT, IN>  \
-      <<<grid, block, 0, THClState_getCurrentStream(state)>>>(           \
-        outInfo, inInfo, (TYPE) reductionStride, (TYPE) reductionSize,                \
-        (TYPE) outElements, init, modifyOp, reduceOp);  */                 \
-      /* THError("Not implemented"); */   \
-  }                                                                     \
-
-#define HANDLE_IN_CASE(TYPE, OUT, IN)                   \
-  {                                                     \
-    if (inInfo.isContiguous()) {                        \
-      HANDLE_CASE(TYPE, OUT, -2);                       \
-    } else {                                            \
-      switch (IN) {                                     \
-        case 1:                                         \
-          HANDLE_CASE(TYPE, OUT, 1);                    \
-          break;                                        \
-        case 2:                                         \
-          HANDLE_CASE(TYPE, OUT, 2);                    \
-          break;                                        \
-        case 3:                                         \
-          HANDLE_CASE(TYPE, OUT, 3);                    \
-          break;                                        \
-        default:                                        \
-          HANDLE_CASE(TYPE, OUT, -1);                   \
-          break;                                        \
-      }                                                 \
-    }                                                   \
-  }
-
-#define HANDLE_OUT_CASE(TYPE, OUT, IN)                \
-  {                                                   \
-    if (outInfo.isContiguous()) {                     \
-      HANDLE_IN_CASE(TYPE, -2, IN);                   \
-    } else {                                          \
-      switch (OUT) {                                  \
-        case 1:                                       \
-          HANDLE_IN_CASE(TYPE, 1, IN);                \
-          break;                                      \
-        case 2:                                       \
-          HANDLE_IN_CASE(TYPE, 2, IN);                \
-          break;                                      \
-        case 3:                                       \
-          HANDLE_IN_CASE(TYPE, 3, IN);                \
-          break;                                      \
-        default:                                      \
-          HANDLE_IN_CASE(TYPE, -1, IN);               \
-          break;                                      \
-      }                                               \
-    }                                                 \
-  }
-
   if (THCL_canUse32BitIndexMath(state, out) &&
       THCL_canUse32BitIndexMath(state, in)) {
     TensorInfo<uint32> outInfo(state, out);
     TensorInfo<uint32> inInfo(state, in, dim);
+    int OUT = outInfo.dims;
+    int IN = inInfo.dims;
+    if(outInfo.isContiguous()) OUT = -2;
+    if(inInfo.isContiguous()) IN = -2;
 
-    HANDLE_OUT_CASE(uint32, outInfo.dims, inInfo.dims);
+    if (contigReduction) {
+      kernelLaunch_THClTensor_reduceContigDim<uint32> (
+          state, grid, block, smemSize, OUT, IN, outInfo, inInfo, (uint32) reductionSize,
+          (uint32) outElements, init, modifyOp, reduceOp);
+    } else {
+       kernelLaunch_THClTensor_reduceNoncontigDim<uint32> (
+          state, grid, block, OUT, IN, outInfo, inInfo, (uint32) reductionStride, (uint32) reductionSize,
+          (uint32) outElements, init, modifyOp, reduceOp);
+    }
   } else {
     TensorInfo<uint64> outInfo(state, out);
     TensorInfo<uint64> inInfo(state, in, dim);
 
-    // For large tensors, we only compile the completely contiguous
-    // version and the completely generic version, to reduce
-    // compilation time.
-    if (outInfo.isContiguous() && inInfo.isContiguous()) {
-      HANDLE_CASE(uint64, -2, -2);
+    int OUT = outInfo.dims;
+    int IN = inInfo.dims;
+    if(outInfo.isContiguous()) OUT = -2;
+    if(inInfo.isContiguous()) IN = -2;
+
+    if (contigReduction) {
+      kernelLaunch_THClTensor_reduceContigDim<uint64> (
+          state, grid, block, smemSize, OUT, IN, outInfo, inInfo, (uint64) reductionSize,
+          (uint64) outElements, init, modifyOp, reduceOp);
     } else {
-      HANDLE_CASE(uint64, -1, -1);
+       kernelLaunch_THClTensor_reduceNoncontigDim<uint64> (
+          state, grid, block, OUT, IN, outInfo, inInfo, (uint64) reductionStride, (uint64) reductionSize,
+          (uint64) outElements, init, modifyOp, reduceOp);
     }
   }
-#undef HANDLE_CASE
-#undef HANDLE_B_CASE
-#undef HANDLE_A_CASE
-
   return true;
 }
 
