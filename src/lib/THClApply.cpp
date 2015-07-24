@@ -136,36 +136,6 @@ void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int n
   if(state->addFinish) cl->finish();
   if(StatefulTimer::enabled) StatefulTimer::timeCheck(("Apply END " + oss.str()).c_str());
 }
-template< typename IndexType >
-void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int A, TensorInfo<IndexType> aInfo, IndexType totalElements, HasOperator1 const * op ) {
-  int dims[1];
-  dims[0] = A;
-  TensorInfo<IndexType> *infos[1];
-  infos[0] = &aInfo;
-  kernelLaunch_pointwiseApply(state, grid, block, 1, dims, infos, totalElements, op, op->operator1());
-}
-template< typename IndexType >
-void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, HasOperator2 const*op ) {
-  int dims[2];
-  dims[0] = A;
-  dims[1] = B;
-  TensorInfo<IndexType> *infos[2];
-  infos[0] = &aInfo;
-  infos[1] = &bInfo;
-  kernelLaunch_pointwiseApply(state, grid, block, 2, dims, infos, totalElements, op, op->operator2());
-}
-template< typename IndexType >
-void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, HasOperator3 const*op ) {
-  int dims[3];
-  dims[0] = A;
-  dims[1] = B;
-  dims[2] = C;
-  TensorInfo<IndexType> *infos[3];
-  infos[0] = &aInfo;
-  infos[1] = &bInfo;
-  infos[2] = &cInfo;
-  kernelLaunch_pointwiseApply(state, grid, block, 3, dims, infos, totalElements, op, op->operator3());
-}
 bool THClTensor_pointwiseApply(THClState* state,
                                int numTensors,
                                THClTensor** tensors,
