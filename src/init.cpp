@@ -161,6 +161,11 @@ namespace cltorch {
     THClState *state = cltorch_getstate(L);
     int addFinish = luaL_checknumber(L, 1);
     state->addFinish = addFinish;
+    if(addFinish) {
+      cout << "AddFinish activated" << endl;
+    } else {
+      cout << "AddFinish disabled" << endl;
+    }
     return 0;
   }
   static int cltorch_setDetailedTimings(lua_State *L)
