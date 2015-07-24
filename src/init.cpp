@@ -163,6 +163,13 @@ namespace cltorch {
     state->addFinish = addFinish;
     return 0;
   }
+  static int cltorch_setDetailedTimings(lua_State *L)
+  {
+    THClState *state = cltorch_getstate(L);
+    int detailedTimings = luaL_checknumber(L, 1);
+    state->detailedTimings = detailedTimings;
+    return 0;
+  }
   static int cltorch_about(lua_State *L)
   {
     cout << "cltorch.  OpenCL backend for Torch" << endl;
@@ -185,6 +192,7 @@ namespace cltorch {
     {"dumpTimings", cltorch_dumpTimings},
     {"setProfiling", cltorch_setProfiling},
     {"setEnableTiming", cltorch_setEnableTiming},
+    {"setDetailedTimings", cltorch_setDetailedTimings},
     {"setTiming", cltorch_setEnableTiming},
     {"dumpProfiling", cltorch_dumpProfiling},
     {"about", cltorch_about},

@@ -57,6 +57,7 @@ typedef struct THClState
              // or device <-> host transfer
   int addFinish; // default 0, should we add clFinish() after any kernel, enqueue, etc?
                  // (good for debugging stuff, bad for perf)
+  int detailedTimings;
   struct THClScratchSpace**scratchSpaceByDevice; // for now, do one 'stream' per device
                                  // can improve later...
   struct DeviceInfo **deviceInfoByDevice;

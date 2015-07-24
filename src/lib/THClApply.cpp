@@ -59,7 +59,7 @@ void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int n
   }
   oss << operationString;
   StatefulTimer::timeCheck("Apply gotname");
-  if(false && StatefulTimer::enabled) {
+  if(state->detailedTimings && StatefulTimer::enabled) {
     for(int t=0; t < numTensors; t++) {
       TensorInfo<IndexType> *info = infos[t];
       oss << "tensor " << t << ": ";
