@@ -136,7 +136,6 @@ void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int n
   if(state->addFinish) cl->finish();
   if(StatefulTimer::enabled) StatefulTimer::timeCheck(("Apply END " + oss.str()).c_str());
 }
-
 template< typename IndexType >
 void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int A, TensorInfo<IndexType> aInfo, IndexType totalElements, HasOperator1 const * op ) {
   int dims[1];
@@ -145,7 +144,6 @@ void kernelLaunch_pointwiseApply1( THClState *state, dim3 grid, dim3 block, int 
   infos[0] = &aInfo;
   kernelLaunch_pointwiseApply(state, grid, block, 1, dims, infos, totalElements, op, op->operator1());
 }
-
 template< typename IndexType >
 void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int A, int B, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, IndexType totalElements, HasOperator2 const*op ) {
   int dims[2];
@@ -156,7 +154,6 @@ void kernelLaunch_pointwiseApply2( THClState *state, dim3 grid, dim3 block, int 
   infos[1] = &bInfo;
   kernelLaunch_pointwiseApply(state, grid, block, 2, dims, infos, totalElements, op, op->operator2());
 }
-
 template< typename IndexType >
 void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int A, int B, int C, TensorInfo<IndexType> aInfo, TensorInfo<IndexType> bInfo, TensorInfo<IndexType> cInfo, IndexType totalElements, HasOperator3 const*op ) {
   int dims[3];
@@ -169,157 +166,6 @@ void kernelLaunch_pointwiseApply3( THClState *state, dim3 grid, dim3 block, int 
   infos[2] = &cInfo;
   kernelLaunch_pointwiseApply(state, grid, block, 3, dims, infos, totalElements, op, op->operator3());
 }
-
-bool THClTensor_pointwiseApply1(THClState* state,
-                                  THClTensor* a,
-                                  const HasOperator1 *op,
-                                  TensorArgType aType) {
-  const int device = a->storage->device;
-  long totalElements = THClTensor_nElement(state, a);
-
-  if (THClTensor_nDimension(state, a) > MAX_CLTORCH_DIMS) {
-    return false;
-  }
-
-  if (THClTensor_nDimension(state, a) == -1) {
-    return true;
-  }
-
-  const dim3 block = getApplyBlock(state, device);
-
-  dim3 grid;
-  if (!getApplyGrid(state, device, totalElements, grid)) {
-    return false;
-  }
-
-  // If tensor args have overlapping indices and are read/write, then
-  // we must expand the tensor to a contiguous form first, since
-  // otherwise there are conflicting writes. Upon copying back to the
-  // non-contiguous form, there will be conflicting writes, but at
-  // least with copy, one of the updaters will win atomically. This is
-  // a sketchy property of the old system as well (writing into all
-  // indices of a tensor with overlapping indices should probably be
-  // an error, since it is unclear which one should win), but we will
-  // preserve this last-writer-wins (in arbitrary copy order) behavior.
-  THClTensor* oldA = NULL;
-  if (aType == ReadWrite && THCL_overlappingIndices(state, a)) {
-    oldA = a;
-    a = THClTensor_newContiguous(state, a);
-  }
-
-  if (THCL_canUse32BitIndexMath(state, a)) {
-    TensorInfo<unsigned int> aInfo(state, a);
-
-    int A = aInfo.dims;
-    if(aInfo.isContiguous()) A = -2;
-    kernelLaunch_pointwiseApply1<unsigned int>(state, grid, block, A, aInfo, (unsigned int) totalElements, op );
-  } else {
-    TensorInfo<unsigned long> aInfo(state, a);
-
-    if (aInfo.isContiguous()) {
-      THError("Not implemented");
-    } else {
-      THError("Not implemented");
-    }
-  }
-  if (oldA) {
-    THClTensor_copyIgnoringOverlaps(state, oldA, a);
-    THClTensor_free(state, a);
-    a = oldA;
-  }
-
-  return true;
-}
-
-bool THClTensor_pointwiseApply2(THClState* state,
-                                  THClTensor* a,
-                                  THClTensor* b,
-                                  const HasOperator2 *op,
-                                  TensorArgType aType,
-                                  TensorArgType bType) {
-  long totalElements = THClTensor_nElement(state, a);
-  const int device = b->storage->device;
-
-  if (totalElements != THClTensor_nElement(state, b)) {
-    std::cout << "apply2 num elements mismatch" << std::endl;
-    return false;
-  }
-
-  if (THClTensor_nDimension(state, a) > MAX_CLTORCH_DIMS ||
-      THClTensor_nDimension(state, b) > MAX_CLTORCH_DIMS) {
-    std::cout << "apply2 too many dimensions" << std::endl;
-    return false;
-  }
-
-  if (THClTensor_nDimension(state, a) == -1) {
-    return true;
-  }
-
-  const dim3 block = getApplyBlock(state, device);
-
-  dim3 grid;
-  if (!getApplyGrid(state, device, totalElements, grid)) {
-    std::cout << "apply2 couldnt get apply grid" << std::endl;
-    return false;
-  }
-
-  // If tensor args have overlapping indices and are read/write, then
-  // we must expand the tensor to a contiguous form first, since
-  // otherwise there are conflicting writes. Upon copying back to the
-  // non-contiguous form, there will be conflicting writes, but at
-  // least with copy, one of the updaters will win atomically. This is
-  // a sketchy property of the old system as well (writing into all
-  // indices of a tensor with overlapping indices should probably be
-  // an error, since it is unclear which one should win), but we will
-  // preserve this last-writer-wins (in arbitrary copy order) behavior.
-  THClTensor* oldA = NULL;
-  THClTensor* oldB = NULL;
-
-  if (aType == ReadWrite && THCL_overlappingIndices(state, a)) {
-    oldA = a;
-    a = THClTensor_newContiguous(state, a);
-  }
-  if (bType == ReadWrite && THCL_overlappingIndices(state, b)) {
-    oldB = b;
-    b = THClTensor_newContiguous(state, b);
-  }
-
-  if (THCL_canUse32BitIndexMath(state, a) &&
-      THCL_canUse32BitIndexMath(state, b)) {
-    TensorInfo<unsigned int> aInfo(state, a);
-    TensorInfo<unsigned int> bInfo(state, b);
-
-    int A = aInfo.dims;
-    int B = bInfo.dims;
-    if(aInfo.isContiguous()) A = -2;
-    if(bInfo.isContiguous()) B = -2;
-
-    kernelLaunch_pointwiseApply2< unsigned int >(state, grid, block, A, B, aInfo, bInfo, (unsigned int) totalElements, op );
-  } else {
-    TensorInfo<unsigned long> aInfo(state, a);
-    TensorInfo<unsigned long> bInfo(state, b);
-
-    if (aInfo.isContiguous() && bInfo.isContiguous()) {
-      THError("Not implemented");
-    } else {
-      THError("Not implemented");
-    }
-  }
-
-  if (oldA) {
-    THClTensor_copyIgnoringOverlaps(state, oldA, a);
-    THClTensor_free(state, a);
-    a = oldA;
-  }
-  if (oldB) {
-    THClTensor_copyIgnoringOverlaps(state, oldB, b);
-    THClTensor_free(state, b);
-    b = oldB;
-  }
-
-  return true;
-}
-
 bool THClTensor_pointwiseApply(THClState* state,
                                int numTensors,
                                THClTensor** tensors,
@@ -419,6 +265,34 @@ bool THClTensor_pointwiseApply(THClState* state,
   }
   return true;
 }
+bool THClTensor_pointwiseApply1(THClState* state,
+                                  THClTensor* a,
+                                  const HasOperator1 *op,
+                                  TensorArgType aType) {
+  THClTensor *tensors[1];
+  tensors[0] = a;
+  TensorArgType types[1];
+  types[0] = aType;
+  return THClTensor_pointwiseApply(
+    state, 1, tensors, op, op->operator1(), types);
+}
+
+bool THClTensor_pointwiseApply2(THClState* state,
+                                  THClTensor* a,
+                                  THClTensor* b,
+                                  const HasOperator2 *op,
+                                  TensorArgType aType,
+                                  TensorArgType bType) {
+  THClTensor *tensors[2];
+  tensors[0] = a;
+  tensors[1] = b;
+  TensorArgType types[2];
+  types[0] = aType;
+  types[1] = bType;
+  return THClTensor_pointwiseApply(
+    state, 2, tensors, op, op->operator2(), types);
+}
+
 bool THClTensor_pointwiseApply3(THClState* state,
                                   THClTensor* a,
                                   THClTensor* b,
