@@ -72,10 +72,7 @@ THCL_API void THClTensor_gather(THClState *state, THClTensor *self, THClTensor *
   const dim3 block = getApplyBlock(state, device);
 
   long totalElements = THClTensor_nElement(state, index);
-  dim3 grid;
-  if (!getApplyGrid(state, device, totalElements, grid)) {
-    THError("Couldnt create appropriate grid dimensions");
-  }
+  dim3 grid = getApplyGrid(state, device, totalElements);
 
   THClKernels k(state, kernel);
   kernel->in(1, &selfInfoCl);

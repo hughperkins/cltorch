@@ -34,10 +34,9 @@ int getWorkgroupSize(THClState *state, int device) {
 dim3 getApplyBlock(THClState *state, int device) {
   return dim3(getWorkgroupSize(state, device));
 }
-bool getApplyGrid(THClState* state, int device, long totalElements, dim3& grid) {
+dim3 getApplyGrid(THClState* state, int device, long totalElements) {
   int workgroupSize = getWorkgroupSize(state, device);
-  grid = dim3((totalElements + workgroupSize - 1 ) / workgroupSize);
-  return true;
+  return dim3((totalElements + workgroupSize - 1 ) / workgroupSize);
 }
 
 template< typename IndexType >
@@ -162,12 +161,7 @@ bool THClTensor_pointwiseApply(THClState* state,
   }
 
   const dim3 block = getApplyBlock(state, device);
-
-  dim3 grid;
-  if (!getApplyGrid(state, device, totalElements, grid)) {
-    THError("Apply: getapplygrid returns false");
-    return false;
-  }
+  const dim3 grid = getApplyGrid(state, device, totalElements);
 
   // If tensor args have overlapping indices and are read/write, then
   // we must expand the tensor to a contiguous form first, since

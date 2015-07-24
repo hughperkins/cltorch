@@ -15,7 +15,7 @@
 
 int getWorkgroupSize(THClState *state, int device);
 dim3 getApplyBlock(THClState *state, int device);
-bool getApplyGrid(THClState* state, int device, long totalElements, dim3& grid);
+dim3 getApplyGrid(THClState* state, int device, long totalElements);
 
 bool THClTensor_pointwiseApply1(THClState* state,
                                   THClTensor* a,
