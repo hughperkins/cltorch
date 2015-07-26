@@ -58,7 +58,6 @@ void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int n
     oss << dims[t] << "_";
   }
   oss << operationString;
-  StatefulTimer::timeCheck("Apply gotname");
   if(state->detailedTimings && StatefulTimer::enabled) {
     for(int t=0; t < numTensors; t++) {
       TensorInfo<IndexType> *info = infos[t];
@@ -84,6 +83,7 @@ void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int n
     oss << " nelements=" << totalElements;
 //    uniqueName = oss.str();
   }
+  StatefulTimer::timeCheck("Apply gotname");
   EasyCL *cl = infos[numTensors - 1]->wrapper->getCl();
   CLKernel *kernel = 0;
   if(cl->kernelExists(oss.str())) {
@@ -141,6 +141,7 @@ bool THClTensor_pointwiseApply(THClState* state,
                                const OpBase *op,
                                string operationString,
                                TensorArgType *types) {
+  StatefulTimer::timeCheck("THClTEnsor_pointwiseApply START");
   long totalElements = THClTensor_nElement(state, tensors[0]);
   const int device = tensors[0]->storage->device;
   for(int t=1; t < numTensors; t++) {
@@ -227,6 +228,7 @@ bool THClTensor_pointwiseApply(THClState* state,
       tensors[t] = oldTensors[t];
     }
   }
+  StatefulTimer::timeCheck("THClTEnsor_pointwiseApply END");
   return true;
 }
 bool THClTensor_pointwiseApply1(THClState* state,
