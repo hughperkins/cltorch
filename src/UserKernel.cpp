@@ -218,11 +218,11 @@ static int ClKernel_new(lua_State *L) {
     lua_pushnil(L);
     while(lua_next(L, -2) != 0) {
       string key = lua_tostring(L, -2);
-      if(key == "input") {
+      if(key == "input" || key == "inputs") {
         loadParameters(L, ClKernelDirection::input, self);
-      } else if( key == "output") {
+      } else if( key == "output" || key == "outputs") {
         loadParameters(L, ClKernelDirection::output, self);
-      } else if( key == "inout") {
+      } else if( key == "inout" || key == "inouts") {
         loadParameters(L, ClKernelDirection::inout, self);
       } else if( key == "name") {
         self->kernelName = lua_tostring(L, -1); // probably should use luaT for this
