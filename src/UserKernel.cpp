@@ -75,8 +75,12 @@ public:
   }
   virtual std::string asParameterString() const {
     string res = "";
+    string conststring = "";
+    if(direction == input) {
+      conststring = "const";
+    }
     res += "global struct THClTensorInfoCl *" + name + "_info, ";
-    res += "global float * " + name + "_data";
+    res += "global " + conststring + " float * " + name + "_data";
     return res;
   }
   virtual void writeToKernel(lua_State *L, ClKernel *clKernel,THClKernels *k) {
@@ -166,7 +170,7 @@ public:
   string source;
   string extraSource;
   string kernelName;
-  string generatedSource;
+  string renderedKernel;
   CLKernel *kernel;
   vector< ClKernelArg * >args;
   ClKernel() {
@@ -242,21 +246,21 @@ static int ClKernel_new(lua_State *L) {
 
     THClState *state = cltorch_getstate(L);
     EasyCL *cl = THClState_getClv2(state, state->currentDevice);
-    string generatedSource = "";
-    generatedSource += easycl::replaceGlobal(getTensorInfoClSrc(), "{{MAX_CLTORCH_DIMS}}", easycl::toString(MAX_CLTORCH_DIMS)) + "\n";
-    generatedSource += self->extraSource + "\n";
-    generatedSource += "kernel void " + self->kernelName + "(\n";
+    string renderedKernel = "";
+    renderedKernel += easycl::replaceGlobal(getTensorInfoClSrc(), "{{MAX_CLTORCH_DIMS}}", easycl::toString(MAX_CLTORCH_DIMS)) + "\n";
+    renderedKernel += self->extraSource + "\n";
+    renderedKernel += "kernel void " + self->kernelName + "(\n";
     for(int i = 0; i < (int)self->args.size(); i++) {
       if(i > 0) {
-        generatedSource += ",\n";
+        renderedKernel += ",\n";
       }
-      generatedSource += "    " + self->args[i]->asParameterString();
+      renderedKernel += "    " + self->args[i]->asParameterString();
     }
-    generatedSource += "\n) {\n";   // probalby should use ostringstream for this really, for speed
-    generatedSource += self->source + "\n";
-    generatedSource += "}\n";
-    self->generatedSource = generatedSource;
-    self->kernel = cl->buildKernelFromString(generatedSource, self->kernelName, "", "UserKernel");
+    renderedKernel += "\n) {\n";   // probalby should use ostringstream for this really, for speed
+    renderedKernel += self->source + "\n";
+    renderedKernel += "}\n";
+    self->renderedKernel = renderedKernel;
+    self->kernel = cl->buildKernelFromString(renderedKernel, self->kernelName, "", "UserKernel");
   } else {
     THError("First parameter to torch.ClKernel should be a table");
   }
@@ -289,8 +293,18 @@ static int ClKernel_print(lua_State *L) {
   cout << endl;
   cout << "Generated source\n"
        << "================\n"
-       << self->generatedSource << endl;
+       << self->renderedKernel << endl;
   return 0;
+}
+static int ClKernel_getRawKernel(lua_State *L) {
+  ClKernel *self = (ClKernel *)luaT_checkudata(L, 1, "torch.ClKernel");
+  lua_pushstring(L, self->source.c_str());
+  return 1;
+}
+static int ClKernel_getRenderedKernel(lua_State *L) {
+  ClKernel *self = (ClKernel *)luaT_checkudata(L, 1, "torch.ClKernel");
+  lua_pushstring(L, self->renderedKernel.c_str());
+  return 1;
 }
 static int ClKernel_run(lua_State *L) {
   THClState *state = cltorch_getstate(L);
@@ -362,6 +376,8 @@ static int ClKernel_run(lua_State *L) {
 }
 static const struct luaL_Reg ClKernel_funcs [] = {
   {"print", ClKernel_print},
+  {"getRenderedKernel", ClKernel_getRenderedKernel},
+  {"getRawKernel", ClKernel_getRawKernel},
   {"run", ClKernel_run},
   {0,0}
 };
