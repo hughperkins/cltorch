@@ -11,6 +11,7 @@ extern "C" {
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 using namespace std;
 
 static std::string getTensorInfoClSrc();
@@ -260,7 +261,11 @@ static int ClKernel_new(lua_State *L) {
     renderedKernel += self->source + "\n";
     renderedKernel += "}\n";
     self->renderedKernel = renderedKernel;
-    self->kernel = cl->buildKernelFromString(renderedKernel, self->kernelName, "", "UserKernel");
+    try {
+      self->kernel = cl->buildKernelFromString(renderedKernel, self->kernelName, "", "UserKernel");
+    } catch(runtime_error &e) {
+      THError("Failed to create kernel %s", e.what());
+    }
   } else {
     THError("First parameter to torch.ClKernel should be a table");
   }
