@@ -39,6 +39,7 @@ void THClTensor_copyFloat(THClState *state, THClTensor *self, struct THFloatTens
 #define IMPLEMENT_TH_CL_TENSOR_COPY(TYPEC)                            \
 void THClTensor_copy##TYPEC(THClState *state, THClTensor *self, struct TH##TYPEC##Tensor *src) \
 {                                                                       \
+  try { \
   THArgCheck(THClTensor_nElement(state, self) == TH##TYPEC##Tensor_nElement(src), 2, "sizes do not match"); \
                                                                         \
   {                                                                     \
@@ -51,6 +52,10 @@ void THClTensor_copy##TYPEC(THClState *state, THClTensor *self, struct TH##TYPEC
     THLongStorage_free(size);                                           \
     THFloatTensor_free(srcf);                                           \
   }                                                                     \
+  } catch(runtime_error &e) { \
+    cout << "runtime error: " << e.what() << endl; \
+    THError("Something went wrong: %s", e.what()); \
+  } \
 }
 
 IMPLEMENT_TH_CL_TENSOR_COPY(Byte)
