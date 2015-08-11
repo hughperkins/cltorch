@@ -73,11 +73,11 @@ rawset(torch.getmetatable('torch.ClTensor'), 'short', Tensor__short)
 rawset(torch.getmetatable('torch.ClTensor'), 'long', Tensor__long)
 
 do
-local metatable = torch.getmetatable('torch.ClTensor')
--- hmmm, maybe these are running on cpu? :-P
-for _,func in pairs{'expand', 'expandAs', 'view', 'viewAs', 'repeatTensor',
+   local metatable = torch.getmetatable('torch.ClTensor')
+   -- hmmm, maybe these are running on cpu? :-P
+   for _,func in pairs{'expand', 'expandAs', 'view', 'viewAs', 'repeatTensor',
       'permute', 'split', 'chunk'} do
-   rawset(metatable, func, torch[func])
-end
+      rawset(metatable, func, torch[func])
+   end
 end
 
