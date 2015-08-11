@@ -9,7 +9,7 @@
 
 local function Tensor__type(self,type)
    local current = torch.typename(self)
-   if not type then return current end
+if not type then return current end
    if type ~= current then
       local new = torch.getmetatable(type).new()
       if self:nElement() > 0 then
@@ -73,10 +73,11 @@ rawset(torch.getmetatable('torch.ClTensor'), 'short', Tensor__short)
 rawset(torch.getmetatable('torch.ClTensor'), 'long', Tensor__long)
 
 do
-    local metatable = torch.getmetatable('torch.ClTensor')
-    -- hmmm, maybe these are running on cpu? :-P
-    for _,func in pairs{'expand', 'expandAs', 'view', 'viewAs', 'repeatTensor',
-                        'permute', 'split', 'chunk'} do
-        rawset(metatable, func, torch[func])
-    end
+local metatable = torch.getmetatable('torch.ClTensor')
+-- hmmm, maybe these are running on cpu? :-P
+for _,func in pairs{'expand', 'expandAs', 'view', 'viewAs', 'repeatTensor',
+      'permute', 'split', 'chunk'} do
+   rawset(metatable, func, torch[func])
 end
+end
+

@@ -13,40 +13,40 @@ table.insert(torchtypes, torch.ShortTensor)
 table.insert(torchtypes, torch.LongTensor)
 
 for i,torchtype in ipairs(torchtypes) do
-  torchtype.cloldcopy = torchtype.copy
+   torchtype.cloldcopy = torchtype.copy
 end
 
 cltorch = paths.require("libcltorch")
 
 for i,torchtype in ipairs(torchtypes) do
-  torchtype.clnewcopy = torchtype.copy
+   torchtype.clnewcopy = torchtype.copy
 end
 
 for i,torchtype in ipairs(torchtypes) do
-  torchtype.copy = function (self, two)
-    if(torch.type(two) == "torch.ClTensor") then
+   torchtype.copy = function (self, two)
+   if(torch.type(two) == "torch.ClTensor") then
       torchtype.clnewcopy(self, two)
-    else
+   else
       torchtype.cloldcopy(self, two)
-    end
-    return self
-  end
+   end
+   return self
+end
 end
 
 -- convert to FloatStorage first, rather than repeatedly
 -- calling 'get' on ClStorage
 function torch.ClStorage.__tostring__(self)
-  floatstorage = torch.FloatStorage(self:size())
-  floatstorage:copy(self)
-  return string.gsub(floatstorage:__tostring__(), 'FloatStorage', 'ClStorage')
+floatstorage = torch.FloatStorage(self:size())
+floatstorage:copy(self)
+return string.gsub(floatstorage:__tostring__(), 'FloatStorage', 'ClStorage')
 end
 
 function torch.ClTensor.__tostring__(self)
-  if self:size():size() ~= 0 then
-    return torch.FloatTensor.__tostring__(self)
-  else
-    return tostring(self:s()) .. '\n[torch.ClTensor of 0 dimensions]'
-  end  
+if self:size():size() ~= 0 then
+   return torch.FloatTensor.__tostring__(self)
+else
+   return tostring(self:s()) .. '\n[torch.ClTensor of 0 dimensions]'
+end
 end
 
 --torch.ClStorage.__tostring__ = torch.FloatStorage.__tostring__
