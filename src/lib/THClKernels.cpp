@@ -184,8 +184,8 @@ THClKernels *THClKernels::inout<IndexType>(TensorInfo<IndexType>tensorInfo); \
 template \
 THClKernels *THClKernels::out<IndexType>(TensorInfo<IndexType>tensorInfo);
 
-DECLARE_THCLKERNELS(uint32);
-DECLARE_THCLKERNELS(uint64);
+DECLARE_THCLKERNELS(uint32_t);
+DECLARE_THCLKERNELS(uint64_t);
 
 template CLKernel *CLKernel::in<>(int N, const TensorInfoCl *data);
 template CLKernel *CLKernel::inout<>(int N, const TensorInfoCl *data);

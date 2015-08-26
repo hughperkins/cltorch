@@ -7,15 +7,15 @@ TYPE THClCeilDiv(TYPE a, TYPE b) { \
   return (a + b - 1) / b; \
 }
 
-DEFINE_THCLCEILDIV(uint32);
-DEFINE_THCLCEILDIV(uint64);
-DEFINE_THCLCEILDIV(int32);
-DEFINE_THCLCEILDIV(int64);
+DEFINE_THCLCEILDIV(uint32_t);
+DEFINE_THCLCEILDIV(uint64_t);
+DEFINE_THCLCEILDIV(int32_t);
+DEFINE_THCLCEILDIV(int64_t);
 
-//template uint64 THClCeilDiv<uint64>(uint64 a, uint64 b);
-//template uint32 THClCeilDiv<uint32>(uint32 a, uint32 b);
-//template int64 THClCeilDiv<int64>(int64 a, int64 b);
-//template int32 THClCeilDiv<int32>(int32 a, int32 b);
+//template uint64_t THClCeilDiv<uint64>(uint64_t a, uint64_t b);
+//template uint32_t THClCeilDiv<uint32>(uint32_t a, uint32_t b);
+//template int64_t THClCeilDiv<int64>(int64_t a, int64_t b);
+//template int32_t THClCeilDiv<int32>(int32_t a, int32_t b);
 
 std::string THClDeviceUtils_getKernelTemplate() {
   // [[[cog

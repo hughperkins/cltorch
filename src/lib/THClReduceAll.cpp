@@ -13,7 +13,7 @@ using namespace std;
 
 static std::string getKernelTemplate();
 
-int64 getReduceAllBlockSize(THClState *state, int device) {
+int64_t getReduceAllBlockSize(THClState *state, int device) {
   int blockSize = 1024;
   int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[device])->maxWorkGroupSize;
   if( blockSize > maxWorkgroupSize ) {
@@ -27,25 +27,25 @@ int64 getReduceAllBlockSize(THClState *state, int device) {
 // I wonder if this is a function of the block size above?  logically it 
 // probably is...
 
-int64 getTwoPassReductionSize(THClState *state, int device) {
+int64_t getTwoPassReductionSize(THClState *state, int device) {
   return getReduceAllBlockSize(state, device) * 2;
 }
 
 // Perform a two-pass reduction if the tensor is large enough to
 // warrant it.
-bool isTwoPassReductionSize(THClState *state, int device, int64 elements) {
+bool isTwoPassReductionSize(THClState *state, int device, int64_t elements) {
   return (elements > getTwoPassReductionSize(state, device));
 }
 
-int64 getTwoPassBlocks(THClState* state, int device, int64 elements) {
-  int64 numBlocks = THClCeilDiv(elements, getReduceAllBlockSize(state, device));
+int64_t getTwoPassBlocks(THClState* state, int device, int64_t elements) {
+  int64_t numBlocks = THClCeilDiv(elements, getReduceAllBlockSize(state, device));
 
   // We can only have as many blocks as there is scratch space
   size_t scratchSpace =
     THClState_getDeviceScratchSpaceSize(state, device) / sizeof(float);
   THAssert(scratchSpace > 0);
 
-  if (numBlocks > (int64)scratchSpace) {
+  if (numBlocks > (int64_t)scratchSpace) {
     numBlocks = scratchSpace;
   }
 
@@ -53,20 +53,20 @@ int64 getTwoPassBlocks(THClState* state, int device, int64 elements) {
 }
 
 // Get the block/grid size that we want
-void getPass1ReduceBlockGrid(THClState* state, int device, int64 elements,
+void getPass1ReduceBlockGrid(THClState* state, int device, int64_t elements,
                                     dim3& grid, dim3& block) {
   grid = dim3(getTwoPassBlocks(state, device, elements));
   block = dim3(getReduceAllBlockSize(state, device));
 }
 
-void getPass2ReduceBlockGrid(THClState* state, int device, int64 elements,
+void getPass2ReduceBlockGrid(THClState* state, int device, int64_t elements,
                                     dim3& grid, dim3& block) {
   grid = dim3(1);
   // We only need as many threads as there were blocks originally
   block = dim3(getTwoPassBlocks(state, device, elements));
 }
 
-void getSinglePassReduceBlockGrid(THClState *state, int device, int64 elements,
+void getSinglePassReduceBlockGrid(THClState *state, int device, int64_t elements,
                                          dim3& grid, dim3& block) {
   grid = dim3(1);
   block = dim3(getReduceAllBlockSize(state, device));
@@ -78,7 +78,7 @@ void kernelLaunch_THClTensor_reduceAllPass1(
                      dim3 &grid, dim3 &block, size_t smemSize,
                      int ADims,
                      const TensorInfo<IndexType> & in,
-                     int64 totalElements,
+                     int64_t totalElements,
                      float init,
                      const HasOperator2 *modifyOp,
                      const HasOperator3 *reduceOp,
@@ -177,7 +177,7 @@ void kernelLaunch_THClTensor_reduceAll(
                      dim3 &grid, dim3 &block, size_t smemSize,
                      int ADims,
                      const TensorInfo<IndexType> &in,
-                     int64 totalElements,
+                     int64_t totalElements,
                      float init,
                      const HasOperator2 *modifyOp,
                      const HasOperator3 *reduceOp,
@@ -228,7 +228,7 @@ void callReduceAll(THClState* state,
                    const int device,
                    int ADims,
                    const TensorInfo<IndexType>& in,
-                   int64 totalElements,
+                   int64_t totalElements,
                    float init,
                    const HasOperator2 *modifyOp,
                    const HasOperator3 *reduceOp,
@@ -280,7 +280,7 @@ bool THClTensor_reduceAll(THClState* state,
                             const HasOperator3 *reduceOp,
                             float init,
                             CLWrapper *res) {
-  int64 inElements = THClTensor_nElement(state, in);
+  int64_t inElements = THClTensor_nElement(state, in);
 
   if (THClTensor_nDimension(state, in) > MAX_CLTORCH_DIMS) {
     return false;
@@ -303,14 +303,14 @@ bool THClTensor_reduceAll(THClState* state,
   // index can be similarly collapsed. That is what this unrolling is for.
 
   if (THCL_canUse32BitIndexMath(state, in)) {
-    TensorInfo<uint32> inInfo(state, in);
+    TensorInfo<uint32_t> inInfo(state, in);
     int IN = inInfo.isContiguous() ? -2 : inInfo.dims;
-    callReduceAll<uint32>(
+    callReduceAll<uint32_t>(
       state, device, IN, inInfo, inElements, init, modifyOp, reduceOp, res);
   } else {
-    TensorInfo<uint64> inInfo(state, in);
+    TensorInfo<uint64_t> inInfo(state, in);
     int IN = inInfo.isContiguous() ? -2 : inInfo.dims;
-    callReduceAll<uint64>(
+    callReduceAll<uint64_t>(
       state, device, IN, inInfo, inElements, init, modifyOp, reduceOp, res);
   }
   return true;

@@ -108,11 +108,6 @@ THCL_API size_t THClState_getDeviceScratchSpaceSize(THClState* state, int device
 //THCL_API void __THClCheck(cudaError_t err, const char *file, const int line);
 //THCL_API void __THCublasCheck(clblasStatus_t status, const char *file, const int line);
 
-typedef unsigned long long uint64;
-typedef unsigned int uint32;
-typedef long long int64;
-typedef int int32;
-
 // define dim3, since this came from cuda in cutorch
 #ifdef __cplusplus
 class dim3 {
@@ -125,28 +120,28 @@ public:
         vec[1] = 1;
         vec[2] = 1;
     }
-    dim3( uint32 x ) {
+    dim3( uint32_t x ) {
         vec[0] = x;
         vec[1] = 1;
         vec[2] = 1;
     }
-    dim3( uint32 x, uint32 y ) {
+    dim3( uint32_t x, uint32_t y ) {
         vec[0] = x;
         vec[1] = y;
         vec[2] = 1;
     }
-    dim3( uint32 x, uint32 y, uint32 z ) {
+    dim3( uint32_t x, uint32_t y, uint32_t z ) {
         vec[0] = x;
         vec[1] = y;
         vec[2] = z;
     }
-    inline uint32 x() {
+    inline uint32_t x() {
         return vec[0];
     }
-    inline uint32 y() {
+    inline uint32_t y() {
         return vec[1];
     }
-    inline uint32 z() {
+    inline uint32_t z() {
         return vec[2];
     }
     size_t const *as_size_t() {

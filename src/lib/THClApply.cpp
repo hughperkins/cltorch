@@ -189,24 +189,24 @@ bool THClTensor_pointwiseApply(THClState* state,
     }
   }
   if(canUse32BitIndexMath) {
-    TensorInfo<uint32> *infos[numTensors];
+    TensorInfo<uint32_t> *infos[numTensors];
     for(int t=0; t < numTensors; t++) {
-      infos[t] = new TensorInfo<uint32>(state, tensors[t]);
+      infos[t] = new TensorInfo<uint32_t>(state, tensors[t]);
     }
     int dims[numTensors];
     for(int t=0; t < numTensors; t++) {
       dims[t] = infos[t]->dims;
       if(infos[t]->isContiguous()) dims[t] = -2;
     }
-    kernelLaunch_pointwiseApply< uint32 >(state, grid, block, numTensors, dims, infos, (unsigned int) totalElements, op, operationString);
+    kernelLaunch_pointwiseApply< uint32_t >(state, grid, block, numTensors, dims, infos, (unsigned int) totalElements, op, operationString);
     for(int t=0; t < numTensors; t++) {
       delete infos[t];
     }
   } else {
-    TensorInfo<uint64> *infos[numTensors];
+    TensorInfo<uint64_t> *infos[numTensors];
     bool allContiguous = true;
     for(int t=0; t < numTensors; t++) {
-      infos[t] = new TensorInfo<uint64>(state, tensors[t]);
+      infos[t] = new TensorInfo<uint64_t>(state, tensors[t]);
       if(!infos[t]->isContiguous()) {
         allContiguous = false;
       }

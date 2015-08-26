@@ -20,7 +20,7 @@ static dim3 getNoncontigReduceBlock(THClState *state) {
   return dim3(getNonContigReduceBlockSize(state));
 }
 
-static dim3 getContigReduceBlock(int64 numSlices, int64 reductionSize) {
+static dim3 getContigReduceBlock(int64_t numSlices, int64_t reductionSize) {
   // If the number of slices is low but the reduction dimension size
   // is high, then we should increase block size for greater parallelism.
   // Aim for at least 32 warps per SM (assume 15 SMs; don't bother
@@ -38,21 +38,21 @@ static dim3 getContigReduceBlock(int64 numSlices, int64 reductionSize) {
   }
 
   // Scale up block size based on the reduction dimension size
-  int64 warpsInReductionSize = THClCeilDiv(reductionSize, 32ll);
-//  int64 warpsInReductionSize = DIVUP(reductionSize, 32L);
+  int64_t warpsInReductionSize = THClCeilDiv(reductionSize, 32ll);
+//  int64_t warpsInReductionSize = DIVUP(reductionSize, 32L);
   int numWarps =
-    warpsInReductionSize > (int64) maxWarps ? maxWarps : (int) warpsInReductionSize;
-//    warpsInReductionSize > (int64) maxWarps ? maxWarps : (int) warpsInReductionSize;
+    warpsInReductionSize > (int64_t) maxWarps ? maxWarps : (int) warpsInReductionSize;
+//    warpsInReductionSize > (int64_t) maxWarps ? maxWarps : (int) warpsInReductionSize;
   return dim3(numWarps * 32);
 }
 
-static bool getNoncontigReduceGrid(THClState *state, int64 elements, dim3& grid) {
+static bool getNoncontigReduceGrid(THClState *state, int64_t elements, dim3& grid) {
   // One output point per thread
-  return THCL_getGridFromTiles(THClCeilDiv(elements, (int64) getNonContigReduceBlockSize(state)), grid);
+  return THCL_getGridFromTiles(THClCeilDiv(elements, (int64_t) getNonContigReduceBlockSize(state)), grid);
 //  return THCL_getGridFromTiles(DIVUP(elements, THCL_NONCONTIG_REDUCE_BLOCK_SIZE), grid);
 }
 
-static bool getContigReduceGrid(int64 elements, dim3& grid) {
+static bool getContigReduceGrid(int64_t elements, dim3& grid) {
   // One output point per block
   return THCL_getGridFromTiles(elements, grid);
 }
@@ -212,11 +212,11 @@ bool THClTensor_reduceDim(THClState* state,
                             const HasOperator2 *modifyOp,
                             const HasOperator3 *reduceOp,
                             int dim) {
-  int64 inElements = THClTensor_nElement(state, in);
+  int64_t inElements = THClTensor_nElement(state, in);
 
-  int64 reductionSize = THClTensor_size(state, in, dim);
-  int64 reductionStride = THClTensor_stride(state, in, dim);
-  int64 outElements = inElements / reductionSize;
+  int64_t reductionSize = THClTensor_size(state, in, dim);
+  int64_t reductionStride = THClTensor_stride(state, in, dim);
+  int64_t outElements = inElements / reductionSize;
 
   if (THClTensor_nDimension(state, out) > MAX_CLTORCH_DIMS ||
       THClTensor_nDimension(state, in) > MAX_CLTORCH_DIMS) {
@@ -258,25 +258,25 @@ bool THClTensor_reduceDim(THClState* state,
 
   if (THCL_canUse32BitIndexMath(state, out) &&
       THCL_canUse32BitIndexMath(state, in)) {
-    TensorInfo<uint32> outInfo(state, out);
-    TensorInfo<uint32> inInfo(state, in, dim);
+    TensorInfo<uint32_t> outInfo(state, out);
+    TensorInfo<uint32_t> inInfo(state, in, dim);
     int OUT = outInfo.dims;
     int IN = inInfo.dims;
     if(outInfo.isContiguous()) OUT = -2;
     if(inInfo.isContiguous()) IN = -2;
 
     if (contigReduction) {
-      kernelLaunch_THClTensor_reduceContigDim<uint32> (
-          state, grid, block, smemSize, OUT, IN, outInfo, inInfo, (uint32) reductionSize,
-          (uint32) outElements, init, modifyOp, reduceOp);
+      kernelLaunch_THClTensor_reduceContigDim<uint32_t> (
+          state, grid, block, smemSize, OUT, IN, outInfo, inInfo, (uint32_t) reductionSize,
+          (uint32_t) outElements, init, modifyOp, reduceOp);
     } else {
-       kernelLaunch_THClTensor_reduceNoncontigDim<uint32> (
-          state, grid, block, OUT, IN, outInfo, inInfo, (uint32) reductionStride, (uint32) reductionSize,
-          (uint32) outElements, init, modifyOp, reduceOp);
+       kernelLaunch_THClTensor_reduceNoncontigDim<uint32_t> (
+          state, grid, block, OUT, IN, outInfo, inInfo, (uint32_t) reductionStride, (uint32_t) reductionSize,
+          (uint32_t) outElements, init, modifyOp, reduceOp);
     }
   } else {
-    TensorInfo<uint64> outInfo(state, out);
-    TensorInfo<uint64> inInfo(state, in, dim);
+    TensorInfo<uint64_t> outInfo(state, out);
+    TensorInfo<uint64_t> inInfo(state, in, dim);
 
     int OUT = outInfo.dims;
     int IN = inInfo.dims;
@@ -284,13 +284,13 @@ bool THClTensor_reduceDim(THClState* state,
     if(inInfo.isContiguous()) IN = -2;
 
     if (contigReduction) {
-      kernelLaunch_THClTensor_reduceContigDim<uint64> (
-          state, grid, block, smemSize, OUT, IN, outInfo, inInfo, (uint64) reductionSize,
-          (uint64) outElements, init, modifyOp, reduceOp);
+      kernelLaunch_THClTensor_reduceContigDim<uint64_t> (
+          state, grid, block, smemSize, OUT, IN, outInfo, inInfo, (uint64_t) reductionSize,
+          (uint64_t) outElements, init, modifyOp, reduceOp);
     } else {
-       kernelLaunch_THClTensor_reduceNoncontigDim<uint64> (
-          state, grid, block, OUT, IN, outInfo, inInfo, (uint64) reductionStride, (uint64) reductionSize,
-          (uint64) outElements, init, modifyOp, reduceOp);
+       kernelLaunch_THClTensor_reduceNoncontigDim<uint64_t> (
+          state, grid, block, OUT, IN, outInfo, inInfo, (uint64_t) reductionStride, (uint64_t) reductionSize,
+          (uint64_t) outElements, init, modifyOp, reduceOp);
     }
   }
   return true;
