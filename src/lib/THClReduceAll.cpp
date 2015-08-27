@@ -107,7 +107,7 @@ void kernelLaunch_THClTensor_reduceAllPass1(
       .set("modify_operation", modifyOp->operator2())
       .set("reduce_operation", reduceOp->operator3())
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-      .set("IndexType", TypeParseTraits<IndexType>::name)
+      .set("IndexType", TypeParseTraits<IndexType>::openClTypeName)
     ;
 
     kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", getKernelTemplate(), "THClTensor_reduceAllPass1" );
@@ -153,7 +153,7 @@ void kernelLaunch_THClTensor_reduceAllPass2(
       .set("defreduceblock", 1)
       .set("reduce_operation", reduceOp->operator3())
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-      .set("IndexType", TypeParseTraits<IndexType>::name)
+      .set("IndexType", TypeParseTraits<IndexType>::openClTypeName)
     ;
 
     kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", getKernelTemplate(), "THClTensor_reduceAllPass2" );
@@ -206,7 +206,7 @@ void kernelLaunch_THClTensor_reduceAll(
       .set("modify_operation", modifyOp->operator2())
       .set("reduce_operation", reduceOp->operator3())
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-      .set("IndexType", TypeParseTraits<IndexType>::name)
+      .set("IndexType", TypeParseTraits<IndexType>::openClTypeName)
     ;
 
     kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", getKernelTemplate(), "THClTensor_reduceAll" );

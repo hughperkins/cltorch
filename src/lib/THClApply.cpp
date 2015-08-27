@@ -97,7 +97,7 @@ void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int n
     kernelBuilder.set("num_tensors", numTensors);
     kernelBuilder.set("num_scalars", numScalars);
     kernelBuilder.set("num_point_tensors", numPointTensors);
-    kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::name);
+    kernelBuilder.set("IndexType", TypeParseTraits<IndexType>::openClTypeName);
     kernelBuilder.set("operation", operationString);
     kernel = kernelBuilder.buildKernel( uniqueName, uniqueName, get_template(), "THClTensor_pointwiseApplyD" );
 //    cout << kernelBuilder.getRenderedKernel(get_template()) << endl;

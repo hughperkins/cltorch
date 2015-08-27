@@ -76,7 +76,7 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
 //  cl->finish();
   StatefulTimer::timeCheck("Reduce-noncontig START");
   std::string uniqueName = "THClTensor_reduceNoncontigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
-    TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
+    TypeParseTraits<IndexType>::openClTypeName + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
   EasyCL *cl = in.wrapper->getCl();
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
@@ -98,7 +98,7 @@ void kernelLaunch_THClTensor_reduceNoncontigDim(
       dims.push_back(*it);
     }
 
-    std::string indexType = TypeParseTraits<IndexType>::name;
+    std::string indexType = TypeParseTraits<IndexType>::openClTypeName;
     kernelBuilder
       .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
       .set("dims", dims)
@@ -147,7 +147,7 @@ void kernelLaunch_THClTensor_reduceContigDim(
 
   StatefulTimer::timeCheck("Reduce-contig START");
   std::string uniqueName = "THClTensor_reduceContigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
-    TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
+    TypeParseTraits<IndexType>::openClTypeName + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
   EasyCL *cl = in.wrapper->getCl();
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
@@ -171,7 +171,7 @@ void kernelLaunch_THClTensor_reduceContigDim(
       dims.push_back(*it);
     }
 
-    std::string indexType = TypeParseTraits<IndexType>::name;
+    std::string indexType = TypeParseTraits<IndexType>::openClTypeName;
     kernelBuilder
       .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
       .set("dims", dims)
