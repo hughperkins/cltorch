@@ -53,11 +53,13 @@ These tests should systematically run clean.  They do on the systems I've tested
 ## cltorch-specific features
 
 The following features are either cltorch-specific, or do not exist in cutorch:
-* apply/map/map2 (in torch, not in cutorch)
-* csub, neg (neither in torch nor cutorch)
-* optimization tools (not in torch or cutorch, I think?)
-* point tensors (irrelevant in torch, not present in cutorch)
-* custom user kernels (irrelevant in torch, not present in cutorch)
+|feature|in torch?|in cutorch?|
+|---|---|---|
+| apply/map/map2 | Yes |  |
+| csub, neg |  |  |
+| optimization tools | | |
+| point tensors | | |
+| custom user kernels | Not applicable | |
 
 ### apply/map/map2
 
