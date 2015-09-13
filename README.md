@@ -52,6 +52,13 @@ These tests should systematically run clean.  They do on the systems I've tested
 
 ## cltorch-specific features
 
+The following features are either cltorch-specific, or do not exist in cutorch:
+* apply/map/map2 (in torch, not in cutorch)
+* csub, neg (neither in torch nor cutorch)
+* optimization tools (not in torch or cutorch, I think?)
+* point tensors (irrelevant in torch, not present in cutorch)
+* custom user kernels (irrelevant in torch, not present in cutorch)
+
 ### apply/map/map2
 
 `apply`, `map`, `map2` exist in torch, but how to make them work on the GPU?  Cannot just pass in lua functions, at least not a the moment.
@@ -67,6 +74,17 @@ x:map2(y, z, "x = sqrt(1000 * x + y * 10 + z * z)")
 a:apply("x = sqrt(x + 3.5)")
 a:map(b, "x = 1000 * x + y * 10")
 a:map2(b, c, "x = sqrt(1000 * x + y * 10 + z * z)")
+```
+
+### csub, neg
+
+In-place versions of `-`, to avoid buffer copying and/or creating new buffers:
+```
+c:csub(d) -- subtracts d from c, element-wise
+         -- similar to 'c - d'
+         -- but stores results into c
+a:neg() -- similar to '- a'
+        -- but stores results into a
 ```
 
 ### Optimization tools
