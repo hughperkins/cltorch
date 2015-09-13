@@ -84,10 +84,10 @@ a:map2(b, c, "x = sqrt(1000 * x + y * 10 + z * z)")
 In-place versions of `-`, to avoid buffer copying and/or creating new buffers:
 ```
 c:csub(d) -- subtracts d from c, element-wise
-         -- similar to 'c - d'
-         -- but stores results into c
-a:neg() -- similar to '- a'
-        -- but stores results into a
+          -- similar to 'c - d'
+          -- but stores results into c
+a:neg()   -- similar to '- a'
+          -- but stores results into a
 ```
 
 ### Optimization tools
