@@ -53,6 +53,7 @@ These tests should systematically run clean.  They do on the systems I've tested
 ## cltorch-specific features
 
 The following features are either cltorch-specific, or do not exist in cutorch:
+
 |feature|in torch?|in cutorch?|
 |---|---|---|
 | apply/map/map2 | Yes |  |
