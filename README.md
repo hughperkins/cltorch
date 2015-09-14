@@ -15,6 +15,9 @@ Most things really :-)  Detailed description at [ImplementedDetails.md](doc/Impl
 ## Installation
 
 * First install torch distro, see [https://github.com/torch/distro](https://github.com/torch/distro).
+  * Notes:
+    * be sure to check you have a `~/torch/install/bin/torch-activate` file
+    * make sure to run `source ~/torch/install/bin/torch-activate` before using torch, or else add this command to your `.bashrc` file
 * Now, do:
 ```
 git clone --recursive https://github.com/hughperkins/cltorch.git
