@@ -43,7 +43,7 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/src")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/src/lib")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/src/torch")
 
-SET(src src/UserKernel.cpp src/init.cpp src/torch/utils.c src/Storage.cpp src/Tensor.c TensorMath.c
+SET(src src/UserKernel.cpp src/init.cpp src/torch/utils.c src/Storage.cpp src/Tensor.cpp TensorMath.c
   src/TensorOperator.c)
 SET(luasrc src/init.lua src/Tensor.lua src/Random.lua src/Test.lua src/test/unit_storage.lua src/test/unit_tensor.lua )
 

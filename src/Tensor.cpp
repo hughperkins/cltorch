@@ -3,6 +3,10 @@
 #include "THFile.h"
 #include "luaT.h"
 
+extern "C" {
+  void cltorch_ClTensor_init(lua_State *L);
+}
+
 /* everything is as the generic Storage.c, except few things (see below) */
 
 #define real float
@@ -14,7 +18,7 @@
 #define torch_Tensor TH_CONCAT_STRING_3(torch.,Real,Tensor)
 
 #define TH_GENERIC_FILE "generic/Tensor.c"
-#include "generic/Tensor.c"
+#include "generic/Tensor.cpp"
 #undef TH_GENERIC_FILE
 
 #undef real
@@ -24,26 +28,26 @@
 static int cltorch_ClTensor_copy(lua_State *L)
 {
   THClState *state = cltorch_getstate(L);
-  THClTensor *storage = luaT_checkudata(L, 1, "torch.ClTensor");
+  THClTensor *storage = (THClTensor *)luaT_checkudata(L, 1, "torch.ClTensor");
   void *src;
   if( (src = luaT_toudata(L, 2, "torch.ClTensor")) )
-    THClTensor_copy(state, storage, src);
+    THClTensor_copy(state, storage, (THClTensor *)src);
   else if( (src = luaT_toudata(L, 2, "torch.ByteTensor")) )
-    THClTensor_copyByte(state, storage, src);
+    THClTensor_copyByte(state, storage, (THByteTensor *)src);
   else if( (src = luaT_toudata(L, 2, "torch.CharTensor")) )
-    THClTensor_copyChar(state, storage, src);
+    THClTensor_copyChar(state, storage, (THCharTensor *)src);
   else if( (src = luaT_toudata(L, 2, "torch.ShortTensor")) )
-    THClTensor_copyShort(state, storage, src);
+    THClTensor_copyShort(state, storage, (THShortTensor *)src);
   else if( (src = luaT_toudata(L, 2, "torch.IntTensor")) )
-    THClTensor_copyInt(state, storage, src);
+    THClTensor_copyInt(state, storage, (THIntTensor *)src);
   else if( (src = luaT_toudata(L, 2, "torch.LongTensor")) )
-    THClTensor_copyLong(state, storage, src);
+    THClTensor_copyLong(state, storage, (THLongTensor *)src);
   else if( (src = luaT_toudata(L, 2, "torch.FloatTensor")) )
-    THClTensor_copyFloat(state, storage, src);
+    THClTensor_copyFloat(state, storage, (THFloatTensor *)src);
   else if( (src = luaT_toudata(L, 2, "torch.DoubleTensor")) )
-    THClTensor_copyDouble(state, storage, src);
+    THClTensor_copyDouble(state, storage, (THDoubleTensor *)src);
   else if( (src = luaT_toudata(L, 2, "torch.ClTensor")) )
-    THClTensor_copyCl(state, storage, src);
+    THClTensor_copyCl(state, storage, (THClTensor *)src);
   else
     luaL_typerror(L, 2, "torch.*Tensor");
 
@@ -54,26 +58,26 @@ static int cltorch_ClTensor_copy(lua_State *L)
 #define CL_IMPLEMENT_TENSOR_COPY(TYPEC)                               \
   static int cltorch_##TYPEC##Tensor_copy(lua_State *L)                 \
   {                                                                     \
-    TH##TYPEC##Tensor *storage = luaT_checkudata(L, 1, "torch." #TYPEC "Tensor"); \
+    TH##TYPEC##Tensor *storage = (TH##TYPEC##Tensor *)luaT_checkudata(L, 1, "torch." #TYPEC "Tensor"); \
     void *src;                                                          \
     if( (src = luaT_toudata(L, 2, "torch." #TYPEC "Tensor")) )          \
-      TH##TYPEC##Tensor_copy(storage, src);                             \
+      TH##TYPEC##Tensor_copy(storage, (TH##TYPEC##Tensor *)src);                             \
     else if( (src = luaT_toudata(L, 2, "torch.ByteTensor")) )           \
-      TH##TYPEC##Tensor_copyByte(storage, src);                         \
+      TH##TYPEC##Tensor_copyByte(storage, (THByteTensor *)src);                         \
     else if( (src = luaT_toudata(L, 2, "torch.CharTensor")) )           \
-      TH##TYPEC##Tensor_copyChar(storage, src);                         \
+      TH##TYPEC##Tensor_copyChar(storage, (THCharTensor *)src);                         \
     else if( (src = luaT_toudata(L, 2, "torch.ShortTensor")) )          \
-      TH##TYPEC##Tensor_copyShort(storage, src);                        \
+      TH##TYPEC##Tensor_copyShort(storage, (THShortTensor *)src);                        \
     else if( (src = luaT_toudata(L, 2, "torch.IntTensor")) )            \
-      TH##TYPEC##Tensor_copyInt(storage, src);                          \
+      TH##TYPEC##Tensor_copyInt(storage, (THIntTensor *)src);                          \
     else if( (src = luaT_toudata(L, 2, "torch.LongTensor")) )           \
-      TH##TYPEC##Tensor_copyLong(storage, src);                         \
+      TH##TYPEC##Tensor_copyLong(storage, (THLongTensor *)src);                         \
     else if( (src = luaT_toudata(L, 2, "torch.FloatTensor")) )          \
-      TH##TYPEC##Tensor_copyFloat(storage, src);                        \
+      TH##TYPEC##Tensor_copyFloat(storage, (THFloatTensor *)src);                        \
     else if( (src = luaT_toudata(L, 2, "torch.DoubleTensor")) )         \
-      TH##TYPEC##Tensor_copyDouble(storage, src);                       \
+      TH##TYPEC##Tensor_copyDouble(storage, (THDoubleTensor *)src);                       \
     else if( (src = luaT_toudata(L, 2, "torch.ClTensor")) )           \
-      TH##TYPEC##Tensor_copyCl(cltorch_getstate(L), storage, src);    \
+      TH##TYPEC##Tensor_copyCl(cltorch_getstate(L), storage, (THClTensor *)src);    \
     else                                                                \
       luaL_typerror(L, 2, "torch.*Tensor");                             \
                                                                         \
@@ -148,8 +152,8 @@ void THFloatTensor_kernel_copy(float *dst,
 
 static int cl_FloatTensor_fakecopy(lua_State *L)
 {
-  THFloatTensor *self = luaT_checkudata(L, 1, "torch.FloatTensor");
-  THFloatTensor *src = luaT_checkudata(L, 2, "torch.FloatTensor");
+  THFloatTensor *self = (THFloatTensor *)luaT_checkudata(L, 1, "torch.FloatTensor");
+  THFloatTensor *src = (THFloatTensor *)luaT_checkudata(L, 2, "torch.FloatTensor");
   long *d_self_sz, *d_self_st, *d_src_sz, *d_src_st;
   long nElement = THFloatTensor_nElement(self);
 
@@ -174,7 +178,7 @@ static int cl_FloatTensor_fakecopy(lua_State *L)
 }
 
 static int cltorch_ClTensor_getDevice(lua_State *L) {
-  THClTensor *tensor = luaT_checkudata(L, 1, "torch.ClTensor");
+  THClTensor *tensor = (THClTensor *)luaT_checkudata(L, 1, "torch.ClTensor");
   lua_pushinteger(L, THClTensor_getDevice(cltorch_getstate(L), tensor) + 1);
   return 1;
 }
@@ -194,7 +198,7 @@ void cltorch_ClTensor_init(lua_State* L)
   {
     int i;
 
-    const void* tnames[8] = {"torch.ByteTensor",
+    const char* tnames[8] = {"torch.ByteTensor",
                              "torch.CharTensor",
                              "torch.ShortTensor",
                              "torch.IntTensor",
