@@ -7,6 +7,13 @@ extern "C" {
   void cltorch_ClTensor_init(lua_State *L);
 }
 
+#define EXCEPT_TO_THERROR(method) \
+try { \
+  method; \
+} catch(exception &e) { \
+  THError("Something went wrong: %s", e.what()); \
+}
+
 /* everything is as the generic Storage.c, except few things (see below) */
 
 #define real float
