@@ -26,13 +26,14 @@ static int torch_Storage_(new)(lua_State *L)
     const char *fileName = luaL_checkstring(L, 1);
     int isShared = luaT_optboolean(L, 2, 0);
     long size = luaL_optlong(L, 3, 0);
-    storage = THStorage_(newWithMapping)(state, state->currentDevice, fileName, size, isShared);
+    EXCEPT_TO_THERROR(storage = THStorage_(newWithMapping)(state, state->currentDevice, fileName, size, isShared));
   }
   else if(lua_type(L, 1) == LUA_TTABLE)
   {
     long size = lua_objlen(L, 1);
     long i;
-    THFloatStorage *storage = THFloatStorage_newWithSize(size);
+    THFloatStorage *storage = 0;
+    EXCEPT_TO_THERROR(storage = THFloatStorage_newWithSize(size));
     for(i = 1; i <= size; i++)
     {
       lua_rawgeti(L, 1, i);
@@ -45,9 +46,10 @@ static int torch_Storage_(new)(lua_State *L)
       lua_pop(L, 1);
     }
 
-    THStorage *storagecl = THStorage_(newWithSize)(state, state->currentDevice, size);
-    THStorage_(copyFloat)(state, storagecl, storage);
-    THFloatStorage_free(storage);
+    THStorage *storagecl = 0;
+    EXCEPT_TO_THERROR(storagecl = THStorage_(newWithSize)(state, state->currentDevice, size));
+    EXCEPT_TO_THERROR(THStorage_(copyFloat)(state, storagecl, storage));
+    EXCEPT_TO_THERROR(THFloatStorage_free(storage));
 
     luaT_pushudata(L, storagecl, "torch.ClStorage");
     StatefulTimer::timeCheck("storage new END");
@@ -81,7 +83,7 @@ static int torch_Storage_(new)(lua_State *L)
     if (size < 1 || size > (src->size - offset)) {
       luaL_error(L, "size out of bounds");
     }
-    storage = THStorage_(newWithData)(state, state->currentDevice, ptr + offset, size);
+    EXCEPT_TO_THERROR(storage = THStorage_(newWithData)(state, state->currentDevice, ptr + offset, size));
     storage->flag = TH_STORAGE_REFCOUNTED | TH_STORAGE_VIEW;
     storage->view = src;
     THStorage_(retain)(state, storage->view);
