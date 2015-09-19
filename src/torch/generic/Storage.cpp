@@ -5,6 +5,17 @@
 #include "EasyCL.h"
 #include "util/StatefulTimer.h"
 
+#include <stdexcept>
+#include <string>
+using namespace std;
+
+#define EXCEPT_TO_THERROR(method) \
+try { \
+  method; \
+} catch(exception &e) { \
+  THError("Something went wrong: %s", e.what()); \
+}
+
 static int torch_Storage_(new)(lua_State *L)
 {
   StatefulTimer::timeCheck("storage new START");
@@ -79,13 +90,13 @@ static int torch_Storage_(new)(lua_State *L)
   {
     long size = luaL_optlong(L, 1, 0);
     real *ptr = (real *)luaL_optlong(L, 2, 0);
-    storage = THStorage_(newWithData)(state, state->currentDevice, ptr, size);
+    EXCEPT_TO_THERROR(storage = THStorage_(newWithData)(state, state->currentDevice, ptr, size));
     storage->flag = TH_STORAGE_REFCOUNTED;
   }
   else
   {
     long size = luaL_optlong(L, 1, 0);
-    storage = THStorage_(newWithSize)(state, state->currentDevice, size);
+    EXCEPT_TO_THERROR(storage = THStorage_(newWithSize)(state, state->currentDevice, size));
   }
   luaT_pushudata(L, storage, torch_Storage);
   StatefulTimer::timeCheck("storage new END");
@@ -102,7 +113,7 @@ static int torch_Storage_(retain)(lua_State *L)
 static int torch_Storage_(free)(lua_State *L)
 {
   THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
-  THStorage_(free)(cltorch_getstate(L), storage);
+  EXCEPT_TO_THERROR(THStorage_(free)(cltorch_getstate(L), storage));
   return 0;
 }
 
@@ -111,7 +122,7 @@ static int torch_Storage_(resize)(lua_State *L)
   THStorage *storage = static_cast< THStorage * >(luaT_checkudata(L, 1, torch_Storage));
   long size = luaL_checklong(L, 2);
 /*  int keepContent = luaT_optboolean(L, 3, 0); */
-  THStorage_(resize)(cltorch_getstate(L), storage, size);/*, keepContent); */
+  EXCEPT_TO_THERROR(THStorage_(resize)(cltorch_getstate(L), storage, size));/*, keepContent); */
   lua_settop(L, 1);
   return 1;
 }
@@ -147,7 +158,7 @@ static int torch_Storage_(fill)(lua_State *L)
 {
   THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
   double value = luaL_checknumber(L, 2);
-  THStorage_(fill)(cltorch_getstate(L), storage, (real)value);
+  EXCEPT_TO_THERROR(THStorage_(fill)(cltorch_getstate(L), storage, (real)value));
   lua_settop(L, 1);
   return 1;
 }
@@ -205,7 +216,7 @@ static int torch_Storage_(string)(lua_State *L)
   {
     size_t len = 0;
     const char *str = lua_tolstring(L, -1, &len);
-    THStorage_(resize)(cltorch_getstate(L), storage, len);
+    EXCEPT_TO_THERROR(THStorage_(resize)(cltorch_getstate(L), storage, len));
     memmove(storage->data, str, len);
     lua_settop(L, 1);
   }
@@ -233,7 +244,8 @@ static int torch_Storage_(totable)(lua_State *L)
 static int torch_Storage_(factory)(lua_State *L)
 {
   THClState *state = cltorch_getstate(L);
-  THStorage *storage = static_cast<THStorage *>(THStorage_(newv2)(cltorch_getstate(L), state->currentDevice));
+  THStorage *storage = 0;
+  EXCEPT_TO_THERROR(storage = static_cast<THStorage *>(THStorage_(newv2)(cltorch_getstate(L), state->currentDevice)));
   luaT_pushudata(L, storage, torch_Storage);
   return 1;
 }
@@ -248,7 +260,7 @@ static int torch_Storage_(write)(lua_State *L)
   storage->wrapper->copyToHost();
   storage->cl->finish();
   
-  THFile_writeFloatRaw(file, storage->data, storage->size);
+  EXCEPT_TO_THERROR(THFile_writeFloatRaw(file, storage->data, storage->size));
 
   return 0;
 }
@@ -260,8 +272,8 @@ static int torch_Storage_(read)(lua_State *L)
   long size = THFile_readLongScalar(file);
 
 //  THClState *state = cltorch_getstate(L);
-  THStorage_(resize)(cltorch_getstate(L), storage, size);
-  THFile_readFloatRaw(file, storage->data, storage->size);
+  EXCEPT_TO_THERROR(THStorage_(resize)(cltorch_getstate(L), storage, size));
+  EXCEPT_TO_THERROR(THFile_readFloatRaw(file, storage->data, storage->size));
   storage->wrapper->copyToDevice();
   storage->cl->finish();
 
