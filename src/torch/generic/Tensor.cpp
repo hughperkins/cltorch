@@ -11,20 +11,20 @@ static THTensor *getTensor(lua_State *L, int index) {
   return (THTensor *)tensorVoid;
 }
 
-static THClTensor *getClTensor(lua_State *L, int index ) {
-  void *clTensorVoid = luaT_checkudata(L, index, "torch.ClTensor");
-  return (THClTensor *)clTensorVoid;
-}
+//static THClTensor *getClTensor(lua_State *L, int index ) {
+//  void *clTensorVoid = luaT_checkudata(L, index, "torch.ClTensor");
+//  return (THClTensor *)clTensorVoid;
+//}
 
-static THByteTensor *getByteTensor(lua_State *L, int index ) {
-  void *byteTensorVoid = luaT_checkudata(L, index, "torch.ByteTensor");
-  return (THByteTensor *)byteTensorVoid;
-}
+//static THByteTensor *getByteTensor(lua_State *L, int index ) {
+//  void *byteTensorVoid = luaT_checkudata(L, index, "torch.ByteTensor");
+//  return (THByteTensor *)byteTensorVoid;
+//}
 
-static THLongTensor *getLongTensor(lua_State *L, int index ) {
-  void *longTensorVoid = luaT_checkudata(L, index, "torch.LongTensor");
-  return (THLongTensor *)longTensorVoid;
-}
+//static THLongTensor *getLongTensor(lua_State *L, int index ) {
+//  void *longTensorVoid = luaT_checkudata(L, index, "torch.LongTensor");
+//  return (THLongTensor *)longTensorVoid;
+//}
 
 
 static THTensor *getTensorNoCheck(lua_State *L, int index) {
@@ -48,15 +48,15 @@ static THLongTensor *getLongTensorNoCheck(lua_State *L, int index ) {
 }
 
 
-static THStorage *getStorage(lua_State *L, int index) {
-  void *storageVoid = luaT_checkudata(L, index, torch_Storage);
-  return (THStorage *)storageVoid;
-}
+//static THStorage *getStorage(lua_State *L, int index) {
+//  void *storageVoid = luaT_checkudata(L, index, torch_Storage);
+//  return (THStorage *)storageVoid;
+//}
 
-static THLongStorage *getLongStorage(lua_State *L, int index) {
-  void *longStorageVoid = luaT_checkudata(L, index, "torch.LongStorage");
-  return (THLongStorage *)longStorageVoid;
-}
+//static THLongStorage *getLongStorage(lua_State *L, int index) {
+//  void *longStorageVoid = luaT_checkudata(L, index, "torch.LongStorage");
+//  return (THLongStorage *)longStorageVoid;
+//}
 
 
 static THStorage *getStorageNoCheck(lua_State *L, int index) {
@@ -186,7 +186,7 @@ static int torch_Tensor_(new)(lua_State *L)
         luaL_error(L, "invalid tensor definition");
       }
 
-      if(lua_objlen(L, -1) != size->data[size->size-1])
+      if((long)lua_objlen(L, -1) != size->data[size->size-1])
       {
         THLongStorage_free(size);
         THLongStorage_free(counter);
@@ -238,7 +238,7 @@ static int torch_Tensor_(new)(lua_State *L)
               THFloatTensor_free(tensor);
               luaL_error(L, "invalid tensor definition");
             }
-            if(lua_objlen(L, -1) != size->data[j])
+            if((long)lua_objlen(L, -1) != size->data[j])
             {
               THLongStorage_free(size);
               THLongStorage_free(counter);
@@ -613,39 +613,6 @@ static int torch_Tensor_(indexSelect)(lua_State *L)
   return 1;
 }
 
-static int torch_Tensor_(gather)(lua_State *L)
-{
-  THClState *state = cltorch_getstate(L);
-  printf("torch_Tensor_(gather)\n");
-  int narg = lua_gettop(L);
-  THTensor *tensor, *src, *index;
-  int dim;
-  if (narg == 3)
-  {
-    src = getTensor(L, 1);
-    tensor = THTensor_(newv2)(state, src->storage->device);
-    dim = luaL_checkint(L, 2) - 1;
-    index = getTensor(L, 3);
-    luaT_pushudata(L,tensor,torch_Tensor);
-  }
-//  else if(narg == 4)
-//  {
-//    src = getTensor(L, 2);
-//    dim = luaL_checkint(L, 3) - 1;
-//    index = luaT_checkudata(L, 4, "torch.LongTensor");
-//    tensor = getTensor(L, 1);
-//  }
-  else
-  {
-    luaL_error(L,"Tensor, Tensor, long, Tensor expected");
-    return 0;
-  }
-
-  THTensor_(gather)(state, tensor,src, dim,index);
-
-  return 1;
-}
-
 static int torch_Tensor_(indexCopy)(lua_State *L)
 {
   int narg = lua_gettop(L);
@@ -906,7 +873,7 @@ static int torch_Tensor_(__newindex__)(lua_State *L)
     int ndims;
     int done = 0;
     ndims = tensor->nDimension;
-    luaL_argcheck(L, lua_objlen(L, 2) <= ndims, 2, "too many indices provided");
+    luaL_argcheck(L, (long)lua_objlen(L, 2) <= ndims, 2, "too many indices provided");
     tensor = THTensor_(newWithTensor)(state, tensor);
     for(dim = 0; dim < ndims; dim++)
     {
@@ -1083,7 +1050,7 @@ static int torch_Tensor_(__index__)(lua_State *L)
     int done = 0;
 
     ndims = tensor->nDimension;
-    luaL_argcheck(L, lua_objlen(L, 2) <= ndims, 2, "too many indices provided");
+    luaL_argcheck(L, (long)lua_objlen(L, 2) <= ndims, 2, "too many indices provided");
     tensor = THTensor_(newWithTensor)(state, tensor);
 
     for(dim = 0; dim < ndims; dim++)
