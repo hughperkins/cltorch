@@ -20,24 +20,11 @@ Most things really :-)  Detailed description at [ImplementedDetails.md](doc/Impl
     * make sure to run `source ~/torch/install/bin/torch-activate` before using torch, or else add this command to your `.bashrc` file
 * Now, do:
 ```
-git clone --recursive https://github.com/hughperkins/cltorch.git
-cd cltorch
-luarocks make rocks/cltorch-scm-1.rockspec
-```
-* If you get an error message about some files in EasyCL or clBLAS not existing, then do:
-```
-git submodule init
-git submodule update
-```
-* If, during `git submodule update` command, it says something about `clBLAS/src` directory already exists, then do:
-```
-git submodule init
-rmdir clMathLibraries/clBLAS/src
-git submodule update
+luarocks install cltorch
 ```
 * Please make sure you run the self-tests first.  If any of them fail, please raise an issue.  They should all pass, reliably, every time.  To run the tests:
 ```
-th -l cltorch -e 'cltorch.test()'
+luajit -l cltorch -e 'cltorch.test()'
 ```
 ## Requests for additional operations etc
 
@@ -48,7 +35,7 @@ th -l cltorch -e 'cltorch.test()'
 
 Simply run:
 ```
-th -l cltorch -e 'cltorch.test()'
+luajit -l cltorch -e 'cltorch.test()'
 ```
 
 These tests should systematically run clean.  They do on the systems I've tested against.  If they don't, it's a bug.  Please raise an issue, including your operating system, graphics card, 32-bit/64-bit, all full logs, and anything else you can think of.  Also output of `th -l cltorch -e 'cltorch.about()'` please.
