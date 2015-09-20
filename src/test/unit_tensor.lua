@@ -144,11 +144,11 @@ function cltorch.tests.tensor.test_basic()
    tester:asserteq('\n 3\n 2\n[torch.LongStorage of size 2]\n', tostring(c:size()))
 
    c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
-   tester:asserteq(' 3.0000   1.0000   6.0000\n 2.1000   5.2000   3.9000\n[torch.ClTensor of size 2x3]\n', tostring(c))
+   tester:asserteq(' 3.0000  1.0000  6.0000\n 2.1000  5.2000  3.9000\n[torch.ClTensor of size 2x3]\n', tostring(c))
 
    d = torch.ClTensor(2,3)
    d:copy(c)
-   tester:asserteq(' 3.0000   1.0000   6.0000\n 2.1000   5.2000   3.9000\n[torch.ClTensor of size 2x3]\n', tostring(d))
+   tester:asserteq(' 3.0000  1.0000  6.0000\n 2.1000  5.2000  3.9000\n[torch.ClTensor of size 2x3]\n', tostring(d))
 
 -- not allowed any more (at least: not for now, unless we can find an efficient
 -- way of implementing this?)
@@ -158,14 +158,14 @@ end
 
 function cltorch.tests.tensor.test_clone()
    c = torch.ClTensor{{7,4,5},{3,1,4}}
-   tester:asserteq(tostring(c), ' 7   4   5\n 3   1   4\n[torch.ClTensor of size 2x3]\n')
-   d = c:clone()   
-   tester:asserteq(tostring(d), ' 7   4   5\n 3   1   4\n[torch.ClTensor of size 2x3]\n')
+   tester:asserteq(tostring(c), ' 7  4  5\n 3  1  4\n[torch.ClTensor of size 2x3]\n')
+   d = c:clone()
+   tester:asserteq(tostring(d), ' 7  4  5\n 3  1  4\n[torch.ClTensor of size 2x3]\n')
    --d[1][2] = 9
    d:fill(3)
    -- should only change d, not c
-   tester:asserteq(tostring(c), ' 7   4   5\n 3   1   4\n[torch.ClTensor of size 2x3]\n')
-   tester:asserteq(tostring(d), ' 3   3   3\n 3   3   3\n[torch.ClTensor of size 2x3]\n')
+   tester:asserteq(tostring(c), ' 7  4  5\n 3  1  4\n[torch.ClTensor of size 2x3]\n')
+   tester:asserteq(tostring(d), ' 3  3  3\n 3  3  3\n[torch.ClTensor of size 2x3]\n')
 end
 
 function cltorch.tests.tensor.test_equals()
@@ -191,10 +191,10 @@ end
 for _, op in ipairs({'lt', 'gt',
        'le', 'ge', 'eq', 'ne'}) do
    cltorch.tests.tensor['inplace_' .. op] = function()
-      c = torch.ClTensor{{4,   2,   -1},
-                                  {3.1,1.2, 4.9}}
-      d = torch.ClTensor{{3,   5,   -2},
-                                  {2.1,2.2, 3.9}}
+      c = torch.ClTensor{{4,    2,  -1},
+                         {3.1,1.2, 4.9}}
+      d = torch.ClTensor{{3,    5,  -2},
+                         {2.1,2.2, 3.9}}
       a = c:float()
       b = d:float()
       loadstring('a:' .. op .. '(b)')()
@@ -207,8 +207,8 @@ for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos',
     'acos', 'sin', 'asin', 'atan', 'tanh', 'ceil', 'floor', 
     'abs', 'round'}) do
    cltorch.tests.tensor['inplace_' .. name] = function()
-      c = torch.ClTensor{{4,   2,   -1},
-                                  {3.1,1.2, 4.9}}
+      c = torch.ClTensor{{4,    2,  -1},
+                         {3.1,1.2, 4.9}}
       a = c:float()
       loadstring('c:' .. name .. '()')()
       loadstring('a:' .. name .. '()')()
@@ -219,9 +219,9 @@ end
 for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv'}) do
    cltorch.tests.tensor['inplace_' .. op] = function()
       c = torch.ClTensor{{4,   2,   -1},
-                                  {0.8,1.2, 1.9}}
+                         {0.8,1.2, 1.9}}
       d = torch.ClTensor{{3,   5,   -2},
-                                  {2.1,2.2, 0.9}}
+                         {2.1,2.2, 0.9}}
       a = c:float()
       b = d:float()
       loadstring('a:' .. op .. '(b)')()
@@ -234,9 +234,9 @@ for _, op in ipairs({'lt', 'gt',
           'le', 'ge', 'eq', 'ne'}) do
    cltorch.tests.tensor['outplace_' .. op] = function()
       c = torch.ClTensor{{4,   2,   -1},
-                                  {3.1,1.2, 4.9}}
+                         {3.1,1.2, 4.9}}
       d = torch.ClTensor{{3,   5,   -2},
-                                  {2.1,2.2, 3.9}}
+                         {2.1,2.2, 3.9}}
       a = c:float()
       b = d:float()
       loadstring('a = torch.' .. op .. '(a, b)')()
@@ -248,9 +248,9 @@ end
 for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv'}) do
    cltorch.tests.tensor['outplace_' .. op] = function()
       c = torch.ClTensor{{4,   2,   -1},
-                                  {0.8,1.2, 1.9}}
+                         {0.8,1.2, 1.9}}
       d = torch.ClTensor{{3,   5,   -2},
-                                  {2.1,2.2, 0.9}}
+                         {2.1,2.2, 0.9}}
       a = c:float()
       b = d:float()
       loadstring('a = torch.' .. op .. '(a, b)')()
@@ -262,9 +262,9 @@ end
 for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
    cltorch.tests.tensor['outplace_' .. name] = function()
       c = torch.ClTensor{{4,   2,   -1},
-                                  {3.1,1.2, 4.9}}
+                          {3.1,1.2, 4.9}}
       d = torch.ClTensor{{3,   5,   -2},
-                                  {2.1,2.2, 3.9}}
+                          {2.1,2.2, 3.9}}
       a = c:float()
       b = d:float()
       print(loadstring('c = torch.' .. name .. '(c,d)')())
@@ -276,9 +276,9 @@ end
 for _,name in ipairs({'lt','le','gt','ge','ne','eq'}) do
    cltorch.tests.tensor['self_' .. name] = function()
       c = torch.ClTensor{{4,   2,   -1},
-                                  {2, 5, 2}}
+                         {2, 5, 2}}
       d = torch.ClTensor{{3,   5,   -1},
-                                  {1,5, 3}}
+                         {1,5, 3}}
       a = c:float()
       b = d:float()
       print(loadstring('c = c:' .. name .. '(d)')())
@@ -291,7 +291,7 @@ for _,name in ipairs({'add', 'mul', 'div', 'pow',
          'lt', 'le', 'gt', 'ge', 'ne', 'eq'}) do
    cltorch.tests.tensor['outplace_' .. name] = function()
       c = torch.ClTensor{{4,   2,   -1},
-                                  {3.1,1.2, 4.9}}
+                         {3.1,1.2, 4.9}}
       a = c:float()
       print(loadstring('c = torch.' .. name .. '(c, 3.4)')())
       print(loadstring('a = torch.' .. name .. '(a, 3.4)')())
@@ -302,7 +302,7 @@ end
 for _,pair in ipairs({{'plus','+'},{'div', '/'}, {'mul', '*'},{'sub', '-'}}) do
    cltorch.tests.tensor['operator_' .. pair[1] .. '_scalar'] = function()
       c = torch.ClTensor{{4,   2,   -1},
-                                  {3.1,1.2, 4.9}}
+                         {3.1,1.2, 4.9}}
       name = pair[2]
       a = c:float()
       print(loadstring('c = c ' .. name .. ' 3.4')())
@@ -314,9 +314,9 @@ end
 for _, pair in ipairs({{'plus','+'}, {'sub','-'}}) do
    cltorch.tests.tensor['operator_' .. pair[1]] = function()
       c = torch.ClTensor{{4,   2,   -1},
-                                  {3.1,1.2, 4.9}}
+                         {3.1,1.2, 4.9}}
       d = torch.ClTensor{{3,   5,   -2},
-                                  {2.1,2.2, 3.9}}
+                         {2.1,2.2, 3.9}}
       a = c:float()
       b = d:float()
       op = pair[2]
@@ -328,9 +328,9 @@ end
 
 function cltorch.tests.tensor.test_perelement()
    c = torch.ClTensor{{4,   2,   -1},
-                               {3.1,1.2, 4.9}}
+                      {3.1,1.2, 4.9}}
    d = torch.ClTensor{{3,   5,   -2},
-                               {2.1,2.2, 3.9}}
+                      {2.1,2.2, 3.9}}
    a = c:float()
    b = d:float()
    c:add(d)
@@ -338,9 +338,9 @@ function cltorch.tests.tensor.test_perelement()
    tester:asserteq(a, c:float())
 
    c = torch.ClTensor{{4,   2,   -1},
-                               {3.1,1.2, 4.9}}
+                      {3.1,1.2, 4.9}}
    d = torch.ClTensor{{3,   5,   -2},
-                               {2.1,2.2, 3.9}}
+                      {2.1,2.2, 3.9}}
    a = c:float()
    b = d:float()
    a:cmul(b)
@@ -349,14 +349,14 @@ function cltorch.tests.tensor.test_perelement()
 
 
    c = torch.ClTensor{{4,   2,   -1},
-                               {3.1,1.2, 4.9}}
+                      {3.1,1.2, 4.9}}
    a = c:float()
    a = torch.clamp(a, 1.5, 4.5)
    c = torch.clamp(c, 1.5, 4.5)
    tester:asserteq(a, c:float())
 
    c = torch.ClTensor{{4,   2,   -1},
-                               {3.1,1.2, 4.9}}
+                      {3.1,1.2, 4.9}}
    a = c:float()
    c = -c
    a = -a
@@ -365,10 +365,10 @@ end
 
 function cltorch.tests.tensor.test_blas()
    C = torch.ClTensor{{1,2,-1},
-                            {3,4,0}}
+                      {3,4,0}}
    D = torch.ClTensor{{0,1},
-                               {1,2},
-                               {4,5}}
+                      {1,2},
+                      {4,5}}
    A = C:float()
    B = D:float()
    A = torch.mm(A,B)
@@ -378,10 +378,10 @@ function cltorch.tests.tensor.test_blas()
    tester:asserteq(A, C:float())
 
    C = torch.ClTensor{{1,2,-1},
-                            {3,4,0}}
+                      {3,4,0}}
    D = torch.ClTensor{{0,1},
-                               {1,2},
-                               {4,5}}
+                      {1,2},
+                      {4,5}}
    A = C:float()
    B = D:float()
    A = A * B
@@ -661,34 +661,34 @@ function cltorch.tests.tensor.test_prod()
    local s = torch.LongStorage{60,50}
    local A = torch.Tensor(s):uniform() - 0.5
    local Acl = A:cl()
-   tester:asserteq(A:prod(1), Acl:prod(1):double())   
-   tester:asserteq(A:prod(2), Acl:prod(2):double())   
+   tester:asserteq(A:prod(1), Acl:prod(1):double())
+   tester:asserteq(A:prod(2), Acl:prod(2):double())
 end
 
 function cltorch.tests.tensor.test_sum()
    local s = torch.LongStorage{60,50}
    local A = torch.Tensor(s):uniform() - 0.5
    local Acl = A:cl()
-   tester:asserteq(A:sum(1), Acl:sum(1):double())   
-   tester:asserteq(A:sum(2), Acl:sum(2):double())   
+   tester:asserteq(A:sum(1), Acl:sum(1):double())
+   tester:asserteq(A:sum(2), Acl:sum(2):double())
 end
 
 function cltorch.tests.tensor.test_sum_t()
    local s = torch.LongStorage{60,50}
    local A = torch.Tensor(s):uniform() - 0.5
    local Acl = A:cl()
-   tester:asserteq(A:t():sum(1), Acl:t():sum(1):double())   
-   tester:asserteq(A:t():sum(2), Acl:t():sum(2):double())   
+   tester:asserteq(A:t():sum(1), Acl:t():sum(1):double())
+   tester:asserteq(A:t():sum(2), Acl:t():sum(2):double())
 end
 
 function cltorch.tests.tensor.test_sum_t_offset()
    local s = torch.LongStorage{60,50}
    local A = torch.Tensor(s):uniform() - 0.5
    local Acl = A:cl()
-   tester:asserteq(A:narrow(1,10,30):t():sum(1), Acl:narrow(1,10,30):t():sum(1):double())   
-   tester:asserteq(A:narrow(1,10,30):t():sum(2), Acl:narrow(1,10,30):t():sum(2):double())   
-   tester:asserteq(A:narrow(2,10,30):t():sum(1), Acl:narrow(2,10,30):t():sum(1):double())   
-   tester:asserteq(A:narrow(2,10,30):t():sum(2), Acl:narrow(2,10,30):t():sum(2):double())   
+   tester:asserteq(A:narrow(1,10,30):t():sum(1), Acl:narrow(1,10,30):t():sum(1):double())
+   tester:asserteq(A:narrow(1,10,30):t():sum(2), Acl:narrow(1,10,30):t():sum(2):double())
+   tester:asserteq(A:narrow(2,10,30):t():sum(1), Acl:narrow(2,10,30):t():sum(1):double())
+   tester:asserteq(A:narrow(2,10,30):t():sum(2), Acl:narrow(2,10,30):t():sum(2):double())
 end
 
 --function cltorch.tests.tensor.test_sum_t_offset()
@@ -898,6 +898,14 @@ function cltorch.tests.tensor.test_save()
          tester:assertne(bf[i], bf[i])
       end
    end
+end
+
+function cltorch.tests.tensor.test_addcdivshape()
+   a = torch.ClTensor(3,2,4):uniform()
+   b = torch.ClTensor(3*2*4):uniform()
+   tester:asserteq(3, a:dims())
+   a:addcdiv(1, b, b)
+   tester:asserteq(3, a:dims())
 end
 
 local function setUp()
