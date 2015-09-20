@@ -903,9 +903,9 @@ end
 function cltorch.tests.tensor.test_addcdivshape()
    a = torch.ClTensor(3,2,4):uniform()
    b = torch.ClTensor(3*2*4):uniform()
-   tester:asserteq(3, a:dims())
+   tester:asserteq(3, a:dim())
    a:addcdiv(1, b, b)
-   tester:asserteq(3, a:dims())
+   tester:asserteq(3, a:dim())
 end
 
 local function setUp()

@@ -302,6 +302,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 20th September:
+  * Ported fix to `addcdiv` and `addcmul` reshape from cutorch commit [59a1cb05](https://github.com/torch/cutorch/commit/59a1cb05745d7b03d896d7a950c4845c9eebb73f)
 * 23rd July:
   * Fixed memory leak on Intel HD Graphics
 * 22th July:
