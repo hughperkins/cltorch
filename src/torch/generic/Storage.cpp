@@ -176,13 +176,13 @@ static int torch_Storage_(__newindex__)(lua_State *L)
 {
   if(lua_isnumber(L, 2))
   {
-    THError("Please convert to FloatTensor, then update, then copy back");
-    lua_pushboolean(L, 0);
-//    THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
-//    long index = luaL_checklong(L, 2) - 1;
-//    double number = luaL_checknumber(L, 3);
-//    THStorage_(set)(cltorch_getstate(L), storage, index, (real)number);
-//    lua_pushboolean(L, 1);
+//    THError("Please convert to FloatTensor, then update, then copy back");
+  //  lua_pushboolean(L, 0);
+    THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
+    long index = luaL_checklong(L, 2) - 1;
+    double number = luaL_checknumber(L, 3);
+    THStorage_(set)(cltorch_getstate(L), storage, index, (real)number);
+    lua_pushboolean(L, 1);
   }
   else
     lua_pushboolean(L, 0);

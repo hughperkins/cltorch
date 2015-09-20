@@ -60,12 +60,13 @@ end
 
 function cltorch.tests.storage.test_get()
   -- we probably should support this.  specifically, without this, lbfgs doesnt work :-P
-  a = torch.Storage(10000)
-  a[2] = 72
-  a[500] = 104
-  a[7500] = 1040
+--  a = torch.Storage(10000)
   acl = torch.ClStorage(10000)
-  acl:copy(a)
+  tester:asserteq('torch.ClStorage', torch.type(acl))
+  acl[2] = 72
+  acl[500] = 104
+  acl[7500] = 1040
+--  acl:copy(a)
   tester:asserteq(72, acl[2])
   tester:asserteq(104, acl[500])
   tester:asserteq(1040, acl[7500])

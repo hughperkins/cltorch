@@ -11,14 +11,17 @@
 using namespace std;
 
 static std::string getGetKernelSource();
+static std::string getSetKernelSource();
 
 //int state->trace = 0;
 
-//// note to self: this function implementation is a bit rubbish...
-//void THClStorage_set(THClState *state, THClStorage *self, long index, float value)
-//{
+// this runs an entire kernel to get one value.  Clearly this is going to be pretty slow, but
+// at least it's more or less compatible, and comparable, to how cutorch does it
+void THClStorage_set(THClState *state, THClStorage *self, long index, float value)
+{
 ////  cout << "set size=" << self->size << " index=" << index << " value=" << value << endl;
-//  THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
+  THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
+  THArgCheck(self->wrapper != 0, 1, "storage argument not initialized, is empty");
 //  if( self->wrapper->isDeviceDirty() ) { // we have to do this, since we're going to copy it all back again
 //                                         // although I suppose we could set via a kernel perhaps
 //                                         // either way, this function is pretty inefficient right now :-P
@@ -28,7 +31,24 @@ static std::string getGetKernelSource();
 //  self->data[index] = value;
 //  if(state->trace) cout << "wrapper->copyToDevice() size " << self->size << endl;
 //  self->wrapper->copyToDevice();
-//}
+
+  const char *uniqueName = __FILE__ ":set";
+  EasyCL *cl = self->cl; // cant remember if this is a good idea or not :-P
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+  } else {
+    TemplatedKernel kernelBuilder(cl);
+    kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getSetKernelSource(), "THClStorageSet" );
+  }
+
+  kernel->inout(self->wrapper);
+  kernel->in(index);
+  kernel->in(value);
+  kernel->run_1d(1, 1);
+
+  if(state->addFinish) cl->finish();
+}
 
 // this runs an entire kernel to get one value.  Clearly this is going to be pretty slow, but
 // at least it's more or less compatible, and comparable, to how cutorch does it
@@ -54,9 +74,6 @@ float THClStorage_get(THClState *state, const THClStorage *self, long index)
     TemplatedKernel kernelBuilder(cl);
     kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getGetKernelSource(), "THClStorageGet" );
   }
-
-//  const dim3 block(1);
-//  const dim3 grid(1);
 
   float res;
   kernel->out(1, &res);
@@ -239,6 +256,24 @@ std::string getGetKernelSource() {
   "kernel void THClStorageGet(global float *res, global float *data, long index) {\n" 
   "  if(get_global_id(0) == 0) {\n" 
   "    res[0] = data[index];\n" 
+  "  }\n" 
+  "}\n" 
+  "\n" 
+  "";
+  // [[[end]]]
+  return kernelSource;
+}
+
+std::string getSetKernelSource() {
+  // [[[cog
+  // import stringify
+  // stringify.write_kernel( "kernel", "THClStorageSet.cl" )
+  // ]]]
+  // generated using cog, from THClStorageSet.cl:
+  const char * kernelSource =  
+  "kernel void THClStorageSet(global float *data, long index, float value) {\n" 
+  "  if(get_global_id(0) == 0) {\n" 
+  "    data[index] = value;\n" 
   "  }\n" 
   "}\n" 
   "\n" 

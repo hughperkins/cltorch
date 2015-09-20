@@ -29,7 +29,7 @@ THCL_API float* THClStorage_data(THClState *state, const THClStorage*);
 THCL_API long THClStorage_size(THClState *state, const THClStorage*);
 
 /* slow access -- checks everything */
-//THCL_API void THClStorage_set(THClState *state, THClStorage*, long, float);
+THCL_API void THClStorage_set(THClState *state, THClStorage*, long, float);
 THCL_API float THClStorage_get(THClState *state, const THClStorage*, long);
 
 THCL_API THClStorage* THClStorage_new(THClState *state) DEPRECATED_POST;

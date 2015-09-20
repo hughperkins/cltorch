@@ -91,15 +91,10 @@ print('C:nElement()', C:nElement())
 print('C:storageOffset()', C:storageOffset())
 </pre></tr>
 
-<tr><td>Querying elements<td>Removed<td><pre>
--- whilst it's technically trivial to create a kernel to read/write
--- a single element, for any more than one element, it is far more
--- efficient to just copy either the whole tensor to/from main memory,
--- or that particular part of the tensor you want to read
--- so, for now I've disabled querying single elements
--- If you a. have a use-case for read-writing single elements
---        b. can think of a way of not causing this to be accidentally
---           abused, please raise an issue
+<tr><td>Querying elements<td>Done<td><pre>
+c = torch.ClTensor(3,2,5)
+c[2,1,4] = 23
+assert(c[2,1,4] == 23)
 </pre></tr>
 
 <tr><td>Copying and initializing<td>Done<td><pre>
