@@ -1020,8 +1020,8 @@ static int torch_Tensor_(__index__)(lua_State *L)
 
       if(tensor->nDimension == 1)
       {
-          THError("Please copy to FloatTensor, using :float(), then get the value.");
-  //      lua_pushnumber(L, THStorage_(get)(state, tensor->storage, tensor->storageOffset+index*tensor->stride[0]));
+          //THError("Please copy to FloatTensor, using :float(), then get the value.");
+        lua_pushnumber(L, THStorage_(get)(state, tensor->storage, tensor->storageOffset+index*tensor->stride[0]));
       }
       else
       {

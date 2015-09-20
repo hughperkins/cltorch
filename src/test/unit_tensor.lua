@@ -908,6 +908,18 @@ function cltorch.tests.tensor.test_addcdivshape()
    tester:asserteq(3, a:dim())
 end
 
+function cltorch.tests.tensor.test_get()
+   -- have to support it, because lbfgs uses it
+   -- a bit slow though...
+   a = torch.Tensor(20,5,14)
+   a[15][2][12] = 250
+   a[15][2][14] = 255
+   acl = a:cl()
+   tester:asserteq('torch.ClTensor', torch.type(acl))
+   tester:asserteq(250, acl[15][2][12])
+   tester:asserteq(255, acl[15][2][14])
+end
+
 local function setUp()
    --cltorch.setDevice(1)
    print('')
@@ -922,12 +934,13 @@ for k,v in pairs(cltorch.tests.tensor) do
 end
 
 function cltorch.tests.tensor.test()
-    tester = torch.Tester()
-    tester:add(test)
-    tester:run(tests)
+   tester = torch.Tester()
+   tester:add(test)
+   tester:run(tests)
+   return #tester.errors == 0
 end
 
 if runtests then
-   cltorch.tests.tensor.test()
+   return cltorch.tests.tensor.test()
 end
 

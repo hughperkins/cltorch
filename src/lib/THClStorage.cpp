@@ -1,12 +1,16 @@
 #include "THClStorage.h"
 #include "THClGeneral.h"
 #include "THAtomic.h"
+#include "THClKernels.h"
 
 #include "EasyCL.h"
+#include "templates/TemplatedKernel.h"
 #include "util/StatefulTimer.h"
 #include <stdexcept>
 #include <iostream>
 using namespace std;
+
+static std::string getGetKernelSource();
 
 //int state->trace = 0;
 
@@ -26,17 +30,43 @@ using namespace std;
 //  self->wrapper->copyToDevice();
 //}
 
-//// note to self: this function implementation is a bit rubbish...
-//float THClStorage_get(THClState *state, const THClStorage *self, long index)
-//{
+// this runs an entire kernel to get one value.  Clearly this is going to be pretty slow, but
+// at least it's more or less compatible, and comparable, to how cutorch does it
+// lgfgs expects a working implementation of this method
+float THClStorage_get(THClState *state, const THClStorage *self, long index)
+{
 ////  printf("THClStorage_get\n");
-//  THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
+  THArgCheck((index >= 0) && (index < self->size), 2, "index out of bounds");
+  THArgCheck(self->wrapper != 0, 1, "storage argument not initialized, is empty");
+
 //  if( self->wrapper->isDeviceDirty() ) {
 //    if(state->trace) cout << "wrapper->copyToHost()" << endl;
 //    self->wrapper->copyToHost();
 //  }
 //  return self->data[index];
-//}
+
+  const char *uniqueName = __FILE__ ":get";
+  EasyCL *cl = self->cl; // cant remember if this is a good idea or not :-P
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+  } else {
+    TemplatedKernel kernelBuilder(cl);
+    kernel = kernelBuilder.buildKernel( uniqueName, __FILE__, getGetKernelSource(), "THClStorageGet" );
+  }
+
+//  const dim3 block(1);
+//  const dim3 grid(1);
+
+  float res;
+  kernel->out(1, &res);
+  kernel->in(self->wrapper);
+  kernel->in(index);
+  kernel->run_1d(1, 1);
+
+  if(state->addFinish) cl->finish();
+  return res;
+}
 
 THClStorage* THClStorage_new(THClState *state)
 {
@@ -197,5 +227,23 @@ void THClStorage_resize(THClState *state, THClStorage *self, long size)
     if(state->trace) cout << "new wrapper, size " << size << endl;
   self->size = size;
   StatefulTimer::timeCheck("THClStorage_resize END");
+}
+
+std::string getGetKernelSource() {
+  // [[[cog
+  // import stringify
+  // stringify.write_kernel( "kernel", "THClStorageGet.cl" )
+  // ]]]
+  // generated using cog, from THClStorageGet.cl:
+  const char * kernelSource =  
+  "kernel void THClStorageGet(global float *res, global float *data, long index) {\n" 
+  "  if(get_global_id(0) == 0) {\n" 
+  "    res[0] = data[index];\n" 
+  "  }\n" 
+  "}\n" 
+  "\n" 
+  "";
+  // [[[end]]]
+  return kernelSource;
 }
 

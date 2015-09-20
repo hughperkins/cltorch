@@ -193,14 +193,14 @@ static int torch_Storage_(__index__)(lua_State *L)
 {
   if(lua_isnumber(L, 2))
   {
-    THError("Please convert to FloatStorage, then read the value");
-//    THStorage *storage = luaT_checkudata(L, 1, torch_Storage);
-//    long index = luaL_checklong(L, 2) - 1;
-//    lua_pushnumber(L, THStorage_(get)(cltorch_getstate(L), storage, index));
-//    lua_pushboolean(L, 1);
-//    return 2;
-    lua_pushboolean(L, 0);
-    return 1;
+    //THError("Please convert to FloatStorage, then read the value");
+    THStorage *storage = static_cast<THStorage *>(luaT_checkudata(L, 1, torch_Storage));
+    long index = luaL_checklong(L, 2) - 1;
+    lua_pushnumber(L, THStorage_(get)(cltorch_getstate(L), storage, index));
+    lua_pushboolean(L, 1);
+    return 2;
+//    lua_pushboolean(L, 0);
+ //   return 1;
   }
   else
   {

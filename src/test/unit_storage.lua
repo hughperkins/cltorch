@@ -58,6 +58,19 @@ function cltorch.tests.storage.test_basic()
   tester:asserteq(tostring(c), '\n 1\n 1\n 1\n 1\n 1\n[torch.ClStorage of size 5]\n')
 end
 
+function cltorch.tests.storage.test_get()
+  -- we probably should support this.  specifically, without this, lbfgs doesnt work :-P
+  a = torch.Storage(10000)
+  a[2] = 72
+  a[500] = 104
+  a[7500] = 1040
+  acl = torch.ClStorage(10000)
+  acl:copy(a)
+  tester:asserteq(72, acl[2])
+  tester:asserteq(104, acl[500])
+  tester:asserteq(1040, acl[7500])
+end
+
 local function setUp()
   -- cltorch.setDevice(1)
   print('')
@@ -75,9 +88,11 @@ function cltorch.tests.storage.test()
    tester = torch.Tester()
    tester:add(test)
    tester:run(tests)
+   print('#tester.errors', #tester.errors)
+   return #tester.errors == 0
 end
 
 if runtests then
-  cltorch.tests.storage.test()
+  return cltorch.tests.storage.test()
 end
 
