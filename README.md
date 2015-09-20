@@ -306,6 +306,9 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
   * Ported fix to `addcdiv` and `addcmul` reshape from cutorch commit [59a1cb05](https://github.com/torch/cutorch/commit/59a1cb05745d7b03d896d7a950c4845c9eebb73f)
   * Added ClStorage:__index() and ClTensor:__index()
   * Added ClStorage:__newindex() and ClTensor:__newindex()
+* 19th September:
+  * Added guards around many functions, so that c++ exceptions are converted to torch errors now, and display something more meaningful than just 'c++ exception' :-P
+    * Please feel free to raise an issue for any exceptions which are not guarded yet
 * 23rd July:
   * Fixed memory leak on Intel HD Graphics
 * 22th July:
