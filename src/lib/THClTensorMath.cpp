@@ -16,6 +16,13 @@ using namespace std;
 #define DIVUP(x, y) (((x) + (y) - 1) / (y))
 #endif
 
+#define CATCH_EXCEPT(method) \
+try { \
+  method; \
+} catch(exception &e) { \
+  THError("Something went wrong: %s", e.what()); \
+}
+
 class TensorFillOp : public HasOperator1, public HasScalars {
 public:
   int getNumScalars() const { return 1; }
@@ -417,10 +424,10 @@ void THClTensor_sum(THClState* state, THClTensor *self, THClTensor *src, long di
   THAssert(THClTensor_checkGPU(state, 2, self, src));
   CopyOp modifyOp;
   TensorAddOp reduceOp;
-  THClTensor_reduceDim(
+  CATCH_EXCEPT(THClTensor_reduceDim(
     state, self, src,
       0.0f, 
-     &modifyOp, &reduceOp, dimension);
+     &modifyOp, &reduceOp, dimension));
 }
 
 void THClTensor_prod(THClState* state, THClTensor *self, THClTensor *src, long dimension)
@@ -428,10 +435,10 @@ void THClTensor_prod(THClState* state, THClTensor *self, THClTensor *src, long d
   THAssert(THClTensor_checkGPU(state, 2, self, src));
   CopyOp modifyOp;
   TensorMulOp reduceOp;
-  THClTensor_reduceDim(
+  CATCH_EXCEPT(THClTensor_reduceDim(
     state, self, src,
       1.0f, 
-     &modifyOp, &reduceOp, dimension);
+     &modifyOp, &reduceOp, dimension));
 }
 
 class logicalall_functor : public HasOperator3
