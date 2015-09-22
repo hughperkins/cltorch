@@ -43,7 +43,7 @@ void THClStorage_set(THClState *state, THClStorage *self, long index, float valu
   }
 
   kernel->inout(self->wrapper);
-  kernel->in(index);
+  kernel->in((int64_t)index);
   kernel->in(value);
   kernel->run_1d(1, 1);
 
@@ -78,7 +78,7 @@ float THClStorage_get(THClState *state, const THClStorage *self, long index)
   float res;
   kernel->out(1, &res);
   kernel->in(self->wrapper);
-  kernel->in(index);
+  kernel->in((int64_t)index);
   kernel->run_1d(1, 1);
 
   if(state->addFinish) cl->finish();
