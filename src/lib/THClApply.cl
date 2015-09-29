@@ -64,7 +64,9 @@ THClTensor_pointwiseApplyD(
    int totalElements) {
    int linearIndex = get_global_id(0);
    if(linearIndex < totalElements ) {
-      int thisLinearId;
+    {% if thisdims ~= -2 then %}
+    int thisLinearId;
+    {% end %}
     {% for t=1,num_tensors do %}
       {% local thisdims = loadstring('return dims' .. t)() %}
       {% if thisdims == -2 then %}
