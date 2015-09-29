@@ -75,7 +75,7 @@ THClTensor_reduceAllPass1(global TensorInfoCl *in_info,
   // Reduce within the block
   r = reduceBlock(smem, get_local_size(0), r, init);
 
-  if (get_local_id(0) == 0) {
+  if ((int)get_local_id(0) == 0) {
     // Write out block-wide reduced value
     scratchSpace[get_group_id(0)] = r;
   }
@@ -87,14 +87,14 @@ kernel void THClTensor_reduceAllPass2(int numPass1Blocks,
                             global float* out,
                             local float *smem) {
   float r = init;
-  if (get_local_id(0) < numPass1Blocks) {
+  if ((int)get_local_id(0) < numPass1Blocks) {
     r = scratchSpace[get_local_id(0)];
   }
 
   // Reduce within the block
   r = reduceBlock(smem, numPass1Blocks, r, init);
 
-  if(get_local_id(0) == 0) {
+  if((int)get_local_id(0) == 0) {
     out[0] = r;
   }
 }
