@@ -81,6 +81,7 @@ endif(DEV_RUN_COG)
         add_custom_target( 
             git_cltorch_rec
             git submodule update --init --force --recursive
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
         add_dependencies( cltorch git_cltorch_rec )
         add_dependencies( clBLAS-external git_cltorch_rec )
