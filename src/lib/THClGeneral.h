@@ -35,9 +35,12 @@
 #define DEPRECATED_POST __attribute__((deprecated))
 #endif
 
-struct EasyCL;
-struct CLWrapper;
-struct DeviceInfo;
+#ifdef __cplusplus
+class EasyCL;
+class CLWrapper;
+class DeviceInfo;
+#else
+#endif
 
 #ifdef __cplusplus
 #include <iostream>
