@@ -91,9 +91,14 @@ void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int n
   } else {
     string uniqueName = oss.str();
     TemplatedKernel kernelBuilder(cl);
+    int declareLinearIndex = 0;
     for(int t=0; t < numTensors; t++) {
       kernelBuilder.set("dims" + easycl::toString(t + 1), dims[t]);
+      if(dims[t] != -2) {
+        declareLinearIndex = 1;
+      }
     }
+    kernelBuilder.set("declare_linear_index", declareLinearIndex);
     kernelBuilder.set("num_tensors", numTensors);
     kernelBuilder.set("num_scalars", numScalars);
     kernelBuilder.set("num_point_tensors", numPointTensors);
@@ -352,7 +357,7 @@ std::string get_template() {
   "   int totalElements) {\n" 
   "   int linearIndex = get_global_id(0);\n" 
   "   if(linearIndex < totalElements ) {\n" 
-  "    {% if thisdims ~= -2 then %}\n" 
+  "    {% if declare_linear_index then %}\n" 
   "    int thisLinearId;\n" 
   "    {% end %}\n" 
   "    {% for t=1,num_tensors do %}\n" 
