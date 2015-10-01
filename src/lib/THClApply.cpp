@@ -98,7 +98,9 @@ void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int n
         declareLinearIndex = 1;
       }
     }
-    kernelBuilder.set("declare_linear_index", declareLinearIndex);
+    if(declareLinearIndex > 0) {
+      kernelBuilder.set("declare_linear_index", declareLinearIndex);
+    }
     kernelBuilder.set("num_tensors", numTensors);
     kernelBuilder.set("num_scalars", numScalars);
     kernelBuilder.set("num_point_tensors", numPointTensors);
