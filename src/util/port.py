@@ -36,6 +36,7 @@ def process_block(block):
     block = block.replace('threadIdx.x', 'get_local_id(0)')
     block = block.replace('threadIdx.y', 'get_local_id(1)')
     block = block.replace('__global__', 'kernel')
+    block = block.replace('__shared__', 'local')
     block = block.replace('__syncthreads()', 'barrier(CLK_LOCAL_MEM_FENCE)')
     block = block.replace('warpSize', '{{WarpSize}}')
     block = block.replace('IndexType', '{{IndexType}}')

@@ -70,8 +70,8 @@ kernel void THClTensor_kernel_varOuterDim(float *tgt, float *src_, unsigned num_
 template<bool flag, bool apply_sqrt>
 kernel void THClTensor_kernel_varInnermostDim(float *tgt, float *src_, unsigned num_rows, unsigned row_size)
 {
-  __shared__ float ssum[32][16];
-  __shared__ float ssum2[32][16];
+  local float ssum[32][16];
+  local float ssum2[32][16];
 
   for (unsigned block_row = get_group_id(0) * get_local_size(1); block_row < num_rows; block_row += get_local_size(1) * get_num_groups(0)) {
     unsigned row = block_row + get_local_id(1);
@@ -109,7 +109,7 @@ kernel void THClTensor_kernel_varInnermostDim(float *tgt, float *src_, unsigned 
 
 kernel void THClTensor_kernel_renorm(float *data, const float value, const long size, const float maxnorm)
 {
-  __shared__ float buffer[32];
+  local float buffer[32];
   long tx = get_local_id(0);
   long bx = get_group_id(0);
   long step = get_local_size(0);
