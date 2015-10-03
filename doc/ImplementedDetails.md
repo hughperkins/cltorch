@@ -292,12 +292,14 @@ print(v1 * v2)
 
 <tr><td>Column or row-wise operations<td>30% done<td><pre>
 A = torch.ClTensor{{3,5,2},{4,5,6}}
+B = torch.ClTensor{{3,5,2},{4,5,6}}
 A:sum()
 A:sum(2)
 A:sum(1)
 A:mean()
 A:mean(1)
 A:mean(2)
+torch.atan2(A, B)
 print(torch.prod(A))
 print(A:prod())
 print(A:prod(1))

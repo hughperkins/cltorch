@@ -91,10 +91,14 @@ void THClTensor_tpow(THClState *state, THClTensor *self_, float value, THClTenso
     }
   }
 }
-/*
-struct TensorATan2Op {
-  __device__ __forceinline__ void operator()(float* out, float* a, float* b) {
-    *out = atan2f(*a, *b);
+
+class TensorATan2Op : public HasOperator2, public HasOperator3 {
+public:
+  string operator2() const {
+    return "*out = atan2(*out, *in1)";
+  }
+  string operator3() const {
+    return "*out = atan2(*in1, *in2)";
   }
 };
 
@@ -104,14 +108,11 @@ void THClTensor_atan2(THClState *state, THClTensor *self_, THClTensor *tx, THClT
   THArgCheck(THClTensor_nElement(state, tx) ==
              THClTensor_nElement(state, ty), 3, "sizes do not match");
   THClTensor_resizeAs(state, self_, tx);
-
-  if (!THClTensor_pointwiseApply3(state, self_, tx, ty, TensorATan2Op())) {
+  TensorATan2Op op;
+  if (!THClTensor_pointwiseApply3(state, self_, tx, ty, &op)) {
     THArgCheck(false, 2, CLTORCH_DIM_WARNING);
   }
-
-  THClCheck(cudaGetLastError());
 }
-*/
 
 class TensorClampOp : public HasOperator1, public HasOperator2, public HasScalars {
 public:

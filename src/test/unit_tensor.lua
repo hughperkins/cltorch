@@ -216,7 +216,7 @@ for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos',
    end
 end
 
-for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv'}) do
+for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv', 'atan2'}) do
    cltorch.tests.tensor['inplace_' .. op] = function()
       c = torch.ClTensor{{4,   2,   -1},
                          {0.8,1.2, 1.9}}
@@ -226,6 +226,7 @@ for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv'}) do
       b = d:float()
       loadstring('a:' .. op .. '(b)')()
       loadstring('c:' .. op .. '(d)')()
+      tester:assertne(a, nil)
       tester:asserteq(a, c:float())
    end
 end
