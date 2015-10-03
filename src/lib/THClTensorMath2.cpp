@@ -180,12 +180,13 @@ void THClTensor_sign(THClState *state, THClTensor *self_, THClTensor *src)
 
   THClCheck(cudaGetLastError());
 }
+*/
 
 float THClTensor_meanall(THClState *state, THClTensor *self)
 {
   THAssert(THClTensor_checkGPU(state, 1, self));
   THArgCheck(self->nDimension > 0, 1, "empty Tensor");
-  return THClTensor_sumall(state, self)/THClTensor_nElement(state, self);
+  return THClTensor_sumall(state, self) / THClTensor_nElement(state, self);
 }
 
 void
@@ -196,6 +197,7 @@ THClTensor_mean(THClState *state, THClTensor *self, THClTensor *src, long dim)
   THClTensor_div(state, self, self, THClTensor_size(state, src, dim));
 }
 
+/*
 struct square_functor
 {
   const float mean;

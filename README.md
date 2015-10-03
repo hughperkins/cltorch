@@ -289,6 +289,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 3rd October:
+  * Added `:mean()` and `:mean(d)`
 * 20th September:
   * Ported fix to `addcdiv` and `addcmul` reshape from cutorch commit [59a1cb05](https://github.com/torch/cutorch/commit/59a1cb05745d7b03d896d7a950c4845c9eebb73f)
   * Added ClStorage:__index() and ClTensor:__index()
@@ -296,49 +298,6 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 * 19th September:
   * Added guards around many functions, so that c++ exceptions are converted to torch errors now, and display something more meaningful than just 'c++ exception' :-P
     * Please feel free to raise an issue for any exceptions which are not guarded yet
-* 23rd July:
-  * Fixed memory leak on Intel HD Graphics
-* 22th July:
-  * Performance improvement:
-    * All per-element operations are around 2-5 faster on NVIDIA and AMD now
-    * In the specific, this means that times for Karpathy's [char-rnn](http://github.com/karpathy/char-rnn) are around 2-3 times faster on NVIDIA and AMD cards, compared to before
-  * [colesbury](https://github.com/colesbury)'s pull request [#176](https://github.com/torch/cutorch/pull/176) ported to cltorch, 'Allow CudaTensors as indices'
-  * [andresy](https://github.com/andresy)'s pull request [#203](https://github.com/torch/cutorch/pull/203) ported to cltorch, 'expose retain and free for CudaStorage/CudaTensor'
-* 19th July:
-  * Upgrade EasyCL version
-  * Need to explicitly enable timing now (just in case impacts performance)
-  * DumpTimings now shows count of number of calls, as well as timings
-* 18th July:
-  * Added custom user kernels
-* 16th July:
-  * Did some cleaning:
-    * source code now all in `src` directory, to keep the front page on github clean
-    * moved a bunch of stuff from this page to other pages, ie older changes, and list of what works
-    * 20x speed boost for Apply kernel, and char-rnn, on Intel HD5500 GPU
-* 15th July:
-  * can pass point ClTensor now also to `:lt()`, `:gt()`, `:le()`, `:ge()`, `:eq()`, `:ne()`
-  * added profiling:
-    * `cltorch.setProfiling(1)` to enable (has a performance hit obviously, whilst enabled)
-    * `cltorch.dumpProfiling()` to dump timings since last dump
-      * timings are cumulative over kernel filename/kernelname combination
-* 14th July:
-  * created point tensors:
-    * `:sum()` can return a point tensor, which stays on the GPU, eliminating gpu pipeline stall, see presentation above
-    * `add()`, `csub()`, `mul` and `div` can all accept a point tensor in place of their scalar argument
-  * `:prod()` can return a point tensor too now, as can `:max()`, `:min()`, `:all()`, and `:any()`
-  * can pass point ClTensor also to `:fill()` now
-* 13th July:
-  * possible to use tensors without `:setDevice()` to same device as them first.  Tested with `:sum()`, `:sum(1)`, and `:sum(2)` for now
-* 12th July:
-  * add `cltorch.about()`, to provide build information
-* 10th July:
-  * added cmin, cmax, for tensors and scalars (as per https://github.com/torch/cutorch/pull/198/files )
-* 5th July:
-  * fixed some Mac build/load issues, so builds/loads on Mac now (thank you to mlajtos, szagouyko, centime, luo123n, and pdhvip for their enormous help with fixing this :-) )
-  * getDeviceProperties and so on now only show GPU and APU devices, ignores pure CPU devices (which pure CPU devices are not supported by cltorch at this time)
-  * added `cltorch.test()`, which runs unit tests
-* 4th July:
-  * `torch.save` and `torch.load` implemented
 
 [OlderChanges.md](doc/OlderChanges.md)
 

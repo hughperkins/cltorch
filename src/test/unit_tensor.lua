@@ -643,6 +643,18 @@ function cltorch.tests.tensor.test_sumall()
    tester:asserteq(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall2})
 end
 
+function cltorch.tests.tensor.test_meanall()
+   local s = torch.LongStorage{60,50}
+   local A = torch.Tensor(s):uniform() - 0.5
+   local Acl = A:cl()
+   local res_cpu = torch.mean(A)
+   local res_gpu = torch.mean(Acl)
+   tester:asserteq(torch.FloatTensor{res_cpu}, torch.FloatTensor{res_gpu})
+
+   res_gpu2 = Acl:mean()
+   tester:asserteq(torch.FloatTensor{res_cpu}, torch.FloatTensor{res_gpu2})
+end
+
 function cltorch.tests.tensor.test_sumallt()
    local s = torch.LongStorage{60,50}
    local A = torch.Tensor(s):uniform() - 0.5
@@ -663,6 +675,14 @@ function cltorch.tests.tensor.test_prod()
    local Acl = A:cl()
    tester:asserteq(A:prod(1), Acl:prod(1):double())
    tester:asserteq(A:prod(2), Acl:prod(2):double())
+end
+
+function cltorch.tests.tensor.test_mean()
+   local s = torch.LongStorage{60,50}
+   local A = torch.Tensor(s):uniform() - 0.5
+   local Acl = A:cl()
+   tester:asserteq(A:mean(1), Acl:mean(1):double())
+   tester:asserteq(A:mean(2), Acl:mean(2):double())
 end
 
 function cltorch.tests.tensor.test_sum()

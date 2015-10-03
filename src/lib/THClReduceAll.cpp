@@ -109,7 +109,6 @@ void kernelLaunch_THClTensor_reduceAllPass1(
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
       .set("IndexType", TypeParseTraits<IndexType>::name)
     ;
-
     kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", getKernelTemplate(), "THClTensor_reduceAllPass1" );
   }
 
