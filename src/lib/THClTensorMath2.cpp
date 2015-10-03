@@ -151,37 +151,31 @@ void THClTensor_clamp(THClState *state, THClTensor *self_, THClTensor *src, floa
     }
   }
 }
-/*
-struct TensorSignOp {
-  __device__ __forceinline__ void operator()(float* out, float* in) {
-    float orig = *in;
-    *out = (orig > 0) - (orig < 0);
-  }
 
-  __device__ __forceinline__ void operator()(float* v) {
-    float orig = *v;
-    *v = (orig > 0) - (orig < 0);
+class TensorSignOp : public HasOperator1, public HasOperator2 {
+  string operator1() const {
+    return "*out = (*out > 0) - (*out < 0)";
+  }
+  string operator2() const {
+    return "*out = (*in1 > 0) - (*in1 < 0)";
   }
 };
 
 void THClTensor_sign(THClState *state, THClTensor *self_, THClTensor *src)
 {
   THAssert(THClTensor_checkGPU(state, 2, self_, src));
+  TensorSignOp op;
   if (self_ == src) {
-    if (!THClTensor_pointwiseApply1(state, self_, TensorSignOp())) {
+    if (!THClTensor_pointwiseApply1(state, self_, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   } else {
     THClTensor_resizeAs(state, self_, src);
-
-    if (!THClTensor_pointwiseApply2(state, self_, src, TensorSignOp())) {
+    if (!THClTensor_pointwiseApply2(state, self_, src, &op)) {
       THArgCheck(false, 2, CLTORCH_DIM_WARNING);
     }
   }
-
-  THClCheck(cudaGetLastError());
 }
-*/
 
 float THClTensor_meanall(THClState *state, THClTensor *self)
 {

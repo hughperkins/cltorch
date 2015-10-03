@@ -205,14 +205,29 @@ end
 
 for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos', 
     'acos', 'sin', 'asin', 'atan', 'tanh', 'ceil', 'floor', 
-    'abs', 'round'}) do
+    'abs', 'round', 'sign'}) do
    cltorch.tests.tensor['inplace_' .. name] = function()
       c = torch.ClTensor{{4,    2,  -1},
                          {3.1,1.2, 4.9}}
       a = c:float()
       loadstring('c:' .. name .. '()')()
       loadstring('a:' .. name .. '()')()
+      tester:assertne(a, nil)
       tester:asserteq(a, c:float())
+   end
+end
+
+for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos', 
+    'acos', 'sin', 'asin', 'atan', 'tanh', 'ceil', 'floor', 
+    'abs', 'round', 'sign'}) do
+   cltorch.tests.tensor['outplace_' .. name] = function()
+      c = torch.ClTensor{{4,    2,  -1},
+                         {3.1,1.2, 4.9}}
+      a = c:float()
+      loadstring('res_cpu = torch.' .. name .. '(c)')()
+      loadstring('res_gpu = torch.' .. name .. '(a)')()
+      tester:assertne(res_cpu, nil)
+      tester:asserteq(res_cpu:float(), res_gpu:float())
    end
 end
 
