@@ -7,6 +7,13 @@ extern "C" {
   void cltorch_ClStorage_init(lua_State* L);
 }
 
+#define EXCEPT_TO_THERROR(method) \
+try { \
+  method; \
+} catch(exception &e) { \
+  THError("Something went wrong: %s", e.what()); \
+}
+
 /* everything is as the generic Storage.c, except few things (see below) */
 
 #define real float
@@ -48,25 +55,25 @@ static int cltorch_ClStorage_copy(lua_State *L)
   THClState *state = cltorch_getstate(L);
   THClStorage *storage = static_cast<THClStorage *>(luaT_checkudata(L, 1, "torch.ClStorage"));
   void *src;
-  if( (src = luaT_toudata(L, 2, "torch.ClStorage")) )
-    THClStorage_copy(state, storage, static_cast<THClStorage *>(src));
-  else if( (src = luaT_toudata(L, 2, "torch.ByteStorage")) )
-    THClStorage_copyByte(state, storage, static_cast<THByteStorage *>(src));
-  else if( (src = luaT_toudata(L, 2, "torch.CharStorage")) )
-    THClStorage_copyChar(state, storage, static_cast<THCharStorage *>(src));
-  else if( (src = luaT_toudata(L, 2, "torch.ShortStorage")) )
-    THClStorage_copyShort(state, storage, static_cast<THShortStorage *>(src));
-  else if( (src = luaT_toudata(L, 2, "torch.IntStorage")) )
-    THClStorage_copyInt(state, storage, static_cast<THIntStorage *>(src));
-  else if( (src = luaT_toudata(L, 2, "torch.LongStorage")) )
-    THClStorage_copyLong(state, storage, static_cast<THLongStorage *>(src));
-  else if( (src = luaT_toudata(L, 2, "torch.FloatStorage")) )
-    THClStorage_copyFloat(state, storage, static_cast<THFloatStorage *>(src));
-  else if( (src = luaT_toudata(L, 2, "torch.DoubleStorage")) )
-    THClStorage_copyDouble(state, storage, static_cast<THDoubleStorage *>(src));
-  else if( (src = luaT_toudata(L, 2, "torch.ClStorage")) )
-    THClStorage_copyCl(state, storage, static_cast<THClStorage *>(src));
-  else
+  if( (src = luaT_toudata(L, 2, "torch.ClStorage")) ) {
+    EXCEPT_TO_THERROR(THClStorage_copy(state, storage, static_cast<THClStorage *>(src)));
+  } else if( (src = luaT_toudata(L, 2, "torch.ByteStorage")) ) {
+    EXCEPT_TO_THERROR(THClStorage_copyByte(state, storage, static_cast<THByteStorage *>(src)));
+  } else if( (src = luaT_toudata(L, 2, "torch.CharStorage")) ) {
+    EXCEPT_TO_THERROR(THClStorage_copyChar(state, storage, static_cast<THCharStorage *>(src)));
+  } else if( (src = luaT_toudata(L, 2, "torch.ShortStorage")) ) {
+    EXCEPT_TO_THERROR(THClStorage_copyShort(state, storage, static_cast<THShortStorage *>(src)));
+  } else if( (src = luaT_toudata(L, 2, "torch.IntStorage")) ) {
+    EXCEPT_TO_THERROR(THClStorage_copyInt(state, storage, static_cast<THIntStorage *>(src)));
+  } else if( (src = luaT_toudata(L, 2, "torch.LongStorage")) ) {
+    EXCEPT_TO_THERROR(THClStorage_copyLong(state, storage, static_cast<THLongStorage *>(src)));
+  } else if( (src = luaT_toudata(L, 2, "torch.FloatStorage")) ) {
+    EXCEPT_TO_THERROR(THClStorage_copyFloat(state, storage, static_cast<THFloatStorage *>(src)));
+  } else if( (src = luaT_toudata(L, 2, "torch.DoubleStorage")) ) {
+    EXCEPT_TO_THERROR(THClStorage_copyDouble(state, storage, static_cast<THDoubleStorage *>(src)));
+  } else if( (src = luaT_toudata(L, 2, "torch.ClStorage")) ) {
+    EXCEPT_TO_THERROR(THClStorage_copyCl(state, storage, static_cast<THClStorage *>(src)));
+  } else
     luaL_typerror(L, 2, "torch.*Storage");
 
   lua_settop(L, 1);
