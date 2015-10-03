@@ -15,6 +15,15 @@ end
 
 cltorch.tests.tensor = {}
 
+-- hack tester, so it doesnt eat our assert stacktraces, where we are using a helper method
+function torch.Tester:assert_sub (condition, message)
+   self.countasserts = self.countasserts + 1
+   if not condition then
+      local ss = debug.traceback('tester',2)
+      self.errors[#self.errors+1] = self.curtestname .. '\n' .. (message or '') .. '\n' .. ss .. '\n'
+   end
+end
+
 local function assertStrContains(target, value )
    local res = string.find(target, value)
    if res == nil then
@@ -115,6 +124,11 @@ function torch.LongStorage.__eq(self, b)
 --      tester:asserteq(self[i], b[i])
    end
    return true
+end
+
+function assertFloatsNear(a, b)
+  diff = math.abs(a - b)
+  tester:assertle(0.000001, diff)
 end
 
 function torch.ClTensor.__eq(self, b)
@@ -657,6 +671,24 @@ function cltorch.tests.tensor.test_sumall()
 
    Aclsumall2 = Acl:sum()
    tester:asserteq(torch.FloatTensor{Asumall}, torch.FloatTensor{Aclsumall2})
+end
+
+function cltorch.tests.tensor.test_norm()
+   torch.manualSeed(123)
+   local s = torch.LongStorage{60,50}
+   local A = torch.Tensor(s):uniform() * 3
+   local Acl = A:cl()
+
+--   tester:asserteq(torch.FloatTensor({A:norm()}), torch.FloatTensor({Acl:norm()}))
+--   tester:asserteq(torch.FloatTensor({A:norm(1)}), torch.FloatTensor({Acl:norm(1)}))
+--   tester:asserteq(torch.FloatTensor({A:norm(1,2)}), torch.FloatTensor({Acl:norm(1,2)}))
+--   tester:asserteq(torch.FloatTensor({A:norm(1,1)}), torch.FloatTensor({Acl:norm(1,1)}))
+--   tester:asserteq(torch.FloatTensor({A:norm(2,1)}), torch.FloatTensor({Acl:norm(2,1)}))
+  assertFloatsNear(A:norm(), Acl:norm())
+  assertFloatsNear(A:norm(1), Acl:norm(1))
+  tester:asserteq(A:norm(1,2):float(), Acl:norm(1,2):float())
+  tester:asserteq(A:norm(1,1):float(), Acl:norm(1,1):float())
+  tester:asserteq(A:norm(2,1):float(), Acl:norm(2,1):float())
 end
 
 function cltorch.tests.tensor.test_meanall()

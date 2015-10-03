@@ -293,6 +293,7 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
   * Added `:mean()` and `:mean(d)`
   * Added `:atan2(x,y)`
   * Added `x:sign()` and `torch.sign(x)`
+  * Added `norm(...)`
 * 20th September:
   * Ported fix to `addcdiv` and `addcmul` reshape from cutorch commit [59a1cb05](https://github.com/torch/cutorch/commit/59a1cb05745d7b03d896d7a950c4845c9eebb73f)
   * Added ClStorage:__index() and ClTensor:__index()

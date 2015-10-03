@@ -9,6 +9,7 @@
 //#include "THCReduce.cuh"
 #include "THClTensorMathPointwise.h"
 #include "THClReduceAll.h"
+#include "THClReduce.h"
 #include "EasyCL.h"
 #include "util/StatefulTimer.h"
 
@@ -439,22 +440,22 @@ void THClTensor_std(THClState *state, THClTensor *self_, THClTensor *src, long d
 }
 */
 
-class norm_functor : public HasOperator2
+class NormFunctor : public HasOperator2
 {
 public:
   const float exponent;
 
-  norm_functor(float exponent_) : exponent(exponent_) {}
+  NormFunctor(float exponent_) : exponent(exponent_) {}
   std::string operator2() const
   {
     return "*out = pow(fabs(*in1), " + easycl::toString(exponent) + ")";
   }
 };
 
-struct partial_not_equal_functor : public HasOperator2
+struct PartialNotEqualFunctor : public HasOperator2
 {
   const float rhs;
-  partial_not_equal_functor(float rhs) : rhs(rhs) {}
+  PartialNotEqualFunctor(float rhs) : rhs(rhs) {}
   std::string operator2() const
   {
     return "*out = *in1 != " + easycl::toString(rhs);
@@ -467,7 +468,7 @@ float THClTensor_normall(THClState *state, THClTensor *self, float value)
   
   float result;
   if(value == 0.0f) {
-    partial_not_equal_functor modifyOp(0.0f);
+    PartialNotEqualFunctor modifyOp(0.0f);
     TensorAddOp reduceOp;
     const int device = self->storage->device;
     THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
@@ -482,7 +483,7 @@ float THClTensor_normall(THClState *state, THClTensor *self, float value)
     StatefulTimer::timeCheck("normall after copytohost");
     result = scratch->data[0];
   } else {
-    norm_functor modifyOp(value);
+    NormFunctor modifyOp(value);
     TensorAddOp reduceOp;
     const int device = self->storage->device;
     THClScratchSpace *scratch = THClState_getDeviceScratchSpace(state, device, 0);
@@ -501,24 +502,36 @@ float THClTensor_normall(THClState *state, THClTensor *self, float value)
 
   return result;
 }
-/*
+
+//(THClState* state,
+//                          THClTensor* out,
+//                          THClTensor* in,
+//                          float init,
+//                          const HasOperator2 *modifyOp,
+//                          const HasOperator3 *reduceOp,
+//                          int dim);
+
 void THClTensor_norm(THClState *state, THClTensor* self, THClTensor* src, float value, long dimension)
 {
   THAssert(THClTensor_checkGPU(state, 2, self, src));
+  TensorAddOp addOp;
   if (value == 0.0f) {
+    PartialNotEqualFunctor partialNotEqualFunctor(0.0f);
     THClTensor_reduceDim(state, self, src,
-                           partial_not_equal_functor(0.0f), thrust::plus<float>(),
-                           0.0f, dimension);
+                         0.0f,
+                         &partialNotEqualFunctor, &addOp,
+                         dimension);
   } else {
+    NormFunctor normFunctor(value);
     THClTensor_reduceDim(state, self, src,
-                           norm_functor(value), thrust::plus<float>(),
-                           0.0f, dimension);
+                         0.0f,
+                         &normFunctor, &addOp,
+                         dimension);
     THClTensor_pow(state, self, self, 1/value);
   }
-
-  THClCheck(cudaGetLastError());
 }
 
+/*
 __global__ void THClTensor_kernel_renorm(float *data, const float value, const long size, const float maxnorm)
 {
   __shared__ float buffer[32];
