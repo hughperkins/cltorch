@@ -503,14 +503,6 @@ float THClTensor_normall(THClState *state, THClTensor *self, float value)
   return result;
 }
 
-//(THClState* state,
-//                          THClTensor* out,
-//                          THClTensor* in,
-//                          float init,
-//                          const HasOperator2 *modifyOp,
-//                          const HasOperator3 *reduceOp,
-//                          int dim);
-
 void THClTensor_norm(THClState *state, THClTensor* self, THClTensor* src, float value, long dimension)
 {
   THAssert(THClTensor_checkGPU(state, 2, self, src));
