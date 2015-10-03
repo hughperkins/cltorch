@@ -17,7 +17,14 @@ import os
 from os.path import join as jp
 from os import path
 
+src_dir = '../cutorch'  # directory to port from
+
 def process_block(block):
+  if block.find(' operator()') >= 0:
+    # its an Op struct, we are not writing these as kernels
+    # but using Apply instead, and passing in the appropriate code
+    # as strings into the kernel templates
+    return (block, False)
   if block.find('__global__') >= 0 or block.find('__device__') >= 0:
     # kernel method, probably
     block = block.replace('gridDim.x', 'get_num_groups(0)')
@@ -143,9 +150,9 @@ def process_dir(cutorch_dir, port_dir, rel_dir):
       f.write(new_cl)
       f.close()
 
-process_dir('../cutorch', 'port', 'lib/THC')
-process_dir('../cutorch', 'port', 'torch')
-process_dir('../cutorch', 'port', 'torch/generic')
+process_dir(src_dir, 'port', 'lib/THC')
+process_dir(src_dir, 'port', 'torch')
+process_dir(src_dir, 'port', 'torch/generic')
 #  cutorch_dir = '../cutorch-goodies2'
 
 #  cutorch_src = '{cutorch_dir}/lib/THC'.format(
