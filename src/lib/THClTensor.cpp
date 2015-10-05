@@ -733,36 +733,36 @@ static void THClTensor_rawResize(THClState *state, THClTensor *self, int nDimens
 
 void THClTensor_set1d(THClState *state, THClTensor *tensor, long x0, float value)
 {
-  THError("Please convert to FloatTensor, then update, then copy back to GPU");
-//  THArgCheck(tensor->nDimension == 1, 1, "tensor must have one dimension");
-//  THArgCheck( (x0 >= 0) && (x0 < tensor->size[0]), 2, "out of range");
-//  THClStorage_set(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0], value);
+//  THError("Please convert to FloatTensor, then update, then copy back to GPU");
+  THArgCheck(tensor->nDimension == 1, 1, "tensor must have one dimension");
+  THArgCheck( (x0 >= 0) && (x0 < tensor->size[0]), 2, "out of range");
+  THClStorage_set(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0], value);
 }
 
 float THClTensor_get1d(THClState *state, const THClTensor *tensor, long x0)
 {
-  THError("Please convert to FloatTensor, then update, then copy back to GPU");
-//  THArgCheck(tensor->nDimension == 1, 1, "tensor must have one dimension");
-//  THArgCheck( (x0 >= 0) && (x0 < tensor->size[0]), 2, "out of range");
-//  return THClStorage_get(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]);
-  return 0;
+//  THError("Please convert to FloatTensor, then update, then copy back to GPU");
+  THArgCheck(tensor->nDimension == 1, 1, "tensor must have one dimension");
+  THArgCheck( (x0 >= 0) && (x0 < tensor->size[0]), 2, "out of range");
+  return THClStorage_get(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]);
+//  return 0;
 }
 
 void THClTensor_set2d(THClState *state, THClTensor *tensor, long x0, long x1, float value)
 {
-  THError("Please convert to FloatTensor, then update, then copy back to GPU");
-//  THArgCheck(tensor->nDimension == 2, 1, "tensor must have two dimensions");
-//  THArgCheck((x0 >= 0) && (x0 < tensor->size[0]) && (x1 >= 0) && (x1 < tensor->size[1]), 2, "out of range");
-//  THClStorage_set(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]+x1*tensor->stride[1], value);
+//  THError("Please convert to FloatTensor, then update, then copy back to GPU");
+  THArgCheck(tensor->nDimension == 2, 1, "tensor must have two dimensions");
+  THArgCheck((x0 >= 0) && (x0 < tensor->size[0]) && (x1 >= 0) && (x1 < tensor->size[1]), 2, "out of range");
+  THClStorage_set(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]+x1*tensor->stride[1], value);
 }
 
 float THClTensor_get2d(THClState *state, const THClTensor *tensor, long x0, long x1)
 {
-  THError("Please convert to FloatTensor, then update, then copy back to GPU");
-//  THArgCheck(tensor->nDimension == 2, 1, "tensor must have two dimensions");
-//  THArgCheck((x0 >= 0) && (x0 < tensor->size[0]) && (x1 >= 0) && (x1 < tensor->size[1]), 2, "out of range");
-//  return THClStorage_get(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]+x1*tensor->stride[1]);
-  return 0;
+//  THError("Please convert to FloatTensor, then update, then copy back to GPU");
+  THArgCheck(tensor->nDimension == 2, 1, "tensor must have two dimensions");
+  THArgCheck((x0 >= 0) && (x0 < tensor->size[0]) && (x1 >= 0) && (x1 < tensor->size[1]), 2, "out of range");
+  return THClStorage_get(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]+x1*tensor->stride[1]);
+//  return 0;
 }
 
 void THClTensor_set3d(THClState *state, THClTensor *tensor, long x0, long x1, long x2, float value)
@@ -775,28 +775,28 @@ void THClTensor_set3d(THClState *state, THClTensor *tensor, long x0, long x1, lo
 
 float THClTensor_get3d(THClState *state, const THClTensor *tensor, long x0, long x1, long x2)
 {
-  THError("Please convert to FloatTensor, then update, then copy back to GPU");
-//  THArgCheck(tensor->nDimension == 3, 1, "tensor must have three dimensions");
-//  THArgCheck( (x0 >= 0) && (x0 < tensor->size[0]) && (x1 >= 0) && (x1 < tensor->size[1]) && (x2 >= 0) && (x2 < tensor->size[2]), 2, "out of range");
-//  return THClStorage_get(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]+x1*tensor->stride[1]+x2*tensor->stride[2]);
-  return 0;
+//  THError("Please convert to FloatTensor, then update, then copy back to GPU");
+  THArgCheck(tensor->nDimension == 3, 1, "tensor must have three dimensions");
+  THArgCheck( (x0 >= 0) && (x0 < tensor->size[0]) && (x1 >= 0) && (x1 < tensor->size[1]) && (x2 >= 0) && (x2 < tensor->size[2]), 2, "out of range");
+  return THClStorage_get(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]+x1*tensor->stride[1]+x2*tensor->stride[2]);
+//  return 0;
 }
 
 void THClTensor_set4d(THClState *state, THClTensor *tensor, long x0, long x1, long x2, long x3, float value)
 {
-  THError("Please convert to FloatTensor, then update, then copy back to GPU");
-//  THArgCheck(tensor->nDimension == 4, 1, "tensor must have four dimensions");
-//  THArgCheck((x0 >= 0) && (x0 < tensor->size[0]) && (x1 >= 0) && (x1 < tensor->size[1]) && (x2 >= 0) && (x2 < tensor->size[2]) && (x3 >= 0) && (x3 < tensor->size[3]), 2, "out of range");
-//  THClStorage_set(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]+x1*tensor->stride[1]+x2*tensor->stride[2]+x3*tensor->stride[3], value);
+//  THError("Please convert to FloatTensor, then update, then copy back to GPU");
+  THArgCheck(tensor->nDimension == 4, 1, "tensor must have four dimensions");
+  THArgCheck((x0 >= 0) && (x0 < tensor->size[0]) && (x1 >= 0) && (x1 < tensor->size[1]) && (x2 >= 0) && (x2 < tensor->size[2]) && (x3 >= 0) && (x3 < tensor->size[3]), 2, "out of range");
+  THClStorage_set(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]+x1*tensor->stride[1]+x2*tensor->stride[2]+x3*tensor->stride[3], value);
 }
 
 float THClTensor_get4d(THClState *state, const THClTensor *tensor, long x0, long x1, long x2, long x3)
 {
-  THError("Please convert to FloatTensor, then update, then copy back to GPU");
-//  THArgCheck(tensor->nDimension == 4, 1, "tensor must have four dimensions");
-//  THArgCheck((x0 >= 0) && (x0 < tensor->size[0]) && (x1 >= 0) && (x1 < tensor->size[1]) && (x2 >= 0) && (x2 < tensor->size[2]) && (x3 >= 0) && (x3 < tensor->size[3]), 2, "out of range");
-//  return THClStorage_get(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]+x1*tensor->stride[1]+x2*tensor->stride[2]+x3*tensor->stride[3]);
-  return 0;
+//  THError("Please convert to FloatTensor, then update, then copy back to GPU");
+  THArgCheck(tensor->nDimension == 4, 1, "tensor must have four dimensions");
+  THArgCheck((x0 >= 0) && (x0 < tensor->size[0]) && (x1 >= 0) && (x1 < tensor->size[1]) && (x2 >= 0) && (x2 < tensor->size[2]) && (x3 >= 0) && (x3 < tensor->size[3]), 2, "out of range");
+  return THClStorage_get(state, tensor->storage, tensor->storageOffset+x0*tensor->stride[0]+x1*tensor->stride[1]+x2*tensor->stride[2]+x3*tensor->stride[3]);
+//  return 0;
 }
 // from .cu
 //cudaTextureObject_t THClTensor_getTextureObject(THClState *state, THClTensor *self)
