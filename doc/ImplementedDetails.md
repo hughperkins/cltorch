@@ -196,6 +196,8 @@ for _,name in ipairs({'log','exp', 'cos', 'acos', 'sin',
    'round'}) do
   loadstring('c:' .. name .. '()')()
 end
+a:neg() -- similar to '- a'
+        -- but stores results into a
 </pre>
 </tr>
 
@@ -203,6 +205,9 @@ end
 d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
 c = torch.ClTensor{{4,2,-1},{3.1,1.2,4.9}}
 c:add(d)
+c:csub(d) -- subtracts d from c, element-wise
+         -- similar to 'c - d'
+         -- but stores results into c
 c:cmul(d)
 c:cdiv(d)
 c:add(3)
@@ -331,12 +336,6 @@ torch.numel(A)
 </pre></tr>
 
 <tr><td>Original, not in torch or cutorch<td>N/A<td><pre>
-c:csub(d) -- subtracts d from c, element-wise
-         -- similar to 'c - d'
-         -- but stores results into c
-a:neg() -- similar to '- a'
-        -- but stores results into a
-
 -- arbitrary apply/map
 c:apply("x = sqrt(x + 3.5)")
         -- note: a string, not a lua function
