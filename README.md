@@ -47,7 +47,6 @@ The following features are either cltorch-specific, or do not exist in cutorch:
 |feature|in torch?|in cutorch?|
 |---|---|---|
 | apply/map/map2 | Yes |  |
-| csub, neg |  |  |
 | optimization tools | | |
 | point tensors | | |
 | custom user kernels | Not applicable | |
@@ -67,17 +66,6 @@ x:map2(y, z, "x = sqrt(1000 * x + y * 10 + z * z)")
 a:apply("x = sqrt(x + 3.5)")
 a:map(b, "x = 1000 * x + y * 10")
 a:map2(b, c, "x = sqrt(1000 * x + y * 10 + z * z)")
-```
-
-### csub, neg
-
-In-place versions of `-`, to avoid buffer copying and/or creating new buffers:
-```
-c:csub(d) -- subtracts d from c, element-wise
-          -- similar to 'c - d'
-          -- but stores results into c
-a:neg()   -- similar to '- a'
-          -- but stores results into a
 ```
 
 ### Optimization tools
@@ -289,6 +277,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 23rd October:
+  * removed `:csub()` and `:neg()` from the "cltorch-specific features" section, since integrated into torch now :-) [pull request 392](https://github.com/torch/torch7/pull/392)
 * 3rd October:
   * Added `:mean()` and `:mean(d)`
   * Added `:atan2(x,y)`
