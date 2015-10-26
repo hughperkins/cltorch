@@ -155,7 +155,7 @@ function cltorch.tests.tensor.test_basic()
    tester:asserteq(' 7\n 4\n 5\n[torch.ClTensor of size 3]\n', tostring(c))
 
    c = torch.ClTensor(3,2)
-   tester:asserteq('\n 3\n 2\n[torch.LongStorage of size 2]\n', tostring(c:size()))
+   tester:asserteq(' 3\n 2\n[torch.LongStorage of size 2]\n', tostring(c:size()))
 
    c = torch.ClTensor{{3,1,6},{2.1,5.2,3.9}}
    tester:asserteq(' 3.0000  1.0000  6.0000\n 2.1000  5.2000  3.9000\n[torch.ClTensor of size 2x3]\n', tostring(c))

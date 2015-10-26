@@ -22,23 +22,23 @@ local function assertStrContains(target, value )
 end
 
 function cltorch.tests.storage.test_basic()
-  tester:asserteq('\n[torch.ClStorage of size 0]\n', tostring(torch.ClStorage()))
-  assertStrContains(tostring(torch.ClStorage(3)), '\n%[torch.ClStorage of size 3%]\n')
-  tester:asserteq(tostring(torch.ClStorage{4,9,2}), '\n 4\n 9\n 2\n[torch.ClStorage of size 3]\n')
-  tester:asserteq(tostring(torch.ClStorage{1.5,2.4,5.3}), '\n 1.5000\n 2.4000\n 5.3000\n[torch.ClStorage of size 3]\n')
+  tester:asserteq('[torch.ClStorage of size 0]\n', tostring(torch.ClStorage()))
+  assertStrContains(tostring(torch.ClStorage(3)), '%[torch.ClStorage of size 3%]\n')
+  tester:asserteq(tostring(torch.ClStorage{4,9,2}), ' 4\n 9\n 2\n[torch.ClStorage of size 3]\n')
+  tester:asserteq(tostring(torch.ClStorage{1.5,2.4,5.3}), ' 1.5000\n 2.4000\n 5.3000\n[torch.ClStorage of size 3]\n')
 
   c = torch.ClStorage{4,9,2}
   c:fill(7)
-  tester:asserteq(tostring(c), '\n 7\n 7\n 7\n[torch.ClStorage of size 3]\n')
+  tester:asserteq(tostring(c), ' 7\n 7\n 7\n[torch.ClStorage of size 3]\n')
 
   c = torch.ClStorage{4,9,2}
   c:copy(torch.Storage{1.5,2.4,5.3})
-  tester:asserteq(tostring(c), '\n 1.5000\n 2.4000\n 5.3000\n[torch.ClStorage of size 3]\n')
+  tester:asserteq(tostring(c), ' 1.5000\n 2.4000\n 5.3000\n[torch.ClStorage of size 3]\n')
 
   a = torch.Storage(3)
   c = torch.ClStorage{4,9,2}
   a:copy(c)  
-  tester:asserteq(tostring(a), '\n 4\n 9\n 2\n[torch.DoubleStorage of size 3]\n')
+  tester:asserteq(tostring(a), ' 4\n 9\n 2\n[torch.DoubleStorage of size 3]\n')
 
 -- removed, since copies whole buffer :-(
 --  c = torch.ClStorage{4,9,2}
@@ -48,14 +48,14 @@ function cltorch.tests.storage.test_basic()
   c = torch.ClStorage{4,9,2}
   d = torch.ClStorage(3)
   d:copy(c)
-  tester:asserteq(tostring(d), '\n 4\n 9\n 2\n[torch.ClStorage of size 3]\n')
+  tester:asserteq(tostring(d), ' 4\n 9\n 2\n[torch.ClStorage of size 3]\n')
   tester:asserteq(3, #d)
   tester:asserteq(3, d:size())
 
   c:resize(5)
   tester:asserteq(5, #c)
   c:fill(1)
-  tester:asserteq(tostring(c), '\n 1\n 1\n 1\n 1\n 1\n[torch.ClStorage of size 5]\n')
+  tester:asserteq(tostring(c), ' 1\n 1\n 1\n 1\n 1\n[torch.ClStorage of size 5]\n')
 end
 
 function cltorch.tests.storage.test_get()
