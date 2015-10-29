@@ -151,7 +151,7 @@ c = torch.Tensor(20,30):uniform():cl() -- create a tensor on the GPU
 res = torch.ClTensor()                 -- create a point tensor on the GPU
 res:sum(c)                             -- sum c, and keep the result in res, on the GPU
 ```
-c is a point tensor.  It has zero dimensions.  It contains a single scalar float.  It stays on the GPU.  We can feed it into other operations as follows:
+`res` is a point tensor.  It has zero dimensions.  It contains a single scalar float.  It stays on the GPU.  We can feed it into other operations as follows:
 ```
 c:div(res)  -- divide c by res
 ```
