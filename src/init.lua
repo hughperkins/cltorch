@@ -55,7 +55,7 @@ end
 include('Test.lua')
 include('Tensor.lua')
 include('Random.lua')
---include('FFI.lua')
+include('FFI.lua')
 --include('test.lua')
 
 --local unpack = unpack or table.unpack

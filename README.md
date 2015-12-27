@@ -277,6 +277,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 27th December:
+  * added FFI functions `:data()` and `:cdata()`, which means that Element Research's [rnn](https://github.com/element-research/rnn) now works with `clnn`
 * 23rd October:
   * removed `:csub()` and `:neg()` from the "cltorch-specific features" section, since integrated into torch now :-) [pull request 392](https://github.com/torch/torch7/pull/392)
 * 3rd October:
