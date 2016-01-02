@@ -25,7 +25,7 @@ void THClInit(THClState* state)
   state->detailedTimings = 0;
   state->addFinish = 0;
 //  state->workgroupSizeByDevice = new int[state->allocatedDevices];
-  state->deviceInfoByDevice = (struct DeviceInfo **) new easycl::DeviceInfo *[state->allocatedDevices];
+  state->deviceInfoByDevice = new easycl::DeviceInfo *[state->allocatedDevices];
   for(int i = 0; i < state->allocatedDevices; i++) {
     state->clByDevice[i] = 0;
     state->scratchSpaceByDevice[i] = 0;
@@ -110,7 +110,7 @@ EasyCL *THClState_getClv2(THClState* state, int device) {
     scratch->wrapper = cl->wrap(FLOATS_PER_SCRATCH_SPACE, scratch->data);
     scratch->wrapper->createOnDevice();
     state->scratchSpaceByDevice[device] = scratch;
-    state->deviceInfoByDevice[device] = (struct DeviceInfo *)new easycl::DeviceInfo();
+    state->deviceInfoByDevice[device] = new easycl::DeviceInfo();
     *((easycl::DeviceInfo *)state->deviceInfoByDevice[device]) = easycl::DevicesInfo::getGpuInfo( device );
   }
 //  if( p_device != 0 ) {
