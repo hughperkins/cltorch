@@ -61,7 +61,8 @@ namespace cltorch {
   static int cltorch_synchronize(lua_State *L)
   {
     THClState *state = cltorch_getstate(L);
-    THClState_getClv2(state, state->currentDevice)->finish();
+    EasyCL *cl = THClState_getClv2(state, state->currentDevice);
+    cl->finish();
     return 0;
   }
   static int cltorch_getDeviceProperties(lua_State *L)
@@ -131,7 +132,8 @@ namespace cltorch {
   static int cltorch_dumpProfiling(lua_State *L)
   {
     THClState *state = cltorch_getstate(L);
-    THClState_getClv2(state, state->currentDevice)->dumpProfiling();
+    EasyCL *cl = THClState_getClv2(state, state->currentDevice);
+    cl->dumpProfiling();
     return 0;
   }
   // if you turn this to 1, you will see all copies of data between
@@ -148,7 +150,8 @@ namespace cltorch {
   {
     THClState *state = cltorch_getstate(L);
     int trace = luaL_checknumber(L, 1);
-    THClState_getClv2(state, state->currentDevice)->setProfiling(trace);
+    EasyCL *cl = THClState_getClv2(state, state->currentDevice);
+    cl->setProfiling(trace);
     if(trace) {
       cout << "Profiling activated" << endl;
     } else {

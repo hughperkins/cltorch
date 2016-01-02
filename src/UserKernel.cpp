@@ -246,7 +246,7 @@ static int ClKernel_new(lua_State *L) {
     }
 
     THClState *state = cltorch_getstate(L);
-    EasyCL *cl = THClState_getClv2(state, state->currentDevice);
+    EasyCL *cl = (EasyCL *)THClState_getClv2(state, state->currentDevice);
     string renderedKernel = "";
     renderedKernel += easycl::replaceGlobal(getTensorInfoClSrc(), "{{MAX_CLTORCH_DIMS}}", easycl::toString(MAX_CLTORCH_DIMS)) + "\n";
     renderedKernel += self->extraSource + "\n";
