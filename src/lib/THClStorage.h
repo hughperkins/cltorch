@@ -14,8 +14,8 @@ typedef struct THClStorage
 {
   int device;
   float *data; // I know this seems a bit superfluous....
-  struct EasyCL *cl;
-  struct CLWrapper *wrapper;
+  PTR_EASYCL cl;
+  PTR_CLWRAPPER wrapper;
   long size;
   int refcount;
   char flag;

@@ -2,9 +2,9 @@
 
 #include <vector>
 
-class THClState;
+//class THClState;
 class CLKernel;
-class THClTensor;
+//class THClTensor;
 class CLWrapper;
 
 #include "THClGeneral.h"

@@ -36,10 +36,18 @@
 #endif
 
 #ifdef __cplusplus
+//#define PTR_CLASS class*
+#define PTR_EASYCL EasyCL*
+#define PTR_DEVICEINFO DeviceInfo*
+#define PTR_CLWRAPPER CLWrapper*
 class EasyCL;
 class CLWrapper;
 class DeviceInfo;
 #else
+//#define PTR_CLASS struct*
+#define PTR_EASYCL struct EasyCL*
+#define PTR_DEVICEINFO struct DeviceInfo*
+#define PTR_CLWRAPPER struct CLWrapper*
 #endif
 
 #ifdef __cplusplus
@@ -47,7 +55,7 @@ class DeviceInfo;
 #endif // __cplusplus
 
 typedef struct THClScratchSpace {
-  struct CLWrapper *wrapper;
+  PTR_CLWRAPPER wrapper;
   float *data;
 } THClScratchSpace;
 
@@ -63,9 +71,9 @@ typedef struct THClState
   int detailedTimings;
   struct THClScratchSpace**scratchSpaceByDevice; // for now, do one 'stream' per device
                                  // can improve later...
-  struct DeviceInfo **deviceInfoByDevice;
+  PTR_DEVICEINFO *deviceInfoByDevice;
 //  int *workgroupSizeByDevice;
-  struct EasyCL **clByDevice;
+  PTR_EASYCL *clByDevice;
  // EasyCL *getCl();  
 } THClState;
 
@@ -77,9 +85,9 @@ THCL_API void THClShutdown(THClState* state);
 THCL_API int THClState_getNumDevices(THClState* state);
 THCL_API void THClState_setDevice(THClState* state, int device);
 THCL_API int THClState_getDevice(THClState* state);
-THCL_API struct EasyCL *THClState_getCl(THClState* state) DEPRECATED_POST;
-THCL_API struct EasyCL *THClState_getClAndDevice(THClState* state, int *p_device) DEPRECATED_POST;
-THCL_API struct EasyCL *THClState_getClv2(THClState* state, int device);
+THCL_API PTR_EASYCL THClState_getCl(THClState* state) DEPRECATED_POST;
+THCL_API PTR_EASYCL THClState_getClAndDevice(THClState* state, int *p_device) DEPRECATED_POST;
+THCL_API PTR_EASYCL THClState_getClv2(THClState* state, int device);
 
 //THCL_API void THClState_reserveStreams(THClState* state, int numStreams);
 //THCL_API int THClState_getNumStreams(THClState* state);

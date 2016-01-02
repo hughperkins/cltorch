@@ -3,7 +3,8 @@
 
 #include "THClGeneral.h"
 
-class THClTensor;
+//class THClTensor;
+struct THClTensor;
 class CLWrapper;
 
 typedef struct THClBlasState {
