@@ -32,6 +32,9 @@ script:
   - cd build
   - cmake ..
   - make -j 4
+  - cd ..
+  - luarocks make rocks/cltorch-scm-1.rockspec
+  - luajit -e 'require "cltorch"'
 
 notifications:
   email:
