@@ -7,6 +7,7 @@
 
 #ifdef __cplusplus
 # define THCL_EXTERNC extern "C"
+# define THCL_EXTERNCPP extern
 #else
 # define THCL_EXTERNC extern
 #endif
@@ -19,6 +20,18 @@
 # endif
 #else
 # define THCL_API THCL_EXTERNC
+#endif
+
+#ifdef __cplusplus
+  #ifdef WIN32
+    #ifdef THCL_EXPORTS
+      #define THCL_API_CPP THCL_EXTERNCPP __declspec(dllexport)
+    #else
+      #define THCL_API_CPP THCL_EXTERNCPP __declspec(dllimport)
+    #endif
+  #else
+    #define THCL_API_CPP THCL_EXTERNCPP
+  #endif
 #endif
 
 //// from http://stackoverflow.com/questions/295120/c-mark-as-deprecated
