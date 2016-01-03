@@ -16,7 +16,9 @@ before_install:
   - echo $HOME
   - env
   - git clone https://github.com/torch/distro.git ~/torch --recursive
-  - cd ~/torch; ./install.sh >/dev/null
+  - cd ~/torch
+  - for pkg in cudnn cunn cunnx cutorch qttorch optim sdl2 threads graphicsmagick audio fftw3 signal nnx qtlua gnuplot dok iTorch argcheck image xlua; do { sed -i -e "s/\(.*$pkg.*\)/# \1/" install.sh; } done
+  - ./install.sh
   - mkdir ~/git
   - cd ~/git
   - cd ~/build/hughperkins/cltorch
