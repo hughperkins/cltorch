@@ -81,6 +81,10 @@ endif(DEV_RUN_COG)
         add_custom_target( 
             git_cltorch_rec
             git submodule update --init --force --recursive
+            COMMAND sed -i -e "s/-pedantic//" ${CMAKE_CURRENT_SOURCE_DIR}/src/clMathLibraries/clBLAS/src/CMakeLists.txt
+            COMMAND sed -i -e "s/-Wall -Wextra/-W/" ${CMAKE_CURRENT_SOURCE_DIR}/src/clMathLibraries/clBLAS/src/CMakeLists.txt
+            COMMAND sed -i -e "s/-Wstrict-prototypes/-W/" ${CMAKE_CURRENT_SOURCE_DIR}/src/clMathLibraries/clBLAS/src/CMakeLists.txt
+            COMMAND sed -i -e "s/${CMAKE_CXX_FLAGS}/${CMAKE_CXX_FLAGS} -W /" ${CMAKE_CURRENT_SOURCE_DIR}/src/clMathLibraries/clBLAS/src/CMakeLists.txt
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
         add_dependencies( cltorch git_cltorch_rec )
