@@ -1,9 +1,3 @@
-local ffi = require 'ffi'
-print('package.cpath', package.cpath)
-local libpaths_searchpath = package.searchpath('libpaths', package.cpath)
-print('libpaths_searchpath', libpaths_searchpath)
-ffi.load(libpaths_searchpath, true)
-
 require "torch"
 
 -- store old copy functions, in case cutorch has been loaded
