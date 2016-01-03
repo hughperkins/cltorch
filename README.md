@@ -277,6 +277,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 3rd January, 2016:
+  * created Mac build on Travis, https://travis-ci.org/hughperkins/cltorch , which passes (at time of writing)
 * 27th December:
   * added FFI functions `:data()` and `:cdata()`, which means that Element Research's [rnn](https://github.com/element-research/rnn) now works with `clnn`
 * 23rd October:
