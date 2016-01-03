@@ -17,7 +17,7 @@ before_install:
   - env
   - git clone https://github.com/torch/distro.git ~/torch --recursive
   - cd ~/torch
-  - 'for pkg in cudnn cunn cunnx env cutorch qttorch trepl optim sdl2 threads submodule graphicsmagick audio fftw3 signal nnx qtlua gnuplot dok iTorch argcheck image xlua; do { sed -i -e "s/\(.*$pkg.*\)/echo skipping $pkg # \1/" install.sh; } done'
+  - 'for pkg in cudnn cunn cunnx cutorch qttorch trepl optim sdl2 threads submodule graphicsmagick audio fftw3 signal nnx qtlua gnuplot dok iTorch argcheck image xlua; do { sed -i -e "s/\(.*$pkg.*\)/echo skipping $pkg # \1/" install.sh; } done'
   - for pkg in exe/luajit-rocks extra/nn pkg/cwrap pkg/paths pkg/sundown pkg/sys pkg/torch pkg/paths; do { git submodule update --init $pkg; } done
   - 'sed -i -e "s/\(.*STATIC.*\)/# \1/" pkg/torch/lib/TH/CMakeLists.txt pkg/torch/lib/luaT/CMakeLists.txt'
   - ./install.sh -b
