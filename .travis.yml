@@ -15,11 +15,8 @@ before_install:
   - ls ~
   - echo $HOME
   - env
-  - cd
-  - (git clone https://github.com/xianyi/OpenBLAS && cd OpenBLAS && make -j 4 --silent && sudo make install)
-  - ls /opt/OpenBLAS/lib
   - git clone https://github.com/torch/distro.git ~/torch --recursive
-  - cd ~/torch; ./install.sh
+  - cd ~/torch; ./install.sh >/dev/null
   - mkdir ~/git
   - cd ~/git
   - cd ~/build/hughperkins/cltorch
