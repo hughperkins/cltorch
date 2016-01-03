@@ -25,7 +25,6 @@ before_install:
   - cd ~/build/hughperkins/cltorch
 
 script:
-  - echo hello
   - source ~/torch/install/bin/torch-activate
   - env
   - mkdir build
