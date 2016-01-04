@@ -38,7 +38,7 @@ THClTensor_reduceNoncontigDim(global TensorInfoCl *out_info,
                               float init) {
   const {{IndexType}} sliceIndex = getReduceNoncontigDimSliceIndex();
 
-  if (sliceIndex >= totalSlices) {
+  if ((int)sliceIndex >= totalSlices) {
     return;
   }
 
@@ -53,7 +53,7 @@ THClTensor_reduceNoncontigDim(global TensorInfoCl *out_info,
   {{IndexType}} inOffset = inBaseOffset;
   float r = init;
 
-  for ({{IndexType}} i = 0; i < reductionSize; ++i) {
+  for ({{IndexType}} i = 0; (int)i < reductionSize; ++i) {
     r = reduceOp(r, modifyOp(in_data[inOffset]));
     inOffset += reductionStride;
   }
@@ -80,7 +80,7 @@ THClTensor_reduceContigDim(global TensorInfoCl *out_info,
                            local float *smem) {
   const {{IndexType}} sliceIndex = getReduceContigDimSliceIndex();
 
-  if (sliceIndex >= totalSlices) {
+  if ((int)sliceIndex >= totalSlices) {
     return;
   }
 
@@ -96,7 +96,7 @@ THClTensor_reduceContigDim(global TensorInfoCl *out_info,
   // the slice. The elements are guaranteed contiguous starting at
   // `inBaseOffset`.
   float r = init;
-  for ({{IndexType}} i = /*threadIdx.x*/ get_local_id(0); i < reductionSize; i += /*blockDim.x*/ get_local_size(0)) {
+  for ({{IndexType}} i = /*threadIdx.x*/ get_local_id(0); (int)i < reductionSize; i += /*blockDim.x*/ get_local_size(0)) {
     r = reduceOp(r, modifyOp(in_data[inBaseOffset + i]));
   }
 

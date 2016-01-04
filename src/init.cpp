@@ -35,9 +35,17 @@ namespace cltorch {
     lua_pushstring(L, value.c_str());
     lua_setfield(L, -2, name.c_str());
   }
+  static int cltorch_setAllowNonGpus(lua_State *L)
+  {
+    THClState *state = cltorch_getstate(L);
+    int allowNonGpus = luaL_checknumber(L, 1);
+    THClSetAllowNonGpus(state, allowNonGpus);
+    return 0;
+  }
   static int cltorch_getDeviceCount(lua_State *L)
   {
-    int count = easycl::DevicesInfo::getNumGpus();
+    THClState *state = cltorch_getstate(L);
+    int count = THClState_getNumDevices(state);
     lua_pushnumber(L, count);
     return 1;
   }
@@ -69,11 +77,17 @@ namespace cltorch {
   {
     THClState *state = cltorch_getstate(L);
     int device = (int)luaL_checknumber(L, 1)-1;
-    if(device < 0 || device >= state->allocatedDevices) {
+    int count = THClState_getNumDevices(state);
+    if(device < 0 || device >= count) {
        THError("Device doesnt exist");
     }
 
-    easycl::DeviceInfo deviceInfo = easycl::DevicesInfo::getGpuInfo( device );
+    easycl::DeviceInfo deviceInfo;
+    if(state->allowNonGpus) {
+        deviceInfo = easycl::DevicesInfo::getDeviceInfo( device );
+    } else {
+        deviceInfo = easycl::DevicesInfo::getGpuInfo( device );
+    }
     lua_newtable(L);
 
     setProperty(L, "maxWorkGroupSize", deviceInfo.maxWorkGroupSize);
@@ -188,6 +202,7 @@ namespace cltorch {
   }
 
   static const struct luaL_Reg cltorch_stuff__ [] = {
+    {"setAllowNonGpus", cltorch_setAllowNonGpus},
     {"getDevice", cltorch_getDevice},
     {"setDevice", cltorch_setDevice},
     {"synchronize", cltorch_synchronize},

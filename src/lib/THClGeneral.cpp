@@ -16,9 +16,16 @@
 #define FLOATS_PER_SCRATCH_SPACE 4
 #define GLOBAL_SCRATCH_SPACE_PER_SM_STREAM (FLOATS_PER_SCRATCH_SPACE) * sizeof(float)
 
-void THClInit(THClState* state)
-{
-  state->allocatedDevices = easycl::DevicesInfo::getNumGpus();
+static void initializeState(THClState *state) {
+  if(state->initialized) {
+    return;
+  }
+  state->initialized = 1;
+  if(state->allowNonGpus) {
+    state->allocatedDevices = easycl::DevicesInfo::getNumDevices();
+  } else {
+    state->allocatedDevices = easycl::DevicesInfo::getNumGpus();
+  }
   state->clByDevice = new EasyCL *[state->allocatedDevices];
   state->scratchSpaceByDevice = new THClScratchSpace *[state->allocatedDevices];
   state->trace = 0;
@@ -34,28 +41,42 @@ void THClInit(THClState* state)
   state->currentDevice = 0;
   //state->cl = EasyCL::createForFirstGpuOtherwiseCpu(); // obviously this should change...
 
-    cl_int err;
+  cl_int err;
 
-    err = clblasSetup();
-    if (err != CL_SUCCESS) {
-        THError("clblasSetup() failed with %d", err);
-    }
+  err = clblasSetup();
+  if (err != CL_SUCCESS) {
+    THError("clblasSetup() failed with %d", err);
+  }
+}
+void THClSetAllowNonGpus(THClState *state, int allowNonGpus) {
+  if(state->initialized) {
+    THError("cannot set allowNonGpus after initialization done");
+  } else {
+    state->allowNonGpus = allowNonGpus;
+  }
+}
+void THClInit(THClState* state)
+{
+    state->initialized = 0;
+    state->allowNonGpus = 0;
+    state->trace = 0;
+    state->detailedTimings = 0;
+    state->addFinish = 0;
+    state->currentDevice = 0;
+    state->allocatedDevices = 0;
 
+    state->clByDevice = 0;
+    state->scratchSpaceByDevice = 0;
+    state->deviceInfoByDevice = 0;
 }
 
 void THClShutdown(THClState* state)
 {
-//  printf("THClShutdown() start...\n");
-//  for(int i = 0; i < state->allocatedDevices; i++) {
-//    delete state->clByDevice[i];
-//    if( state->scratchSpaceByDevice[i] != 0 ) {
-//      delete state->scratchSpaceByDevice[i]->wrapper;
-//      delete state->scratchSpaceByDevice[i]->data;
-//      delete state->scratchSpaceByDevice[i];
-//    }
-//  }
-//  delete state->clByDevice;
-    clblasTeardown();
+  if(state->initialized == 0) {
+      return;
+  }
+
+  clblasTeardown();
   for( int i = 0; i < state->allocatedDevices; i++ ) {
     delete state->clByDevice[i];
     delete state->scratchSpaceByDevice[i]->wrapper;
@@ -65,6 +86,7 @@ void THClShutdown(THClState* state)
   delete[] (easycl::DeviceInfo**)state->deviceInfoByDevice;
   delete[] state->clByDevice;
   delete[] state->scratchSpaceByDevice;
+  state->initialized = 0;
 //  delete[] state->workgroupSizeByDevice
 
   printf("THClShutdown() done\n");
@@ -77,25 +99,42 @@ std::ostream &operator<<( std::ostream &os, const dim3 &obj ) {
 }
 
 int THClState_getNumDevices(THClState* state) {
+  if(state->initialized == 0) {
+    initializeState(state);
+  }
   return state->allocatedDevices;
 }
 void THClState_setDevice(THClState* state, int device) {
+  if(state->initialized == 0) {
+    initializeState(state);
+  }
   state->currentDevice = device;
 }
 int THClState_getDevice(THClState* state) {
+  if(state->initialized == 0) {
+    initializeState(state);
+  }
   return state->currentDevice;
 }
 EasyCL *THClState_getCl(THClState* state ) {
+  if(state->initialized == 0) {
+    initializeState(state);
+  }
   return THClState_getClv2(state, state->currentDevice);
 }
 EasyCL *THClState_getCl(THClState* state, int *p_device) {
+  if(state->initialized == 0) {
+    initializeState(state);
+  }
   if( p_device != 0 ) {
     *p_device = state->currentDevice;
   }
   return THClState_getClv2(state, state->currentDevice);
 }
 EasyCL *THClState_getClv2(THClState* state, int device) {
-//  int device = state->currentDevice;
+  if(!state->initialized) {
+    initializeState(state);
+  }
   if(state->allocatedDevices == 0) {
     THError("No OpenCL-enabled devices available");
   }
@@ -103,7 +142,12 @@ EasyCL *THClState_getClv2(THClState* state, int device) {
     THError("Please use setDevice to choose an available device first");
   }
   if( state->clByDevice[device] == 0 ) {
-    EasyCL *cl = EasyCL::createForIndexedGpu(device);
+    EasyCL *cl = 0;
+    if(state->allowNonGpus) {
+      cl = EasyCL::createForIndexedDevice(device);
+    } else {
+      cl = EasyCL::createForIndexedGpu(device);
+    }
     state->clByDevice[device] = cl;
     THClScratchSpace *scratch = new THClScratchSpace();
     scratch->data = new float[FLOATS_PER_SCRATCH_SPACE];
@@ -111,57 +155,42 @@ EasyCL *THClState_getClv2(THClState* state, int device) {
     scratch->wrapper->createOnDevice();
     state->scratchSpaceByDevice[device] = scratch;
     state->deviceInfoByDevice[device] = (DeviceInfo *)new easycl::DeviceInfo();
-    *((easycl::DeviceInfo *)state->deviceInfoByDevice[device]) = easycl::DevicesInfo::getGpuInfo( device );
+    if(state->allowNonGpus) {
+      *((easycl::DeviceInfo *)state->deviceInfoByDevice[device]) = easycl::DevicesInfo::getDeviceInfo( device );
+    } else {
+      *((easycl::DeviceInfo *)state->deviceInfoByDevice[device]) = easycl::DevicesInfo::getGpuInfo( device );
+    }
   }
-//  if( p_device != 0 ) {
-//        *p_device = device;
-//  }
   return state->clByDevice[device];
 }
 
-//THClScratchSpace* THClState_getCurrentDeviceScratchSpace(THClState* state)
-//{
-////  int device = -1;
-////  THClCheck(cudaGetDevice(&device));
-//  int device = state->currentDevice;
-////  int stream = THClState_getCurrentStreamIndex(state);
-//  int stream = 0;
-
-//  return THClState_getDeviceScratchSpace(state, device, stream);
-//}
-
 THClScratchSpace* THClState_getDeviceScratchSpace(THClState* state, int device, int stream)
 {
-//  THCClResourcesPerDevice* res =
-//    THClState_getDeviceResourcePtr(state, device);
-
-//  if (stream > state->numUserStreams || stream < 0)
-//  {
-//    THError("%d is not a stream", stream);
-//  }
-
+  if(state->initialized == 0) {
+    initializeState(state);
+  }
   if( stream != 0 ) {
     THError("%d is not a stream", stream);
   }
   return state->scratchSpaceByDevice[device];
-//  return res->devScratchSpacePerStream[stream];
 }
 
 size_t THClState_getCurrentDeviceScratchSpaceSize(THClState* state)
 {
-//  int device = -1;
+  if(state->initialized == 0) {
+    initializeState(state);
+  }
   int device = state->currentDevice;
-//  THClCheck(cudaGetDevice(&device));
   return THClState_getDeviceScratchSpaceSize(state, device);
 }
 
 size_t THClState_getDeviceScratchSpaceSize(THClState* state, int device)
 {
-//  THCClResourcesPerDevice* res =
-//    THClState_getDeviceResourcePtr(state, device);
+  if(state->initialized == 0) {
+    initializeState(state);
+  }
 
   return GLOBAL_SCRATCH_SPACE_PER_SM_STREAM; // true currently since we only have
              // one stream per device, currently
-//  return res->scratchSpacePerStream;
 }
 
