@@ -9,30 +9,22 @@ matrix:
 before_install:
   - if [ -f ".git/shallow" ]; then travis_retry git fetch --unshallow; fi
   - whoami
-  - which python
-  - python -V
-  - python -c 'print("hello")'
   - pwd
-  - ls
-  - git status
-  - ls ~
   - echo $HOME
-  - env
   - git clone https://github.com/torch/distro.git ~/torch
   - cd ~/torch
   - 'for pkg in cudnn cunn cunnx cutorch qttorch trepl graph optim sdl2 threads submodule graphicsmagick audio fftw3 signal nnx qtlua gnuplot dok iTorch argcheck image xlua; do { sed -i -e "s/\(.*$pkg.*\)/echo skipping $pkg # \1/" install.sh; } done'
   - 'awk ''NR==2{print "set -x"}1'' install.sh > ~install.sh'
-  - head ~install.sh
   - mv ~install.sh install.sh
-  - head install.sh
   - chmod +x install.sh
+  - cat install.sh
   - for pkg in exe/luajit-rocks extra/nn pkg/cwrap pkg/paths pkg/sundown pkg/sys pkg/torch pkg/paths; do { git submodule update --init $pkg; } done
   - 'sed -i -e ''s/\(.*STATIC.*\)/# \1/'' pkg/torch/lib/TH/CMakeLists.txt pkg/torch/lib/luaT/CMakeLists.txt'
   - 'awk ''/_static PROPERTIES/{printf $0; next}1'' pkg/torch/cmake/TorchPackage.cmake > pkg/torch/cmake/~TorchPackage.cmake'
-  - cat pkg/torch/cmake/~TorchPackage.cmake
   - mv pkg/torch/cmake/~TorchPackage.cmake pkg/torch/cmake/TorchPackage.cmake
   - 'sed -i -e ''s/\(.*static.*\)/# \1/'' pkg/torch/cmake/TorchPackage.cmake'
   - cat pkg/torch/cmake/TorchPackage.cmake
+  - sed -i -e 's/$(MAKE)/$(MAKE) -j 4/' pkg/torch/rocks/torch-scm-1.rockspec
   - ./install.sh -b
   - mkdir ~/git
   - cd ~/git
@@ -41,14 +33,13 @@ before_install:
 script:
   - cat ~/torch/install/bin/torch-activate
   - source ~/torch/install/bin/torch-activate
-  - env
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make -j 4
-  - cd ..
   - luarocks make rocks/cltorch-scm-1.rockspec
   - luajit -e 'require "cltorch"'
+  - luajit -l cltorch -e "cltorch.setAllowNonGpus(1); print(cltorch.getDeviceCount())"
+  - 'luajit -e "require ''cltorch''; cltorch.setAllowNonGpus(1); print(cltorch.getDeviceCount())"'
+  - luajit -l cltorch -e "cltorch.setAllowNonGpus(1); props = cltorch.getDeviceProperties(1); for k,v in pairs(props) do print(k,v) end"
+  - export TEST_EXCLUDES=inplace_exp,inplace_sqrt,outplace_exp,outplace_sqrt,test_blas,test_cumprod,test_cumsum,test_equals,test_indexcopy,test_indexfill,test_matrixwide,test_max2,test_mean,test_meanall,test_min2,test_norm,test_prod,test_prodall,test_sum_t,test_sumallt,test_reduceAll,test_sum,test_sum_t_offset,test_sumall
+  - 'luajit -l cltorch -e "cltorch.setAllowNonGpus(1); cltorch.test()"'
 
 notifications:
   email:

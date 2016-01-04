@@ -587,6 +587,7 @@ static int torch_Tensor_(indexSelect)(lua_State *L)
   int dim;
   if (narg == 3)
   {
+    tensor = 0;
     EXCEPT_TO_THERROR(tensor = THTensor_(newv2)(state, state->currentDevice));
     src = getTensor(L, 1);
     dim = luaL_checkint(L, 2) - 1;

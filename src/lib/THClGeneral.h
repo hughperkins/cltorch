@@ -75,6 +75,8 @@ typedef struct THClScratchSpace {
 /* Global state to be held in the cltorch table. */
 typedef struct THClState
 {
+  int initialized;
+  int allowNonGpus;
   int allocatedDevices;
   int currentDevice;
   int trace; // default 0; set to 1 to see message for every gpu buffer alloc, delete,
@@ -90,6 +92,7 @@ typedef struct THClState
  // EasyCL *getCl();  
 } THClState;
 
+THCL_API void THClSetAllowNonGpus(THClState *state, int allowNonGpus);
 THCL_API void THClInit(THClState* state);
 THCL_API void THClShutdown(THClState* state);
 //THCL_API void THClEnablePeerToPeerAccess(THClState* state);

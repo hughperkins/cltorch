@@ -30,13 +30,13 @@ kernel void THClTensor_kernel_scanOuterDim(
   int num_orows, int num_irows, int row_size,
   float init)
 {
-  for (unsigned orow = get_group_id(0); orow < num_orows; orow += get_num_groups(0)) {
-    for (unsigned irow = get_group_id(1) * get_local_size(0) + get_local_id(0); irow < num_irows; irow += get_num_groups(1) * get_local_size(0)) {
+  for (unsigned orow = get_group_id(0); (int)orow < num_orows; orow += get_num_groups(0)) {
+    for (unsigned irow = get_group_id(1) * get_local_size(0) + get_local_id(0); (int)irow < num_irows; irow += get_num_groups(1) * get_local_size(0)) {
       global float *src = src_data + src_offset + orow * row_size * num_irows + irow;
       global float *tgt = tgt_data + tgt_offset + orow * row_size * num_irows + irow;
       float acc = init;
 
-      for (unsigned col = 0; col < row_size; ++col) {
+      for (unsigned col = 0; (int)col < row_size; ++col) {
         acc = binary_op(acc, *src);
 //        binary_op(&acc, &acc, src);
         *tgt = acc;
@@ -80,7 +80,7 @@ kernel void THClTensor_kernel_scanInnermostDim(
 
     // Perform scan on one block at a time, keeping track of the total value of
     // all blocks processed so far.
-    for (int block_col = 0; block_col < row_size; block_col += 2 * {{num_threads_x}}) {
+    for (int block_col = 0; block_col < (int)row_size; block_col += 2 * {{num_threads_x}}) {
       // Load data into shared memory (two values per thread).
       int col1 = block_col + get_local_id(0);
       int col2 = block_col + {{num_threads_x}} + get_local_id(0);
@@ -107,7 +107,7 @@ kernel void THClTensor_kernel_scanInnermostDim(
 
       // Parallel reduction (up-sweep).
       for (int s = {{num_threads_x}}, d = 1; s >= 1; s >>= 1, d <<= 1) {
-        if (row < num_rows && get_local_id(0) < s) {
+        if (row < num_rows && (int)get_local_id(0) < s) {
           int offset = (2 * get_local_id(0) + 1) * d - 1;
           row_buf[offset + d] = binary_op(row_buf[offset], row_buf[offset + d]);
 //          binary_op(row_bufer + offset + d, row_buf + offset, row_buf + offset + d);
@@ -117,7 +117,7 @@ kernel void THClTensor_kernel_scanInnermostDim(
 
       // Down-sweep.
       for (int s = 2, d = {{num_threads_x}} / 2; d >= 1; s <<= 1, d >>= 1) {
-        if (row < num_rows && get_local_id(0) < s - 1) {
+        if (row < num_rows && (int)get_local_id(0) < s - 1) {
           int offset = 2 * (get_local_id(0) + 1) * d - 1;
           row_buf[offset + d] = binary_op(row_buf[offset], row_buf[offset + d]);
 //          binary_op(row_buff + offset + d, row_buf + offset, row_buf + offset + d);

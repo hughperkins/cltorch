@@ -20,7 +20,7 @@ static int torch_Storage_(new)(lua_State *L)
 {
   StatefulTimer::timeCheck("storage new START");
   THClState *state = cltorch_getstate(L);
-  THStorage *storage;
+  THStorage *storage = 0;
   if(lua_type(L, 1) == LUA_TSTRING)
   {
     const char *fileName = luaL_checkstring(L, 1);

@@ -1,6 +1,7 @@
 -- unit tests for ClTensor class
 
 require 'string'
+require 'os'
 
 local runtests = false
 if not cltorch then
@@ -30,6 +31,21 @@ local function assertStrContains(target, value )
       print('assertStrContains fail: [' .. string.gsub(target, '\n', '\\n\n') .. '] not contains [' .. string.gsub(value, '\n', '\\n\n') .. ']')
       tester:assert(string.find(target, value) ~= nil)
    end
+end
+
+local function oursplit(string, split)
+  local res = {}
+  local idx = 1
+  while true do
+    local nextend = string:find(split, idx)
+    if nextend == nil then
+      res[#res + 1] = string:sub(idx)
+      return res
+    else
+      res[#res + 1] = string:sub(idx, nextend - 1)
+      idx = nextend + 1
+    end
+  end
 end
 
 -- probalby not ideal to modify the original Tensor classes, but anyway...
@@ -993,11 +1009,29 @@ local function setUp()
    print('')
 end
 
+local excludes_list = {}
+local excludes_var = os.getenv('TEST_EXCLUDES')
+local excludes = {}
+if excludes_var ~= nil and excludes_var ~= '' then
+  print('excludes_var', excludes_var)
+  excludes_list = oursplit(excludes_var, ',')
+  for k,v in ipairs(excludes_list) do
+    excludes[v] = true
+  end
+end
+for k,v in pairs(excludes) do
+  print('request exclude:', k)
+end
+
 local test = {}
 for k,v in pairs(cltorch.tests.tensor) do
-   test[k] = function()
-      setUp()
-      v()
+   if excludes[k] == nil then
+     test[k] = function()
+        setUp()
+        v()
+     end
+   else
+     print('excluding test: ' .. k)
    end
 end
 
