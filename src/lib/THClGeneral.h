@@ -92,6 +92,7 @@ typedef struct THClState
  // EasyCL *getCl();  
 } THClState;
 
+THCL_API void THCl_initializeState(THClState* state);
 THCL_API void THClSetAllowNonGpus(THClState *state, int allowNonGpus);
 THCL_API void THClInit(THClState* state);
 THCL_API void THClShutdown(THClState* state);

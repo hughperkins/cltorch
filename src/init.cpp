@@ -59,6 +59,9 @@ namespace cltorch {
   static int cltorch_setDevice(lua_State *L)
   {
     THClState *state = cltorch_getstate(L);
+    if(state->initialized == 0) {
+      THCl_initializeState(state);
+    }
     int device = luaL_checknumber(L, 1) - 1;
     if(device < 0 || device >= state->allocatedDevices) {
        THError("Device doesnt exist");

@@ -16,7 +16,7 @@
 #define FLOATS_PER_SCRATCH_SPACE 4
 #define GLOBAL_SCRATCH_SPACE_PER_SM_STREAM (FLOATS_PER_SCRATCH_SPACE) * sizeof(float)
 
-static void initializeState(THClState *state) {
+void THCl_initializeState(THClState *state) {
   if(state->initialized) {
     return;
   }
@@ -100,31 +100,31 @@ std::ostream &operator<<( std::ostream &os, const dim3 &obj ) {
 
 int THClState_getNumDevices(THClState* state) {
   if(state->initialized == 0) {
-    initializeState(state);
+    THCl_initializeState(state);
   }
   return state->allocatedDevices;
 }
 void THClState_setDevice(THClState* state, int device) {
   if(state->initialized == 0) {
-    initializeState(state);
+    THCl_initializeState(state);
   }
   state->currentDevice = device;
 }
 int THClState_getDevice(THClState* state) {
   if(state->initialized == 0) {
-    initializeState(state);
+    THCl_initializeState(state);
   }
   return state->currentDevice;
 }
 EasyCL *THClState_getCl(THClState* state ) {
   if(state->initialized == 0) {
-    initializeState(state);
+    THCl_initializeState(state);
   }
   return THClState_getClv2(state, state->currentDevice);
 }
 EasyCL *THClState_getCl(THClState* state, int *p_device) {
   if(state->initialized == 0) {
-    initializeState(state);
+    THCl_initializeState(state);
   }
   if( p_device != 0 ) {
     *p_device = state->currentDevice;
@@ -133,7 +133,7 @@ EasyCL *THClState_getCl(THClState* state, int *p_device) {
 }
 EasyCL *THClState_getClv2(THClState* state, int device) {
   if(!state->initialized) {
-    initializeState(state);
+    THCl_initializeState(state);
   }
   if(state->allocatedDevices == 0) {
     THError("No OpenCL-enabled devices available");
@@ -167,7 +167,7 @@ EasyCL *THClState_getClv2(THClState* state, int device) {
 THClScratchSpace* THClState_getDeviceScratchSpace(THClState* state, int device, int stream)
 {
   if(state->initialized == 0) {
-    initializeState(state);
+    THCl_initializeState(state);
   }
   if( stream != 0 ) {
     THError("%d is not a stream", stream);
@@ -178,7 +178,7 @@ THClScratchSpace* THClState_getDeviceScratchSpace(THClState* state, int device, 
 size_t THClState_getCurrentDeviceScratchSpaceSize(THClState* state)
 {
   if(state->initialized == 0) {
-    initializeState(state);
+    THCl_initializeState(state);
   }
   int device = state->currentDevice;
   return THClState_getDeviceScratchSpaceSize(state, device);
@@ -187,7 +187,7 @@ size_t THClState_getCurrentDeviceScratchSpaceSize(THClState* state)
 size_t THClState_getDeviceScratchSpaceSize(THClState* state, int device)
 {
   if(state->initialized == 0) {
-    initializeState(state);
+    THCl_initializeState(state);
   }
 
   return GLOBAL_SCRATCH_SPACE_PER_SM_STREAM; // true currently since we only have
