@@ -58,8 +58,8 @@ ADD_DEPENDENCIES(cltorchtensormathwrap EasyCL)
 
 execute_process( COMMAND git log -n 1 --pretty=%h OUTPUT_VARIABLE git_commit OUTPUT_STRIP_TRAILING_WHITESPACE)
 #execute_process( COMMAND echo string commit="${git_commit}" > ${CMAKE_CURRENT_SOURCE_DIR}/commit.h )
-file(GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/commit_generated.h 
-  CONTENT "const char *commit=\"${git_commit}\";\n"
+file(GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/cltorch_commit_generated.h 
+  CONTENT "const char *cltorch_commit=\"${git_commit}\";\n"
 )
 
 if(DEV_RUN_COG)

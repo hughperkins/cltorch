@@ -5,7 +5,7 @@ using namespace std;
 
 #include "util/StatefulTimer.h"
 
-#include "commit_generated.h"
+#include "cltorch_commit_generated.h"
 
 //#include "THClTensorRandom.h"
 
@@ -198,7 +198,7 @@ namespace cltorch {
   static int cltorch_about(lua_State *L)
   {
     cout << "cltorch.  OpenCL backend for Torch" << endl;
-    cout << "Built from commit " << commit << endl;
+    cout << "Built from commit " << cltorch_commit << endl;
     cout << "More info, doc: https://github.com/hughperkins/cltorch" << endl;
     cout << "Issues: https://github.com/hughperkins/cltorch/issues" << endl;
     return 0;
