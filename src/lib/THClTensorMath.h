@@ -50,6 +50,7 @@ THCL_API void THClTensor_baddbmm(THClState *state, THClTensor *result, float bet
 
 THCL_API void THClTensor_log(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_log1p(THClState *state, THClTensor *self, THClTensor *src);
+THCL_API void THClTensor_sigmoid(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_exp(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_cos(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_acos(THClState *state, THClTensor *self, THClTensor *src);

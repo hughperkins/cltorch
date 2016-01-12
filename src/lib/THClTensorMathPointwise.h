@@ -1,5 +1,17 @@
 #pragma once
 
+class TensorSigmoidOp : public HasOperator1, public HasOperator2 {
+public:
+  TensorSigmoidOp() {
+  }
+  std::string operator1() const {
+    return "*out = 1.0f / (1 + exp(- (*out)))";
+  }
+  std::string operator2() const {
+    return "*out = 1.0f / (1 + exp(- (*in1)))";
+  }
+};
+
 class TensorGenOp : public HasOperator1, public HasOperator2 {
 public:
   std::string cfun;

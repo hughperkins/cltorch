@@ -58,6 +58,23 @@ IMPLEMENT_CL_TENSOR_BASIC_FUNC(neg, "-")
 
 #undef IMPLEMENT_CL_TENSOR_BASIC_FUNC
 
+void THClTensor_sigmoid(THClState* state, THClTensor* self_, THClTensor* src) {
+  THAssert(THClTensor_checkGPU(state, 2, self_, src));
+  if (self_ == src) {
+    TensorSigmoidOp op;
+    if (!THClTensor_pointwiseApply1(state, self_, &op)) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  } else {
+    THClTensor_resizeAs(state, self_, src);
+
+    TensorSigmoidOp op;
+    if (!THClTensor_pointwiseApply2(state, self_, src, &op)) {
+      THArgCheck(false, 2, CLTORCH_DIM_WARNING);
+    }
+  }
+}
+
 void THClTensor_apply(THClState* state, THClTensor* self, char const *_operation1) {
 //  THAssert(THClTensor_checkGPU(state, 2, self, src));
 //  if (self == src) {
