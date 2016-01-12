@@ -26,6 +26,8 @@ before_install:
   - cat pkg/torch/cmake/TorchPackage.cmake
   - sed -i -e 's/$(MAKE)/$(MAKE) -j 4/' pkg/torch/rocks/torch-scm-1.rockspec
   - ./install.sh -b >/dev/null
+  - source ~/torch/install/bin/torch-activate
+  - luarocks install torch
   - mkdir ~/git
   - cd ~/git
   - cd ~/build/hughperkins/cltorch
