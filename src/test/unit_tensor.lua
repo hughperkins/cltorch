@@ -235,7 +235,7 @@ end
 
 for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos', 
     'acos', 'sin', 'asin', 'atan', 'tanh', 'ceil', 'floor', 
-    'abs', 'round', 'sign'}) do
+    'abs', 'round', 'sign', 'sigmoid'}) do
    cltorch.tests.tensor['inplace_' .. name] = function()
       c = torch.ClTensor{{4,    2,  -1},
                          {3.1,1.2, 4.9}}
@@ -249,7 +249,7 @@ end
 
 for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos', 
     'acos', 'sin', 'asin', 'atan', 'tanh', 'ceil', 'floor', 
-    'abs', 'round', 'sign'}) do
+    'abs', 'round', 'sign', 'sigmoid'}) do
    cltorch.tests.tensor['outplace_' .. name] = function()
       c = torch.ClTensor{{4,    2,  -1},
                          {3.1,1.2, 4.9}}
