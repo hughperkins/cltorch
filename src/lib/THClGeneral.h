@@ -200,7 +200,7 @@ std::ostream &operator<<( std::ostream &os, const dim3 &obj );
 #endif // __cplusplus
 
 // seems that min is really inconsistent across standard libraires, lets just make our own ... :-/
-inline int mymin( int a, int b ) {
+static inline int THCl_min( int a, int b ) {
     return a < b ? a : b;
 }
 

@@ -62,9 +62,9 @@ void THClTensor_transformReduceOuterDimIndex(THClState *state, THClTensor *tgt1,
     num_irows *= THClTensor_size(state, src, dim);
   }
 
-  dim3 threads(mymin(getBlockSize(state)/2, num_irows));
+  dim3 threads(THCl_min(getBlockSize(state)/2, num_irows));
   unsigned maxGridDim = getBlockSize(state);
-  dim3 grid(mymin(maxGridDim, num_orows), mymin(maxGridDim, THClCeilDiv(num_irows, threads.x())));
+  dim3 grid(THCl_min(maxGridDim, num_orows), THCl_min(maxGridDim, THClCeilDiv(num_irows, threads.x())));
 
   std::string uniqueName = "THClTensorMathTransformReduce_OuterDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
   EasyCL *cl = src->storage->cl;
@@ -120,7 +120,7 @@ void THClTensor_transformReduceInnermostDimIndex(
     y_threads = getBlockSize(state) / x_threads;
   }
   dim3 threads(x_threads, y_threads);
-  dim3 grid(mymin(getBlockSize(state), THClCeilDiv(num_rows, threads.y())));
+  dim3 grid(THCl_min(getBlockSize(state), THClCeilDiv(num_rows, threads.y())));
 
   std::string uniqueName = "THClTensorMathTransformReduce_InnermostDim_" + binary_op->pair_operator2() + "_" + easycl::toString(init);
   EasyCL *cl = src->storage->cl;
