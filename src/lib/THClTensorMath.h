@@ -121,7 +121,7 @@ THCL_API int THClTensor_logicalall(THClState *state, THClTensor *self);
 THCL_API int THClTensor_logicalany(THClState *state, THClTensor *self);
 
 
-// Original functions, not in torch or cutorch:
+THCL_API void THClTensor_cinv(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_neg(THClState *state, THClTensor *self, THClTensor *src);
 THCL_API void THClTensor_sub(THClState *state, THClTensor *self, THClTensor *src, float value);
 THCL_API void THClTensor_csub(THClState *state, THClTensor *self, THClTensor *src1, float value, THClTensor *src2);

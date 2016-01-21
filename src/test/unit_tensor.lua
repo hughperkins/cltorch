@@ -235,7 +235,7 @@ end
 
 for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos', 
     'acos', 'sin', 'asin', 'atan', 'tanh', 'ceil', 'floor', 
-    'abs', 'round', 'sign', 'sigmoid'}) do
+    'abs', 'round', 'sign', 'sigmoid', 'cinv'}) do
    cltorch.tests.tensor['inplace_' .. name] = function()
       c = torch.ClTensor{{4,    2,  -1},
                          {3.1,1.2, 4.9}}
@@ -249,7 +249,7 @@ end
 
 for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos', 
     'acos', 'sin', 'asin', 'atan', 'tanh', 'ceil', 'floor', 
-    'abs', 'round', 'sign', 'sigmoid'}) do
+    'abs', 'round', 'sign', 'sigmoid', 'cinv'}) do
    cltorch.tests.tensor['outplace_' .. name] = function()
       c = torch.ClTensor{{4,    2,  -1},
                          {3.1,1.2, 4.9}}
@@ -554,7 +554,6 @@ function cltorch.tests.tensor.test_addcdiv()
    tester:asserteq(A:clone():addcdiv(1.234,B,C), (A:clone():cl():addcdiv(1.234, B:clone():cl(),C:clone():cl())):double())
 end
 
--- this function doesnt exist in base torch
 function cltorch.tests.tensor.test_neg()
    -- no neg for Tensors, only for clTensor, but we can use '-' to 
    -- compare
@@ -567,7 +566,6 @@ function cltorch.tests.tensor.test_neg()
    tester:asserteq(negA, negAcl2:double())
 end
 
--- this function doesnt exist in base torch
 function cltorch.tests.tensor.test_sub()
    local s = torch.LongStorage{60,50}
    local A = torch.Tensor(s):uniform() - 0.5
