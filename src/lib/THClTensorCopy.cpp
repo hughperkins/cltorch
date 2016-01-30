@@ -150,6 +150,11 @@ THClTensor_copy(THClState* state, THClTensor* dst, THClTensor* src) {
   bool srcContig = THClTensor_isContiguous(state, src);
   bool dstContig = THClTensor_isContiguous(state, dst);
   bool memcpyEligible = (srcContig && dstContig) || (totalElements == 1);
+  // following https://github.com/hughperkins/cltorch/issues/48 , going to also not use memcpy
+  // where destinatoin and source storage are the same storage
+  if((void*)src->storage == (void*)dst->storage) {
+    memcpyEligible = false;
+  }
 
   if (memcpyEligible) {
     if( !dst->storage->wrapper->isOnDevice() ) {
