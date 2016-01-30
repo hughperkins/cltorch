@@ -107,11 +107,11 @@ TensorInfo<IndexType>::TensorInfo(THClState* state,
   // Now, to determine the other collapsible dims. These are the size/strides
   // of the previous inner non-collapsible dim we encounter.
   long sizeInner = THClTensor_size(state, t, firstNonOneDim);
-  long strideInner = THClTensor_stride(state, t, firstNonOneDim);
+  IndexType strideInner = THClTensor_stride(state, t, firstNonOneDim);
 
   for (int i = firstNonOneDim - 1; i >= 0; --i) {
     long sizeOuter = (i == reduceDim) ? 1 : THClTensor_size(state, t, i);
-    long strideOuter = THClTensor_stride(state, t, i);
+    IndexType strideOuter = THClTensor_stride(state, t, i);
 
     // The next outermost dimension can be skipped if size 1
     if (sizeOuter == 1) {
@@ -145,7 +145,7 @@ TensorInfo<IndexType>::TensorInfo(THClState* state,
 
   for (int i = firstNonOneDim - 1; i >= 0; --i) {
     long sizeOuter = (i == reduceDim) ? 1 : THClTensor_size(state, t, i);
-    long strideOuter = THClTensor_stride(state, t, i);
+    IndexType strideOuter = THClTensor_stride(state, t, i);
 
     if (sizeOuter == 1) {
       // skip

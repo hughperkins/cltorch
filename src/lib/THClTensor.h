@@ -1,6 +1,8 @@
 #ifndef THCL_TENSOR_INC
 #define THCL_TENSOR_INC
 
+#include <stdint.h>
+
 #include "THTensor.h"
 #include "THClStorage.h"
 #include "THClGeneral.h"
