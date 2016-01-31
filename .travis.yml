@@ -18,7 +18,7 @@ before_install:
   - mv ~install.sh install.sh
   - chmod +x install.sh
   - cat install.sh
-  - for pkg in exe/luajit-rocks extra/nn pkg/cwrap pkg/paths pkg/sundown pkg/sys pkg/torch pkg/paths; do { git submodule update --quiet --init $pkg; } done
+  - for pkg in exe/luajit-rocks extra/nn pkg/cwrap pkg/paths pkg/sundown pkg/sys pkg/torch pkg/paths extra/luafilesystem; do { git submodule update --quiet --init $pkg; } done
   - 'sed -i -e ''s/\(.*STATIC.*\)/# \1/'' pkg/torch/lib/TH/CMakeLists.txt pkg/torch/lib/luaT/CMakeLists.txt'
   - 'awk ''/_static PROPERTIES/{printf $0; next}1'' pkg/torch/cmake/TorchPackage.cmake > pkg/torch/cmake/~TorchPackage.cmake'
   - mv pkg/torch/cmake/~TorchPackage.cmake pkg/torch/cmake/TorchPackage.cmake
