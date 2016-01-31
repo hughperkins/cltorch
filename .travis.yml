@@ -19,11 +19,11 @@ before_install:
   - chmod +x install.sh
   - cat install.sh
   - for pkg in exe/luajit-rocks extra/nn pkg/cwrap pkg/paths pkg/sundown pkg/sys pkg/torch pkg/paths extra/lua-cjson extra/luafilesystem extra/penlight; do { git submodule update --quiet --init $pkg; } done
-  - 'sed -i -e ''s/\(.*STATIC.*\)/# \1/'' pkg/torch/lib/TH/CMakeLists.txt pkg/torch/lib/luaT/CMakeLists.txt'
-  - 'awk ''/_static PROPERTIES/{printf $0; next}1'' pkg/torch/cmake/TorchPackage.cmake > pkg/torch/cmake/~TorchPackage.cmake'
-  - mv pkg/torch/cmake/~TorchPackage.cmake pkg/torch/cmake/TorchPackage.cmake
-  - 'sed -i -e ''s/\(.*static.*\)/# \1/'' pkg/torch/cmake/TorchPackage.cmake'
-  - cat pkg/torch/cmake/TorchPackage.cmake
+  - # 'sed -i -e ''s/\(.*STATIC.*\)/# \1/'' pkg/torch/lib/TH/CMakeLists.txt pkg/torch/lib/luaT/CMakeLists.txt'
+  - # 'awk ''/_static PROPERTIES/{printf $0; next}1'' pkg/torch/cmake/TorchPackage.cmake > pkg/torch/cmake/~TorchPackage.cmake'
+  - # mv pkg/torch/cmake/~TorchPackage.cmake pkg/torch/cmake/TorchPackage.cmake
+  - # 'sed -i -e ''s/\(.*static.*\)/# \1/'' pkg/torch/cmake/TorchPackage.cmake'
+  - # cat pkg/torch/cmake/TorchPackage.cmake
   - sed -i -e 's/$(MAKE)/$(MAKE) -j 4/' pkg/torch/rocks/torch-scm-1.rockspec
   - ./install.sh -b >/dev/null
   - source ~/torch/install/bin/torch-activate
