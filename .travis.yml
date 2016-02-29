@@ -16,6 +16,7 @@ before_install:
   - #ps
   - #exit
   - echo $HOME
+  - if false; then {
   - git clone https://github.com/torch/distro.git ~/torch
   - cd ~/torch
   - 'for pkg in cudnn cunn cunnx cutorch qttorch trepl graph optim sdl2 threads submodule graphicsmagick audio fftw3 signal nnx qtlua gnuplot dok iTorch argcheck image xlua; do { sed -i -e "s/\(.*$pkg.*\)/echo skipping $pkg # \1/" install.sh; } done'
@@ -31,8 +32,15 @@ before_install:
   - # cat pkg/torch/cmake/TorchPackage.cmake
   - sed -i -e 's/$(MAKE)/$(MAKE) -j 4/' pkg/torch/rocks/torch-scm-1.rockspec
   - ./install.sh -b >/dev/null
+  - } else {
+  - mkdir -p ~/torch
+  - cd ~/torch
+  - wget https://s3.amazonaws.com/hughperkinstravis/hughperkins/distro/3/3.1/torch-install.tar.bz2
+  - tar -xf torch-install.tar.bz2
+  - } fi
   - source ~/torch/install/bin/torch-activate
-  - luarocks install torch
+  - luajit -l torch -e 'print(torch.Tensor(3,2):uniform())'
+  - # luarocks install torch
   - mkdir ~/git
   - cd ~/git
   - cd ~/build/hughperkins/cltorch
