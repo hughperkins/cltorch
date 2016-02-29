@@ -11,7 +11,7 @@ before_install:
   - whoami
   - pwd
   - # try zsh...
-  - sudo port install zsh-devel +mp_completion +examples +dec +pcre
+  - # sudo port install zsh-devel +mp_completion +examples +dec +pcre
   - zsh
   - ps
   - exit
