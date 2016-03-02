@@ -18,6 +18,7 @@ Most things really :-)  Detailed description at [ImplementedDetails.md](doc/Impl
   * Notes:
     * be sure to check you have a `~/torch/install/bin/torch-activate` file
     * make sure to run `source ~/torch/install/bin/torch-activate` before using torch, or else add this command to your `.bashrc` file
+    * you will need many of the dependencies from the [install-deps](https://github.com/torch/distro/blob/master/install-deps) script, and specifically: `gfortran`
 * Now, do:
 ```
 luarocks install cltorch
