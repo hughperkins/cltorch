@@ -16,6 +16,8 @@ if false; then {
   tar -xf torch-install.tar.bz2
 } fi
 
+sed -i -e 's/^export LD_LIBRARY_PATH/# export LD_LIBRARY_PATH/' ~/torch/install/bin/torch-activate
+sed -i -e 's/^export DYLD_LIBRARY_PATH/# export LD_LIBRARY_PATH/' ~/torch/install/bin/torch-activate
 source ~/torch/install/bin/torch-activate
 luajit -l torch -e 'print(torch.Tensor(3,2):uniform())'
 
