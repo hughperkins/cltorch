@@ -35,6 +35,8 @@ luajit -l cltorch -e 'cltorch.test()'
 ln -s ~/torch/install/lib ~/lib
 ```
 
+Update: this might be fixed in very latest master (commit 0f72bf7 onwards)
+
 ## Requests for additional operations etc
 
 * Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
@@ -286,6 +288,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 3 March 2016:
+  * runs on Mac OS X, without needing `LD_LIBRARY_PATH`, ie [RPATH](https://cmake.org/Wiki/CMake_RPATH_handling) works now.  Hopefully :-)
 * 3rd January, 2016:
   * created Mac build on Travis, https://travis-ci.org/hughperkins/cltorch , which passes (at time of writing)
 * 27th December:
