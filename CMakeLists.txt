@@ -34,8 +34,8 @@ execute_process(COMMAND git status
       )
 
 INCLUDE("${CMAKE_MODULE_PATH}/build_clBLAS.cmake")
-INCLUDE_DIRECTORIES(${CLBLAS_INCLUDE_DIRS})
-LINK_DIRECTORIES(${CLBLAS_LIBRARY_DIR})
+INCLUDE_DIRECTORIES(${clBLAS_INCLUDE_DIRS})
+#LINK_DIRECTORIES(${CLBLAS_LIBRARY_DIR})
 
 INCLUDE("${CMAKE_MODULE_PATH}/build_EasyCL.cmake")
 INCLUDE_DIRECTORIES(${EasyCL_INCLUDE_DIRS})
@@ -54,7 +54,7 @@ SET(luasrc src/init.lua src/FFI.lua src/Tensor.lua src/Random.lua src/Test.lua s
 ADD_TORCH_WRAP(cltorchtensormathwrap src/TensorMath.lua)
 
 ADD_TORCH_PACKAGE(cltorch "${src}" "${luasrc}")
-ADD_DEPENDENCIES(cltorch clBLAS)
+#ADD_DEPENDENCIES(cltorch clBLAS)
 #ADD_DEPENDENCIES(cltorch EasyCL)
 ADD_DEPENDENCIES(cltorch EasyCL-external)
 ADD_DEPENDENCIES(cltorchtensormathwrap EasyCL)
@@ -99,5 +99,5 @@ endif(DEV_RUN_COG)
 
 TARGET_LINK_LIBRARIES(cltorch luaT THCl)
 TARGET_LINK_LIBRARIES(cltorch EasyCL)
-TARGET_LINK_LIBRARIES(cltorch ${CLBLAS_LIBRARIES})
+TARGET_LINK_LIBRARIES(cltorch clBLAS)
 
