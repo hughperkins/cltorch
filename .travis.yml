@@ -11,8 +11,6 @@ before_install:
   - whoami
   - pwd
   - bash src/travis/install-torch.sh
-  - echo $HOME
-  - # luarocks install torch
   - source ~/torch/install/bin/torch-activate
   - luajit -l torch -e 'print(torch.Tensor(3,2):uniform())'
   - mkdir ~/git
@@ -23,6 +21,8 @@ script:
   - cat ~/torch/install/bin/torch-activate
   - source ~/torch/install/bin/torch-activate
   - luarocks make rocks/cltorch-scm-1.rockspec
+  - otool -L ~/torch/install/lib/lua/5.1/libcltorch.so
+  - otool -l ~/torch/install/lib/lua/5.1/libcltorch.so | grep RPATH -A2
   - luajit -e 'require "cltorch"'
   - luajit -l cltorch -e "cltorch.setAllowNonGpus(1); print(cltorch.getDeviceCount())"
   - 'luajit -e "require ''cltorch''; cltorch.setAllowNonGpus(1); print(cltorch.getDeviceCount())"'
