@@ -9,13 +9,17 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
   set(ON_WINDOWS 1)
 endif()
 
+# https://cmake.org/Wiki/CMake_RPATH_handling
+SET(CMAKE_INSTALL_RPATH "${Torch_INSTALL_LUA_CPATH_SUBDIR}}/../..")
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+SET(CMAKE_MACOSX_RPATH TRUE)
+
 #SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 
 FIND_PACKAGE(Torch REQUIRED)
 
 SET(CMAKE_C_FLAGS "-std=c99 -Werror=implicit-function-declaration")
 SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall")
-
 
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 
@@ -92,10 +96,6 @@ endif(DEV_RUN_COG)
         add_dependencies(EasyCL-external git_cltorch_rec)
     endif()
 #endif()
-
-# https://cmake.org/Wiki/CMake_RPATH_handling
-SET(CMAKE_INSTALL_RPATH "${Torch_INSTALL_LUA_CPATH_SUBDIR}}/../..")
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 TARGET_LINK_LIBRARIES(cltorch luaT THCl)
 TARGET_LINK_LIBRARIES(cltorch EasyCL)
