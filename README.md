@@ -27,6 +27,14 @@ luarocks install cltorch
 ```
 luajit -l cltorch -e 'cltorch.test()'
 ```
+
+## Gotchas
+
+* On MAC OS X, LD_LIBRARY_PATH is typically not used to locate dependent libraries.  It means, cltorch might not load for you.  A temporary hack, until rpath is patched into the build, is to do:
+```
+ln -s ~/torch/install/lib ~/lib
+```
+
 ## Requests for additional operations etc
 
 * Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
