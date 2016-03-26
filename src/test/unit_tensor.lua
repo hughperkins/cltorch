@@ -1021,7 +1021,7 @@ for k,v in pairs(excludes) do
   print('request exclude:', k)
 end
 
-local test = {}
+local test = torch.TestSuite()
 for k,v in pairs(cltorch.tests.tensor) do
    if excludes[k] == nil then
      test[k] = function()

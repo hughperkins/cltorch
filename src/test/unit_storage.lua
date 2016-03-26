@@ -77,7 +77,7 @@ local function setUp()
   print('')
 end
 
-local test = {}
+local test = torch.TestSuite()
 for k,v in pairs(cltorch.tests.storage) do
   test[k] = function()
     setUp()
