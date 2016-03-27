@@ -20,7 +20,7 @@ static dim3 getNoncontigReduceBlock(THClState *state) {
   return dim3(getNonContigReduceBlockSize(state));
 }
 
-static dim3 getContigReduceBlock(int64 numSlices, int64 reductionSize) {
+static dim3 getContigReduceBlock(THClState *state, int64 numSlices, int64 reductionSize) {
   // If the number of slices is low but the reduction dimension size
   // is high, then we should increase block size for greater parallelism.
   // Aim for at least 32 warps per SM (assume 15 SMs; don't bother
@@ -43,7 +43,15 @@ static dim3 getContigReduceBlock(int64 numSlices, int64 reductionSize) {
   int numWarps =
     warpsInReductionSize > (int64) maxWarps ? maxWarps : (int) warpsInReductionSize;
 //    warpsInReductionSize > (int64) maxWarps ? maxWarps : (int) warpsInReductionSize;
-  return dim3(numWarps * 32);
+
+  int targetSize = numWarps * 32;
+  // but is this greater than maxWorkgroupSize?  We should check :-)
+  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[state->currentDevice])->maxWorkGroupSize;
+  if(targetSize > maxWorkgroupSize) {
+    targetSize = maxWorkgroupSize;
+  }
+
+  return dim3(targetSize);
 }
 
 static bool getNoncontigReduceGrid(THClState *state, int64 elements, dim3& grid) {
@@ -144,7 +152,6 @@ void kernelLaunch_THClTensor_reduceContigDim(
   float init,
   HasOperator2 const*modifyOp,
   HasOperator3 const*reduceOp) {
-
   StatefulTimer::timeCheck("Reduce-contig START");
   std::string uniqueName = "THClTensor_reduceContigDim_" + easycl::toString(ADims) + "_" + easycl::toString(BDims) + "_" +
     TypeParseTraits<IndexType>::name + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
@@ -239,14 +246,12 @@ bool THClTensor_reduceDim(THClState* state,
     if (!getContigReduceGrid(outElements, grid)) {
       return false;
     }
-
-    block = getContigReduceBlock(outElements, reductionSize);
+    block = getContigReduceBlock(state, outElements, reductionSize);
     smemSize = sizeof(float) * block.x();
   } else {
     if (!getNoncontigReduceGrid(state, outElements, grid)) {
       return false;
     }
-
     block = getNoncontigReduceBlock(state);
   }
 
