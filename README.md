@@ -288,6 +288,9 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 27 March 2016:
+  * migrated from clBLAS 2.4 to clBLAS 2.11/develop.  This migration is not set in stone, depends on how well that works.  However, there is a
+[bug in 2.4 for certain configurations of matrix multiplication](https://github.com/clMathLibraries/clBLAS/issues/246), and its not obvious how to fix that, so maybe using 2.11/develop is the easiest way forward?
 * 3 March 2016:
   * runs on Mac OS X, without needing `LD_LIBRARY_PATH`, ie [RPATH](https://cmake.org/Wiki/CMake_RPATH_handling) works now.  Hopefully :-)
 * 3rd January, 2016:
