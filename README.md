@@ -16,6 +16,12 @@ Most things really :-)  Detailed description at [ImplementedDetails.md](doc/Impl
 
 IMPORTANT!  THIS HAS CHANGED.  Please install a specific Torch distro, as described below.  Simply doing `luarocks install cltorch` is no longer supported
 
+### Pre-requisites
+
+* python 2.7 installed: `python` command should point to python 2.7, during build
+
+### Procedure
+
 Please proceed as follows:
 ```
 git clone --recursive https://github.com/hughperkins/distro -b distro-cl ~/torch-cl
