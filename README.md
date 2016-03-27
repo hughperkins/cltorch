@@ -19,6 +19,8 @@ Most things really :-)  Detailed description at [ImplementedDetails.md](doc/Impl
     * be sure to check you have a `~/torch/install/bin/torch-activate` file
     * make sure to run `source ~/torch/install/bin/torch-activate` before using torch, or else add this command to your `.bashrc` file
     * you will need many of the dependencies from the [install-deps](https://github.com/torch/distro/blob/master/install-deps) script, and specifically: `gfortran`
+* New!  As of 27 March 2016, cltorch has moved from clblas 2.4 to clblas 2.11/develop.  This means you will need also:
+  * python 2.7 available, and `python` command should point to python 2.7, during build
 * Now, do:
 ```
 luarocks install cltorch
