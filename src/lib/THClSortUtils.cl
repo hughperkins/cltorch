@@ -98,7 +98,7 @@ bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
                      {{IndexType}} valueSliceStride
 ) {
   // Find the slice of the tensor that we are sorting
-  const {{IndexType}} linearIndex = getLinearBlockId_{{IndexType}}();
+  const {{IndexType}} linearIndex = getLinearBlockId();
   // Tiling the slices could have us be out of bounds, if there are a
   // lot of slices to sort
   if (linearIndex >= keySlices) {
