@@ -155,6 +155,9 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
   if (ceilPowerOf2 > 2048) {
     THError("sortKeyValueInplace only works for sizes <= 2048 at present");
   }
+  if(dim != 0) {
+    THError("Not implemented for inner dimensions currently");
+  }
 
   int blockSize = (int) ceilPowerOf2 / 2;
   if (blockSize < 1) {

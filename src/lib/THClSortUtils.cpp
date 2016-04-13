@@ -22,8 +22,8 @@ template< typename IndexType >
 void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     THClState *state,
     dim3 grid, dim3 block,
-    IndexType KeyDims,
-    IndexType ValueDims,
+    int KeyDims,
+    int ValueDims,
     IndexType Power2SortSize,
     const TensorInfo<IndexType> &keys,
     IndexType keySlices,
@@ -44,9 +44,11 @@ void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     TemplatedKernel kernelBuilder(cl);
     std::vector< int > dims;
     if( KeyDims >= 0 ) {
+//      cout << "push KeyDims " << KeyDims << endl;
       dims.push_back(KeyDims);
     }
     if( ValueDims >= 0 ) {
+//      cout << "push ValueDims " << ValueDims << endl;
       dims.push_back(ValueDims);
     }
     kernelBuilder
@@ -188,7 +190,7 @@ std::string getKernelTemplate() {
   "                     {{IndexType}} valueSliceStride\n" 
   ") {\n" 
   "  // Find the slice of the tensor that we are sorting\n" 
-  "  const {{IndexType}} linearIndex = getLinearBlockId_{{IndexType}}();\n" 
+  "  const {{IndexType}} linearIndex = getLinearBlockId();\n" 
   "  // Tiling the slices could have us be out of bounds, if there are a\n" 
   "  // lot of slices to sort\n" 
   "  if (linearIndex >= keySlices) {\n" 
@@ -264,8 +266,8 @@ template
 void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     THClState *state,
     dim3 grid, dim3 block,
-    uint32 KeyDims,
-    uint32 ValueDims,
+    int KeyDims,
+    int ValueDims,
     uint32 Power2SortSize,
     const TensorInfo<uint32> &keys,
     uint32 keySlices,
@@ -279,8 +281,8 @@ template
 void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     THClState *state,
     dim3 grid, dim3 block,
-    uint64 KeyDims,
-    uint64 ValueDims,
+    int KeyDims,
+    int ValueDims,
     uint64 Power2SortSize,
     const TensorInfo<uint64> &keys,
     uint64 keySlices,
