@@ -78,9 +78,12 @@ TensorInfo<IndexType>::TensorInfo(THClState* state,
                                   THClTensor* t,
                                   int reduceDim)
     : wrapper(NULL), offset(0), dims(0) {
-//  data = THClTensor_data(state, t);
+
+  offset = THClTensor_storageOffset(state, t);
+  wrapper = THClTensor_wrapper(state, t);
+
   dims = THClTensor_nDimension(state, t);
-  assert(dims <= MAX_CUTORCH_DIMS);
+  assert(dims <= MAX_CLTORCH_DIMS);
 
   for (int i = 0; i < dims; ++i) {
     sizes[i] = THClTensor_size(state, t, i);
