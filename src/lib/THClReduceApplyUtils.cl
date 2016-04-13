@@ -1,3 +1,12 @@
+// this needs the following template variables defined:
+//   IndexType   string, eg 'int'
+//   MAX_CLTORCH_DIMS    integer, eg 25
+//   dims                list of integers, ie all dimensions >=0 this should work for
+//   WarpSize            integer eg 32
+//   defiscontiguous     [1|0]  (or just dont define, means 0)
+//   defreduceblock      [1|0]  (or just dont define, means 0)
+
+
 // kernel argument that defines tensor layout
 typedef struct TensorInfoCl {
   // Extracts size/stride information for the kernel.
