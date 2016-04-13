@@ -1,7 +1,6 @@
-// from lib/THC/THCTensorSort.h:
+#pragma once
 
-#ifndef TH_CL_TENSOR_SORT_INC
-#define TH_CL_TENSOR_SORT_INC
+// from lib/THC/THCTensorSort.h:
 
 #include "THClTensor.h"
 
@@ -19,6 +18,4 @@ THCL_API void THClTensor_sort(THClState* state,
                                THClTensor* indices,
                                THClTensor* input,
                                int dim, int order);
-
-#endif
 

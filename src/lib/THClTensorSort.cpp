@@ -34,11 +34,12 @@ unsigned long nextHighestPowerOf2(unsigned long n) {
 static template< typename IndexType >
 void kernelLaunch_fillSliceWithIndex(
                      THClState* state,
-                     dim3 &grid, dim3 &block, size_t smemSize,
-                     int ADims,
+                     dim3 &grid, dim3 &block,
+                     int Dim,
                      const TensorInfo<IndexType> & in,
-                     int64 totalElements,
-                     CLWrapper* scratch
+                     int totalSlice,
+                     int sliceSize,
+                     int sliceStride
     ){
   StatefulTimer::timeCheck("fillSliceWithIndex START");
   std::string uniqueName = "THClTensorSort_fillSliceWithIndex_" + easycl::toString(ADims) + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
@@ -49,33 +50,29 @@ void kernelLaunch_fillSliceWithIndex(
     StatefulTimer::timeCheck("fillSliceWithIndex 1aa");
   } else {
     std::vector< int > dims;
-    if( ADims >= 0 ) {
-      dims.push_back(ADims);
+    if( Dims >= 0 ) {
+      dims.push_back(Dim);
     }
     TemplatedKernel kernelBuilder(cl);
     kernelBuilder
-//      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
       .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
-//      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
-      .set("dims", dims)
-      .set("dim1", ADims)
-//      .set("defreduceblock", 1)
-//      .set("modify_operation", modifyOp->operator2())
-//      .set("reduce_operation", reduceOp->operator3())
-      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+      .set("Dim", Dim)
       .set("IndexType", TypeParseTraits<IndexType>::name)
+      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+      .set("dims", dims)
     ;
     kernel = kernelBuilder.buildKernel( uniqueName, "THClTensorSort.cl", getKernelTemplate(), "fillSliceWithIndex" );
   }
 
   THClKernels k(state, kernel);
-  k.in(in);
-  k.in((int)totalElements);
-  k.in(init);
-  k.out(scratch);
-  k.localFloats(smemSize / sizeof(float));
+  k.inout(in);
+  k.in(totalSlices);
+  k.in(sliceSize);
+  k.in(sliceStride);
   k.run(grid, block);
   if(state->addFinish) cl->finish();  
+
   StatefulTimer::timeCheck("fillSliceWithIndex END");
 }
 
