@@ -1,4 +1,126 @@
 #include <string>
+#include <iostream>
+
+#include "THClReduceApplyUtils.cuh"
+#include "THClSortUtils.cuh"
+#include "THClTensorCopy.h"
+
+#include "EasyCL.h"
+#include "CLKernel_structs.h"
+#include "util/easycl_stringhelper.h"
+#include "util/StatefulTimer.h"
+#include "templates/TemplatedKernel.h"
+
+using namespace std;
+
+static std::string THClSortUtils_getKernelTemplate();
+
+
+//template< typename IndexType >
+//void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int numTensors, int *dims, TensorInfo<IndexType> **infos, IndexType totalElements, OpBase const*op, string operationString) {
+
+template< typename IndexType >
+void kernelLaunch_bitonicSortKVInPlace(
+    THClState *state,
+    dim3 grid, dim3 block,
+    TensorInfo<IndexType> *keyInfo,
+    IndexType keySlices,
+    IndexType keySliceSize,
+    IndexType keySliceStride,
+    TensorInfo<IndexType> *valueInfo,
+    IndexType valueSliceStride,
+    SortUtilsComp &comp) {
+  StatefulTimer::timeCheck("bitonicSortKVInPlace START");
+  std::string uniqueName = std::string("THClSortUtils_bitonicSortKVInPlace_") + comp->getOperator();
+  EasyCL *cl = scratch->getCl();
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("bitonicSortKVInPlace 1aa");
+  } else {
+    TemplatedKernel kernelBuilder(cl);
+    std::vector< int > dims;
+    kernelBuilder
+//      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
+      .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
+//      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+//      .set("dims", dims)
+//      .set("dim1", -2)
+//      .set("defreduceblock", 1)
+//      .set("reduce_operation", reduceOp->operator3())
+      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+      .set("IndexType", TypeParseTraits<IndexType>::name)
+    ;
+
+    kernel = kernelBuilder.buildKernel( uniqueName, "THClSortUtils.cl", getKernelTemplate(), "bitonicSortKVInPlace" );
+  }
+
+  THClKernels k(state, kernel);
+  k.in(numPass1Blocks);
+  k.in(init);
+  k.in(scratch);
+  k.out(devOut);
+  k.localFloats(smemSize / sizeof(float));
+  k.run(grid, block);
+
+  if(state->addFinish) cl->finish();  
+  StatefulTimer::timeCheck("ReduceAllPass2 End");
+}
+
+//template< typename IndexType >
+//void kernelLaunch_THClTensor_reduceAllPass2(
+//                     THClState* state,
+//                     dim3 &grid, dim3 &block, size_t smemSize,
+//                     int numPass1Blocks,
+//                     float init,
+//                     const HasOperator3 *reduceOp,
+//                     CLWrapper *scratch,
+//                     CLWrapper* devOut
+//    ){
+//  StatefulTimer::timeCheck("ReduceAllPass2 START");
+//  std::string uniqueName = "THClTensor_reduceAllPass2_" + reduceOp->operator3();
+//  EasyCL *cl = scratch->getCl();
+//  CLKernel *kernel = 0;
+//  if(cl->kernelExists(uniqueName)) {
+//    kernel = cl->getKernel(uniqueName);
+//    StatefulTimer::timeCheck("ReduceAllPass2 1aa");
+//  } else {
+//    TemplatedKernel kernelBuilder(cl);
+//    std::vector< int > dims;
+//    kernelBuilder
+//      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
+//      .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
+//      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+//      .set("dims", dims)
+//      .set("dim1", -2)
+//      .set("defreduceblock", 1)
+//      .set("reduce_operation", reduceOp->operator3())
+//      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+//      .set("IndexType", TypeParseTraits<IndexType>::name)
+//    ;
+
+//    kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", getKernelTemplate(), "THClTensor_reduceAllPass2" );
+//  }
+
+//  THClKernels k(state, kernel);
+//  k.in(numPass1Blocks);
+//  k.in(init);
+//  k.in(scratch);
+//  k.out(devOut);
+//  k.localFloats(smemSize / sizeof(float));
+//  k.run(grid, block);
+
+//  if(state->addFinish) cl->finish();  
+//  StatefulTimer::timeCheck("ReduceAllPass2 End");
+//}
+
+
+//  "bitonicSortKVInPlace(TensorInfo<{{IndexType}}> keys,\n" 
+//  "                     {{IndexType}} keySlices,\n" 
+//  "                     {{IndexType}} keySliceSize,\n" 
+//  "                     {{IndexType}} keySliceStride,\n" 
+//  "                     TensorInfo<{{IndexType}}> values,\n" 
+//  "                     {{IndexType}} valueSliceStride) {\n" 
 
 std::string THClSortUtils_getKernelTemplate() {
   // [[[cog
@@ -8,6 +130,18 @@ std::string THClSortUtils_getKernelTemplate() {
   // generated using cog, from THClSortUtils.cl:
   const char * kernelSource =  
   "// from lib/THC/THCSortUtils.cuh:\n" 
+  "\n" 
+  "// This needs the following template variables:\n" 
+  "//   K              key type\n" 
+  "//   V              value type\n" 
+  "//   COMPARE_OP     a comparison operator, like <   or >\n" 
+  "//   KeyDims        integer\n" 
+  "//   ValueDims      integer\n" 
+  "//   Power2SortSize  integer\n" 
+  "\n" 
+  "// you need to somewhere include {{THClReduceApplyUtils}} before this, with appropriate dims, to include\n" 
+  "// KeyDims and ValueDims\n" 
+  "\n" 
   "\n" 
   "/*__device__*/ inline void swapVars_K({{K}} *p_t1, {{K}}*p_t2) {\n" 
   "  {{K}} tmp = *p_t1;\n" 
@@ -27,13 +161,11 @@ std::string THClSortUtils_getKernelTemplate() {
   "  *p_t2 = tmp;\n" 
   "}\n" 
   "\n" 
-  "template <typename Comparator>\n" 
   "/*__device__*/ inline void bitonicSwap({{K}}* p_kA, V*p_vA, bool*p_validA,\n" 
   "                                   {{K}}* p_kB, V*p_vB, bool*p_validB,\n" 
-  "                                   bool dir,\n" 
-  "                                   const Comparator& comp) {\n" 
+  "                                   bool dir) {\n" 
   "  // Invalid entries always sort to the end\n" 
-  "  bool swap = (comp(kA, kB) && validA) || !validB;\n" 
+  "  bool swap = (kA {{COMPARE_OP}} kB) && validA) || !validB;\n" 
   "  if (swap == dir) {\n" 
   "    swapVars_K(p_kA, p_kB);\n" 
   "    swapVars_V(p_vA, p_vB);\n" 
@@ -41,14 +173,12 @@ std::string THClSortUtils_getKernelTemplate() {
   "  }\n" 
   "};\n" 
   "\n" 
-  "template <typename Comparator,\n" 
-  "          typename {{IndexType}}, int Power2SortSize>\n" 
-  "/*__device__*/ inline void bitonicSort({{K}} keys[Power2SortSize],\n" 
-  "                                   {{V}} values[Power2SortSize],\n" 
-  "                                   bool valid[Power2SortSize],\n" 
-  "                                   const Comparator& comp) {\n" 
+  "template <int Power2SortSize>\n" 
+  "/*__device__*/ inline void bitonicSort({{K}} keys[{{Power2SortSize}}],\n" 
+  "                                   {{V}} values[{{Power2SortSize}}],\n" 
+  "                                   bool valid[{{Power2SortSize}}]) {\n" 
   "#pragma unroll\n" 
-  "  for (unsigned int size = 2; size < Power2SortSize; size *= 2) {\n" 
+  "  for (unsigned int size = 2; size < {{Power2SortSize}}; size *= 2) {\n" 
   "    bool flag = ((get_local_id(0) & (size / 2)) != 0);\n" 
   "\n" 
   "#pragma unroll\n" 
@@ -60,10 +190,10 @@ std::string THClSortUtils_getKernelTemplate() {
   "      }\n" 
   "\n" 
   "      unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));\n" 
-  "      bitonicSwap<Comparator>(\n" 
+  "      bitonicSwap(\n" 
   "        &keys[pos], &values[pos], &valid[pos],\n" 
   "        &keys[pos + stride], &values[pos + stride], &valid[pos + stride],\n" 
-  "        flag, comp);\n" 
+  "        flag);\n" 
   "    }\n" 
   "  }\n" 
   "\n" 
@@ -75,10 +205,10 @@ std::string THClSortUtils_getKernelTemplate() {
   "    }\n" 
   "\n" 
   "    unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));\n" 
-  "    bitonicSwap<Comparator>(\n" 
+  "    bitonicSwap(\n" 
   "      &keys[pos], &values[pos], &valid[pos],\n" 
   "      &keys[pos + stride], &values[pos + stride], &valid[pos + stride],\n" 
-  "      false, comp);\n" 
+  "      false);\n" 
   "  }\n" 
   "\n" 
   "  // Single warp per slice is completely synchronous\n" 
@@ -90,31 +220,30 @@ std::string THClSortUtils_getKernelTemplate() {
   "// Sorts (key, value) pairs (in different tensors) in-place; i.e.,\n" 
   "// modifies the input `keys` and `values`\n" 
   "template <int KeyDims, int ValueDims,\n" 
-  "          typename Comparator, typename {{IndexType}}, int Power2SortSize>\n" 
+  "          int Power2SortSize>\n" 
   "kernel void\n" 
   "bitonicSortKVInPlace(TensorInfo<{{IndexType}}> keys,\n" 
   "                     {{IndexType}} keySlices,\n" 
   "                     {{IndexType}} keySliceSize,\n" 
   "                     {{IndexType}} keySliceStride,\n" 
   "                     TensorInfo<{{IndexType}}> values,\n" 
-  "                     {{IndexType}} valueSliceStride,\n" 
-  "                     const Comparator& comp) {\n" 
+  "                     {{IndexType}} valueSliceStride) {\n" 
   "  // Find the slice of the tensor that we are sorting\n" 
-  "  const {{IndexType}} linearIndex = getLinearBlockId<{{IndexType}}>();\n" 
+  "  const {{IndexType}} linearIndex = getLinearBlockId_{{IndexType}}();\n" 
   "  // Tiling the slices could have us be out of bounds, if there are a\n" 
   "  // lot of slices to sort\n" 
   "  if (linearIndex >= keySlices) {\n" 
   "    return;\n" 
   "  }\n" 
   "\n" 
-  "  local {{K}} sharedKeys[Power2SortSize];\n" 
-  "  local {{V}} sharedValues[Power2SortSize];\n" 
-  "  local bool sharedValid[Power2SortSize];\n" 
+  "  local {{K}} sharedKeys[{{Power2SortSize}}];\n" 
+  "  local {{V}} sharedValues[{{Power2SortSize}}];\n" 
+  "  local bool sharedValid[{{Power2SortSize}}];\n" 
   "\n" 
   "  const {{IndexType}} keyStartOffset =\n" 
-  "    IndexToOffset<{{IndexType}}, KeyDims>::get(linearIndex, keys);\n" 
+  "    IndexToOffset_{{1000 + KeyDims}}_get(linearIndex, keys);\n" 
   "  const {{IndexType}} valueStartOffset =\n" 
-  "    IndexToOffset<{{IndexType}}, ValueDims>::get(linearIndex, values);\n" 
+  "    IndexToOffset_{{1000 + ValueDims}}_get(linearIndex, values);\n" 
   "\n" 
   "  // If the sort size is 1, the data is already sorted\n" 
   "  if (Power2SortSize == 1) {\n" 
@@ -123,7 +252,7 @@ std::string THClSortUtils_getKernelTemplate() {
   "    // Otherwise, each thread is responsible for loading and storing 2\n" 
   "    // elements. The sort size is guaranteed to be >= 2\n" 
   "    const int elem1 = get_local_id(0);\n" 
-  "    const int elem2 = get_local_id(0) + (Power2SortSize / 2);\n" 
+  "    const int elem2 = get_local_id(0) + ({{Power2SortSize}} / 2);\n" 
   "\n" 
   "    bool valid1 = (elem1 < keySliceSize);\n" 
   "    {{K}} k1 = valid1 ?\n" 
@@ -146,8 +275,8 @@ std::string THClSortUtils_getKernelTemplate() {
   "    sharedValid[elem2] = valid2;\n" 
   "\n" 
   "    // Sort!\n" 
-  "    bitonicSort<Comparator, K, V, {{IndexType}}, Power2SortSize>(\n" 
-  "      sharedKeys, sharedValues, sharedValid, comp);\n" 
+  "    bitonicSort<Power2SortSize>(\n" 
+  "      sharedKeys, sharedValues, sharedValid);\n" 
   "\n" 
   "    // elem1 values are always valid, since otherwise we would have\n" 
   "    // chosen the next smallest power-of-2 for sorting\n" 

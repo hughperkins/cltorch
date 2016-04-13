@@ -20,6 +20,25 @@
 //  }
 //};
 
+class SortUtilsComp {
+public:
+  const char *getOperator() const = 0;  // eg "<" or ">"
+};
+
+class SortUtilsCompGT : public SortUtilsComp {
+public:
+  const char *getOperator() const {
+    return ">";
+  }
+};
+
+class SortUtilsCompLT : public SortUtilsComp {
+public:
+  const char *getOperator() const {
+    return "<";
+  }
+};
+
 std::string THClSortUtils_getKernelTemplate();
 
 #endif // THCL_SORT_UTILS_INC
