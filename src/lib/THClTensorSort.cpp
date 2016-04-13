@@ -319,7 +319,7 @@ std::string getKernelTemplate() {
   "\n" 
   "  const unsigned long offset =\n" 
   "    IndexToOffset_{{1000+Dim}}_get(slice, &out_info[0]);\n" 
-  "  float* base = &out_data[offset];\n" 
+  "  global float* base = &out_data[offset];\n" 
   "\n" 
   "  for (long i = get_local_id(0); i < sliceSize; i += get_local_size(0)) {\n" 
   "    // Torch indices are 1-based (hence the +1)\n" 
