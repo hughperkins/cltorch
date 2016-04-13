@@ -4,6 +4,12 @@
 //   K              key type
 //   V              value type
 //   COMPARE_OP     a comparison operator, like <   or >
+//   KeyDims        integer
+//   ValueDims      integer
+//   Power2SortSize  integer
+
+// you need to somewhere include {{THClReduceApplyUtils}} before this, with appropriate dims, to include
+// KeyDims and ValueDims
 
 /*__device__*/ inline void swapVars_K({{K}} *p_t1, {{K}}*p_t2) {
   {{K}} tmp = *p_t1;
@@ -36,11 +42,11 @@
 };
 
 template <int Power2SortSize>
-/*__device__*/ inline void bitonicSort({{K}} keys[Power2SortSize],
-                                   {{V}} values[Power2SortSize],
-                                   bool valid[Power2SortSize]) {
+/*__device__*/ inline void bitonicSort({{K}} keys[{{Power2SortSize}}],
+                                   {{V}} values[{{Power2SortSize}}],
+                                   bool valid[{{Power2SortSize}}]) {
 #pragma unroll
-  for (unsigned int size = 2; size < Power2SortSize; size *= 2) {
+  for (unsigned int size = 2; size < {{Power2SortSize}}; size *= 2) {
     bool flag = ((get_local_id(0) & (size / 2)) != 0);
 
 #pragma unroll
@@ -91,21 +97,21 @@ bitonicSortKVInPlace(TensorInfo<{{IndexType}}> keys,
                      TensorInfo<{{IndexType}}> values,
                      {{IndexType}} valueSliceStride) {
   // Find the slice of the tensor that we are sorting
-  const {{IndexType}} linearIndex = getLinearBlockId<{{IndexType}}>();
+  const {{IndexType}} linearIndex = getLinearBlockId_{{IndexType}}();
   // Tiling the slices could have us be out of bounds, if there are a
   // lot of slices to sort
   if (linearIndex >= keySlices) {
     return;
   }
 
-  local {{K}} sharedKeys[Power2SortSize];
-  local {{V}} sharedValues[Power2SortSize];
-  local bool sharedValid[Power2SortSize];
+  local {{K}} sharedKeys[{{Power2SortSize}}];
+  local {{V}} sharedValues[{{Power2SortSize}}];
+  local bool sharedValid[{{Power2SortSize}}];
 
   const {{IndexType}} keyStartOffset =
-    IndexToOffset<{{IndexType}}, KeyDims>::get(linearIndex, keys);
+    IndexToOffset_{{1000 + KeyDims}}_get(linearIndex, keys);
   const {{IndexType}} valueStartOffset =
-    IndexToOffset<{{IndexType}}, ValueDims>::get(linearIndex, values);
+    IndexToOffset_{{1000 + ValueDims}}_get(linearIndex, values);
 
   // If the sort size is 1, the data is already sorted
   if (Power2SortSize == 1) {
@@ -114,7 +120,7 @@ bitonicSortKVInPlace(TensorInfo<{{IndexType}}> keys,
     // Otherwise, each thread is responsible for loading and storing 2
     // elements. The sort size is guaranteed to be >= 2
     const int elem1 = get_local_id(0);
-    const int elem2 = get_local_id(0) + (Power2SortSize / 2);
+    const int elem2 = get_local_id(0) + ({{Power2SortSize}} / 2);
 
     bool valid1 = (elem1 < keySliceSize);
     {{K}} k1 = valid1 ?
