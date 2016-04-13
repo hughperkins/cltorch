@@ -22,9 +22,9 @@ template< typename IndexType >
 void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     THClState *state,
     dim3 grid, dim3 block,
-    int KeyDims,
-    int ValueDims,
-    int Power2SortSize,
+    IndexType KeyDims,
+    IndexType ValueDims,
+    IndexType Power2SortSize,
     const TensorInfo<IndexType> &keys,
     IndexType keySlices,
     IndexType keySliceSize,
@@ -35,7 +35,7 @@ void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
   StatefulTimer::timeCheck("bitonicSortKVInPlace START");
   std::string uniqueName = std::string("THClSortUtils_bitonicSortKVInPlace_") + comp->getOperator();
 
-  EasyCL *cl = keys->getCl();
+  EasyCL *cl = keys.wrapper->getCl();
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
@@ -53,9 +53,9 @@ void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
       .set("K", "float")
       .set("V", "float")
       .set("COMPARE_OP", comp->getOperator())
-      .set("KeyDims", KeyDims)
-      .set("ValueDims", ValueDims)
-      .set("Power2SortSize", Power2SortSize)
+      .set("KeyDims", (int)KeyDims)
+      .set("ValueDims", (int)ValueDims)
+      .set("Power2SortSize", (int)Power2SortSize)
 //      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
       .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
       .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
@@ -263,35 +263,50 @@ std::string getKernelTemplate() {
   return kernelSource;
 }
 
-template<int>
-void kernelLaunch_bitonicSortKVInPlace(
+template
+void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     THClState *state,
     dim3 grid, dim3 block,
-    int KeyDims,
-    int ValueDims,
-    int Power2SortSize,
-    TensorInfo<int> *keys,
-    int keySlices,
-    int keySliceSize,
-    int keySliceStride,
-    TensorInfo<int> *values,
-    int valueSliceStride,
-    SortUtilsComp &comp);
+    uint32 KeyDims,
+    uint32 ValueDims,
+    uint32 Power2SortSize,
+    const TensorInfo<uint32> &keys,
+    uint32 keySlices,
+    uint32 keySliceSize,
+    uint32 keySliceStride,
+    const TensorInfo<uint32> &values,
+    uint32 valueSliceStride,
+    SortUtilsComp *comp);
 
-template<unsigned int>
-void kernelLaunch_bitonicSortKVInPlace(
+template
+void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     THClState *state,
     dim3 grid, dim3 block,
-    unsigned int KeyDims,
-    unsigned int ValueDims,
-    unsigned int Power2SortSize,
-    TensorInfo<unsigned int> *keys,
-    unsigned int keySlices,
-    unsigned int keySliceSize,
-    unsigned int keySliceStride,
-    TensorInfo<unsigned int> *values,
-    unsigned int valueSliceStride,
-    SortUtilsComp &comp);
+    uint64 KeyDims,
+    uint64 ValueDims,
+    uint64 Power2SortSize,
+    const TensorInfo<uint64> &keys,
+    uint64 keySlices,
+    uint64 keySliceSize,
+    uint64 keySliceStride,
+    const TensorInfo<uint64> &values,
+    uint64 valueSliceStride,
+    SortUtilsComp *comp);
+
+//template< typename IndexType >
+//void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
+//    THClState *state,
+//    dim3 grid, dim3 block,
+//    int KeyDims,
+//    int ValueDims,
+//    int Power2SortSize,
+//    const TensorInfo<IndexType> &keys,
+//    IndexType keySlices,
+//    IndexType keySliceSize,
+//    IndexType keySliceStride,
+//    const TensorInfo<IndexType> &values,
+//    IndexType valueSliceStride,
+//    SortUtilsComp *comp) {
 
 //template<int>
 //void kernelLaunch_bitonicSortKVInPlace(

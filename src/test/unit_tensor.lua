@@ -943,6 +943,23 @@ function cltorch.tests.tensor.test_scatter()
    tester:asserteq(z, zcl:double())
 end
 
+function cltorch.tests.tensor.test_sort()
+  a = torch.FloatTensor(125):uniform()
+  csorted = a:clone():sort(1)
+  gsorted = a:cl():sort():float()
+  tester:asserteq(csorted, gsorted)
+
+  a = torch.FloatTensor(125, 40):uniform()
+  csorted = a:clone():sort(1)
+  gsorted = a:cl():sort(1):float()
+  tester:asserteq(csorted, gsorted)
+
+  a = torch.FloatTensor(125, 40):uniform()
+  csorted = a:clone():sort(2)
+  gsorted = a:cl():sort(2):float()
+  tester:asserteq(csorted, gsorted)
+end
+
 function cltorch.tests.tensor.test_scatterFill()
    y = torch.zeros(3,5)
    idx = torch.LongTensor{{1,2,3,1,1},{3,1,1,2,3}}

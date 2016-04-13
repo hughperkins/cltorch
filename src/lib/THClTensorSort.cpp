@@ -40,9 +40,9 @@ static void kernelLaunch_fillSliceWithIndex(
                      dim3 &grid, dim3 &block,
                      int Dim,
                      const TensorInfo<IndexType> &in,
-                     int totalSlices,
-                     int sliceSize,
-                     int sliceStride
+                     uint64 totalSlices,
+                     uint64 sliceSize,
+                     uint64 sliceStride
     ){
   StatefulTimer::timeCheck("fillSliceWithIndex START");
   std::string uniqueName = "THClTensorSort_fillSliceWithIndex_" + easycl::toString(Dim);
@@ -70,9 +70,9 @@ static void kernelLaunch_fillSliceWithIndex(
 
   THClKernels k(state, kernel);
   k.inout(in);
-  k.in(totalSlices);
-  k.in(sliceSize);
-  k.in(sliceStride);
+  k.in((int)totalSlices);
+  k.in((int)sliceSize);
+  k.in((int)sliceStride);
   k.run(grid, block);
   if(state->addFinish) cl->finish();  
 
@@ -84,9 +84,9 @@ void THClTensor_fillSliceWithIndex(THClState* state,
                                      int dim) {
   THCL_checkTensorDims(state, t, 2);
 
-  long inElements = THClTensor_nElement(state, t);
-  long sliceSize = THClTensor_size(state, t, dim);
-  long numSlices = inElements / sliceSize;
+  uint64 inElements = THClTensor_nElement(state, t);
+  uint64 sliceSize = THClTensor_size(state, t, dim);
+  uint64 numSlices = inElements / sliceSize;
 
   dim3 grid;
   if (!THCL_getGridFromTiles(numSlices, grid)) {
@@ -94,10 +94,10 @@ void THClTensor_fillSliceWithIndex(THClState* state,
   }
 
   const int device = t->device;
-  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[device])->maxWorkGroupSize;
-  long maxThreads = maxWorkgroupSize; // I guess ???
+  uint64 maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[device])->maxWorkGroupSize;
+  uint64 maxThreads = maxWorkgroupSize; // I guess ???
 //    THClState_getCurrentDeviceProperties(state)->maxThreadsPerBlock;
-  long numThreads = sliceSize;
+  uint64 numThreads = sliceSize;
   if (numThreads > maxThreads) {
     numThreads = maxThreads;
   }
@@ -105,7 +105,7 @@ void THClTensor_fillSliceWithIndex(THClState* state,
   dim3 block(numThreads);
 
   if (THCL_canUse32BitIndexMath(state, t)) {
-    TensorInfo<unsigned int> info(state, t, dim);
+    TensorInfo<uint32> info(state, t, dim);
     info.sizes[dim] = 1;
     int collapseDim = info.collapseDims(dim);
 
@@ -113,16 +113,16 @@ void THClTensor_fillSliceWithIndex(THClState* state,
     if(info.isContiguous()) {
       Dim = -2;
     }
-    kernelLaunch_fillSliceWithIndex<unsigned int>(
+    kernelLaunch_fillSliceWithIndex<uint32>(
       state, grid, block, Dim, info, numSlices, sliceSize, info.strides[collapseDim]);
   } else {
-    TensorInfo<unsigned long> info(state, t, dim);
+    TensorInfo<uint64> info(state, t, dim);
     info.sizes[dim] = 1;
     int collapseDim = info.collapseDims(dim);
 
     // catch-all implementation
     int Dim = -1;
-    kernelLaunch_fillSliceWithIndex<unsigned long>(
+    kernelLaunch_fillSliceWithIndex<uint64>(
       state, grid, block, Dim, info, numSlices, sliceSize, info.strides[collapseDim]);
   }
 }
@@ -182,11 +182,11 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
   // The constructed key/value tensor info is used to select the slice
   // we are sorting on a per-block basis
   if (THCL_canUse32BitIndexMath(state, key)) {
-    TensorInfo<unsigned int> keyInfo(state, key);
+    TensorInfo<uint32> keyInfo(state, key);
     keyInfo.sizes[dim] = 1;
     int collapseKeyDim = keyInfo.collapseDims(dim);
 
-    TensorInfo<unsigned int> valueInfo(state, value);
+    TensorInfo<uint32> valueInfo(state, value);
     valueInfo.sizes[dim] = 1;
     int collapseValueDim = valueInfo.collapseDims(dim);
 
@@ -195,7 +195,7 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
       A = -2;
     }
 
-    THClSortUtils_kernelLaunch_bitonicSortKVInPlace<unsigned int>(
+    THClSortUtils_kernelLaunch_bitonicSortKVInPlace<uint32>(
         state,
         grid, block,
         A,
@@ -209,11 +209,11 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
         valueInfo.strides[collapseValueDim],
         comp);
   } else {
-    TensorInfo<unsigned long> keyInfo(state, key);
+    TensorInfo<uint64> keyInfo(state, key);
     keyInfo.sizes[dim] = 1;
     int collapseKeyDim = keyInfo.collapseDims(dim);
 
-    TensorInfo<unsigned long> valueInfo(state, value);
+    TensorInfo<uint64> valueInfo(state, value);
     valueInfo.sizes[dim] = 1;
     int collapseValueDim = valueInfo.collapseDims(dim);
 
@@ -221,7 +221,7 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
     if(keyInfo.isContiguous()) {
       A = -2;
     }
-    THClSortUtils_kernelLaunch_bitonicSortKVInPlace<unsigned long>(
+    THClSortUtils_kernelLaunch_bitonicSortKVInPlace<uint64>(
         state,
         grid, block,
         A,

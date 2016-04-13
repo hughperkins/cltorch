@@ -25,9 +25,9 @@ template< typename IndexType >
 void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     THClState *state,
     dim3 grid, dim3 block,
-    int KeyDims,
-    int ValueDims,
-    int Power2SortSize,
+    IndexType KeyDims,
+    IndexType ValueDims,
+    IndexType Power2SortSize,
     const TensorInfo<IndexType> &keys,
     IndexType keySlices,
     IndexType keySliceSize,
