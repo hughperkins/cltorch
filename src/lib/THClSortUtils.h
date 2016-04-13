@@ -22,17 +22,17 @@ public:
 };
 
 template< typename IndexType >
-void kernelLaunch_bitonicSortKVInPlace(
+void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     THClState *state,
     dim3 grid, dim3 block,
     int KeyDims,
     int ValueDims,
     int Power2SortSize,
-    TensorInfo<IndexType> *keys,
+    const TensorInfo<IndexType> &keys,
     IndexType keySlices,
     IndexType keySliceSize,
     IndexType keySliceStride,
-    TensorInfo<IndexType> *values,
+    const TensorInfo<IndexType> &values,
     IndexType valueSliceStride,
     SortUtilsComp *comp);
 

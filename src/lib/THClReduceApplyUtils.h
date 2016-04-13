@@ -50,6 +50,15 @@ struct TensorInfo {
   // given tensor, so that the output size for this dimension will be 1.
   TensorInfo(THClState* state, THClTensor* t, int reduceDim = -1);
 
+  // Collapses all runs of successive dimensions if the size/strides
+  // match up within the run and there are no holes between the
+  // dimensions.
+  // If excludeDim is set (not -1), then excludeDim will not be
+  // collapsed with any other dimension.
+  // Function returns the new dimension index that excludeDim maps to,
+  // since the collapsed dimensions are <= the input dimensions.
+  int collapseDims(int excludeDim = -1);
+
   // Contiguous tensors of more than one dimension are collapsed down
   // to one tensor
   inline bool isContiguous() const {
@@ -69,23 +78,37 @@ TensorInfo<IndexType>::TensorInfo(THClState* state,
                                   THClTensor* t,
                                   int reduceDim)
     : wrapper(NULL), offset(0), dims(0) {
-  int origDims = THClTensor_nDimension(state, t);
-  assert(origDims <= MAX_CLTORCH_DIMS);
-  assert(reduceDim < origDims);
+//  data = THClTensor_data(state, t);
+  dims = THClTensor_nDimension(state, t);
+  assert(dims <= MAX_CUTORCH_DIMS);
 
-  offset = THClTensor_storageOffset(state, t);
-  wrapper = THClTensor_wrapper(state, t);
+  for (int i = 0; i < dims; ++i) {
+    sizes[i] = THClTensor_size(state, t, i);
+    strides[i] = THClTensor_stride(state, t, i);
+  }
 
-  // Count the number of successive dimensions that can be collapsed, from
-  // innermost to outermost.
-  int numCollapsed = 0;
+  assert(reduceDim == -1 || (reduceDim < dims && reduceDim >= 0));
 
+  if (reduceDim != -1) {
+    sizes[reduceDim] = 1;
+  }
+}
+
+template <typename IndexType>
+int
+TensorInfo<IndexType>::collapseDims(int excludeDim) {
   // Find the innermost dimension not of size 1, since dimensions of size 1 are
   // collapsible.
   int firstNonOneDim = -1;
 
-  for (int i = origDims - 1; i >= 0; --i) {
-    if (THClTensor_size(state, t, i) != 1 && i != reduceDim) {
+  for (int i = dims - 1; i >= 0; --i) {
+    if (i == excludeDim) {
+      // We cannot collapse this dimension, even if it is size 1
+      firstNonOneDim = i;
+      break;
+    }
+
+    if (sizes[i] != 1) {
       firstNonOneDim = i;
       break;
     }
@@ -95,80 +118,133 @@ TensorInfo<IndexType>::TensorInfo(THClState* state,
   // single-point tensor that we still have to operate on. Reduce to a
   // single point.
   if (firstNonOneDim == -1) {
+    assert(excludeDim == -1);
+
     dims = 1;
     sizes[0] = 1;
     strides[0] = 1;
-    return;
+
+    // Everything effectively got collapsed into this dimension
+    return 0;
   }
 
-  // Skip the leading size 1 dims
-  numCollapsed += origDims - 1 - firstNonOneDim;
+  // Count the number of successive dimensions that can be collapsed, from
+  // innermost to outermost.
+  int numCollapsed = 0;
 
-  // Now, to determine the other collapsible dims. These are the size/strides
-  // of the previous inner non-collapsible dim we encounter.
-  long sizeInner = THClTensor_size(state, t, firstNonOneDim);
-  IndexType strideInner = THClTensor_stride(state, t, firstNonOneDim);
+  // Skip the leading size 1 dims
+  numCollapsed += dims - 1 - firstNonOneDim;
+
+  // We perform one pass through to determine how many dimensions we
+  // can collapse, before calculating the actual size of the collapsed
+  // dimensions.
+  // size/strideInner are the size/strides of the previous inner
+  // non-collapsible dim we encounter.
+  long sizeInner = sizes[firstNonOneDim];
+  long strideInner = strides[firstNonOneDim];
 
   for (int i = firstNonOneDim - 1; i >= 0; --i) {
-    long sizeOuter = (i == reduceDim) ? 1 : THClTensor_size(state, t, i);
-    IndexType strideOuter = THClTensor_stride(state, t, i);
+    long sizeOuter = sizes[i];
+    long strideOuter = strides[i];
 
-    // The next outermost dimension can be skipped if size 1
-    if (sizeOuter == 1) {
-      ++numCollapsed;
-      continue;
-    }
+    // Don't collapse this dimension if we want to exclude it from
+    // collapsing.
+    // Since this code is attempting to collapse a subsequent
+    // dimension (i) with the preceding dimension (i + 1), we can only
+    // perform collapsing if the preceding dimension can be collapsed
+    // (i.e., not excludeDim)
+    if ((excludeDim != i) && (excludeDim != i + 1)) {
+      // The next outermost dimension can be skipped if size 1
+      if (sizeOuter == 1) {
+        ++numCollapsed;
+        continue;
+      }
 
-    // If the next outermost dimension is contiguous with the
-    // previous non-collapsed one, collapse it
-    if (strideOuter == strideInner * sizeInner) {
-      ++numCollapsed;
+      // If the next outermost dimension is contiguous with the
+      // previous non-collapsed one, collapse it
+      if (strideOuter == strideInner * sizeInner) {
+        ++numCollapsed;
 
-      // This is the run of collapsed dimensions' size
-      sizeInner = sizeInner * sizeOuter;
-       continue;
+        // This is the run of collapsed dimensions' size
+        sizeInner = sizeInner * sizeOuter;
+        continue;
+      }
     }
 
     // Otherwise, this new outer dimension at `i` cannot be collapsed
-    // and is different from the previous.
+    // because it is excluded from collapsing, or it is not contiguous
+    // with the previous inner dimension.
     sizeInner = sizeOuter;
     strideInner = strideOuter;
   }
 
-  assert(numCollapsed < origDims);
-  dims = origDims - numCollapsed;
+  // This will be our new size/stride and dimension.
+  IndexType newSizes[MAX_CLTORCH_DIMS];
+  IndexType newStrides[MAX_CLTORCH_DIMS];
 
-  // Determine the sizes of the collapsed dimensions.
-  int collapsedIndex = origDims - numCollapsed - 1;
-  sizes[collapsedIndex] = THClTensor_size(state, t, firstNonOneDim);
-  strides[collapsedIndex] = THClTensor_stride(state, t, firstNonOneDim);
+  assert(numCollapsed < dims);
+  int newDims = dims - numCollapsed;
+
+  // We return the index of the excluded dimension that is excluded
+  // from being collapsed here.
+  int returnDim = -1;
+
+  // We perform a second pass through the dimensions to actually
+  // calculate the size of the collapsed dimensions.
+  int collapsedIndex = dims - numCollapsed - 1;
+  newSizes[collapsedIndex] = sizes[firstNonOneDim];
+  newStrides[collapsedIndex] = strides[firstNonOneDim];
+
+  if (firstNonOneDim == excludeDim) {
+    returnDim = collapsedIndex;
+  }
 
   for (int i = firstNonOneDim - 1; i >= 0; --i) {
-    long sizeOuter = (i == reduceDim) ? 1 : THClTensor_size(state, t, i);
-    IndexType strideOuter = THClTensor_stride(state, t, i);
+    IndexType sizeOuter = sizes[i];
+    IndexType strideOuter = strides[i];
 
-    if (sizeOuter == 1) {
-      // skip
-      continue;
+    if ((excludeDim != i) && (excludeDim != i + 1)) {
+      if (sizeOuter == 1) {
+        // skip
+        continue;
+      }
+
+      if (strideOuter == newSizes[collapsedIndex] * newStrides[collapsedIndex]) {
+        // collapse
+        newSizes[collapsedIndex] *= sizeOuter;
+        continue;
+      }
     }
 
-    if (strideOuter == sizes[collapsedIndex] * strides[collapsedIndex]) {
-      // collapse
-      sizes[collapsedIndex] *= sizeOuter;
-      continue;
-    }
-
-    // Otherwise, strides don't match; dimension `i` is not collapsible.
+    // Otherwise, strides don't match, or dim `i` is excluded from
+    // collapsing.
     --collapsedIndex;
     assert(collapsedIndex >= 0);
-    sizes[collapsedIndex] = sizeOuter;
-    strides[collapsedIndex] = strideOuter;
+    assert(collapsedIndex < newDims);
+    newSizes[collapsedIndex] = sizeOuter;
+    newStrides[collapsedIndex] = strideOuter;
+
+    if (excludeDim == i) {
+      returnDim = collapsedIndex;
+    }
   }
 
   // We must have filled all the dimensions we're looking for
   assert(collapsedIndex == 0);
-}
+  assert((excludeDim == -1) || (returnDim != -1));
 
+  dims = newDims;
+
+  for (int i = 0; i < dims; ++i) {
+    sizes[i] = newSizes[i];
+    strides[i] = newStrides[i];
+  }
+
+  // After collapsing, the original `excludeDim` may have been
+  // renumbered to this new `returnDim`, since some dimensions could
+  // have been collapsed.
+  return returnDim;
+}
 
 typedef struct TensorInfoCl {
   TensorInfoCl( TensorInfo<unsigned int> info ) {
@@ -294,5 +370,7 @@ bool THCL_getGridFromTiles(long gridTiles, dim3& grid);
 // is there more than one index into the tensor that references the
 // same piece of data)?
 bool THCL_overlappingIndices(THClState* state, THClTensor* t);
+
+void THCL_checkTensorDims(THClState* state, THClTensor* tensor, int arg);
 
 #endif // THCL_REDUCE_APPLY_UTILS_INC

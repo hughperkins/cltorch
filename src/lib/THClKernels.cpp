@@ -50,6 +50,7 @@ THClKernels *THClKernels::out(THClTensor *tensor) {
 THClKernels *THClKernels::inv2(THClTensor *tensor) {
   try {
     TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
+//    tensorInfoCl->collapseDims();
     kernel->in(1, tensorInfoCl);
     kernel->in(THClTensor_wrapper(state, tensor));
     tensorInfoCls.push_back(tensorInfoCl);
@@ -61,6 +62,7 @@ THClKernels *THClKernels::inv2(THClTensor *tensor) {
 THClKernels *THClKernels::inoutv2(THClTensor *tensor) {
   try {
     TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
+//    tensorInfoCl->collapseDims();
     kernel->in(1, tensorInfoCl);
     kernel->inout(THClTensor_wrapper(state, tensor));
     tensorInfoCls.push_back(tensorInfoCl);
@@ -72,6 +74,7 @@ THClKernels *THClKernels::inoutv2(THClTensor *tensor) {
 THClKernels *THClKernels::outv2(THClTensor *tensor) {
   try {
     TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
+//    tensorInfoCl->collapseDims();
     kernel->in(1, tensorInfoCl);
     kernel->out(THClTensor_wrapper(state, tensor));
     tensorInfoCls.push_back(tensorInfoCl);
