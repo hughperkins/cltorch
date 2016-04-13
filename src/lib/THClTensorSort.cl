@@ -1,12 +1,13 @@
 // from lib/THC/THCTensorSort.cu:
 
 // needs following tmeplate variables defined:
-//  Dim      integer
-//  IndexType  string 'int'
+//   Dim        integer
+//   IndexType  string, eg 'int', or 'unsigned int'
+//   dims       list containing Dim
+//   MAX_CLTORCH_DIMS    integer, eg 25
+//   WarpSize            integer eg 32
 
 {{include_THClReduceApplyUtils}}
-
-{{include_THClSortUtils}}
 
 // `base` is the base address of a tensor
 // For each slice (defined as a linear point of `out`, from 0 ->

@@ -1,9 +1,6 @@
+#pragma once
+
 //// from lib/THC/THCSortUtils.cuh:
-
-#ifndef THCL_SORT_UTILS_INC
-#define THCL_SORT_UTILS_INC
-
-//#include "THClReduceApplyUtils.cuh"
 
 class SortUtilsComp {
 public:
@@ -38,8 +35,4 @@ void kernelLaunch_bitonicSortKVInPlace(
     TensorInfo<IndexType> *values,
     IndexType valueSliceStride,
     SortUtilsComp *comp);
-
-//std::string THClSortUtils_getKernelTemplate();
-
-#endif // THCL_SORT_UTILS_INC
 
