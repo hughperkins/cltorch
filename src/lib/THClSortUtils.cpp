@@ -16,18 +16,15 @@ using namespace std;
 static std::string THClSortUtils_getKernelTemplate();
 
 
-//template< typename IndexType >
-//void kernelLaunch_pointwiseApply( THClState *state, dim3 grid, dim3 block, int numTensors, int *dims, TensorInfo<IndexType> **infos, IndexType totalElements, OpBase const*op, string operationString) {
-
 template< typename IndexType >
 void kernelLaunch_bitonicSortKVInPlace(
     THClState *state,
     dim3 grid, dim3 block,
-    TensorInfo<IndexType> *keyInfo,
+    TensorInfo<IndexType> *keys,
     IndexType keySlices,
     IndexType keySliceSize,
     IndexType keySliceStride,
-    TensorInfo<IndexType> *valueInfo,
+    TensorInfo<IndexType> *values,
     IndexType valueSliceStride,
     SortUtilsComp &comp) {
   StatefulTimer::timeCheck("bitonicSortKVInPlace START");
@@ -56,71 +53,21 @@ void kernelLaunch_bitonicSortKVInPlace(
   }
 
   THClKernels k(state, kernel);
-  k.in(numPass1Blocks);
-  k.in(init);
-  k.in(scratch);
-  k.out(devOut);
+  k.inout(keys);
+  k.in((int)keySlices);
+  k.in((int)keySliceSize);
+  k.in((int)keySliceStride);
+  k.inout(values);
+  k.in((int)valueSliceStride);
+
+  // TODO: shared/local stuff
   k.localFloats(smemSize / sizeof(float));
+
   k.run(grid, block);
 
   if(state->addFinish) cl->finish();  
-  StatefulTimer::timeCheck("ReduceAllPass2 End");
+  StatefulTimer::timeCheck("bitonicSortKVInPlace End");
 }
-
-//template< typename IndexType >
-//void kernelLaunch_THClTensor_reduceAllPass2(
-//                     THClState* state,
-//                     dim3 &grid, dim3 &block, size_t smemSize,
-//                     int numPass1Blocks,
-//                     float init,
-//                     const HasOperator3 *reduceOp,
-//                     CLWrapper *scratch,
-//                     CLWrapper* devOut
-//    ){
-//  StatefulTimer::timeCheck("ReduceAllPass2 START");
-//  std::string uniqueName = "THClTensor_reduceAllPass2_" + reduceOp->operator3();
-//  EasyCL *cl = scratch->getCl();
-//  CLKernel *kernel = 0;
-//  if(cl->kernelExists(uniqueName)) {
-//    kernel = cl->getKernel(uniqueName);
-//    StatefulTimer::timeCheck("ReduceAllPass2 1aa");
-//  } else {
-//    TemplatedKernel kernelBuilder(cl);
-//    std::vector< int > dims;
-//    kernelBuilder
-//      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
-//      .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
-//      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
-//      .set("dims", dims)
-//      .set("dim1", -2)
-//      .set("defreduceblock", 1)
-//      .set("reduce_operation", reduceOp->operator3())
-//      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
-//      .set("IndexType", TypeParseTraits<IndexType>::name)
-//    ;
-
-//    kernel = kernelBuilder.buildKernel( uniqueName, "THClReduceAll.cl", getKernelTemplate(), "THClTensor_reduceAllPass2" );
-//  }
-
-//  THClKernels k(state, kernel);
-//  k.in(numPass1Blocks);
-//  k.in(init);
-//  k.in(scratch);
-//  k.out(devOut);
-//  k.localFloats(smemSize / sizeof(float));
-//  k.run(grid, block);
-
-//  if(state->addFinish) cl->finish();  
-//  StatefulTimer::timeCheck("ReduceAllPass2 End");
-//}
-
-
-//  "bitonicSortKVInPlace(TensorInfo<{{IndexType}}> keys,\n" 
-//  "                     {{IndexType}} keySlices,\n" 
-//  "                     {{IndexType}} keySliceSize,\n" 
-//  "                     {{IndexType}} keySliceStride,\n" 
-//  "                     TensorInfo<{{IndexType}}> values,\n" 
-//  "                     {{IndexType}} valueSliceStride) {\n" 
 
 std::string THClSortUtils_getKernelTemplate() {
   // [[[cog
@@ -222,11 +169,11 @@ std::string THClSortUtils_getKernelTemplate() {
   "template <int KeyDims, int ValueDims,\n" 
   "          int Power2SortSize>\n" 
   "kernel void\n" 
-  "bitonicSortKVInPlace(TensorInfo<{{IndexType}}> keys,\n" 
+  "bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,\n" 
   "                     {{IndexType}} keySlices,\n" 
   "                     {{IndexType}} keySliceSize,\n" 
   "                     {{IndexType}} keySliceStride,\n" 
-  "                     TensorInfo<{{IndexType}}> values,\n" 
+  "                     global TensorInfoCl *values_info, global float *values_data,\n" 
   "                     {{IndexType}} valueSliceStride) {\n" 
   "  // Find the slice of the tensor that we are sorting\n" 
   "  const {{IndexType}} linearIndex = getLinearBlockId_{{IndexType}}();\n" 
