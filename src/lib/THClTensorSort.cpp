@@ -1,8 +1,7 @@
 // from lib/THC/THCTensorSort.cu:
 
-#include "THClReduceApplyUtils.cuh"
-#include "THClSortUtils.cuh"
-#include "THClTensorCopy.h"
+#include <string>
+#include <iostream>
 
 #include "EasyCL.h"
 #include "CLKernel_structs.h"
@@ -10,8 +9,9 @@
 #include "util/StatefulTimer.h"
 #include "templates/TemplatedKernel.h"
 
-#include <string>
-#include <iostream>
+#include "THClReduceApplyUtils.h"
+#include "THClSortUtils.h"
+#include "THClTensorCopy.h"
 
 using namespace std;
 
@@ -179,71 +179,13 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
     THError("Slice to sort is too large");
   }
 
-#define HANDLE_CASE(TYPE, A, SIZE)                                      \
-  if (dir) {                                                            \
-    bitonicSortKVInPlace<float, float, A, -1, GTComp<float>, TYPE, SIZE> \
-      <<<grid, block, 0, THClState_getCurrentStream(state)>>>(           \
-        keyInfo,                                                        \
-        keySlices,                                                      \
-        (TYPE) keySliceSize,                                            \
-        (TYPE) keyInfo.strides[collapseKeyDim],                         \
-        valueInfo,                                                      \
-        (TYPE) valueInfo.strides[collapseValueDim],                     \
-        GTComp<float>());                                               \
-  } else {                                                              \
-    bitonicSortKVInPlace<float, float, A, -1, LTComp<float>, TYPE, SIZE> \
-      <<<grid, block, 0, THClState_getCurrentStream(state)>>>(           \
-        keyInfo,                                                        \
-        keySlices,                                                      \
-        (TYPE) keySliceSize,                                            \
-        (TYPE) keyInfo.strides[collapseKeyDim],                         \
-        valueInfo,                                                      \
-        (TYPE) valueInfo.strides[collapseValueDim],                     \
-        LTComp<float>());                                               \
-  }
-
-#define HANDLE_SORT_CASE(TYPE, A)                       \
-  {                                                     \
-    switch (ceilPowerOf2) {                             \
-      case 2048:                                        \
-      HANDLE_CASE(TYPE, A, 2048);                       \
-      break;                                            \
-      case 1024:                                        \
-      HANDLE_CASE(TYPE, A, 1024);                       \
-      break;                                            \
-      case 512:                                         \
-      HANDLE_CASE(TYPE, A, 512);                        \
-      break;                                            \
-      case 256:                                         \
-      HANDLE_CASE(TYPE, A, 256);                        \
-      break;                                            \
-      case 128:                                         \
-      HANDLE_CASE(TYPE, A, 128);                        \
-      break;                                            \
-      case 64:                                          \
-      HANDLE_CASE(TYPE, A, 64);                         \
-      break;                                            \
-      case 32:                                          \
-      HANDLE_CASE(TYPE, A, 32);                         \
-      break;                                            \
-      case 16:                                          \
-      HANDLE_CASE(TYPE, A, 16);                         \
-      break;                                            \
-      case 8:                                           \
-      HANDLE_CASE(TYPE, A, 8);                          \
-      break;                                            \
-      case 4:                                           \
-      HANDLE_CASE(TYPE, A, 4);                          \
-      break;                                            \
-      case 2:                                           \
-      HANDLE_CASE(TYPE, A, 2);                          \
-      break;                                            \
-      case 1:                                           \
-      /* Nothing to do, data already sorted */          \
-      break;                                            \
-      default:                                          \
-      assert(false);                                    \
-    }                                                   \
+  SortUtilsComp *comp = 0;
+  SortUtilsCompGT gt;
+  SortUtilsCompLT lt;
+  if(dir) {
+    comp = &gt;
+  } else {
+    comp = &lt;
   }
 
   // The constructed key/value tensor info is used to select the slice
@@ -257,21 +199,24 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
     valueInfo.sizes[dim] = 1;
     int collapseValueDim = valueInfo.collapseDims(dim);
 
+    int A = keyInfo.dims;
     if (keyInfo.isContiguous()) {
-      HANDLE_SORT_CASE(unsigned int, -2);
-    } else {
-      switch (keyInfo.dims) {
-        case 1:
-          HANDLE_SORT_CASE(unsigned int, 1);
-          break;
-        case 2:
-          HANDLE_SORT_CASE(unsigned int, 2);
-          break;
-        default:
-          HANDLE_SORT_CASE(unsigned int, -1);
-          break;
-      }
+      A = -2;
     }
+
+    kernelLaunch_bitonicSortKVInPlace<unsigned int>(
+        state,
+        grid, block,
+        A,
+        -1,
+        CeilPowerOf2,
+        keyInfo,
+        keySlices,
+        keySliceSize,
+        keyInfo.strides[collapseKeyDim],
+        valueInfo,
+        valueInfo.strides[collapseValueDim],
+        comp);
   } else {
     TensorInfo<unsigned long> keyInfo(state, key);
     keyInfo.sizes[dim] = 1;
@@ -281,18 +226,24 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
     valueInfo.sizes[dim] = 1;
     int collapseValueDim = valueInfo.collapseDims(dim);
 
-    // long case is rare, just instantiate these versions
-    if (keyInfo.isContiguous()) {
-      HANDLE_SORT_CASE(unsigned long, -2);
-    } else {
-      HANDLE_SORT_CASE(unsigned long, -1);
+    int A = -1;  // this can probably be simply keyInfo.dims
+    if(keyInfo.isContiguous()) {
+      A = -2;
     }
+    kernelLaunch_bitonicSortKVInPlace<unsigned long>(
+        state,
+        grid, block,
+        A,
+        -1,
+        CeilPowerOf2,
+        keyInfo,
+        keySlices,
+        keySliceSize,
+        keyInfo.strides[collapseKeyDim],
+        valueInfo,
+        valueInfo.strides[collapseValueDim],
+        comp);
   }
-#undef HANDLE_CASE
-#undef HANDLE_SORT_CASE
-#undef HANDLE_A_CASE
-
-
 }
 
 THCL_API void THClTensor_sort(THClState* state,

@@ -278,6 +278,21 @@ void kernelLaunch_bitonicSortKVInPlace(
     int valueSliceStride,
     SortUtilsComp &comp);
 
+template<unsigned int>
+void kernelLaunch_bitonicSortKVInPlace(
+    THClState *state,
+    dim3 grid, dim3 block,
+    unsigned int KeyDims,
+    unsigned int ValueDims,
+    unsigned int Power2SortSize,
+    TensorInfo<unsigned int> *keys,
+    unsigned int keySlices,
+    unsigned int keySliceSize,
+    unsigned int keySliceStride,
+    TensorInfo<unsigned int> *values,
+    unsigned int valueSliceStride,
+    SortUtilsComp &comp);
+
 //template<int>
 //void kernelLaunch_bitonicSortKVInPlace(
 //    THClState *state,
