@@ -26,7 +26,7 @@ fillSliceWithIndex(global TensorInfoCl *out_info, global float *out_data,
 
   const unsigned long offset =
     IndexToOffset_{{1000+Dim}}_get(slice, &out_info[0]);
-  float* base = &out_data[offset];
+  global float* base = &out_data[offset];
 
   for (long i = get_local_id(0); i < sliceSize; i += get_local_size(0)) {
     // Torch indices are 1-based (hence the +1)
