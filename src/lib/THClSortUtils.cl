@@ -91,11 +91,11 @@ template <int Power2SortSize>
 template <int KeyDims, int ValueDims,
           int Power2SortSize>
 kernel void
-bitonicSortKVInPlace(TensorInfo<{{IndexType}}> keys,
+bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
                      {{IndexType}} keySlices,
                      {{IndexType}} keySliceSize,
                      {{IndexType}} keySliceStride,
-                     TensorInfo<{{IndexType}}> values,
+                     global TensorInfoCl *values_info, global float *values_data,
                      {{IndexType}} valueSliceStride) {
   // Find the slice of the tensor that we are sorting
   const {{IndexType}} linearIndex = getLinearBlockId_{{IndexType}}();
