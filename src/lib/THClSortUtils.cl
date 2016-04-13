@@ -1,5 +1,10 @@
 // from lib/THC/THCSortUtils.cuh:
 
+// This needs the following template variables:
+//   K              key type
+//   V              value type
+//   COMPARE_OP     a comparison operator, like <   or >
+
 /*__device__*/ inline void swapVars_K({{K}} *p_t1, {{K}}*p_t2) {
   {{K}} tmp = *p_t1;
   *p_t1 = *p_t2;
@@ -18,13 +23,11 @@
   *p_t2 = tmp;
 }
 
-template <typename Comparator>
 /*__device__*/ inline void bitonicSwap({{K}}* p_kA, V*p_vA, bool*p_validA,
                                    {{K}}* p_kB, V*p_vB, bool*p_validB,
-                                   bool dir,
-                                   const Comparator& comp) {
+                                   bool dir) {
   // Invalid entries always sort to the end
-  bool swap = (comp(kA, kB) && validA) || !validB;
+  bool swap = (kA {{COMPARE_OP}} kB) && validA) || !validB;
   if (swap == dir) {
     swapVars_K(p_kA, p_kB);
     swapVars_V(p_vA, p_vB);
@@ -32,12 +35,10 @@ template <typename Comparator>
   }
 };
 
-template <typename Comparator, 
-          typename {{IndexType}}, int Power2SortSize>
+template <int Power2SortSize>
 /*__device__*/ inline void bitonicSort({{K}} keys[Power2SortSize],
                                    {{V}} values[Power2SortSize],
-                                   bool valid[Power2SortSize],
-                                   const Comparator& comp) {
+                                   bool valid[Power2SortSize]) {
 #pragma unroll
   for (unsigned int size = 2; size < Power2SortSize; size *= 2) {
     bool flag = ((get_local_id(0) & (size / 2)) != 0);
@@ -51,10 +52,10 @@ template <typename Comparator,
       }
 
       unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));
-      bitonicSwap<Comparator>(
+      bitonicSwap(
         &keys[pos], &values[pos], &valid[pos],
         &keys[pos + stride], &values[pos + stride], &valid[pos + stride],
-        flag, comp);
+        flag);
     }
   }
 
@@ -66,10 +67,10 @@ template <typename Comparator,
     }
 
     unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));
-    bitonicSwap<Comparator>(
+    bitonicSwap(
       &keys[pos], &values[pos], &valid[pos],
       &keys[pos + stride], &values[pos + stride], &valid[pos + stride],
-      false, comp);
+      false);
   }
 
   // Single warp per slice is completely synchronous
@@ -81,15 +82,14 @@ template <typename Comparator,
 // Sorts (key, value) pairs (in different tensors) in-place; i.e.,
 // modifies the input `keys` and `values`
 template <int KeyDims, int ValueDims,
-          typename Comparator, typename {{IndexType}}, int Power2SortSize>
+          int Power2SortSize>
 kernel void
 bitonicSortKVInPlace(TensorInfo<{{IndexType}}> keys,
                      {{IndexType}} keySlices,
                      {{IndexType}} keySliceSize,
                      {{IndexType}} keySliceStride,
                      TensorInfo<{{IndexType}}> values,
-                     {{IndexType}} valueSliceStride,
-                     const Comparator& comp) {
+                     {{IndexType}} valueSliceStride) {
   // Find the slice of the tensor that we are sorting
   const {{IndexType}} linearIndex = getLinearBlockId<{{IndexType}}>();
   // Tiling the slices could have us be out of bounds, if there are a
@@ -137,8 +137,8 @@ bitonicSortKVInPlace(TensorInfo<{{IndexType}}> keys,
     sharedValid[elem2] = valid2;
 
     // Sort!
-    bitonicSort<Comparator, K, V, {{IndexType}}, Power2SortSize>(
-      sharedKeys, sharedValues, sharedValid, comp);
+    bitonicSort<Power2SortSize>(
+      sharedKeys, sharedValues, sharedValid);
 
     // elem1 values are always valid, since otherwise we would have
     // chosen the next smallest power-of-2 for sorting
