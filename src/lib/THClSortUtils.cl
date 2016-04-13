@@ -11,6 +11,7 @@
 // you need to somewhere include {{THClReduceApplyUtils}} before this, with appropriate dims, to include
 // KeyDims and ValueDims
 
+
 /*__device__*/ inline void swapVars_K({{K}} *p_t1, {{K}}*p_t2) {
   {{K}} tmp = *p_t1;
   *p_t1 = *p_t2;
