@@ -127,6 +127,15 @@ std::string THClReduceApplyUtils_getKernelTemplate() {
   // ]]]
   // generated using cog, from THClReduceApplyUtils.cl:
   const char * kernelSource =  
+  "// this needs the following template variables defined:\n" 
+  "//   IndexType   string, eg 'int'\n" 
+  "//   MAX_CLTORCH_DIMS    integer, eg 25\n" 
+  "//   dims                list of integers, ie all dimensions >=0 this should work for\n" 
+  "//   WarpSize            integer eg 32\n" 
+  "//   defiscontiguous     [1|0]  (or just dont define, means 0)\n" 
+  "//   defreduceblock      [1|0]  (or just dont define, means 0)\n" 
+  "\n" 
+  "\n" 
   "// kernel argument that defines tensor layout\n" 
   "typedef struct TensorInfoCl {\n" 
   "  // Extracts size/stride information for the kernel.\n" 
