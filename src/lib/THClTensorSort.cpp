@@ -4,6 +4,19 @@
 #include "THClSortUtils.cuh"
 #include "THClTensorCopy.h"
 
+#include "EasyCL.h"
+#include "CLKernel_structs.h"
+#include "util/easycl_stringhelper.h"
+#include "util/StatefulTimer.h"
+#include "templates/TemplatedKernel.h"
+
+#include <string>
+#include <iostream>
+
+using namespace std;
+
+static std::string get_template();
+
 // Returns 2^(ceil(lg(n)) from Stanford bit twiddling hacks
 unsigned long nextHighestPowerOf2(unsigned long n) {
   n--;
@@ -296,5 +309,47 @@ THCL_API void THClTensor_sort(THClState* state,
     // (potentially slowly, with extra copies/memory allocations)
     THError("sort not implemented for slice size > 2048");
   }
+}
+
+std::string get_template() {
+  // [[[cog
+  // import stringify
+  // stringify.write_kernel( "kernel", "THClTensorSort.cl" )
+  // ]]]
+  // generated using cog, from THClTensorSort.cl:
+  const char * kernelSource =  
+  "// from lib/THC/THCTensorSort.cu:\n" 
+  "\n" 
+  "{{include_THClReduceApplyUtils}}\n" 
+  "\n" 
+  "// `base` is the base address of a tensor\n" 
+  "// For each slice (defined as a linear point of `out`, from 0 ->\n" 
+  "// (sliceSize - 1) * sliceStride, we fill that slice from `0` to\n" 
+  "// `sliceSize - 1`.\n" 
+  "template <typename {{IndexType}}, int Dim>\n" 
+  "kernel void\n" 
+  "fillSliceWithIndex(TensorInfo<{{IndexType}}> out,\n" 
+  "                   {{IndexType}} totalSlices,\n" 
+  "                   {{IndexType}} sliceSize,\n" 
+  "                   {{IndexType}} sliceStride) {\n" 
+  "  {{IndexType}} slice = getLinearBlockId<{{IndexType}}>();\n" 
+  "\n" 
+  "  if (slice >= totalSlices) {\n" 
+  "    return;\n" 
+  "  }\n" 
+  "\n" 
+  "  const unsigned long offset =\n" 
+  "    IndexToOffset<{{IndexType}}, Dim>::get(slice, out);\n" 
+  "  float* base = &out.data[offset];\n" 
+  "\n" 
+  "  for (long i = get_local_id(0); i < sliceSize; i += get_local_size(0)) {\n" 
+  "    // Torch indices are 1-based (hence the +1)\n" 
+  "    base[i * sliceStride] = (float) i + 1.0f;\n" 
+  "  }\n" 
+  "}\n" 
+  "\n" 
+  "";
+  // [[[end]]]
+  return kernelSource;
 }
 

@@ -1,5 +1,7 @@
 // from lib/THC/THCTensorSort.cu:
 
+{{include_THClReduceApplyUtils}}
+
 // `base` is the base address of a tensor
 // For each slice (defined as a linear point of `out`, from 0 ->
 // (sliceSize - 1) * sliceStride, we fill that slice from `0` to
