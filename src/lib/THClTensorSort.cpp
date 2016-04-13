@@ -31,6 +31,54 @@ unsigned long nextHighestPowerOf2(unsigned long n) {
   return n;
 }
 
+static template< typename IndexType >
+void kernelLaunch_fillSliceWithIndex(
+                     THClState* state,
+                     dim3 &grid, dim3 &block, size_t smemSize,
+                     int ADims,
+                     const TensorInfo<IndexType> & in,
+                     int64 totalElements,
+                     CLWrapper* scratch
+    ){
+  StatefulTimer::timeCheck("fillSliceWithIndex START");
+  std::string uniqueName = "THClTensorSort_fillSliceWithIndex_" + easycl::toString(ADims) + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
+  EasyCL *cl = scratch->getCl();
+  CLKernel *kernel = 0;
+  if(cl->kernelExists(uniqueName)) {
+    kernel = cl->getKernel(uniqueName);
+    StatefulTimer::timeCheck("fillSliceWithIndex 1aa");
+  } else {
+    std::vector< int > dims;
+    if( ADims >= 0 ) {
+      dims.push_back(ADims);
+    }
+    TemplatedKernel kernelBuilder(cl);
+    kernelBuilder
+//      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
+      .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
+//      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+      .set("dims", dims)
+      .set("dim1", ADims)
+//      .set("defreduceblock", 1)
+//      .set("modify_operation", modifyOp->operator2())
+//      .set("reduce_operation", reduceOp->operator3())
+      .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
+      .set("IndexType", TypeParseTraits<IndexType>::name)
+    ;
+    kernel = kernelBuilder.buildKernel( uniqueName, "THClTensorSort.cl", getKernelTemplate(), "fillSliceWithIndex" );
+  }
+
+  THClKernels k(state, kernel);
+  k.in(in);
+  k.in((int)totalElements);
+  k.in(init);
+  k.out(scratch);
+  k.localFloats(smemSize / sizeof(float));
+  k.run(grid, block);
+  if(state->addFinish) cl->finish();  
+  StatefulTimer::timeCheck("fillSliceWithIndex END");
+}
+
 void THClTensor_fillSliceWithIndex(THClState* state,
                                      THClTensor* t,
                                      int dim) {
@@ -55,9 +103,8 @@ void THClTensor_fillSliceWithIndex(THClState* state,
   dim3 block(numThreads);
 
 #define FILL_INDEX(T, DIM)                                       \
-  fillSliceWithIndex<T, DIM>                                     \
-    <<<grid, block, 0, THClState_getCurrentStream(state)>>>(      \
-      info, numSlices, sliceSize, info.strides[collapseDim])
+  kernelLaunch_fillSliceWithIndex<T>(                                     \
+      grid, block, 0, info, numSlices, sliceSize, info.strides[collapseDim])
 
   if (THCL_canUse32BitIndexMath(state, t)) {
     TensorInfo<unsigned int> info(state, t, dim);
@@ -247,22 +294,6 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
 
 
 }
-
-// For slice sorting in Thrust; extracts a slice index from a linear
-// index and uses that for comparison
-struct SliceComp {
-  SliceComp(int size) : sliceSize(size) {}
-
-  __device__ bool operator()(const int& a, const int& b) const {
-    // Since the slices are guaranteed to be innermost, the segment is
-    // just via integer division
-    int segA = a / sliceSize;
-    int segB = b / sliceSize;
-    return segA < segB;
-  }
-
-  const int sliceSize;
-};
 
 THCL_API void THClTensor_sort(THClState* state,
                                THClTensor *sorted,
