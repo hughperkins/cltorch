@@ -1,35 +1,41 @@
 #include <string>
 #include <iostream>
 
-#include "THClReduceApplyUtils.cuh"
-#include "THClSortUtils.cuh"
-#include "THClTensorCopy.h"
-
 #include "EasyCL.h"
 #include "CLKernel_structs.h"
 #include "util/easycl_stringhelper.h"
 #include "util/StatefulTimer.h"
 #include "templates/TemplatedKernel.h"
 
+#include "THClReduceApplyUtils.h"
+#include "THClSortUtils.h"
+#include "THClTensorCopy.h"
+#include "THClTypeParseTraits.h"
+#include "THClKernels.h"
+
 using namespace std;
 
-static std::string THClSortUtils_getKernelTemplate();
+static std::string getKernelTemplate();
 
 
 template< typename IndexType >
 void kernelLaunch_bitonicSortKVInPlace(
     THClState *state,
     dim3 grid, dim3 block,
+    int KeyDims,
+    int ValueDims,
+    int Power2SortSize,
     TensorInfo<IndexType> *keys,
     IndexType keySlices,
     IndexType keySliceSize,
     IndexType keySliceStride,
     TensorInfo<IndexType> *values,
     IndexType valueSliceStride,
-    SortUtilsComp &comp) {
+    SortUtilsComp *comp) {
   StatefulTimer::timeCheck("bitonicSortKVInPlace START");
   std::string uniqueName = std::string("THClSortUtils_bitonicSortKVInPlace_") + comp->getOperator();
-  EasyCL *cl = scratch->getCl();
+
+  EasyCL *cl = keys->getCl();
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
@@ -37,14 +43,23 @@ void kernelLaunch_bitonicSortKVInPlace(
   } else {
     TemplatedKernel kernelBuilder(cl);
     std::vector< int > dims;
+    if( KeyDims >= 0 ) {
+      dims.push_back(KeyDims);
+    }
+    if( ValueDims >= 0 ) {
+      dims.push_back(ValueDims);
+    }
     kernelBuilder
+      .set("K", "float")
+      .set("V", "float")
+      .set("COMPARE_OP", comp->getOperator())
+      .set("KeyDims", KeyDims)
+      .set("ValueDims", ValueDims)
+      .set("Power2SortSize", Power2SortSize)
 //      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
       .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
-//      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
-//      .set("dims", dims)
-//      .set("dim1", -2)
-//      .set("defreduceblock", 1)
-//      .set("reduce_operation", reduceOp->operator3())
+      .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
+      .set("dims", dims)
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
       .set("IndexType", TypeParseTraits<IndexType>::name)
     ;
@@ -60,16 +75,13 @@ void kernelLaunch_bitonicSortKVInPlace(
   k.inout(values);
   k.in((int)valueSliceStride);
 
-  // TODO: shared/local stuff
-  k.localFloats(smemSize / sizeof(float));
-
   k.run(grid, block);
 
   if(state->addFinish) cl->finish();  
   StatefulTimer::timeCheck("bitonicSortKVInPlace End");
 }
 
-std::string THClSortUtils_getKernelTemplate() {
+std::string getKernelTemplate() {
   // [[[cog
   // import stringify
   // stringify.write_kernel( "kernel", "THClSortUtils.cl" )
@@ -85,10 +97,12 @@ std::string THClSortUtils_getKernelTemplate() {
   "//   KeyDims        integer\n" 
   "//   ValueDims      integer\n" 
   "//   Power2SortSize  integer\n" 
+  "//   dims           list of KeyDims and ValueDims\n" 
   "\n" 
   "// you need to somewhere include {{THClReduceApplyUtils}} before this, with appropriate dims, to include\n" 
   "// KeyDims and ValueDims\n" 
   "\n" 
+  "{{include_THClReduceApplyUtils}}\n" 
   "\n" 
   "/*__device__*/ inline void swapVars_K({{K}} *p_t1, {{K}}*p_t2) {\n" 
   "  {{K}} tmp = *p_t1;\n" 
@@ -174,7 +188,8 @@ std::string THClSortUtils_getKernelTemplate() {
   "                     {{IndexType}} keySliceSize,\n" 
   "                     {{IndexType}} keySliceStride,\n" 
   "                     global TensorInfoCl *values_info, global float *values_data,\n" 
-  "                     {{IndexType}} valueSliceStride) {\n" 
+  "                     {{IndexType}} valueSliceStride\n" 
+  ") {\n" 
   "  // Find the slice of the tensor that we are sorting\n" 
   "  const {{IndexType}} linearIndex = getLinearBlockId_{{IndexType}}();\n" 
   "  // Tiling the slices could have us be out of bounds, if there are a\n" 
@@ -248,5 +263,35 @@ std::string THClSortUtils_getKernelTemplate() {
   return kernelSource;
 }
 
+template<int>
+void kernelLaunch_bitonicSortKVInPlace(
+    THClState *state,
+    dim3 grid, dim3 block,
+    int KeyDims,
+    int ValueDims,
+    int Power2SortSize,
+    TensorInfo<int> *keys,
+    int keySlices,
+    int keySliceSize,
+    int keySliceStride,
+    TensorInfo<int> *values,
+    int valueSliceStride,
+    SortUtilsComp &comp);
+
+//template<int>
+//void kernelLaunch_bitonicSortKVInPlace(
+//    THClState *state,
+//    dim3 grid, dim3 block,
+//    int KeyDims,
+//    int ValueDims,
+//    int Power2SortSize,
+//    TensorInfo<IndexType> *keys,
+//    IndexType keySlices,
+//    IndexType keySliceSize,
+//    IndexType keySliceStride,
+//    TensorInfo<IndexType> *values,
+//    IndexType valueSliceStride,
+//    SortUtilsComp *comp);
+//template EasyCL_EXPORT CLKernel *CLKernel::input(int N, const float *data);
 
 

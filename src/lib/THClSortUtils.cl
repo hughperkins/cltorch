@@ -7,10 +7,12 @@
 //   KeyDims        integer
 //   ValueDims      integer
 //   Power2SortSize  integer
+//   dims           list of KeyDims and ValueDims
 
 // you need to somewhere include {{THClReduceApplyUtils}} before this, with appropriate dims, to include
 // KeyDims and ValueDims
 
+{{include_THClReduceApplyUtils}}
 
 /*__device__*/ inline void swapVars_K({{K}} *p_t1, {{K}}*p_t2) {
   {{K}} tmp = *p_t1;
@@ -96,7 +98,8 @@ bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
                      {{IndexType}} keySliceSize,
                      {{IndexType}} keySliceStride,
                      global TensorInfoCl *values_info, global float *values_data,
-                     {{IndexType}} valueSliceStride) {
+                     {{IndexType}} valueSliceStride
+) {
   // Find the slice of the tensor that we are sorting
   const {{IndexType}} linearIndex = getLinearBlockId_{{IndexType}}();
   // Tiling the slices could have us be out of bounds, if there are a
