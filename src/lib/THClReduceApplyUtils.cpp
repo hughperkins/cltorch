@@ -6,6 +6,11 @@
 // Maximum size per grid dimension that we assume
 #define MAX_GRID_SIZE 65535L
 
+void THCL_checkTensorDims(THClState* state, THClTensor* tensor, int arg) {
+  long dims = THClTensor_nDimension(state, tensor);
+  THArgCheck(dims <= MAX_CLTORCH_DIMS, arg, CLTORCH_DIM_WARNING);
+}
+
 bool THCL_canUse32BitIndexMath(THClState* state, THClTensor* t) {
   long elements = THClTensor_nElement(state, t);
   if (elements >= UINT_MAX) {

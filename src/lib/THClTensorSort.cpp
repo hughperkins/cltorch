@@ -12,10 +12,13 @@
 #include "THClReduceApplyUtils.h"
 #include "THClSortUtils.h"
 #include "THClTensorCopy.h"
+#include "THClTypeParseTraits.h"
+#include "THClKernels.h"
+#include "THClDeviceUtils.h"
 
 using namespace std;
 
-static std::string get_template();
+static std::string getKernelTemplate();
 
 // Returns 2^(ceil(lg(n)) from Stanford bit twiddling hacks
 unsigned long nextHighestPowerOf2(unsigned long n) {
@@ -31,26 +34,26 @@ unsigned long nextHighestPowerOf2(unsigned long n) {
   return n;
 }
 
-static template< typename IndexType >
-void kernelLaunch_fillSliceWithIndex(
+template< typename IndexType >
+static void kernelLaunch_fillSliceWithIndex(
                      THClState* state,
                      dim3 &grid, dim3 &block,
                      int Dim,
-                     const TensorInfo<IndexType> & in,
-                     int totalSlice,
+                     const TensorInfo<IndexType> &in,
+                     int totalSlices,
                      int sliceSize,
                      int sliceStride
     ){
   StatefulTimer::timeCheck("fillSliceWithIndex START");
-  std::string uniqueName = "THClTensorSort_fillSliceWithIndex_" + easycl::toString(ADims) + "_" + modifyOp->operator2() + "_" + reduceOp->operator3();
-  EasyCL *cl = scratch->getCl();
+  std::string uniqueName = "THClTensorSort_fillSliceWithIndex_" + easycl::toString(Dim);
+  EasyCL *cl = in.wrapper->getCl();
   CLKernel *kernel = 0;
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("fillSliceWithIndex 1aa");
   } else {
     std::vector< int > dims;
-    if( Dims >= 0 ) {
+    if(Dim >= 0) {
       dims.push_back(Dim);
     }
     TemplatedKernel kernelBuilder(cl);
@@ -79,7 +82,7 @@ void kernelLaunch_fillSliceWithIndex(
 void THClTensor_fillSliceWithIndex(THClState* state,
                                      THClTensor* t,
                                      int dim) {
-  THCCheckTensorDims(state, t, 2);
+  THCL_checkTensorDims(state, t, 2);
 
   long inElements = THClTensor_nElement(state, t);
   long sliceSize = THClTensor_size(state, t, dim);
@@ -90,8 +93,10 @@ void THClTensor_fillSliceWithIndex(THClState* state,
     THError("Slice to fill with indices is too large");
   }
 
-  long maxThreads =
-    THClState_getCurrentDeviceProperties(state)->maxThreadsPerBlock;
+  const int device = t->device;
+  int maxWorkgroupSize = ((easycl::DeviceInfo *)state->deviceInfoByDevice[device])->maxWorkGroupSize;
+  long maxThreads = maxWorkgroupSize; // I guess ???
+//    THClState_getCurrentDeviceProperties(state)->maxThreadsPerBlock;
   long numThreads = sliceSize;
   if (numThreads > maxThreads) {
     numThreads = maxThreads;
@@ -99,38 +104,27 @@ void THClTensor_fillSliceWithIndex(THClState* state,
 
   dim3 block(numThreads);
 
-#define FILL_INDEX(T, DIM)                                       \
-  kernelLaunch_fillSliceWithIndex<T>(                                     \
-      grid, block, 0, info, numSlices, sliceSize, info.strides[collapseDim])
-
   if (THCL_canUse32BitIndexMath(state, t)) {
     TensorInfo<unsigned int> info(state, t, dim);
     info.sizes[dim] = 1;
     int collapseDim = info.collapseDims(dim);
 
-    if (info.isContiguous()) {
-      FILL_INDEX(unsigned int, -2);
-    } else {
-      if (info.dims == 1) {
-        FILL_INDEX(unsigned int, 1);
-      } else if (info.dims == 2) {
-        FILL_INDEX(unsigned int, 2);
-      } else {
-        FILL_INDEX(unsigned int, -1);
-      }
+    int Dim = info.dims;
+    if(info.isContiguous()) {
+      Dim = -2;
     }
+    kernelLaunch_fillSliceWithIndex<unsigned int>(
+      state, grid, block, Dim, info, numSlices, sliceSize, info.strides[collapseDim]);
   } else {
     TensorInfo<unsigned long> info(state, t, dim);
     info.sizes[dim] = 1;
     int collapseDim = info.collapseDims(dim);
 
     // catch-all implementation
-    FILL_INDEX(unsigned long, -1);
+    int Dim = -1;
+    kernelLaunch_fillSliceWithIndex<unsigned long>(
+      state, grid, block, Dim, info, numSlices, sliceSize, info.strides[collapseDim]);
   }
-
-#undef FILL_INDEX
-
-
 }
 
 THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
@@ -139,8 +133,8 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
                                               int dim, bool dir) {
   THArgCheck(THClTensor_isSameSizeAs(state, key, value), 2,
              "Key tensor must have same size as value tensor");
-  THCCheckTensorDims(state, key, 2);
-  THCCheckTensorDims(state, value, 3);
+  THCL_checkTensorDims(state, key, 2);
+  THCL_checkTensorDims(state, value, 3);
 
   long inElements = THClTensor_nElement(state, key);
   long keySliceSize = THClTensor_size(state, key, dim);
@@ -201,12 +195,12 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
       A = -2;
     }
 
-    kernelLaunch_bitonicSortKVInPlace<unsigned int>(
+    THClSortUtils_kernelLaunch_bitonicSortKVInPlace<unsigned int>(
         state,
         grid, block,
         A,
         -1,
-        CeilPowerOf2,
+        ceilPowerOf2,
         keyInfo,
         keySlices,
         keySliceSize,
@@ -227,12 +221,12 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
     if(keyInfo.isContiguous()) {
       A = -2;
     }
-    kernelLaunch_bitonicSortKVInPlace<unsigned long>(
+    THClSortUtils_kernelLaunch_bitonicSortKVInPlace<unsigned long>(
         state,
         grid, block,
         A,
         -1,
-        CeilPowerOf2,
+        ceilPowerOf2,
         keyInfo,
         keySlices,
         keySliceSize,
@@ -249,16 +243,16 @@ THCL_API void THClTensor_sort(THClState* state,
                                THClTensor *input,
                                int dim, int order) {
   THAssert(THClTensor_checkGPU(state, 3, sorted, indices, input));
-  THCCheckTensorDims(state, sorted, 2);
-  THCCheckTensorDims(state, indices, 3);
-  THCCheckTensorDims(state, input, 4);
+  THCL_checkTensorDims(state, sorted, 2);
+  THCL_checkTensorDims(state, indices, 3);
+  THCL_checkTensorDims(state, input, 4);
 
   // Make sure sufficient output space is allocated
   THClTensor_resizeAs(state, sorted, input);
   THClTensor_resizeAs(state, indices, input);
 
   // How large are the slices that we are sorting?
-  long totalElements = THClTensor_nElement(state, input);
+//  long totalElements = THClTensor_nElement(state, input);
   long sliceSize = THClTensor_size(state, input, dim);
 
   // We're using THClTensor to write out indices, so if the slice
@@ -290,7 +284,7 @@ THCL_API void THClTensor_sort(THClState* state,
   }
 }
 
-std::string get_template() {
+std::string getKernelTemplate() {
   // [[[cog
   // import stringify
   // stringify.write_kernel( "kernel", "THClTensorSort.cl" )
@@ -300,12 +294,13 @@ std::string get_template() {
   "// from lib/THC/THCTensorSort.cu:\n" 
   "\n" 
   "// needs following tmeplate variables defined:\n" 
-  "//  Dim      integer\n" 
-  "//  IndexType  string 'int'\n" 
+  "//   Dim        integer\n" 
+  "//   IndexType  string, eg 'int', or 'unsigned int'\n" 
+  "//   dims       list containing Dim\n" 
+  "//   MAX_CLTORCH_DIMS    integer, eg 25\n" 
+  "//   WarpSize            integer eg 32\n" 
   "\n" 
   "{{include_THClReduceApplyUtils}}\n" 
-  "\n" 
-  "{{include_THClSortUtils}}\n" 
   "\n" 
   "// `base` is the base address of a tensor\n" 
   "// For each slice (defined as a linear point of `out`, from 0 ->\n" 

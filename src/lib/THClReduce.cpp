@@ -265,6 +265,8 @@ bool THClTensor_reduceDim(THClState* state,
       THCL_canUse32BitIndexMath(state, in)) {
     TensorInfo<uint32> outInfo(state, out);
     TensorInfo<uint32> inInfo(state, in, dim);
+    outInfo.collapseDims();
+    inInfo.collapseDims();
     int OUT = outInfo.dims;
     int IN = inInfo.dims;
     if(outInfo.isContiguous()) OUT = -2;
@@ -285,6 +287,8 @@ bool THClTensor_reduceDim(THClState* state,
 
     int OUT = outInfo.dims;
     int IN = inInfo.dims;
+    outInfo.collapseDims();
+    inInfo.collapseDims();
     if(outInfo.isContiguous()) OUT = -2;
     if(inInfo.isContiguous()) IN = -2;
 
