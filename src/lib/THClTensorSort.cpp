@@ -20,6 +20,34 @@ using namespace std;
 
 static std::string getKernelTemplate();
 
+static void printTensor(THClState *state, THClTensor *target) {
+//    cout << "indices" << endl;
+//    cout << THClTensor_toString(state, target) << endl;
+    THFloatTensor *probe = THFloatTensor_new();
+  THLongStorage *idxsize = THClTensor_newSizeOf(state, target);
+THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
+    THFloatTensor_resize(probe, idxsize, idxstride);
+    THFloatTensor_copyCl(state, probe, target);
+
+    int indices_dim = THFloatTensor_nDimension(probe);
+//    cout << "indices_dim " << indices_dim << endl;
+    if(indices_dim == 1) {
+       for(int i = 0; i < THFloatTensor_size(probe, 0); i++) {
+         cout << probe->storage->data[i] << " ";
+      }
+       cout << endl;
+    } else if( indices_dim == 2) {
+       for(int i = 0; i < THFloatTensor_size(probe, 0); i++) {
+         for(int j = 0; j < THFloatTensor_size(probe, 1); j++) {
+            cout << probe->storage->data[i * THFloatTensor_stride(probe, 0) + j * THFloatTensor_stride(probe, 1)] << " ";
+         }
+         cout << endl;
+      }
+    } else {
+       cout << "target dim > 2" << endl;
+    }
+}
+
 // Returns 2^(ceil(lg(n)) from Stanford bit twiddling hacks
 unsigned long nextHighestPowerOf2(unsigned long n) {
   n--;
@@ -150,13 +178,15 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
   // size.
   long ceilPowerOf2 = nextHighestPowerOf2(keySliceSize);
 
+//  cout << "inElements=" << inElements << " keySliceSize=" << keySliceSize << " keySlices=" << keySlices << " ceilPowerOf2=" << ceilPowerOf2 << endl;
+
   // FIXME: We'd have to find some other trick with Thrust to perform a
   // vectorized (key, value) sort by slice segment
   if (ceilPowerOf2 > 2048) {
     THError("sortKeyValueInplace only works for sizes <= 2048 at present");
   }
-  if(dim != 0) {
-    THError("Not implemented for inner dimensions currently");
+  if(THClTensor_nDimension(state, key) != 1) {
+    THError("Sort only implemented for 1 dimensions currently");
   }
 
   int blockSize = (int) ceilPowerOf2 / 2;
@@ -274,8 +304,13 @@ THCL_API void THClTensor_sort(THClState* state,
     // slice-relative index.
     THClTensor_fillSliceWithIndex(state, indices, dim);
 
+//    cout << "indices" << endl;
+//    printTensor(state, indices);
+
     // We sort k/v pairs in-place; copy unsorted input to output
     THClTensor_copy(state, sorted, input);
+//    cout << "sorted" << endl;
+//    printTensor(state, sorted);
 
     // Sort using our in-place k/v kernel that supports arbitrary
     // layout
