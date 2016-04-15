@@ -278,6 +278,23 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 * OpenCL-compatible GPU
 * OpenCL library/driver (normally provided by the GPU vendor)
 
+## Possible build issues
+
+If you see:
+```
+/home/ubuntu/git/cltorch/src/clMathLibraries/clBLAS/src/library/blas/functor/gcn
+_sgemmSmallMatrices.cc:25:55: fatal error: sgemm_gcn_SmallMatrices.clHawaii_64.b
+in.clT: No such file or directory
+ #include "sgemm_gcn_SmallMatrices.clHawaii_64.bin.clT"
+                                                       ^
+compilation terminated.
+```
+... then do
+```
+rm -Rf build/clBLAS
+```
+... and try again
+
 ## Guidelines for contributors
 
 You might or might not find [ContributorGuidelines.md](doc/ContributorGuidelines.md) useful.  Not required reading, but it is there if you want to see my own thoughts and ideas on how I am currently approaching cltorch development, and cutorch-porting.
