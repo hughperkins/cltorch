@@ -309,6 +309,7 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 * 15 April 2016
   * Ported `sort`
+  * Francisco Massa [provided the solution](https://github.com/hughperkins/cltorch/issues/64) to a huge memory leak associated with calling `:clearState()`.  Thank you Francisco.  Awesome! :-)
 * 27 March 2016:
   * migrated from clBLAS 2.4 to clBLAS 2.11/develop.  This migration is not set in stone, depends on how well that works.  However, there is a
 [bug in 2.4 for certain configurations of matrix multiplication](https://github.com/clMathLibraries/clBLAS/issues/246), and its not obvious how to fix that, so maybe using 2.11/develop is the easiest way forward?
