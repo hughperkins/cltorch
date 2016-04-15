@@ -290,6 +290,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 15 April 2016:
+  * fix bugs in `sort` port.  Tested on 1d and 2d tensors => works ok :-)
 * 14 April 2016:
   * ported `sort` for small 1d tensors
 * 27 March 2016:
