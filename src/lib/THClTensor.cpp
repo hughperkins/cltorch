@@ -643,16 +643,20 @@ static void THClTensor_rawSet(THClState *state, THClTensor *self, THClStorage *s
   /* storage */
   if(self->storage != storage)
   {
+    if(self->storage)
+    {
+      THClStorage_free(state, self->storage);
+    }
+
     if(storage)
     {
-      if(self->storage) {
-        THClStorage_free(state, self->storage);
-      }
       self->storage = storage;
       THClStorage_retain(state, self->storage);
     }
     else
+    {
       self->storage = NULL;
+    }
   }
 
   /* storageOffset */
