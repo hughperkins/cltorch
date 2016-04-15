@@ -45,14 +45,11 @@ void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     TemplatedKernel kernelBuilder(cl);
     std::vector< int > dims;
     if( KeyDims >= 0 ) {
-//      cout << "push KeyDims " << KeyDims << endl;
       dims.push_back(KeyDims);
     }
     if( ValueDims >= 0 ) {
-//      cout << "push ValueDims " << ValueDims << endl;
       dims.push_back(ValueDims);
     }
-    cout << "Power2SortSize=" << Power2SortSize << endl;
     kernelBuilder
       .set("K", "float")
       .set("V", "float")
@@ -60,14 +57,12 @@ void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
       .set("KeyDims", (int)KeyDims)
       .set("ValueDims", (int)ValueDims)
       .set("Power2SortSize", (int)Power2SortSize)
-//      .set("include_THClDeviceUtils", THClDeviceUtils_getKernelTemplate())
       .set("include_THClReduceApplyUtils", THClReduceApplyUtils_getKernelTemplate())
       .set("WarpSize", 32) // probably can do like 'if nvidia 32 else 64' ?
       .set("dims", dims)
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
       .set("IndexType", TypeParseTraits<IndexType>::name)
     ;
-    cout << " kernel:\n" << kernelBuilder.getRenderedKernel(getKernelTemplate()) << endl;
     kernel = kernelBuilder.buildKernel( uniqueName, "THClSortUtils.cl", getKernelTemplate(), "bitonicSortKVInPlace" );
   }
 
