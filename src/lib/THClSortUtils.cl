@@ -14,29 +14,31 @@
 
 {{include_THClReduceApplyUtils}}
 
-/*__device__*/ inline void swapVars_K(local {{K}} *p_t1, local {{K}}*p_t2) {
+inline void swapVars_K(local {{K}} *p_t1, local {{K}}*p_t2) {
   {{K}} tmp = *p_t1;
   *p_t1 = *p_t2;
   *p_t2 = tmp;
 }
 
-/*__device__*/ inline void swapVars_V(local {{V}} *p_t1, local {{V}}*p_t2) {
+inline void swapVars_V(local {{V}} *p_t1, local {{V}}*p_t2) {
   {{V}} tmp = *p_t1;
   *p_t1 = *p_t2;
   *p_t2 = tmp;
 }
 
-/*__device__*/ inline void swapVars_bool(local bool *p_t1, local bool *p_t2) {
+inline void swapVars_bool(local bool *p_t1, local bool *p_t2) {
   bool tmp = *p_t1;
   *p_t1 = *p_t2;
   *p_t2 = tmp;
 }
 
-/*__device__*/ inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local bool*p_validA,
-                                   local {{K}}* p_kB, local {{V}}*p_vB, local bool*p_validB,
-                                   bool dir) {
+inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local bool*p_validA,
+                        local {{K}}* p_kB, local {{V}}*p_vB, local bool*p_validB,
+                        bool dir) {
   // Invalid entries always sort to the end
-  bool swap = ((*p_kA {{COMPARE_OP}} *p_kB) && *p_validA) || !*p_validB;
+  // original cuda version was:
+  //   bool swap = (comp(kA, kB) && validA) || !validB;
+  bool swap = (((*p_kA) {{COMPARE_OP}} (*p_kB)) && (*p_validA)) || !(*p_validB);
   if (swap == dir) {
     swapVars_K(p_kA, p_kB);
     swapVars_V(p_vA, p_vB);
@@ -44,45 +46,45 @@
   }
 };
 
-/*__device__*/ inline void bitonicSort(local {{K}} keys[{{Power2SortSize}}],
-                                   local {{V}} values[{{Power2SortSize}}],
-                                   local bool valid[{{Power2SortSize}}]) {
-#pragma unroll
+inline void bitonicSort(local {{K}} *p_keys,
+                                   local {{V}} *p_values,
+                                   local bool *p_valid) {
+  #pragma unroll
   for (unsigned int size = 2; size < {{Power2SortSize}}; size *= 2) {
     bool flag = ((get_local_id(0) & (size / 2)) != 0);
 
-#pragma unroll
+    #pragma unroll
     for (unsigned int stride = size / 2; stride > 0; stride /= 2) {
 
       // Single warp per slice is completely synchronous
-      if ({{Power2SortSize}} > 64) {
+      if ({{Power2SortSize}} > 32) {   // is 64 ok?  Let's try 32 till it is working ok...
         barrier(CLK_LOCAL_MEM_FENCE);
       }
 
       unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));
       bitonicSwap(
-        &keys[pos], &values[pos], &valid[pos],
-        &keys[pos + stride], &values[pos + stride], &valid[pos + stride],
+        p_keys + pos, p_values + pos, p_valid + pos,
+        p_keys + pos + stride, p_values + pos + stride, p_valid + pos + stride,
         flag);
     }
   }
 
-#pragma unroll
+  #pragma unroll
   for (unsigned int stride = {{Power2SortSize}} / 2; stride > 0; stride /= 2) {
     // Single warp per slice is completely synchronous
-    if ({{Power2SortSize}} > 64) {
+    if ({{Power2SortSize}} > 32) { // note: was 64 before
       barrier(CLK_LOCAL_MEM_FENCE);
     }
 
     unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));
     bitonicSwap(
-      &keys[pos], &values[pos], &valid[pos],
-      &keys[pos + stride], &values[pos + stride], &valid[pos + stride],
+      p_keys + pos, p_values + pos, p_valid + pos,
+      p_keys + pos + stride, p_values + pos + stride, p_valid + pos + stride,
       false);
   }
 
   // Single warp per slice is completely synchronous
-  if ({{Power2SortSize}} > 64) {
+  if ({{Power2SortSize}} > 32) {  // note: was 64 before
     barrier(CLK_LOCAL_MEM_FENCE);
   }
 }
@@ -144,8 +146,20 @@ bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
     sharedValid[elem2] = valid2;
 
     // Sort!
-    bitonicSort(
-      sharedKeys, sharedValues, sharedValid);
+//    if(get_local_id(0) == 0) {
+    bitonicSort(&sharedKeys, &sharedValues, &sharedValid);
+//   }
+
+////    if(get_local_id(0) == 0) {
+//      keys_data[0] = sharedKeys[0];
+//      keys_data[1] = sharedKeys[1];
+////      keys_data[0] = elem1;
+////      keys_data[1] = elem2;
+////      values_data[0] = {{Power2SortSize}};
+//      values_data[0] = sharedValues[0];
+//      values_data[1] = sharedValues[1];
+////    }
+
 
     // elem1 values are always valid, since otherwise we would have
     // chosen the next smallest power-of-2 for sorting

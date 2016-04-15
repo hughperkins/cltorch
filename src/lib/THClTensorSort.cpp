@@ -15,38 +15,11 @@
 #include "THClTypeParseTraits.h"
 #include "THClKernels.h"
 #include "THClDeviceUtils.h"
+#include "THClDebug.h"
 
 using namespace std;
 
 static std::string getKernelTemplate();
-
-static void printTensor(THClState *state, THClTensor *target) {
-//    cout << "indices" << endl;
-//    cout << THClTensor_toString(state, target) << endl;
-    THFloatTensor *probe = THFloatTensor_new();
-  THLongStorage *idxsize = THClTensor_newSizeOf(state, target);
-THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
-    THFloatTensor_resize(probe, idxsize, idxstride);
-    THFloatTensor_copyCl(state, probe, target);
-
-    int indices_dim = THFloatTensor_nDimension(probe);
-//    cout << "indices_dim " << indices_dim << endl;
-    if(indices_dim == 1) {
-       for(int i = 0; i < THFloatTensor_size(probe, 0); i++) {
-         cout << probe->storage->data[i] << " ";
-      }
-       cout << endl;
-    } else if( indices_dim == 2) {
-       for(int i = 0; i < THFloatTensor_size(probe, 0); i++) {
-         for(int j = 0; j < THFloatTensor_size(probe, 1); j++) {
-            cout << probe->storage->data[i * THFloatTensor_stride(probe, 0) + j * THFloatTensor_stride(probe, 1)] << " ";
-         }
-         cout << endl;
-      }
-    } else {
-       cout << "target dim > 2" << endl;
-    }
-}
 
 // Returns 2^(ceil(lg(n)) from Stanford bit twiddling hacks
 unsigned long nextHighestPowerOf2(unsigned long n) {
@@ -155,10 +128,15 @@ void THClTensor_fillSliceWithIndex(THClState* state,
   }
 }
 
+// Note that what is arranged numerically is the key, not the value
+// This is in alignment with how the thrust and standard library works:
+// thrust: https://github.com/thrust/thrust/wiki/Quick-Start-Guide#sorting
+// default sort on c++ map: http://www.cplusplus.com/reference/map/map/
 THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
                                               THClTensor* key,
                                               THClTensor* value,
                                               int dim, bool dir) {
+  cout << "THClTensor_sortKeyValueInplace()" << endl;
   THArgCheck(THClTensor_isSameSizeAs(state, key, value), 2,
              "Key tensor must have same size as value tensor");
   THCL_checkTensorDims(state, key, 2);
@@ -185,9 +163,9 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
   if (ceilPowerOf2 > 2048) {
     THError("sortKeyValueInplace only works for sizes <= 2048 at present");
   }
-  if(THClTensor_nDimension(state, key) != 1) {
-    THError("Sort only implemented for 1 dimensions currently");
-  }
+//  if(THClTensor_nDimension(state, key) != 1) {
+//    THError("Sort only implemented for 1 dimensions currently");
+//  }
 
   int blockSize = (int) ceilPowerOf2 / 2;
   if (blockSize < 1) {
@@ -223,16 +201,30 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
     valueInfo.sizes[dim] = 1;
     int collapseValueDim = valueInfo.collapseDims(dim);
 
-    int A = keyInfo.dims;
+    int keyDims = keyInfo.dims;
     if (keyInfo.isContiguous()) {
-      A = -2;
+      keyDims = -2;
     }
+    int valueDims = -1; // this can probably be simply keyInfo.dims
+    int keySliceStride = keyInfo.strides[collapseKeyDim];
+    int valueSliceStride = valueInfo.strides[collapseValueDim];
+
+    cout << "key" << endl;
+    THCl_printTensor(state, key);
+
+    cout << "value" << endl;
+    THCl_printTensor(state, value);
+
+    cout << "keyDims=" << keyDims << " valueDims=" << valueDims << " ceilPowerOf2=" << ceilPowerOf2
+      << " keySlices=" << keySlices << " keySliceSize=" << keySliceSize << endl;
+    cout << " keySliceStride=" << keySliceStride << " valueSliceStride=" << valueSliceStride << endl;
+    cout << "blocksize=" << blockSize << endl; 
 
     THClSortUtils_kernelLaunch_bitonicSortKVInPlace<uint32>(
         state,
         grid, block,
-        A,
-        -1,
+        keyDims,
+        valueDims,
         ceilPowerOf2,
         keyInfo,
         keySlices,
@@ -250,15 +242,16 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
     valueInfo.sizes[dim] = 1;
     int collapseValueDim = valueInfo.collapseDims(dim);
 
-    int A = -1;  // this can probably be simply keyInfo.dims
-    if(keyInfo.isContiguous()) {
-      A = -2;
+    int keyDims = keyInfo.dims;
+    if (keyInfo.isContiguous()) {
+      keyDims = -2;
     }
+    int valueDims = -1; // this can probably be simply keyInfo.dims
     THClSortUtils_kernelLaunch_bitonicSortKVInPlace<uint64>(
         state,
         grid, block,
-        A,
-        -1,
+        keyDims,
+        valueDims,
         ceilPowerOf2,
         keyInfo,
         keySlices,
@@ -275,6 +268,7 @@ THCL_API void THClTensor_sort(THClState* state,
                                THClTensor *indices,
                                THClTensor *input,
                                int dim, int order) {
+  cout << "THClTensor_sort()" << endl;
   THAssert(THClTensor_checkGPU(state, 3, sorted, indices, input));
   THCL_checkTensorDims(state, sorted, 2);
   THCL_checkTensorDims(state, indices, 3);
@@ -305,16 +299,22 @@ THCL_API void THClTensor_sort(THClState* state,
     THClTensor_fillSliceWithIndex(state, indices, dim);
 
 //    cout << "indices" << endl;
-//    printTensor(state, indices);
+//    THCL_printTensor(state, indices);
 
     // We sort k/v pairs in-place; copy unsorted input to output
     THClTensor_copy(state, sorted, input);
 //    cout << "sorted" << endl;
-//    printTensor(state, sorted);
+//    THCL_printTensor(state, sorted);
 
     // Sort using our in-place k/v kernel that supports arbitrary
     // layout
     THClTensor_sortKeyValueInplace(state, sorted, indices, dim, order);
+
+    cout << "sorted" << endl;
+    THCl_printTensor(state, sorted);
+
+    cout << "indices" << endl;
+    THCl_printTensor(state, indices);
   } else {
     // Otherwise, fall back upon Thrust, which handles all other cases
     // (potentially slowly, with extra copies/memory allocations)

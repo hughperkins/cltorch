@@ -33,7 +33,8 @@ void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
     IndexType valueSliceStride,
     SortUtilsComp *comp) {
   StatefulTimer::timeCheck("bitonicSortKVInPlace START");
-  std::string uniqueName = std::string("THClSortUtils_bitonicSortKVInPlace_") + comp->getOperator();
+  std::string uniqueName = std::string("THClSortUtils_bitonicSortKVInPlace_P2S") + easycl::toString(Power2SortSize) + "_O" + comp->getOperator()
+      + "_KD" +  easycl::toString(KeyDims) + "_VD" +  easycl::toString(ValueDims) + "_IT" + TypeParseTraits<IndexType>::name;
 
   EasyCL *cl = keys.wrapper->getCl();
   CLKernel *kernel = 0;
@@ -51,6 +52,7 @@ void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
 //      cout << "push ValueDims " << ValueDims << endl;
       dims.push_back(ValueDims);
     }
+    cout << "Power2SortSize=" << Power2SortSize << endl;
     kernelBuilder
       .set("K", "float")
       .set("V", "float")
@@ -65,7 +67,7 @@ void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
       .set("IndexType", TypeParseTraits<IndexType>::name)
     ;
-
+    cout << " kernel:\n" << kernelBuilder.getRenderedKernel(getKernelTemplate()) << endl;
     kernel = kernelBuilder.buildKernel( uniqueName, "THClSortUtils.cl", getKernelTemplate(), "bitonicSortKVInPlace" );
   }
 
@@ -106,29 +108,31 @@ std::string getKernelTemplate() {
   "\n" 
   "{{include_THClReduceApplyUtils}}\n" 
   "\n" 
-  "/*__device__*/ inline void swapVars_K(local {{K}} *p_t1, local {{K}}*p_t2) {\n" 
+  "inline void swapVars_K(local {{K}} *p_t1, local {{K}}*p_t2) {\n" 
   "  {{K}} tmp = *p_t1;\n" 
   "  *p_t1 = *p_t2;\n" 
   "  *p_t2 = tmp;\n" 
   "}\n" 
   "\n" 
-  "/*__device__*/ inline void swapVars_V(local {{V}} *p_t1, local {{V}}*p_t2) {\n" 
+  "inline void swapVars_V(local {{V}} *p_t1, local {{V}}*p_t2) {\n" 
   "  {{V}} tmp = *p_t1;\n" 
   "  *p_t1 = *p_t2;\n" 
   "  *p_t2 = tmp;\n" 
   "}\n" 
   "\n" 
-  "/*__device__*/ inline void swapVars_bool(local bool *p_t1, local bool *p_t2) {\n" 
+  "inline void swapVars_bool(local bool *p_t1, local bool *p_t2) {\n" 
   "  bool tmp = *p_t1;\n" 
   "  *p_t1 = *p_t2;\n" 
   "  *p_t2 = tmp;\n" 
   "}\n" 
   "\n" 
-  "/*__device__*/ inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local bool*p_validA,\n" 
-  "                                   local {{K}}* p_kB, local {{V}}*p_vB, local bool*p_validB,\n" 
-  "                                   bool dir) {\n" 
+  "inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local bool*p_validA,\n" 
+  "                        local {{K}}* p_kB, local {{V}}*p_vB, local bool*p_validB,\n" 
+  "                        bool dir) {\n" 
   "  // Invalid entries always sort to the end\n" 
-  "  bool swap = ((*p_kA {{COMPARE_OP}} *p_kB) && *p_validA) || !*p_validB;\n" 
+  "  // original cuda version was:\n" 
+  "  //   bool swap = (comp(kA, kB) && validA) || !validB;\n" 
+  "  bool swap = (((*p_kA) {{COMPARE_OP}} (*p_kB)) && (*p_validA)) || !(*p_validB);\n" 
   "  if (swap == dir) {\n" 
   "    swapVars_K(p_kA, p_kB);\n" 
   "    swapVars_V(p_vA, p_vB);\n" 
@@ -136,45 +140,45 @@ std::string getKernelTemplate() {
   "  }\n" 
   "};\n" 
   "\n" 
-  "/*__device__*/ inline void bitonicSort(local {{K}} keys[{{Power2SortSize}}],\n" 
-  "                                   local {{V}} values[{{Power2SortSize}}],\n" 
-  "                                   local bool valid[{{Power2SortSize}}]) {\n" 
-  "#pragma unroll\n" 
+  "inline void bitonicSort(local {{K}} *p_keys,\n" 
+  "                                   local {{V}} *p_values,\n" 
+  "                                   local bool *p_valid) {\n" 
+  "  #pragma unroll\n" 
   "  for (unsigned int size = 2; size < {{Power2SortSize}}; size *= 2) {\n" 
   "    bool flag = ((get_local_id(0) & (size / 2)) != 0);\n" 
   "\n" 
-  "#pragma unroll\n" 
+  "    #pragma unroll\n" 
   "    for (unsigned int stride = size / 2; stride > 0; stride /= 2) {\n" 
   "\n" 
   "      // Single warp per slice is completely synchronous\n" 
-  "      if ({{Power2SortSize}} > 64) {\n" 
+  "      if ({{Power2SortSize}} > 32) {   // is 64 ok?  Let's try 32 till it is working ok...\n" 
   "        barrier(CLK_LOCAL_MEM_FENCE);\n" 
   "      }\n" 
   "\n" 
   "      unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));\n" 
   "      bitonicSwap(\n" 
-  "        &keys[pos], &values[pos], &valid[pos],\n" 
-  "        &keys[pos + stride], &values[pos + stride], &valid[pos + stride],\n" 
+  "        p_keys + pos, p_values + pos, p_valid + pos,\n" 
+  "        p_keys + pos + stride, p_values + pos + stride, p_valid + pos + stride,\n" 
   "        flag);\n" 
   "    }\n" 
   "  }\n" 
   "\n" 
-  "#pragma unroll\n" 
+  "  #pragma unroll\n" 
   "  for (unsigned int stride = {{Power2SortSize}} / 2; stride > 0; stride /= 2) {\n" 
   "    // Single warp per slice is completely synchronous\n" 
-  "    if ({{Power2SortSize}} > 64) {\n" 
+  "    if ({{Power2SortSize}} > 32) { // note: was 64 before\n" 
   "      barrier(CLK_LOCAL_MEM_FENCE);\n" 
   "    }\n" 
   "\n" 
   "    unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));\n" 
   "    bitonicSwap(\n" 
-  "      &keys[pos], &values[pos], &valid[pos],\n" 
-  "      &keys[pos + stride], &values[pos + stride], &valid[pos + stride],\n" 
+  "      p_keys + pos, p_values + pos, p_valid + pos,\n" 
+  "      p_keys + pos + stride, p_values + pos + stride, p_valid + pos + stride,\n" 
   "      false);\n" 
   "  }\n" 
   "\n" 
   "  // Single warp per slice is completely synchronous\n" 
-  "  if ({{Power2SortSize}} > 64) {\n" 
+  "  if ({{Power2SortSize}} > 32) {  // note: was 64 before\n" 
   "    barrier(CLK_LOCAL_MEM_FENCE);\n" 
   "  }\n" 
   "}\n" 
@@ -236,8 +240,20 @@ std::string getKernelTemplate() {
   "    sharedValid[elem2] = valid2;\n" 
   "\n" 
   "    // Sort!\n" 
-  "    bitonicSort(\n" 
-  "      sharedKeys, sharedValues, sharedValid);\n" 
+  "//    if(get_local_id(0) == 0) {\n" 
+  "    bitonicSort(&sharedKeys, &sharedValues, &sharedValid);\n" 
+  "//   }\n" 
+  "\n" 
+  "////    if(get_local_id(0) == 0) {\n" 
+  "//      keys_data[0] = sharedKeys[0];\n" 
+  "//      keys_data[1] = sharedKeys[1];\n" 
+  "////      keys_data[0] = elem1;\n" 
+  "////      keys_data[1] = elem2;\n" 
+  "////      values_data[0] = {{Power2SortSize}};\n" 
+  "//      values_data[0] = sharedValues[0];\n" 
+  "//      values_data[1] = sharedValues[1];\n" 
+  "////    }\n" 
+  "\n" 
   "\n" 
   "    // elem1 values are always valid, since otherwise we would have\n" 
   "    // chosen the next smallest power-of-2 for sorting\n" 
