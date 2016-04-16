@@ -47,13 +47,15 @@ INSTALL(FILES
           THClGeneral.h
           THClBlas.h
           THClStorage.h
-	  THClStorageCopy.h
+          THClStorageCopy.h
           THClTensor.h
-	  THClTensorCopy.h
+          THClTensorCopy.h
+          THClDebug.h
 #          THClTensorRandom.h
           THClTensorMath.h
 #          THClTensorConv.h
-#          THClTensorSort.h
+          THClTensorSort.h
+          THClSortUtils.h
           THClApply.h
           THClReduce.h
           THClReduceApplyUtils.h

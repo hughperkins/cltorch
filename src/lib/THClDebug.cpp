@@ -10,7 +10,7 @@ using namespace std;
 // it doesnt clean up after itself or anything, will leak horribly (for now), but
 // at least produces useful diagnostic info
 
-void THCl_printTensor(THClState *state, THClTensor *target) {
+void THClDebug_printTensor(THClState *state, THClTensor *target) {
 //    cout << "indices" << endl;
 //    cout << THClTensor_toString(state, target) << endl;
     THFloatTensor *probe = THFloatTensor_new();
