@@ -45,3 +45,21 @@ THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
     }
 }
 
+void THClDebug_printSize(THClState *state, THClTensor *target) {
+    THFloatTensor *probe = THFloatTensor_new();
+  THLongStorage *idxsize = THClTensor_newSizeOf(state, target);
+THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
+    THFloatTensor_resize(probe, idxsize, idxstride);
+    THFloatTensor_copyCl(state, probe, target);
+
+    int indices_dim = THFloatTensor_nDimension(probe);
+    cout << "[torch.ClTensor of size ";
+    for(int d = 0; d < indices_dim; d++) {
+      if( d > 0) {
+         cout << "x";
+      }
+      cout << THFloatTensor_size(probe, d);
+    }
+    cout << "]" << endl;
+}
+
