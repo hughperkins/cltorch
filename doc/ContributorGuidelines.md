@@ -64,7 +64,7 @@ Oh yes, by the way, I'm using [cogapp](https://bitbucket.org/ned/cog) to help do
 # Possible future libraries that might be useful to use
 
 * viennacl: might provide competitive GEMM
-* clBLAS: might provide competitive GEMM
+* clBLAST: might provide competitive GEMM
 * blas.compute: might provide useful implementations of sort, scan, (maybe also reduce, but we already have custom torch implementation
  for reduce)
 
