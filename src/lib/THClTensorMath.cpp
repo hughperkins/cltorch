@@ -265,7 +265,7 @@ void THClTensor_minall_gpu(THClState *state, THClTensor *self, THClTensor *src)
   if (!THClTensor_reduceAll(state, src,
           &modifyOp,
           &reduceOp,
-          (float) THInf, self->storage->wrapper)) {
+          FLT_MAX, self->storage->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
 }
@@ -279,7 +279,7 @@ void THClTensor_maxall_gpu(THClState *state, THClTensor *self, THClTensor *src)
   if (!THClTensor_reduceAll(state, src,
           &modifyOp,
           &reduceOp,
-          (float) -THInf, self->storage->wrapper)) {
+          -FLT_MAX, self->storage->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
 }
@@ -287,7 +287,7 @@ void THClTensor_maxall_gpu(THClState *state, THClTensor *self, THClTensor *src)
 float THClTensor_minall(THClState *state, THClTensor *self)
 {
   THAssert(THClTensor_checkGPU(state, 1, self));
-  float val = (float) THInf;
+  float val = FLT_MAX;
   CopyOp modifyOp;
   MinOp reduceOp;
   const int device = self->storage->device;
@@ -295,7 +295,7 @@ float THClTensor_minall(THClState *state, THClTensor *self)
   if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-          (float) THInf, scratch->wrapper)) {
+          FLT_MAX, scratch->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
   StatefulTimer::timeCheck("minall before copytohost");
@@ -309,7 +309,7 @@ float THClTensor_minall(THClState *state, THClTensor *self)
 float THClTensor_maxall(THClState *state, THClTensor *self)
 {
   THAssert(THClTensor_checkGPU(state, 1, self));
-  float val = (float) -THInf;
+  float val = -FLT_MAX;
   CopyOp modifyOp;
   MaxOp reduceOp;
   const int device = self->storage->device;
@@ -317,7 +317,7 @@ float THClTensor_maxall(THClState *state, THClTensor *self)
   if (!THClTensor_reduceAll(state, self,
           &modifyOp,
           &reduceOp,
-          (float) -THInf, scratch->wrapper)) {
+          -FLT_MAX, scratch->wrapper)) {
     THArgCheck(false, 1, CLTORCH_DIM_WARNING);
   }
   StatefulTimer::timeCheck("maxall before copytohost");
