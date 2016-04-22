@@ -1,4 +1,4 @@
-if false; then {
+if true; then {
   git clone https://github.com/torch/distro.git ~/torch
   cd ~/torch
   'for pkg in cudnn cunn cunnx cutorch qttorch trepl graph optim sdl2 threads submodule graphicsmagick audio fftw3 signal nnx qtlua gnuplot dok iTorch argcheck image xlua; do { sed -i -e "s/\(.*$pkg.*\)/echo skipping $pkg # \1/" install.sh; } done'
