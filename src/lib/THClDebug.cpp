@@ -35,7 +35,7 @@ THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
        for(int i = 0; i < size0; i++) {
          cout << " ";
          for(int j = 0; j < size1; j++) {
-            cout << probe->storage->data[i * THFloatTensor_stride(probe, 0) + j * THFloatTensor_stride(probe, 1)] << "  ";
+            cout << probe->storage->data[i * size1 + j] << "  ";
          }
          cout << endl;
       }
@@ -49,7 +49,7 @@ THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
          for(int i = 0; i < size1; i++) {
            cout << " ";
            for(int j = 0; j < size2; j++) {
-              cout << probe->storage->data[i * THFloatTensor_stride(probe, 0) + j * THFloatTensor_stride(probe, 1)] << "  ";
+              cout << probe->storage->data[d0 * size1 * size2 + i * size2 + j] << "  ";
            }
            cout << endl;
           }
