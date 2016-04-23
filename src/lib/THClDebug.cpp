@@ -55,8 +55,28 @@ THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
           }
        }
       cout << "[torch.ClTensor of size " << size0 << "x" << size1 << "x" << size2 << "]" << endl;
+    } else if(indices_dim == 4) {
+       // there should probably be a more generic way of doing these different dimensions :-D
+       long size0 = THFloatTensor_size(probe, 0);
+       long size1 = THFloatTensor_size(probe, 1);
+       long size2 = THFloatTensor_size(probe, 2);
+       long size3 = THFloatTensor_size(probe, 3);
+       for(int d0=0; d0<size0; d0++) {
+//         cout << "(" << d0 << ",.,.) =" << endl;
+         for(int d1=0; d1<size1; d1++) {
+           cout << "(" << d0 << "," << d1 << ",.,.) =" << endl;
+           for(int i = 0; i < size2; i++) {
+             cout << " ";
+             for(int j = 0; j < size3; j++) {
+                cout << probe->storage->data[d0 * size1 * size2 * size3+ d1 * size2 * size3 + i * size3 + j] << "  ";
+             }
+             cout << endl;
+            }
+         }
+      }
+      cout << "[torch.ClTensor of size " << size0 << "x" << size1 << "x" << size2 << "x" << size3 << "]" << endl;
     } else {
-       cout << "target dim > 3" << endl;
+       cout << "target dim > 4" << endl;
     }
 }
 
