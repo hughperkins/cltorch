@@ -1,4 +1,4 @@
-if true; then {
+if false; then {
   git clone https://github.com/torch/distro.git ~/torch
   cd ~/torch
   'for pkg in cudnn cunn cunnx cutorch qttorch trepl graph optim sdl2 threads submodule graphicsmagick audio fftw3 signal nnx qtlua gnuplot dok iTorch argcheck image xlua; do { sed -i -e "s/\(.*$pkg.*\)/echo skipping $pkg # \1/" install.sh; } done'
@@ -12,7 +12,7 @@ if true; then {
 } else {
   mkdir -p ~/torch
   cd ~/torch
-  wget https://s3.amazonaws.com/hughperkinstravis/hughperkins/distro/10/10.1/torch-install.tar.bz2
+  wget https://s3.amazonaws.com/hughperkinstravis/hughperkins/distro/12/12.1/torch-install.tar.bz2
   tar -xf torch-install.tar.bz2
 } fi
 
