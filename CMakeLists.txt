@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 
 OPTION(DEV_RUN_COG "cltorch maintainers only, otherwise set to 'OFF'." OFF)
+OPTION(BUILD_CPP_TESTS "cltorch maintainers only, otherwise set to 'OFF'." OFF)
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   set(ON_LINUX 1)
@@ -96,6 +97,17 @@ endif(DEV_RUN_COG)
         add_dependencies(EasyCL-external git_cltorch_rec)
     endif()
 #endif()
+
+if(BUILD_CPP_TESTS)
+#  find_package(Lua51 REQUIRED)
+  file(STRINGS src/EasyCL/thirdparty/lua-5.1.5/files.txt lua_src1)
+  foreach(source ${lua_src1})
+      set(lua_src ${lua_src} src/EasyCL/thirdparty/lua-5.1.5/src/${source})
+  endforeach()
+  add_executable(testroworderblas src/test/testroworderblas.cpp ${lua_src})
+#  message("${LUA_LIBRARIES}")
+  target_link_libraries(testroworderblas THCl luaT EasyCL)
+endif()
 
 TARGET_LINK_LIBRARIES(cltorch luaT THCl)
 TARGET_LINK_LIBRARIES(cltorch EasyCL)
