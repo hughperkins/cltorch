@@ -81,8 +81,15 @@ THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
 }
 
 void THClDebug_printSize(THClState *state, THClTensor *target) {
+  THClDebug_printSize("", state, target);
+}
+
+void THClDebug_printSize(const char *name, THClState *state, THClTensor *target) {
     int dim = THClTensor_nDimension(state, target);
-    cout << "dim=" << dim << endl;
+    if(name[0] != 0) {
+      cout << name << " ";
+    }
+//    cout << "dim=" << dim << endl;
 
 //    THFloatTensor *probe = THFloatTensor_new();
 //  THLongStorage *idxsize = THClTensor_newSizeOf(state, target);
