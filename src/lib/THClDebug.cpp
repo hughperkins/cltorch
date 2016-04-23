@@ -40,25 +40,42 @@ THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
          cout << endl;
       }
       cout << "[torch.ClTensor of size " << size0 << "x" << size1 << "]" << endl;
+    } else if(indices_dim == 3) {
+       long size0 = THFloatTensor_size(probe, 0);
+       long size1 = THFloatTensor_size(probe, 1);
+       long size2 = THFloatTensor_size(probe, 2);
+       for(int d0=0; d0<size0; d0++) {
+         cout << "(" << d0 << ",.,.) =" << endl;
+         for(int i = 0; i < size0; i++) {
+           cout << " ";
+           for(int j = 0; j < size1; j++) {
+              cout << probe->storage->data[i * THFloatTensor_stride(probe, 0) + j * THFloatTensor_stride(probe, 1)] << "  ";
+           }
+           cout << endl;
+          }
+       }
+      cout << "[torch.ClTensor of size " << size0 << "x" << size1 << "x" << size2 << "]" << endl;
     } else {
-       cout << "target dim > 2" << endl;
+       cout << "target dim > 3" << endl;
     }
 }
 
 void THClDebug_printSize(THClState *state, THClTensor *target) {
-    THFloatTensor *probe = THFloatTensor_new();
-  THLongStorage *idxsize = THClTensor_newSizeOf(state, target);
-THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
-    THFloatTensor_resize(probe, idxsize, idxstride);
-    THFloatTensor_copyCl(state, probe, target);
+    int dim = THClTensor_nDimension(state, target);
+    cout << "dim=" << dim << endl;
 
-    int indices_dim = THFloatTensor_nDimension(probe);
+//    THFloatTensor *probe = THFloatTensor_new();
+//  THLongStorage *idxsize = THClTensor_newSizeOf(state, target);
+//THLongStorage *idxstride = THClTensor_newStrideOf(state, target);
+//    THFloatTensor_resize(probe, idxsize, idxstride);
+//    THFloatTensor_copyCl(state, probe, target);
+
     cout << "[torch.ClTensor of size ";
-    for(int d = 0; d < indices_dim; d++) {
+    for(int d = 0; d < dim; d++) {
       if( d > 0) {
          cout << "x";
       }
-      cout << THFloatTensor_size(probe, d);
+      cout << THClTensor_size(state, target, d);
     }
     cout << "]" << endl;
 }
