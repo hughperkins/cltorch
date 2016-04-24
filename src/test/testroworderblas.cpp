@@ -27,7 +27,7 @@ void testrows(THClState *state) {
   THClDebug_printTensor(state, b);
   THClTensor *c = THClTensor_newWithSize2d(state, 0, 2, 2);
   
-  THClBlas_gemm(state, 'r', 'n','n', 2, 2, 3,   1,
+  THClBlas_gemm2(state, 'r', 'n','n', 2, 2, 3,   1,
   a, 3, b, 2, 0, c, 2);
   THClDebug_printTensor(state, c);
 
@@ -61,7 +61,7 @@ void testcols(THClState *state) {
   THClDebug_printTensor(state, bdash);
   THClTensor *c = THClTensor_newWithSize2d(state, 0, 3, 3);
   
-  THClBlas_gemm(state, 'c', 'n','n', 3, 3, 2,   1,
+  THClBlas_gemm2(state, 'c', 'n','n', 3, 3, 2,   1,
   b, 3, a, 2, 0, c, 3);
   THClTensor *cdash = THClTensor_newTranspose(state, c, 0, 1);
   THClDebug_printTensor(state, cdash);

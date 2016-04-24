@@ -381,10 +381,10 @@ void adjustLd(char transa, char transb, long m, long n, long k, long *lda, long 
 void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, long k, float alpha, 
   THClTensor *a, long lda, THClTensor *b, long ldb, float beta, 
   THClTensor *c, long ldc) {
-  THClBlas_gemm(state, 'c', transa, transb, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
+  THClBlas_gemm2(state, 'c', transa, transb, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
 }
 
-void THClBlas_gemm(THClState *state, char orderchar, char transa, char transb, long m, long n, long k, float alpha, 
+void THClBlas_gemm2(THClState *state, char orderchar, char transa, char transb, long m, long n, long k, float alpha, 
   THClTensor *a, long lda, THClTensor *b, long ldb, float beta, 
   THClTensor *c, long ldc)
 {

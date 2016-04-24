@@ -35,11 +35,11 @@ THCL_API void THClBlas_ger(THClState *state, long m, long n, float alpha,
     THClTensor *a, long lda);
 
 /* Level 3 */
-//THCL_API void THClBlas_gemm(THClState *state, char transa, char transb, 
-//  long m, long n, long k, float alpha,
-//  THClTensor *a, long lda, THClTensor *b, long ldb, float beta, THClTensor *c, long ldc);
+THCL_API void THClBlas_gemm(THClState *state, char transa, char transb, 
+  long m, long n, long k, float alpha,
+  THClTensor *a, long lda, THClTensor *b, long ldb, float beta, THClTensor *c, long ldc);
 
-THCL_API void THClBlas_gemm(THClState *state, char orderchar, char transa, char transb, 
+THCL_API void THClBlas_gemm2(THClState *state, char orderchar, char transa, char transb, 
   long m, long n, long k, float alpha,
   THClTensor *a, long lda, THClTensor *b, long ldb, float beta, THClTensor *c, long ldc);
 

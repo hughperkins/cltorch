@@ -184,7 +184,7 @@ void THClTensor_addmm(THClState *state, THClTensor *r_, float beta, THClTensor *
   }
 
   /* do the operation */
-  THClBlas_gemm(state,
+  THClBlas_gemm2(state,
                 'c',
                   transpose_m1,
                   transpose_m2,
