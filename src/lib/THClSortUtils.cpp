@@ -236,7 +236,7 @@ std::string getKernelTemplate() {
   "\n" 
   "    // Sort!\n" 
   "//    if(get_local_id(0) == 0) {\n" 
-  "    bitonicSort(&sharedKeys, &sharedValues, &sharedValid);\n" 
+  "    bitonicSort(sharedKeys, sharedValues, sharedValid);\n" 
   "//   }\n" 
   "\n" 
   "////    if(get_local_id(0) == 0) {\n" 

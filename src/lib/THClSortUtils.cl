@@ -147,7 +147,7 @@ bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
 
     // Sort!
 //    if(get_local_id(0) == 0) {
-    bitonicSort(&sharedKeys, &sharedValues, &sharedValid);
+    bitonicSort(sharedKeys, sharedValues, sharedValid);
 //   }
 
 ////    if(get_local_id(0) == 0) {
