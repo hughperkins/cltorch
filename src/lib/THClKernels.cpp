@@ -177,6 +177,14 @@ THClKernels *THClKernels::localFloats(int count) {
   }
   return this;
 }
+THClKernels *THClKernels::localInts(int count) {
+  try {
+    kernel->localInts(count);
+  } catch( runtime_error &e ) {
+    THError(e.what());
+  }
+  return this;
+}
 
 // template instantiations ====================
 #define DECLARE_THCLKERNELS(IndexType) \

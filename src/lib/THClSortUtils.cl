@@ -26,32 +26,32 @@ inline void swapVars_V(local {{V}} *p_t1, local {{V}}*p_t2) {
   *p_t2 = tmp;
 }
 
-inline void swapVars_bool(local bool *p_t1, local bool *p_t2) {
-  bool tmp = *p_t1;
+inline void swapVars_int(local int *p_t1, local int *p_t2) {
+  int tmp = *p_t1;
   *p_t1 = *p_t2;
   *p_t2 = tmp;
 }
 
-inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local bool*p_validA,
-                        local {{K}}* p_kB, local {{V}}*p_vB, local bool*p_validB,
-                        bool dir) {
+inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local int*p_validA,
+                        local {{K}}* p_kB, local {{V}}*p_vB, local int*p_validB,
+                        int dir) {
   // Invalid entries always sort to the end
   // original cuda version was:
-  //   bool swap = (comp(kA, kB) && validA) || !validB;
-  bool swap = (((*p_kA) {{COMPARE_OP}} (*p_kB)) && (*p_validA)) || !(*p_validB);
+  //   int swap = (comp(kA, kB) && validA) || !validB;
+  int swap = (((*p_kA) {{COMPARE_OP}} (*p_kB)) && (*p_validA)) || !(*p_validB);
   if (swap == dir) {
     swapVars_K(p_kA, p_kB);
     swapVars_V(p_vA, p_vB);
-    swapVars_bool(p_validA, p_validB);
+    swapVars_int(p_validA, p_validB);
   }
 };
 
 inline void bitonicSort(local {{K}} *p_keys,
-                                   local {{V}} *p_values,
-                                   local bool *p_valid) {
+                        local {{V}} *p_values,
+                        local int *p_valid) {
   #pragma unroll
   for (unsigned int size = 2; size < {{Power2SortSize}}; size *= 2) {
-    bool flag = ((get_local_id(0) & (size / 2)) != 0);
+    int flag = ((get_local_id(0) & (size / 2)) != 0);
 
     #pragma unroll
     for (unsigned int stride = size / 2; stride > 0; stride /= 2) {
@@ -97,7 +97,10 @@ bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
                      {{IndexType}} keySliceSize,
                      {{IndexType}} keySliceStride,
                      global TensorInfoCl *values_info, global float *values_data,
-                     {{IndexType}} valueSliceStride
+                     {{IndexType}} valueSliceStride,
+                     local {{K}} *p_sharedKeys,
+                     local {{V}} *p_sharedValues,
+                     local int *p_sharedValid
 ) {
   // Find the slice of the tensor that we are sorting
   const {{IndexType}} linearIndex = getLinearBlockId();
@@ -107,9 +110,9 @@ bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
     return;
   }
 
-  local {{K}} sharedKeys[{{Power2SortSize}}];
-  local {{V}} sharedValues[{{Power2SortSize}}];
-  local bool sharedValid[{{Power2SortSize}}];
+//  local {{K}} sharedKeys[{{Power2SortSize}}];
+//  local {{V}} sharedValues[{{Power2SortSize}}];
+//  local int sharedValid[{{Power2SortSize}}];
 
   const {{IndexType}} keyStartOffset =
     IndexToOffset_{{1000 + KeyDims}}_get(linearIndex, &keys_info[0]);
@@ -125,29 +128,29 @@ bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
     const int elem1 = get_local_id(0);
     const int elem2 = get_local_id(0) + ({{Power2SortSize}} / 2);
 
-    bool valid1 = (elem1 < keySliceSize);
+    int valid1 = (elem1 < keySliceSize);
     {{K}} k1 = valid1 ?
       keys_data[keyStartOffset + elem1 * keySliceStride] : ({{K}}) 0;
     {{V}} v1 = valid1 ?
       values_data[valueStartOffset + elem1 * valueSliceStride] : ({{V}}) 0;
 
-    sharedKeys[elem1] = k1;
-    sharedValues[elem1] = v1;
-    sharedValid[elem1] = valid1;
+    p_sharedKeys[elem1] = k1;
+    p_sharedValues[elem1] = v1;
+    p_sharedValid[elem1] = valid1;
 
-    bool valid2 = (elem2 < keySliceSize);
+    int valid2 = (elem2 < keySliceSize);
     {{K}} k2 = valid2 ?
       keys_data[keyStartOffset + elem2 * keySliceStride] : ({{K}}) 0;
     {{V}} v2 = valid2 ?
       values_data[valueStartOffset + elem2 * valueSliceStride] : ({{V}}) 0;
 
-    sharedKeys[elem2] = k2;
-    sharedValues[elem2] = v2;
-    sharedValid[elem2] = valid2;
+    p_sharedKeys[elem2] = k2;
+    p_sharedValues[elem2] = v2;
+    p_sharedValid[elem2] = valid2;
 
     // Sort!
 //    if(get_local_id(0) == 0) {
-    bitonicSort(sharedKeys, sharedValues, sharedValid);
+    bitonicSort(p_sharedKeys, p_sharedValues, p_sharedValid);
 //   }
 
 ////    if(get_local_id(0) == 0) {
@@ -164,17 +167,17 @@ bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
     // elem1 values are always valid, since otherwise we would have
     // chosen the next smallest power-of-2 for sorting
     keys_data[keyStartOffset + elem1 * keySliceStride] =
-      sharedKeys[elem1];
+      p_sharedKeys[elem1];
     values_data[valueStartOffset + elem1 * valueSliceStride] =
-      sharedValues[elem1];
+      p_sharedValues[elem1];
 
     if (valid2) {
       // elem2 values might be out-of-range, if the data size we are
       // sorting is not a power-of-2
       keys_data[keyStartOffset + elem2 * keySliceStride] =
-        sharedKeys[elem2];
+        p_sharedKeys[elem2];
       values_data[valueStartOffset + elem2 * valueSliceStride] =
-        sharedValues[elem2];
+        p_sharedValues[elem2];
     }
   }
 }

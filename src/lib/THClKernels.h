@@ -97,6 +97,7 @@ public:
   THClKernels *in(float value);
 
   THClKernels *localFloats(int count);
+  THClKernels *localInts(int count);
 
   void run(dim3 grid, dim3 block);  // uses cutorch-compatible dimensions
 };
