@@ -307,6 +307,9 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 30 April 2016
+  * tests pass again on Intel HD5500
+  * removed `sort` temporarily, since bugs on AMD platform
 * 15 April 2016
   * Ported `sort`
   * Francisco Massa [provided the solution](https://github.com/hughperkins/cltorch/issues/64) to a huge memory leak associated with calling `:clearState()`.  Thank you Francisco.  Awesome! :-)
