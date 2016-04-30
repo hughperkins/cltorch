@@ -14,28 +14,31 @@ Most things really :-)  Detailed description at [ImplementedDetails.md](doc/Impl
 
 ## Installation
 
-* First install torch distro, see [https://github.com/torch/distro](https://github.com/torch/distro).
-  * Notes:
-    * be sure to check you have a `~/torch/install/bin/torch-activate` file
-    * make sure to run `source ~/torch/install/bin/torch-activate` before using torch, or else add this command to your `.bashrc` file
-    * you will need many of the dependencies from the [install-deps](https://github.com/torch/distro/blob/master/install-deps) script, and specifically: `gfortran`
-* Now, do:
+IMPORTANT!  THIS HAS CHANGED.  Please install a specific Torch distro, as described below.  Simply doing `luarocks install cltorch` is no longer supported
+
+Please proceed as follows:
 ```
-luarocks install cltorch
+git clone --recursive https://github.com/hughperkins/distro -b distro-cl ~/torch-cl
+cd ~/torch-cl
+bash install-deps
+./install.sh
 ```
-* Please make sure you run the self-tests first.  If any of them fail, please raise an issue.  They should all pass, reliably, every time.  To run the tests:
+Thats it!  To test, you can do for example:
 ```
-luajit -l cltorch -e 'cltorch.test()'
+source ~/torch-cl/install/bin/torch-activate
+luajit -l cltorch -e 'cltorch.test()
+```
+Actually, it will also install clnn, eg the following should be working ok now too:
+```
+luajit -l clnn -e 'clnn.test()'
 ```
 
 ## Gotchas
 
 * On MAC OS X, LD_LIBRARY_PATH is typically not used to locate dependent libraries.  It means, cltorch might not load for you.  A temporary hack, until rpath is patched into the build, is to do:
 ```
-ln -s ~/torch/install/lib ~/lib
+ln -s ~/torch-cl/install/lib ~/lib
 ```
-
-Update: this might be fixed in very latest master (commit 0f72bf7 onwards)
 
 ## Requests for additional operations etc
 
@@ -288,6 +291,8 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 30 April 2016:
+  * rolled back to as of 3 March 2016, to use specific torch release, so it doesnt keep changing whilst I'm at work :-)
 * 3 March 2016:
   * runs on Mac OS X, without needing `LD_LIBRARY_PATH`, ie [RPATH](https://cmake.org/Wiki/CMake_RPATH_handling) works now.  Hopefully :-)
 * 3rd January, 2016:
