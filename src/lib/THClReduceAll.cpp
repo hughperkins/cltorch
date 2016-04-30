@@ -303,13 +303,11 @@ bool THClTensor_reduceAll(THClState* state,
 
   if (THCL_canUse32BitIndexMath(state, in)) {
     TensorInfo<uint32> inInfo(state, in);
-    inInfo.collapseDims();
     int IN = inInfo.isContiguous() ? -2 : inInfo.dims;
     callReduceAll<uint32>(
       state, device, IN, inInfo, inElements, init, modifyOp, reduceOp, res);
   } else {
     TensorInfo<uint64> inInfo(state, in);
-    inInfo.collapseDims();
     int IN = inInfo.isContiguous() ? -2 : inInfo.dims;
     callReduceAll<uint64>(
       state, device, IN, inInfo, inElements, init, modifyOp, reduceOp, res);

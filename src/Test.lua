@@ -3,7 +3,7 @@ function cltorch.test()
    -- luaunit = require('luaunit')
 
    require('cltorch.unit_storage')
-   print('after requiring cltorch.unit_storage')
+   print('aftter requiring cltorch.unit_storage')
    -- test_basic()
    local res = cltorch.tests.storage.test()
    print('res', res)

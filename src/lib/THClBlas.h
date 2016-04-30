@@ -39,10 +39,6 @@ THCL_API void THClBlas_gemm(THClState *state, char transa, char transb,
   long m, long n, long k, float alpha,
   THClTensor *a, long lda, THClTensor *b, long ldb, float beta, THClTensor *c, long ldc);
 
-THCL_API void THClBlas_gemm2(THClState *state, char orderchar, char transa, char transb, 
-  long m, long n, long k, float alpha,
-  THClTensor *a, long lda, THClTensor *b, long ldb, float beta, THClTensor *c, long ldc);
-
 THCL_API void THClBlas_gemmBatched(THClState *state, char transa, char transb, long m, long n, long k,
                                     float alpha, CLWrapper *aWrapper, long lda, CLWrapper *bWrapper, long ldb,
                                     float beta, CLWrapper *cWrapper, long ldc, long batchCount);

@@ -199,7 +199,6 @@ bool THClTensor_pointwiseApply(THClState* state,
     TensorInfo<uint32> *infos[numTensors];
     for(int t=0; t < numTensors; t++) {
       infos[t] = new TensorInfo<uint32>(state, tensors[t]);
-      infos[t]->collapseDims();
     }
     int dims[numTensors];
     for(int t=0; t < numTensors; t++) {
@@ -215,7 +214,6 @@ bool THClTensor_pointwiseApply(THClState* state,
     bool allContiguous = true;
     for(int t=0; t < numTensors; t++) {
       infos[t] = new TensorInfo<uint64>(state, tensors[t]);
-      infos[t]->collapseDims();
       if(!infos[t]->isContiguous()) {
         allContiguous = false;
       }

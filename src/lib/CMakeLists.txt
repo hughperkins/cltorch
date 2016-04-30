@@ -6,7 +6,6 @@ SET(CMAKE_C_FLAGS "-std=c99")
 #SET(src
 #    THCGeneral.c THCAllocator.c THCStorage.c THCStorageCopy.c THCTensor.c THCTensorCopy.c)
 SET(src
-    THClSortUtils.cpp THClTensorSort.cpp THClDebug.cpp
     THClGeneral.cpp THClStorage.cpp THClStorageCopy.cpp THClTensor.cpp THClTensorCopy.cpp THClTensorMath.cpp 
     THClTensorMathPointwise.cpp THClReduceApplyUtils.cpp THClApply.cpp
     THClTensorMathCompare.cpp THClTensorMathCompareT.cpp
@@ -47,15 +46,13 @@ INSTALL(FILES
           THClGeneral.h
           THClBlas.h
           THClStorage.h
-          THClStorageCopy.h
+	  THClStorageCopy.h
           THClTensor.h
-          THClTensorCopy.h
-          THClDebug.h
+	  THClTensorCopy.h
 #          THClTensorRandom.h
           THClTensorMath.h
 #          THClTensorConv.h
-          THClTensorSort.h
-          THClSortUtils.h
+#          THClTensorSort.h
           THClApply.h
           THClReduce.h
           THClReduceApplyUtils.h

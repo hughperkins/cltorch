@@ -10,8 +10,6 @@
 //template <typename T>
 //T THClCeilDiv(T a, T b);
 
-#define FLOAT32_MAX_CONSECUTIVE_INT 16777216.0f
-
 #define DECLARE_THCLCEILDIV(TYPE) \
 TYPE THClCeilDiv(TYPE a, TYPE b);
 

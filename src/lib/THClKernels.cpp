@@ -50,7 +50,6 @@ THClKernels *THClKernels::out(THClTensor *tensor) {
 THClKernels *THClKernels::inv2(THClTensor *tensor) {
   try {
     TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
-//    tensorInfoCl->collapseDims();
     kernel->in(1, tensorInfoCl);
     kernel->in(THClTensor_wrapper(state, tensor));
     tensorInfoCls.push_back(tensorInfoCl);
@@ -62,7 +61,6 @@ THClKernels *THClKernels::inv2(THClTensor *tensor) {
 THClKernels *THClKernels::inoutv2(THClTensor *tensor) {
   try {
     TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
-//    tensorInfoCl->collapseDims();
     kernel->in(1, tensorInfoCl);
     kernel->inout(THClTensor_wrapper(state, tensor));
     tensorInfoCls.push_back(tensorInfoCl);
@@ -74,7 +72,6 @@ THClKernels *THClKernels::inoutv2(THClTensor *tensor) {
 THClKernels *THClKernels::outv2(THClTensor *tensor) {
   try {
     TensorInfoCl *tensorInfoCl = new TensorInfoCl(tensor);
-//    tensorInfoCl->collapseDims();
     kernel->in(1, tensorInfoCl);
     kernel->out(THClTensor_wrapper(state, tensor));
     tensorInfoCls.push_back(tensorInfoCl);
@@ -172,14 +169,6 @@ void THClKernels::run(dim3 grid, dim3 block) {
 THClKernels *THClKernels::localFloats(int count) {
   try {
     kernel->localFloats(count);
-  } catch( runtime_error &e ) {
-    THError(e.what());
-  }
-  return this;
-}
-THClKernels *THClKernels::localInts(int count) {
-  try {
-    kernel->localInts(count);
   } catch( runtime_error &e ) {
     THError(e.what());
   }

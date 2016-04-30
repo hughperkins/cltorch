@@ -6,11 +6,6 @@
 // Maximum size per grid dimension that we assume
 #define MAX_GRID_SIZE 65535L
 
-void THCL_checkTensorDims(THClState* state, THClTensor* tensor, int arg) {
-  long dims = THClTensor_nDimension(state, tensor);
-  THArgCheck(dims <= MAX_CLTORCH_DIMS, arg, CLTORCH_DIM_WARNING);
-}
-
 bool THCL_canUse32BitIndexMath(THClState* state, THClTensor* t) {
   long elements = THClTensor_nElement(state, t);
   if (elements >= UINT_MAX) {
@@ -132,15 +127,6 @@ std::string THClReduceApplyUtils_getKernelTemplate() {
   // ]]]
   // generated using cog, from THClReduceApplyUtils.cl:
   const char * kernelSource =  
-  "// this needs the following template variables defined:\n" 
-  "//   IndexType   string, eg 'int'\n" 
-  "//   MAX_CLTORCH_DIMS    integer, eg 25\n" 
-  "//   dims                list of integers, ie all dimensions >=0 this should work for\n" 
-  "//   WarpSize            integer eg 32\n" 
-  "//   defiscontiguous     [1|0]  (or just dont define, means 0)\n" 
-  "//   defreduceblock      [1|0]  (or just dont define, means 0)\n" 
-  "\n" 
-  "\n" 
   "// kernel argument that defines tensor layout\n" 
   "typedef struct TensorInfoCl {\n" 
   "  // Extracts size/stride information for the kernel.\n" 

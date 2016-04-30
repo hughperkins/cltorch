@@ -203,19 +203,19 @@ function cltorch.tests.tensor.test_equals()
    d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
    e = torch.ClTensor{{3,5,-2},{2.1,2.4,3.9}}
    tester:asserteq(c, d)
-   tester:assertGeneralNe(c, e)
+   tester:assertne(c, e)
 
    c = c:float()
    d = d:float()
    e = e:float()
    tester:asserteq(c, d)
-   tester:assertGeneralNe(c, e)
+   tester:assertne(c, e)
 
    c = torch.Tensor{{3,5,-2},{2.1,2.2,3.9}}
    d = torch.Tensor{{3,5,-2},{2.1,2.2,3.9}}
    e = torch.Tensor{{3,5,-2},{2.1,2.4,3.9}}
    tester:asserteq(c, d)
-   tester:assertGeneralNe(c, e)
+   tester:assertne(c, e)
 end
 
 for _, op in ipairs({'lt', 'gt',
@@ -242,7 +242,7 @@ for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos',
       a = c:float()
       loadstring('c:' .. name .. '()')()
       loadstring('a:' .. name .. '()')()
-      assert(a ~= nil)
+      tester:assertne(a, nil)
       tester:asserteq(a, c:float())
    end
 end
@@ -256,7 +256,7 @@ for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos',
       a = c:float()
       loadstring('res_cpu = torch.' .. name .. '(c)')()
       loadstring('res_gpu = torch.' .. name .. '(a)')()
-      assert(res_cpu ~= nil)
+      tester:assertne(res_cpu, nil)
       tester:asserteq(res_cpu:float(), res_gpu:float())
    end
 end
@@ -271,7 +271,7 @@ for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv', 'atan2'}) do
       b = d:float()
       loadstring('a:' .. op .. '(b)')()
       loadstring('c:' .. op .. '(d)')()
-      assert(a ~= nil)
+      tester:assertne(a, nil)
       tester:asserteq(a, c:float())
    end
 end
@@ -943,44 +943,6 @@ function cltorch.tests.tensor.test_scatter()
    tester:asserteq(z, zcl:double())
 end
 
---local platformVendor = cltorch.getDeviceProperties(cltorch.getDevice()).platformVendor:lower()
---print('platformVendor', platformVendor)
---if platformVendor == 'intel' or platformVendor == 'nvidia corporation' then
---  function cltorch.tests.tensor.test_sort()
---    a = torch.FloatTensor(125):uniform()
---    csorted = a:clone():sort(1)
---    gsorted = a:cl():sort():float()
---  --  print(csorted - gsorted)
---    tester:asserteq(csorted, gsorted)
-
---    a = torch.FloatTensor(125, 40):uniform()
---    csorted = a:clone():sort(1)
---    gsorted = a:cl():sort(1):float()
---  --  print(csorted - gsorted)
---    tester:asserteq(csorted, gsorted)
-
---    a = torch.FloatTensor(5, 3):uniform()
---    csorted = a:clone():sort(2)
---    gsorted = a:cl():sort(2):float()
---  --  print(csorted - gsorted)
---    tester:asserteq(csorted, gsorted)
-
---    a = torch.FloatTensor(50, 3):uniform()
---    csorted = a:clone():sort(2)
---    gsorted = a:cl():sort(2):float()
---  --  print(csorted - gsorted)
---    tester:asserteq(csorted, gsorted)
-
---    a = torch.FloatTensor(125, 40):uniform()
---    csorted = a:clone():sort(2)
---    gsorted = a:cl():sort(2):float()
---  --  print(csorted - gsorted)
---    tester:asserteq(csorted, gsorted)
---  end
---else
---  print('warning: not testing sort, since not currently supported on AMD platform')
---end
-
 function cltorch.tests.tensor.test_scatterFill()
    y = torch.zeros(3,5)
    idx = torch.LongTensor{{1,2,3,1,1},{3,1,1,2,3}}
@@ -1059,7 +1021,7 @@ for k,v in pairs(excludes) do
   print('request exclude:', k)
 end
 
-local test = torch.TestSuite()
+local test = {}
 for k,v in pairs(cltorch.tests.tensor) do
    if excludes[k] == nil then
      test[k] = function()

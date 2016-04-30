@@ -61,10 +61,3 @@ Oh yes, by the way, I'm using [cogapp](https://bitbucket.org/ned/cog) to help do
 * and do `configure` then `generate`
 * => from now on, cogapp will run automatically, when you build, and reimport the .cl files into the corresponding .cpp file
 
-# Possible future libraries that might be useful to use
-
-* viennacl: might provide competitive GEMM
-* clBLAST: might provide competitive GEMM
-* blas.compute: might provide useful implementations of sort, scan, (maybe also reduce, but we already have custom torch implementation
- for reduce)
-

@@ -19,8 +19,6 @@ Most things really :-)  Detailed description at [ImplementedDetails.md](doc/Impl
     * be sure to check you have a `~/torch/install/bin/torch-activate` file
     * make sure to run `source ~/torch/install/bin/torch-activate` before using torch, or else add this command to your `.bashrc` file
     * you will need many of the dependencies from the [install-deps](https://github.com/torch/distro/blob/master/install-deps) script, and specifically: `gfortran`
-* New!  As of 27 March 2016, cltorch has moved from clblas 2.4 to clblas 2.11/develop.  This means you will need also:
-  * python 2.7 available, and `python` command should point to python 2.7, during build
 * Now, do:
 ```
 luarocks install cltorch
@@ -278,23 +276,6 @@ At runtime, if you want to call any of the cltorch methods, you will also need:
 * OpenCL-compatible GPU
 * OpenCL library/driver (normally provided by the GPU vendor)
 
-## Possible build issues
-
-If you see:
-```
-/home/ubuntu/git/cltorch/src/clMathLibraries/clBLAS/src/library/blas/functor/gcn
-_sgemmSmallMatrices.cc:25:55: fatal error: sgemm_gcn_SmallMatrices.clHawaii_64.b
-in.clT: No such file or directory
- #include "sgemm_gcn_SmallMatrices.clHawaii_64.bin.clT"
-                                                       ^
-compilation terminated.
-```
-... then do
-```
-rm -Rf build/clBLAS
-```
-... and try again
-
 ## Guidelines for contributors
 
 You might or might not find [ContributorGuidelines.md](doc/ContributorGuidelines.md) useful.  Not required reading, but it is there if you want to see my own thoughts and ideas on how I am currently approaching cltorch development, and cutorch-porting.
@@ -307,15 +288,6 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
-* 30 April 2016
-  * tests pass again on Intel HD5500
-  * removed `sort` temporarily, since bugs on AMD platform
-* 15 April 2016
-  * Ported `sort`
-  * Francisco Massa [provided the solution](https://github.com/hughperkins/cltorch/issues/64) to a huge memory leak associated with calling `:clearState()`.  Thank you Francisco.  Awesome! :-)
-* 27 March 2016:
-  * migrated from clBLAS 2.4 to clBLAS 2.11/develop.  This migration is not set in stone, depends on how well that works.  However, there is a
-[bug in 2.4 for certain configurations of matrix multiplication](https://github.com/clMathLibraries/clBLAS/issues/246), and its not obvious how to fix that, so maybe using 2.11/develop is the easiest way forward?
 * 3 March 2016:
   * runs on Mac OS X, without needing `LD_LIBRARY_PATH`, ie [RPATH](https://cmake.org/Wiki/CMake_RPATH_handling) works now.  Hopefully :-)
 * 3rd January, 2016:

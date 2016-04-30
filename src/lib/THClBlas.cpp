@@ -377,15 +377,8 @@ void adjustLd(char transa, char transb, long m, long n, long k, long *lda, long 
   }
 }
 
-///* Level 3 */
+/* Level 3 */
 void THClBlas_gemm(THClState *state, char transa, char transb, long m, long n, long k, float alpha, 
-  THClTensor *a, long lda, THClTensor *b, long ldb, float beta, 
-  THClTensor *c, long ldc) {
-  adjustLd(transa, transb, m, n, k, &lda, &ldb, &ldc);
-  THClBlas_gemm2(state, 'c', transa, transb, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
-}
-
-void THClBlas_gemm2(THClState *state, char orderchar, char transa, char transb, long m, long n, long k, float alpha, 
   THClTensor *a, long lda, THClTensor *b, long ldb, float beta, 
   THClTensor *c, long ldc)
 {
@@ -397,11 +390,9 @@ void THClBlas_gemm2(THClState *state, char orderchar, char transa, char transb, 
   long offsetb = THClTensor_storageOffset(state, b);
   long offsetc = THClTensor_storageOffset(state, c);
 
-//  adjustLd(transa, transb, m, n, k, &lda, &ldb, &ldc);
+  adjustLd(transa, transb, m, n, k, &lda, &ldb, &ldc);
   clblasTranspose opa = convertTransToClblasOperation(transa);
   clblasTranspose opb = convertTransToClblasOperation(transb);
-
-  clblasOrder order = orderchar == 'c' ? clblasColumnMajor : clblasRowMajor;
 
   if( (m <= INT_MAX) && (n <= INT_MAX) && (k <= INT_MAX) && (lda <= INT_MAX)  && (ldb <= INT_MAX) && (ldc <= INT_MAX) )
   {
@@ -429,7 +420,7 @@ void THClBlas_gemm2(THClState *state, char orderchar, char transa, char transb, 
     if(state->addFinish) {
       event = new cl_event();
     }
-    err = clblasSgemm(order, opa, opb, i_m, i_n, i_k,
+    err = clblasSgemm(clblasColumnMajor, opa, opb, i_m, i_n, i_k,
                          alpha, aWrapper->getBuffer(), offseta, i_lda,
                          bWrapper->getBuffer(), offsetb, i_ldb, beta,
                          cWrapper->getBuffer(), offsetc, i_ldc,
