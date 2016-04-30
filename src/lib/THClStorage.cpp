@@ -43,9 +43,14 @@ void THClStorage_set(THClState *state, THClStorage *self, long index, float valu
   }
 
   kernel->inout(self->wrapper);
-  kernel->in((int64_t)index);
+//  cl_long index2 = (cl_long)index;
+//  cout << "index2 " << index2 << endl;
+  kernel->in((int)index);
   kernel->in(value);
   kernel->run_1d(1, 1);
+
+  cl->finish(); 
+  self->wrapper->markDeviceDirty();
 
   if(state->addFinish) cl->finish();
 }
@@ -78,7 +83,7 @@ float THClStorage_get(THClState *state, const THClStorage *self, long index)
   float res;
   kernel->out(1, &res);
   kernel->in(self->wrapper);
-  kernel->in((int64_t)index);
+  kernel->in((int)index);
   kernel->run_1d(1, 1);
 
   if(state->addFinish) cl->finish();
@@ -253,7 +258,7 @@ std::string getGetKernelSource() {
   // ]]]
   // generated using cog, from THClStorageGet.cl:
   const char * kernelSource =  
-  "kernel void THClStorageGet(global float *res, global float *data, long index) {\n" 
+  "kernel void THClStorageGet(global float *res, global float *data, int index) {\n" 
   "  if(get_global_id(0) == 0) {\n" 
   "    res[0] = data[index];\n" 
   "  }\n" 
@@ -271,9 +276,13 @@ std::string getSetKernelSource() {
   // ]]]
   // generated using cog, from THClStorageSet.cl:
   const char * kernelSource =  
-  "kernel void THClStorageSet(global float *data, long index, float value) {\n" 
+  "kernel void THClStorageSet(global float *data, int index, float value) {\n" 
   "  if(get_global_id(0) == 0) {\n" 
+  "//    int index2 = index;\n" 
+  "//    data[index2] = 44;\n" 
   "    data[index] = value;\n" 
+  "//    data[2] = index2;\n" 
+  "//    data[3] = value;\n" 
   "  }\n" 
   "}\n" 
   "\n" 
