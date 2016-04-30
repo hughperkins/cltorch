@@ -1,5 +1,16 @@
 require "torch"
 
+-- check we are installed from distro, otherwise error message and exit...
+
+require 'os'
+
+xpcall(function()
+  require 'distrocheck'
+end, function()
+  print('Please install cltorch from distro, per instructions at https://github.com/hughperkins/cltorch')
+  os.exit(1)
+end)
+
 -- store old copy functions, in case cutorch has been loaded
 -- note that this only works if cutorch is loaded first
 
