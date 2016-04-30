@@ -26,7 +26,7 @@ bash install-deps
 Thats it!  To test, you can do for example:
 ```
 source ~/torch-cl/install/bin/torch-activate
-luajit -l cltorch -e 'cltorch.test()
+luajit -l cltorch -e 'cltorch.test()'
 ```
 Actually, it will also install clnn, eg the following should be working ok now too:
 ```
