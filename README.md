@@ -46,6 +46,25 @@ luajit -l clnn -e 'clnn.test()'
 ln -s ~/torch-cl/install/lib ~/lib
 ```
 
+## Updating
+
+Please do *NOT* use any of: `luarocks install nn`, `luarocks install torch`, `luarocks install cltorch`, `luarocks install clnn`,
+`luarocks install cutorch`, or `luarocks install cunn`.  This will break your installation, and is not supported.  The supported update method is:
+```
+cd ~/torch-cl
+git pull
+git submodule update --init --recursive
+./install.sh
+```
+If any errors about commits not being available, you have two options:
+* easy option: remove ~/torch-cl completely, reinstall
+* harder, hacky option:
+  * in the error message, you should see which submodule is broken.  Let's say it is `extra/nn`
+  * so edit `.git/modules/extra/nn/config`, and in the `url` part, change `torch` to `hughperkins`
+  * if it's not `extra/nn`, then modify the path of this file appropriatel
+  * that's it!
+  * now rerun `git submodule update --init --recursive`, and the updates should pull down ok (otherwise raise an issue)
+
 ## Requests for additional operations etc
 
 * Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
