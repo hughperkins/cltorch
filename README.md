@@ -16,6 +16,12 @@ Most things really :-)  Detailed description at [ImplementedDetails.md](doc/Impl
 
 IMPORTANT!  THIS HAS CHANGED.  Please install a specific Torch distro, as described below.  Simply doing `luarocks install cltorch` is no longer supported
 
+### Pre-requisites
+
+* python 2.7 installed: `python` command should point to python 2.7, during build
+
+### Procedure
+
 Please proceed as follows:
 ```
 git clone --recursive https://github.com/hughperkins/distro -b distro-cl ~/torch-cl
@@ -40,19 +46,24 @@ luajit -l clnn -e 'clnn.test()'
 ln -s ~/torch-cl/install/lib ~/lib
 ```
 
-* submodule switched to different url.  eg you see something like:
+## Updating
+
+Please do *NOT* use any of: `luarocks install nn`, `luarocks install torch`, `luarocks install cltorch`, `luarocks install clnn`,
+`luarocks install cutorch`, or `luarocks install cunn`.  This will break your installation, and is not supported.  The supported update method is:
 ```
-$ git submodule update --init
-fatal: reference is not a tree: d5403fe9aaf129c51c62be8d2c215f7cb99c400c
-Unable to checkout 'd5403fe9aaf129c51c62be8d2c215f7cb99c400c' in submodule path 'extra/nn'
+cd ~/torch-cl
+git pull
+git submodule update --init --recursive
+./install.sh
 ```
-  * the easiest way to fix it is to simply remove `~/torch-cl` , and rebuild from scratch
-  * otherwise, you can hack the submodules a bit:
-    * you need to switch your submodule to the new url.  First view the url, by opening `.gitmodules`, and looking for the appropriate submodule,
-  and looking at the url under `url`.  This is the new submodule url.  Then open the appropriate file in `.git`, eg if the submodule is `extra/nn`,
-  then you will open `.git/modules/extra/nn/config`
-    * then in the section `[remote "origin"]`, change `url` to match the url in `gitmodules` (typically, change the word `torch` to `hughperkins`)
-    * then redo `git submodule update --init`, and all should work ok :-)
+If any errors like `fatal: reference is not a tree`, you have two options:
+* easy option: remove ~/torch-cl completely, reinstall
+* harder, hacky option:
+  * in the error message, you should see which submodule is broken.  Let's say it is `extra/nn`
+  * so edit `.git/modules/extra/nn/config`, and in the `url` part, change `torch` to `hughperkins`
+  * if it's not `extra/nn`, then modify the path of this file appropriatel
+  * that's it!
+  * now rerun `git submodule update --init --recursive`, and the updates should pull down ok (otherwise raise an issue)
 
 ## Requests for additional operations etc
 
@@ -305,6 +316,11 @@ There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/h
 
 ## Recent changes
 
+* 31 April 2016:
+  * Re-applied:
+    * 27 March 2016:
+      * migrated from clBLAS 2.4 to clBLAS 2.11/develop.  This migration is not set in stone, depends on how well that works.  However, there is a
+    [bug in 2.4 for certain configurations of matrix multiplication](https://github.com/clMathLibraries/clBLAS/issues/246), and its not obvious how to fix that, so maybe using 2.11/develop is the easiest way forward?
 * 30 April 2016:
   * rolled back to as of 3 March 2016, to use specific torch release, so it doesnt keep changing whilst I'm at work :-)
 * 3 March 2016:
