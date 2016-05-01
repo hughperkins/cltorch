@@ -40,6 +40,20 @@ luajit -l clnn -e 'clnn.test()'
 ln -s ~/torch-cl/install/lib ~/lib
 ```
 
+* submodule switched to different url.  eg you see something like:
+```
+$ git submodule update --init
+fatal: reference is not a tree: d5403fe9aaf129c51c62be8d2c215f7cb99c400c
+Unable to checkout 'd5403fe9aaf129c51c62be8d2c215f7cb99c400c' in submodule path 'extra/nn'
+```
+  * the easiest way to fix it is to simply remove `~/torch-cl` , and rebuild from scratch
+  * otherwise, you can hack the submodules a bit:
+    * you need to switch your submodule to the new url.  First view the url, by opening `.gitmodules`, and looking for the appropriate submodule,
+  and looking at the url under `url`.  This is the new submodule url.  Then open the appropriate file in `.git`, eg if the submodule is `extra/nn`,
+  then you will open `.git/modules/extra/nn/config`
+    * then in the section `[remote "origin"]`, change `url` to match the url in `gitmodules` (typically, change the word `torch` to `hughperkins`)
+    * then redo `git submodule update --init`, and all should work ok :-)
+
 ## Requests for additional operations etc
 
 * Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
