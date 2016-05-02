@@ -16,68 +16,7 @@ Most things really :-)  Detailed description at [ImplementedDetails.md](doc/Impl
 
 IMPORTANT!  THIS HAS CHANGED.  Please install a specific Torch distro, as described below.  Simply doing `luarocks install cltorch` is no longer supported
 
-### Pre-requisites
-
-* python 2.7 installed: `python` command should point to python 2.7, during build
-
-### Procedure
-
-Please proceed as follows:
-```
-git clone --recursive https://github.com/hughperkins/distro -b distro-cl ~/torch-cl
-cd ~/torch-cl
-bash install-deps
-./install.sh
-```
-Thats it!  To test, you can do for example:
-```
-source ~/torch-cl/install/bin/torch-activate
-luajit -l cltorch -e 'cltorch.test()'
-```
-Actually, it will also install clnn, eg the following should be working ok now too:
-```
-luajit -l clnn -e 'clnn.test()'
-```
-
-## Gotchas
-
-* On MAC OS X, LD_LIBRARY_PATH is typically not used to locate dependent libraries.  It means, cltorch might not load for you.  A temporary hack, until rpath is patched into the build, is to do:
-```
-ln -s ~/torch-cl/install/lib ~/lib
-```
-
-## Updating
-
-Please do *NOT* use any of: `luarocks install nn`, `luarocks install torch`, `luarocks install cltorch`, `luarocks install clnn`,
-`luarocks install cutorch`, or `luarocks install cunn`.  This will break your installation, and is not supported.  The supported update method is:
-```
-cd ~/torch-cl
-git pull
-git submodule update --init --recursive
-./install.sh
-```
-If any errors like `fatal: reference is not a tree`, you have two options:
-* easy option: remove ~/torch-cl completely, reinstall
-* harder, hacky option:
-  * in the error message, you should see which submodule is broken.  Let's say it is `extra/nn`
-  * so edit `.git/modules/extra/nn/config`, and in the `url` part, change `torch` to `hughperkins`
-  * if it's not `extra/nn`, then modify the path of this file appropriatel
-  * that's it!
-  * now rerun `git submodule update --init --recursive`, and the updates should pull down ok (otherwise raise an issue)
-
-## Requests for additional operations etc
-
-* Please raise an issue for any operations etc which you particularly need, or you feel are not working for some reason.
-* (Ditto for any build errors)
-
-## Unit tests / samples
-
-Simply run:
-```
-luajit -l cltorch -e 'cltorch.test()'
-```
-
-These tests should systematically run clean.  They do on the systems I've tested against.  If they don't, it's a bug.  Please raise an issue, including your operating system, graphics card, 32-bit/64-bit, all full logs, and anything else you can think of.  Also output of `th -l cltorch -e 'cltorch.about()'` please.
+Please see [distro-cl](https://github.com/hughperkins/distro-cl) for installation instructions.
 
 ## cltorch-specific features
 
