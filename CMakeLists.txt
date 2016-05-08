@@ -23,7 +23,13 @@ SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall")
 
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 
-execute_process(COMMAND bash -c "echo $PWD")
+execute_process(COMMAND bash -c "luarocks list distrocheck | grep distrocheck"
+  RESULT_VARIABLE DISTROCHECK)
+if(${DISTROCHECK} EQUAL "1")
+  message(FATAL_ERROR "
+  Please install cltorch from https://github.com/hughperkins/distro-cl")
+endif()
+
 execute_process(COMMAND bash -c "echo $PWD"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 execute_process(COMMAND git status
