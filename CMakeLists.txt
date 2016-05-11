@@ -23,7 +23,7 @@ SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall")
 
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 
-execute_process(COMMAND bash -c "luarocks list distrocheck | grep distrocheck"
+execute_process(COMMAND bash -c "${CMAKE_PREFIX_PATH}/bin/luarocks list distrocheck | grep distrocheck"
   RESULT_VARIABLE DISTROCHECK)
 if(${DISTROCHECK} EQUAL "1")
   message(FATAL_ERROR "
