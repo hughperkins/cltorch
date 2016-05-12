@@ -26,6 +26,8 @@ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 execute_process(COMMAND bash -c "${CMAKE_PREFIX_PATH}/bin/luarocks list distrocheck | grep distrocheck"
   RESULT_VARIABLE DISTROCHECK)
 if(${DISTROCHECK} EQUAL "1")
+  message("CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}")
+  execute_process(COMMAND bash -c "${CMAKE_PREFIX_PATH}/bin/luarocks list")
   message(FATAL_ERROR "
   Please install cltorch from https://github.com/hughperkins/distro-cl")
 endif()
