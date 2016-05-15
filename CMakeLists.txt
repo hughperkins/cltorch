@@ -23,6 +23,16 @@ SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall")
 
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 
+if(UNIX)
+    execute_process(COMMAND git --version RESULT_VARIABLE git_test ERROR_QUIET)
+    if(${git_test} EQUAL 0)
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
+            message("using git setting USE_GIT 1")
+            SET(USE_GIT 1)
+        endif()
+    endif()
+endif()
+
 execute_process(COMMAND bash -c "${CMAKE_PREFIX_PATH}/bin/luarocks list distrocheck | grep distrocheck"
   RESULT_VARIABLE DISTROCHECK)
 if(${DISTROCHECK} EQUAL "1")
@@ -32,14 +42,17 @@ if(${DISTROCHECK} EQUAL "1")
   Please install cltorch from https://github.com/hughperkins/distro-cl")
 endif()
 
-execute_process(COMMAND bash -c "echo $PWD"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-execute_process(COMMAND git status
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-    execute_process(
-      COMMAND git submodule update --init --force --recursive
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-      )
+if(USE_GIT)
+    message("using git")
+    execute_process(COMMAND bash -c "echo $PWD"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+    execute_process(COMMAND git status
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+        execute_process(
+          COMMAND git submodule update --init --force --recursive
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+          )
+endif()
 
 INCLUDE("${CMAKE_MODULE_PATH}/build_clBLAS.cmake")
 INCLUDE_DIRECTORIES(${clBLAS_INCLUDE_DIRS})
@@ -84,26 +97,20 @@ if(DEV_RUN_COG)
 endif(DEV_RUN_COG)
 
 
-#if(ON_LINUX) 
-    execute_process(COMMAND git --version RESULT_VARIABLE git_test ERROR_QUIET)
-    if(${git_test} EQUAL 0)
-        set(GIT_FOUND 1)
-    endif()
-    if(GIT_FOUND)
-        add_custom_target(
-            git_cltorch_rec
-            git submodule update --init --force --recursive
+if(USE_GIT)
+    add_custom_target(
+        git_cltorch_rec
+        git submodule update --init --force --recursive
 #            COMMAND sed -i -e "s/-pedantic//" ${CMAKE_CURRENT_SOURCE_DIR}/src/clMathLibraries/clBLAS/src/CMakeLists.txt
 #            COMMAND sed -i -e "s/-Wall -Wextra/-w/" ${CMAKE_CURRENT_SOURCE_DIR}/src/clMathLibraries/clBLAS/src/CMakeLists.txt
 #            COMMAND sed -i -e "s/-Wstrict-prototypes/-w/" ${CMAKE_CURRENT_SOURCE_DIR}/src/clMathLibraries/clBLAS/src/CMakeLists.txt
 #            COMMAND sed -i -e "s/${CMAKE_CXX_FLAGS}/${CMAKE_CXX_FLAGS} -w /" ${CMAKE_CURRENT_SOURCE_DIR}/src/clMathLibraries/clBLAS/src/CMakeLists.txt
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        )
-        add_dependencies(cltorch git_cltorch_rec)
-        add_dependencies(clBLAS-external git_cltorch_rec)
-        add_dependencies(EasyCL-external git_cltorch_rec)
-    endif()
-#endif()
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    add_dependencies(cltorch git_cltorch_rec)
+    add_dependencies(clBLAS-external git_cltorch_rec)
+    add_dependencies(EasyCL-external git_cltorch_rec)
+endif()
 
 TARGET_LINK_LIBRARIES(cltorch luaT THCl)
 TARGET_LINK_LIBRARIES(cltorch EasyCL)
