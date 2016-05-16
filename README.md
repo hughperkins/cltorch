@@ -253,6 +253,8 @@ Also, some more technical guidelines on porting, in the [clnn](https://github.co
 
 There is an OpenCL backend for `nn` and `nngraph` at [clnn](https://github.com/hughperkins/clnn).
 
+There is an HCC backend for Torch at: [hcc_torch](https://bitbucket.org/multicoreware/hcc_torch)
+
 ## Recent changes
 
 * 31 April 2016:
