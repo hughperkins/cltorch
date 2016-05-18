@@ -22,12 +22,12 @@ Please see [distro-cl](https://github.com/hughperkins/distro-cl) for installatio
 
 The following features are either cltorch-specific, or do not exist in cutorch:
 
-|feature|in torch?|in cutorch?|
-|---|---|---|
-| apply/map/map2 | Yes |  |
-| optimization tools | | |
-| point tensors | | |
-| custom user kernels | Not applicable | |
+|feature|in torch?|in cutorch?|in cltorch?|
+|---|---|---|---|
+| apply/map/map2 | Yes | Via [an extension](https://github.com/szagoruyko/cutorch-rtc) |Yes|
+| profiling tools | | Via CUDA `nvvp` |Yes|
+| point tensors | | |Yes|
+| custom user kernels | Not applicable |Via [cutorch-rtc](https://github.com/szagoruyko/cutorch-rtc)|Yes|
 
 ### apply/map/map2
 
