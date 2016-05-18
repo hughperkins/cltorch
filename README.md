@@ -46,9 +46,9 @@ a:map(b, "x = 1000 * x + y * 10")
 a:map2(b, c, "x = sqrt(1000 * x + y * 10 + z * z)")
 ```
 
-### Optimization tools
+### Profiling tools
 
-Following tools are available to aid with optimization:
+Following tools are available to aid with profiling:
 
 |Method|Description|
 |------|---------|
