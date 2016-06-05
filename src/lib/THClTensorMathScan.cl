@@ -12,7 +12,7 @@
  * Each thread processes a single inner row at a time.
  */
 
-inline float binary_op(float _in1, float _in2) {
+static inline float binary_op(float _in1, float _in2) {
   // hope the compiler can handle this :-P
   float _out;
   float *out = &_out;
