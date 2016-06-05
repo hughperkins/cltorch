@@ -176,7 +176,7 @@ std::string THClTensorMathScan_getKernelTemplate() {
   " * Each thread processes a single inner row at a time.\n" 
   " */\n" 
   "\n" 
-  "inline float binary_op(float _in1, float _in2) {\n" 
+  "static inline float binary_op(float _in1, float _in2) {\n" 
   "  // hope the compiler can handle this :-P\n" 
   "  float _out;\n" 
   "  float *out = &_out;\n" 

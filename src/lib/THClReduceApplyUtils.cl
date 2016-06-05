@@ -24,7 +24,7 @@ typedef struct TensorInfoCl {
 // Contiguous tensors of more than one dimension are collapsed down
 // to one tensor
 {% if defiscontiguous==1 then %}
-inline bool TensorInfo_isContiguous( global TensorInfoCl *tensorInfo ) {
+static inline bool TensorInfo_isContiguous( global TensorInfoCl *tensorInfo ) {
     return (tensorInfo->dims == 1 && tensorInfo->strides[0] == 1);    
 }
 {% end %}
@@ -32,7 +32,7 @@ inline bool TensorInfo_isContiguous( global TensorInfoCl *tensorInfo ) {
 // Translate a linear index for the apply to a float* offset;
 // specialized on `Dims` to reduce nvcc compilation time
 {% for _,dim in ipairs(dims) do %}
-inline {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, global TensorInfoCl *info) {
+static inline {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, global TensorInfoCl *info) {
   {{IndexType}} offset = info->offset;
 
   // Use static dims
@@ -54,11 +54,11 @@ inline {{IndexType}} IndexToOffset_{{1000 + dim}}_get( {{IndexType}} linearId, g
 }
 {% end %}
 
-inline {{IndexType}} IndexToOffset_998_get({{IndexType}} linearId, global const TensorInfoCl *info) {
+static inline {{IndexType}} IndexToOffset_998_get({{IndexType}} linearId, global const TensorInfoCl *info) {
     return linearId + info->offset;
 }
 
-inline {{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, global const TensorInfoCl *info) {
+static inline {{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, global const TensorInfoCl *info) {
   {{IndexType}} offset = info->offset;
 
   // Use dynamic dims
@@ -73,7 +73,7 @@ inline {{IndexType}} IndexToOffset_999_get({{IndexType}} linearId, global const 
   return offset;
 }
 
-inline {{IndexType}} getLinearBlockId() {
+static inline {{IndexType}} getLinearBlockId() {
   return get_group_id(2) * get_num_groups(1) * get_num_groups(0) +
     get_group_id(1) * get_num_groups(0) +
     get_group_id(0);
@@ -82,7 +82,7 @@ inline {{IndexType}} getLinearBlockId() {
 // Block-wide reduction in shared memory helper; only /*threadIdx.x*/ get_local_id(0) == 0 will
 // return the reduced value
 {% if defreduceblock == 1 then %}
-inline float reduceBlock( local float* smem,
+static inline float reduceBlock( local float* smem,
                    int numVals,
                    float threadVal,
                    float init) {

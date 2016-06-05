@@ -1,6 +1,6 @@
 {{include_THClDeviceUtils}}
 
-inline float modifyOp(float _in1) {
+static inline float modifyOp(float _in1) {
   float _out;
   float *in1 = &_in1;
   float *out = &_out;
@@ -8,7 +8,7 @@ inline float modifyOp(float _in1) {
   return _out;
 }
 
-inline float reduceOp(float _in1, float _in2) {
+static inline float reduceOp(float _in1, float _in2) {
   // I guess the compiler can sort this stuff out :-P
   float _out;
   float *in1 = &_in1;
@@ -44,12 +44,12 @@ THClTensor_reduceAll(global TensorInfoCl *in_info,
   }
 }
 
-inline {{IndexType}} getStartIndex({{IndexType}} totalSize) {
+static inline {{IndexType}} getStartIndex({{IndexType}} totalSize) {
   {{IndexType}} sizePerBlock = THClCeilDiv(totalSize, ({{IndexType}}) get_num_groups(0));
   return get_group_id(0) * sizePerBlock;
 }
 
-inline {{IndexType}} getEndIndex({{IndexType}} totalSize) {
+static inline {{IndexType}} getEndIndex({{IndexType}} totalSize) {
   {{IndexType}} sizePerBlock = THClCeilDiv(totalSize, ({{IndexType}}) get_num_groups(0));
   return min(({{IndexType}}) ((get_group_id(0) + 1) * sizePerBlock), totalSize);
 }

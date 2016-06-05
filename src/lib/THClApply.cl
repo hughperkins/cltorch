@@ -30,7 +30,7 @@
    end
  %}
 
-inline void op( global float *out
+static inline void op( global float *out
   {% for t=1,(num_tensors-1) do %}
   , global float *in{{t}}
   {% end %}

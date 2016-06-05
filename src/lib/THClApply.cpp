@@ -327,7 +327,7 @@ std::string get_template() {
   "   end\n" 
   " %}\n" 
   "\n" 
-  "inline void op( global float *out\n" 
+  "static inline void op( global float *out\n" 
   "  {% for t=1,(num_tensors-1) do %}\n" 
   "  , global float *in{{t}}\n" 
   "  {% end %}\n" 
