@@ -170,6 +170,8 @@ THCL_API void THClTensor_sortKeyValueInplace(THClState* state,
   }
 
   dim3 block(blockSize);
+  cout << "keySliceSize=" << keySliceSize << endl;
+  cout << "ceilPowerOf2=" << ceilPowerOf2 << " blockSize=" << blockSize << " keySlices=" << keySlices << endl;
 
   // The grid is based on the number of independent slices that we
   // have to sort; one block per slice

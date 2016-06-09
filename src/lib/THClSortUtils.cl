@@ -14,25 +14,25 @@
 
 {{include_THClReduceApplyUtils}}
 
-inline void swapVars_K(local {{K}} *p_t1, local {{K}}*p_t2) {
+static inline void swapVars_K(local {{K}} *p_t1, local {{K}}*p_t2) {
   {{K}} tmp = *p_t1;
   *p_t1 = *p_t2;
   *p_t2 = tmp;
 }
 
-inline void swapVars_V(local {{V}} *p_t1, local {{V}}*p_t2) {
+static inline void swapVars_V(local {{V}} *p_t1, local {{V}}*p_t2) {
   {{V}} tmp = *p_t1;
   *p_t1 = *p_t2;
   *p_t2 = tmp;
 }
 
-inline void swapVars_int(local int *p_t1, local int *p_t2) {
+static inline void swapVars_int(local int *p_t1, local int *p_t2) {
   int tmp = *p_t1;
   *p_t1 = *p_t2;
   *p_t2 = tmp;
 }
 
-inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local int*p_validA,
+static inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local int*p_validA,
                         local {{K}}* p_kB, local {{V}}*p_vB, local int*p_validB,
                         int dir) {
   // Invalid entries always sort to the end
@@ -46,7 +46,7 @@ inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local int*p_validA,
   }
 };
 
-inline void bitonicSort(local {{K}} *p_keys,
+static inline void bitonicSort(local {{K}} *p_keys,
                         local {{V}} *p_values,
                         local int *p_valid) {
   #pragma unroll
@@ -57,9 +57,9 @@ inline void bitonicSort(local {{K}} *p_keys,
     for (unsigned int stride = size / 2; stride > 0; stride /= 2) {
 
       // Single warp per slice is completely synchronous
-      if ({{Power2SortSize}} > 32) {   // is 64 ok?  Let's try 32 till it is working ok...
+//      if ({{Power2SortSize}} > 32) {   // is 64 ok?  Let's try 32 till it is working ok...
         barrier(CLK_LOCAL_MEM_FENCE);
-      }
+//      }
 
       unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));
       bitonicSwap(
@@ -72,9 +72,9 @@ inline void bitonicSort(local {{K}} *p_keys,
   #pragma unroll
   for (unsigned int stride = {{Power2SortSize}} / 2; stride > 0; stride /= 2) {
     // Single warp per slice is completely synchronous
-    if ({{Power2SortSize}} > 32) { // note: was 64 before
+//    if ({{Power2SortSize}} > 32) { // note: was 64 before
       barrier(CLK_LOCAL_MEM_FENCE);
-    }
+//    }
 
     unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));
     bitonicSwap(
@@ -84,9 +84,9 @@ inline void bitonicSort(local {{K}} *p_keys,
   }
 
   // Single warp per slice is completely synchronous
-  if ({{Power2SortSize}} > 32) {  // note: was 64 before
+//  if ({{Power2SortSize}} > 32) {  // note: was 64 before
     barrier(CLK_LOCAL_MEM_FENCE);
-  }
+//  }
 }
 
 // Sorts (key, value) pairs (in different tensors) in-place; i.e.,
@@ -126,7 +126,7 @@ bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
     // Otherwise, each thread is responsible for loading and storing 2
     // elements. The sort size is guaranteed to be >= 2
     const int elem1 = get_local_id(0);
-    const int elem2 = get_local_id(0) + ({{Power2SortSize}} / 2);
+    const int elem2 = get_local_id(0) + ({{Power2SortSize}} >> 1);
 
     int valid1 = (elem1 < keySliceSize);
     {{K}} k1 = valid1 ?
@@ -147,6 +147,8 @@ bitonicSortKVInPlace(global TensorInfoCl *keys_info, global float *keys_data,
     p_sharedKeys[elem2] = k2;
     p_sharedValues[elem2] = v2;
     p_sharedValid[elem2] = valid2;
+
+    barrier(CLK_LOCAL_MEM_FENCE);
 
     // Sort!
 //    if(get_local_id(0) == 0) {

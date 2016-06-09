@@ -41,6 +41,7 @@ void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
   if(cl->kernelExists(uniqueName)) {
     kernel = cl->getKernel(uniqueName);
     StatefulTimer::timeCheck("bitonicSortKVInPlace 1aa");
+    cout << "reusing existing kernel" << endl;
   } else {
     TemplatedKernel kernelBuilder(cl);
     std::vector< int > dims;
@@ -63,9 +64,12 @@ void THClSortUtils_kernelLaunch_bitonicSortKVInPlace(
       .set("MAX_CLTORCH_DIMS", MAX_CLTORCH_DIMS)
       .set("IndexType", TypeParseTraits<IndexType>::name)
     ;
+    cout << "building new templated kernel" << endl;
     kernel = kernelBuilder.buildKernel( uniqueName, "THClSortUtils.cl", getKernelTemplate(), "bitonicSortKVInPlace" );
   }
 
+  cout << "grid " << grid << endl;
+  cout << "block " << block << endl;
   THClKernels k(state, kernel);
   k.inout(keys);
   k.in((int)keySlices);
@@ -110,25 +114,25 @@ std::string getKernelTemplate() {
   "\n" 
   "{{include_THClReduceApplyUtils}}\n" 
   "\n" 
-  "inline void swapVars_K(local {{K}} *p_t1, local {{K}}*p_t2) {\n" 
+  "static inline void swapVars_K(local {{K}} *p_t1, local {{K}}*p_t2) {\n" 
   "  {{K}} tmp = *p_t1;\n" 
   "  *p_t1 = *p_t2;\n" 
   "  *p_t2 = tmp;\n" 
   "}\n" 
   "\n" 
-  "inline void swapVars_V(local {{V}} *p_t1, local {{V}}*p_t2) {\n" 
+  "static inline void swapVars_V(local {{V}} *p_t1, local {{V}}*p_t2) {\n" 
   "  {{V}} tmp = *p_t1;\n" 
   "  *p_t1 = *p_t2;\n" 
   "  *p_t2 = tmp;\n" 
   "}\n" 
   "\n" 
-  "inline void swapVars_int(local int *p_t1, local int *p_t2) {\n" 
+  "static inline void swapVars_int(local int *p_t1, local int *p_t2) {\n" 
   "  int tmp = *p_t1;\n" 
   "  *p_t1 = *p_t2;\n" 
   "  *p_t2 = tmp;\n" 
   "}\n" 
   "\n" 
-  "inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local int*p_validA,\n" 
+  "static inline void bitonicSwap(local {{K}}* p_kA, local {{V}}*p_vA, local int*p_validA,\n" 
   "                        local {{K}}* p_kB, local {{V}}*p_vB, local int*p_validB,\n" 
   "                        int dir) {\n" 
   "  // Invalid entries always sort to the end\n" 
@@ -142,7 +146,7 @@ std::string getKernelTemplate() {
   "  }\n" 
   "};\n" 
   "\n" 
-  "inline void bitonicSort(local {{K}} *p_keys,\n" 
+  "static inline void bitonicSort(local {{K}} *p_keys,\n" 
   "                        local {{V}} *p_values,\n" 
   "                        local int *p_valid) {\n" 
   "  #pragma unroll\n" 
@@ -153,9 +157,9 @@ std::string getKernelTemplate() {
   "    for (unsigned int stride = size / 2; stride > 0; stride /= 2) {\n" 
   "\n" 
   "      // Single warp per slice is completely synchronous\n" 
-  "      if ({{Power2SortSize}} > 32) {   // is 64 ok?  Let's try 32 till it is working ok...\n" 
+  "//      if ({{Power2SortSize}} > 32) {   // is 64 ok?  Let's try 32 till it is working ok...\n" 
   "        barrier(CLK_LOCAL_MEM_FENCE);\n" 
-  "      }\n" 
+  "//      }\n" 
   "\n" 
   "      unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));\n" 
   "      bitonicSwap(\n" 
@@ -168,9 +172,9 @@ std::string getKernelTemplate() {
   "  #pragma unroll\n" 
   "  for (unsigned int stride = {{Power2SortSize}} / 2; stride > 0; stride /= 2) {\n" 
   "    // Single warp per slice is completely synchronous\n" 
-  "    if ({{Power2SortSize}} > 32) { // note: was 64 before\n" 
+  "//    if ({{Power2SortSize}} > 32) { // note: was 64 before\n" 
   "      barrier(CLK_LOCAL_MEM_FENCE);\n" 
-  "    }\n" 
+  "//    }\n" 
   "\n" 
   "    unsigned int pos = 2 * get_local_id(0) - (get_local_id(0) & (stride - 1));\n" 
   "    bitonicSwap(\n" 
@@ -180,9 +184,9 @@ std::string getKernelTemplate() {
   "  }\n" 
   "\n" 
   "  // Single warp per slice is completely synchronous\n" 
-  "  if ({{Power2SortSize}} > 32) {  // note: was 64 before\n" 
+  "//  if ({{Power2SortSize}} > 32) {  // note: was 64 before\n" 
   "    barrier(CLK_LOCAL_MEM_FENCE);\n" 
-  "  }\n" 
+  "//  }\n" 
   "}\n" 
   "\n" 
   "// Sorts (key, value) pairs (in different tensors) in-place; i.e.,\n" 
@@ -222,7 +226,7 @@ std::string getKernelTemplate() {
   "    // Otherwise, each thread is responsible for loading and storing 2\n" 
   "    // elements. The sort size is guaranteed to be >= 2\n" 
   "    const int elem1 = get_local_id(0);\n" 
-  "    const int elem2 = get_local_id(0) + ({{Power2SortSize}} / 2);\n" 
+  "    const int elem2 = get_local_id(0) + ({{Power2SortSize}} >> 1);\n" 
   "\n" 
   "    int valid1 = (elem1 < keySliceSize);\n" 
   "    {{K}} k1 = valid1 ?\n" 
@@ -243,6 +247,8 @@ std::string getKernelTemplate() {
   "    p_sharedKeys[elem2] = k2;\n" 
   "    p_sharedValues[elem2] = v2;\n" 
   "    p_sharedValid[elem2] = valid2;\n" 
+  "\n" 
+  "    barrier(CLK_LOCAL_MEM_FENCE);\n" 
   "\n" 
   "    // Sort!\n" 
   "//    if(get_local_id(0) == 0) {\n" 
