@@ -285,31 +285,31 @@ end
 local Tensor = "ClTensor"
 local real = "float"
 
-wrap("apply",
+wrap("apply_on_gpu",
    cname("apply"),
    {{name=Tensor, returned=true},
       {name="string"}})
 
-wrap("map",
+wrap("map_on_gpu",
    cname("map"),
    {{name=Tensor, returned=true},
       {name=Tensor},
       {name="string"}})
 
-wrap("map2",
+wrap("map2_on_gpu",
    cname("map2"),
    {{name=Tensor, returned=true},
       {name=Tensor},
       {name=Tensor},
       {name="string"}})
 
-wrap("apply2",
+wrap("apply2_on_gpu",
    cname("map"),
    {{name=Tensor, returned=true},
       {name=Tensor},
       {name="string"}})
 
-wrap("apply3",
+wrap("apply3_on_gpu",
    cname("map2"),
    {{name=Tensor, returned=true},
       {name=Tensor},

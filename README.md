@@ -31,19 +31,19 @@ The following features are either cltorch-specific, or do not exist in cutorch:
 
 ### apply/map/map2
 
-`apply`, `map`, `map2` exist in torch, but how to make them work on the GPU?  Cannot just pass in lua functions, at least not a the moment.
+`apply`, `map`, `map2` exist in torch, but how to make them work on the GPU?  Cannot just pass in lua functions.
 
-What we do is, you can provide opencl code directly to apply, map and map2, as a string expression.  This will run on the gpu, at full speed.  Examples, for `x`, `y`, `z` being identically sized `torch.ClTensor`s:
+What we do is, you can provide opencl code directly to apply_on_gpu, map_on_gpu and map2_on_gpu, as a string expression.  This will run on the gpu, at full speed.  Examples, for `x`, `y`, `z` being identically sized `torch.ClTensor`s:
 ```lua
-x:apply("x = sqrt(x + 3.5)")
-x:map(y, "x = 1000 * x + y * 10")
-x:map2(y, z, "x = sqrt(1000 * x + y * 10 + z * z)")
+x:apply_on_gpu("x = sqrt(x + 3.5)")
+x:map_on_gpu(y, "x = 1000 * x + y * 10")
+x:map2_on_gpu(y, z, "x = sqrt(1000 * x + y * 10 + z * z)")
 ```
 * note that the variables in the OpenCL string expression must be named as above, ie `x`, `y`, `z`.  For convenience, these were named the same as the tensors in the example.  If the tensors have different names, please continue to use `x`, `y`, `z` in the expressions, eg:
 ```lua
-a:apply("x = sqrt(x + 3.5)")
-a:map(b, "x = 1000 * x + y * 10")
-a:map2(b, c, "x = sqrt(1000 * x + y * 10 + z * z)")
+a:apply_on_gpu("x = sqrt(x + 3.5)")
+a:map_on_gpu(b, "x = 1000 * x + y * 10")
+a:map2_on_gpu(b, c, "x = sqrt(1000 * x + y * 10 + z * z)")
 ```
 
 ### Profiling tools
@@ -257,6 +257,10 @@ There is an HCC backend for Torch at: [hctorch](https://bitbucket.org/multicorew
 
 ## Recent changes
 
+* 20 August 2016:
+  * tests updated to use TestSuite.lua
+  * renamed `apply`, `map`, `map2` to `apply_on_gpu`, `map_on_gpu`, `map2_on_gpu`, and added the `apply` method from cutorch that
+    first copies to main memory, then runs on the cpu, then copies back again, for compatibility with cutorch
 * 31 April 2016:
   * Re-applied:
     * 27 March 2016:

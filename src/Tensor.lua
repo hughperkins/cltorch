@@ -1,11 +1,10 @@
 -- this is misleading, since it copies onto cpu, and does it on cpu
--- lets remove it...
---function torch.ClTensor.apply(self, func)
---   local x = torch.FloatTensor(self:size()):copy(self)
---   x:apply(func)
---   self:copy(x)
---   return self
---end
+function torch.ClTensor.apply(self, func)
+   local x = torch.FloatTensor(self:size()):copy(self)
+   x:apply(func)
+   self:copy(x)
+   return self
+end
 
 local function Tensor__type(self,type)
    local current = torch.typename(self)

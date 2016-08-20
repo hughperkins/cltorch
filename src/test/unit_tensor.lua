@@ -579,54 +579,54 @@ function cltorch.tests.tensor.test_sub()
 --   tester:asserteq(AsubB, AsubBcl3:double())
 end
 
-function cltorch.tests.tensor.test_apply()
+function cltorch.tests.tensor.test_apply_on_gpu()
    local s = torch.LongStorage{6,4}
    local A = torch.Tensor(s):uniform() - 0.5
    local Aapply = A:clone():apply(function(x) return math.sqrt(x+3) + math.exp(x) end)
-   local Aapplycl = A:clone():cl():apply("*out = sqrt(*out + 3) + exp(*out)")
+   local Aapplycl = A:clone():cl():apply_on_gpu("*out = sqrt(*out + 3) + exp(*out)")
    tester:asserteq(Aapply, Aapplycl:double())
 
-   local Aapplycl_x = A:clone():cl():apply("x = sqrt(x + 3) + exp(x)")
+   local Aapplycl_x = A:clone():cl():apply_on_gpu("x = sqrt(x + 3) + exp(x)")
    tester:asserteq(Aapply, Aapplycl_x:double())
 end
 
-function cltorch.tests.tensor.test_map()
+function cltorch.tests.tensor.test_map_on_gpu()
    local s = torch.LongStorage{60,50}
    local A = torch.Tensor(s):uniform() - 0.5
    local B = torch.Tensor(s):uniform() - 0.5
    local AmapB = A:clone():map(B, function(x, y) return math.sqrt(x*x + y*y + 3 + math.exp(y)) end)
-   local AmapBcl = A:clone():cl():map(B:clone():cl(), 
+   local AmapBcl = A:clone():cl():map_on_gpu(B:clone():cl(), 
       "*out = sqrt(*out * *out + *in1 * *in1 + 3 + exp(*in1))")
    tester:asserteq(AmapB, AmapBcl:double())
 
-   local Aapp2Bcl = A:clone():cl():apply2(B:clone():cl(), 
+   local Aapp2Bcl = A:clone():cl():apply2_on_gpu(B:clone():cl(), 
       "*out = sqrt(*out * *out + *in1 * *in1 + 3 + exp(*in1))")
    tester:asserteq(AmapB, Aapp2Bcl:double())
 
-   local Aapp2Bcl_xy = A:clone():cl():apply2(B:clone():cl(), 
+   local Aapp2Bcl_xy = A:clone():cl():apply2_on_gpu(B:clone():cl(), 
       "x = sqrt(x * x + y * y + 3 + exp(y))")
    tester:asserteq(AmapB, Aapp2Bcl_xy:double())
 end
 
-function cltorch.tests.tensor.test_map2()
+function cltorch.tests.tensor.test_map2_on_gpu()
    local s = torch.LongStorage{60,50}
    local A = torch.Tensor(s):uniform() - 0.5
    local B = torch.Tensor(s):uniform() - 0.5
    local C = torch.Tensor(s):uniform() - 0.5
    local Amap2BC = A:clone():map2(B, C, 
       function(x, y, z) return math.sqrt(x*x + y*y + z + 3 + math.exp(z)) end)
-   local Amap2BCcl = A:clone():cl():map2(
+   local Amap2BCcl = A:clone():cl():map2_on_gpu(
       B:clone():cl(),
       C:clone():cl(), 
       "*out = sqrt(*out * *out + *in1 * *in1 + *in2 + 3 + exp(*in2))")
 
-   local Aapp3BCcl = A:clone():cl():apply3(
+   local Aapp3BCcl = A:clone():cl():apply3_on_gpu(
       B:clone():cl(),
       C:clone():cl(), 
       "*out = sqrt(*out * *out + *in1 * *in1 + *in2 + 3 + exp(*in2))")
    tester:asserteq(Amap2BC, Aapp3BCcl:double())
 
-   local Aapp3BCcl_xyz = A:clone():cl():apply3(
+   local Aapp3BCcl_xyz = A:clone():cl():apply3_on_gpu(
       B:clone():cl(),
       C:clone():cl(), 
       "x = sqrt(x * x + y * y + z + 3 + exp(z))")
