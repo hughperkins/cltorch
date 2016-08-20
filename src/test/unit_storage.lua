@@ -22,14 +22,14 @@ local function assertStrContains(target, value )
 end
 
 function cltorch.tests.storage.test_basic()
-  tester:asserteq('[torch.ClStorage of size 0]\n', tostring(torch.ClStorage()))
+  tester:asserteq('[torch.ClStorage of size 0]\n', tostring(torch.ClStorage()), '')
   assertStrContains(tostring(torch.ClStorage(3)), '%[torch.ClStorage of size 3%]\n')
   tester:asserteq(tostring(torch.ClStorage{4,9,2}), ' 4\n 9\n 2\n[torch.ClStorage of size 3]\n')
   tester:asserteq(tostring(torch.ClStorage{1.5,2.4,5.3}), ' 1.5000\n 2.4000\n 5.3000\n[torch.ClStorage of size 3]\n')
 
   c = torch.ClStorage{4,9,2}
   c:fill(7)
-  tester:asserteq(tostring(c), ' 7\n 7\n 7\n[torch.ClStorage of size 3]\n')
+  tester:asserteq(tostring(c), ' 7\n 7\n 7\n[torch.ClStorage of size 3]\n', '')
 
   c = torch.ClStorage{4,9,2}
   c:copy(torch.Storage{1.5,2.4,5.3})
@@ -77,7 +77,7 @@ local function setUp()
   print('')
 end
 
-local test = {}
+local test = torch.TestSuite()
 for k,v in pairs(cltorch.tests.storage) do
   test[k] = function()
     setUp()

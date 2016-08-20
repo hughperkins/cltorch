@@ -203,19 +203,19 @@ function cltorch.tests.tensor.test_equals()
    d = torch.ClTensor{{3,5,-2},{2.1,2.2,3.9}}
    e = torch.ClTensor{{3,5,-2},{2.1,2.4,3.9}}
    tester:asserteq(c, d)
-   tester:assertne(c, e)
+   tester:assertGeneralNe(c, e)
 
    c = c:float()
    d = d:float()
    e = e:float()
    tester:asserteq(c, d)
-   tester:assertne(c, e)
+   tester:assertGeneralNe(c, e)
 
    c = torch.Tensor{{3,5,-2},{2.1,2.2,3.9}}
    d = torch.Tensor{{3,5,-2},{2.1,2.2,3.9}}
    e = torch.Tensor{{3,5,-2},{2.1,2.4,3.9}}
    tester:asserteq(c, d)
-   tester:assertne(c, e)
+   tester:assertGeneralNe(c, e)
 end
 
 for _, op in ipairs({'lt', 'gt',
@@ -242,7 +242,7 @@ for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos',
       a = c:float()
       loadstring('c:' .. name .. '()')()
       loadstring('a:' .. name .. '()')()
-      tester:assertne(a, nil)
+      tester:assertGeneralNe(a, nil)
       tester:asserteq(a, c:float())
    end
 end
@@ -256,7 +256,7 @@ for _,name in ipairs({'abs', 'sqrt', 'log','exp', 'cos',
       a = c:float()
       loadstring('res_cpu = torch.' .. name .. '(c)')()
       loadstring('res_gpu = torch.' .. name .. '(a)')()
-      tester:assertne(res_cpu, nil)
+      tester:assertGeneralNe(res_cpu, nil)
       tester:asserteq(res_cpu:float(), res_gpu:float())
    end
 end
@@ -271,7 +271,7 @@ for _, op in ipairs({'add', 'cmul', 'cdiv', 'cpow', 'cdiv', 'atan2'}) do
       b = d:float()
       loadstring('a:' .. op .. '(b)')()
       loadstring('c:' .. op .. '(d)')()
-      tester:assertne(a, nil)
+      tester:assertGeneralNe(a, nil)
       tester:asserteq(a, c:float())
    end
 end
