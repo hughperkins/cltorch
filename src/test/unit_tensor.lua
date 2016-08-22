@@ -2,6 +2,7 @@
 
 require 'string'
 require 'os'
+require 'math'
 
 local runtests = false
 if not cltorch then
@@ -951,6 +952,74 @@ function cltorch.tests.tensor.test_scatterFill()
    zcl = y:clone():cl():scatter(1, idx:clone():cl(), 3.4567)
 
    tester:asserteq(z, zcl:double())
+end
+
+function cltorch.tests.tensor.test_maskedSelect()
+   -- local n_row = math.random(minsize,maxsize)
+   -- local n_col = math.random(minsize,maxsize)
+   math.randomseed(123)
+   local n_row = 13
+   local n_col = 19
+
+   -- contiguous, no result tensor, cuda mask
+   local x = torch.randn(n_row, n_col):float()
+   local mask = torch.ByteTensor(n_row,n_col):bernoulli()
+   local y = x:maskedSelect(mask)
+   x=x:cl()
+   mask=mask:cl()
+   local y_cl = x:maskedSelect(mask)
+   tester:assertTensorEq(y, y_cl:float(), 0.00001, "Error in maskedSelect")
+   -- checkMultiDevice(x, 'maskedSelect', mask)
+
+   -- non-contiguous, no result tensor, cuda mask
+   local x = torch.randn(n_row, n_col):float()
+   local mask = torch.ByteTensor(n_row,n_col):bernoulli()
+   local y = x:t():maskedSelect(mask)
+   x=x:cl()
+   mask=mask:cl()
+   local y_cl = x:t():maskedSelect(mask)
+   tester:assertTensorEq(y, y_cl:float(), 0.00001,
+                         "Error in maskedSelect non-contiguous")
+
+   -- contiguous, with result tensor, cuda mask
+   local x = torch.randn(n_row, n_col):float()
+   local mask = torch.ByteTensor(n_row,n_col):bernoulli()
+   local y = torch.FloatTensor()
+   y:maskedSelect(x, mask)
+   x=x:cl()
+   mask=mask:cl()
+   local y_cl = torch.ClTensor()
+   y_cl:maskedSelect(x, mask)
+   tester:assertTensorEq(y, y_cl:float(), 0.00001,
+                         "Error in maskedSelect (with result)")
+
+   -- non-contiguous, with result tensor, cuda mask
+   local x = torch.randn(n_row, n_col):float()
+   local mask = torch.ByteTensor(n_row,n_col):bernoulli()
+   local y = torch.FloatTensor()
+   y:maskedSelect(x:t(), mask)
+   x=x:cl()
+   mask=mask:cl()
+   local y_cl = torch.ClTensor()
+   y_cl:maskedSelect(x:t(), mask)
+   tester:assertTensorEq(y, y_cl:float(), 0.00001,
+          "Error in maskedSelect non-contiguous (with result)")
+
+   -- indexing maskedSelect a[a:gt(0.5)] for example
+   local x = torch.randn(n_row, n_col):float()
+   local y = x[x:gt(0.5)]
+   x=x:cl()
+   local y_cl = x[x:gt(0.5)]
+   tester:assertTensorEq(y, y_cl:float(), 0.00001,
+                         "Error in maskedSelect indexing x[x:gt(y)]")
+
+   -- indexing maskedSelect (non-contiguous) a[a:gt(0.5)] for example
+   local x = torch.randn(n_row, n_col):float()
+   local y = x:t()[x:t():gt(0.5)]
+   x=x:cl()
+   local y_cl = x:t()[x:t():gt(0.5)]
+   tester:assertTensorEq(y, y_cl:float(), 0.00001,
+          "Error in maskedSelect indexing non-contig x[x:gt(y)]")
 end
 
 function cltorch.tests.tensor.test_cmin()

@@ -19,6 +19,10 @@ set(src-cl)
 
 message("CLBLAS_INCLUDE_DIRS ${CLBLAS_INCLUDE_DIRS}")
 INCLUDE_DIRECTORIES(${CLBLAS_INCLUDE_DIRS})
+message("${CMAKE_CURRENT_SOURCE_DIR}/src/boost-headers-lite")
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../boost-headers-lite)
+
+add_definitions(-DCL_USE_DEPRECATED_OPENCL_1_1_APIS)  # this affects clew...
 
 ADD_LIBRARY(THCl SHARED ${src} ${src-cl})
 TARGET_LINK_LIBRARIES(THCl TH )
