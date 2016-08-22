@@ -4,3 +4,6 @@
 [submodule "src/clMathLibraries/clBLAS"]
 	path = src/clMathLibraries/clBLAS
 	url = https://github.com/hughperkins/clBLAS
+[submodule "src/boost-headers-lite"]
+	path = src/boost-headers-lite
+	url = https://github.com/hughperkins/boost-headers-lite
