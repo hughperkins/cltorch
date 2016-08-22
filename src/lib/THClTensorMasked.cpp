@@ -199,10 +199,10 @@ void THClTensor_maskedSelect(THClState* state,
 
   // Since we are performing a prefix sum of mask, it cannot exceed
   // the size allowed in consecutive integers in float32
-  THArgCheck(THClTensor_nElement(state, mask) <=
-            (long) FLOAT32_MAX_CONSECUTIVE_INT,
-            3, "mask nElements exceeds single-precision float "
-            "consecutive integer precision size (2^24)");
+  // THArgCheck(THClTensor_nElement(state, mask) <=
+  //           (long) FLOAT32_MAX_CONSECUTIVE_INT,
+  //           3, "mask nElements exceeds single-precision float "
+  //           "consecutive integer precision size (2^24)");
 
   THClTensor* contigSrc = THClTensor_newContiguous(state, src);
 
