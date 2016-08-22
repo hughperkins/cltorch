@@ -275,16 +275,16 @@ void THClTensor_maskedSelect(THClState* state,
   // THError("Not implemented");
 }
 
-//void THClTensor_maskedFillByte(THClState* state, THClTensor *tensor, THByteTensor *mask, float value)
-//{
-//  THAssert(THClTensor_checkGPU(state, 1, tensor));
-//  THLongStorage* maskSize = THByteTensor_newSizeOf(mask);
-//  THClTensor* maskCl = THClTensor_newWithSize(state, maskSize, NULL);
-//  THLongStorage_free(maskSize);
-//  THClTensor_copyByte(state, maskCl, mask);
-//  THClTensor_maskedFill(state, tensor, maskCl, value);
-//  THClTensor_free(state, maskCl);
-//}
+void THClTensor_maskedFillByte(THClState* state, THClTensor *tensor, THByteTensor *mask, float value)
+{
+ THAssert(THClTensor_checkGPU(state, 1, tensor));
+ THLongStorage* maskSize = THByteTensor_newSizeOf(mask);
+ THClTensor* maskCl = THClTensor_newWithSize(state, maskSize, NULL);
+ THLongStorage_free(maskSize);
+ THClTensor_copyByte(state, maskCl, mask);
+ THClTensor_maskedFill(state, tensor, maskCl, value);
+ THClTensor_free(state, maskCl);
+}
 
 //void THClTensor_maskedCopyByte(THClState* state, THClTensor *tensor, THByteTensor *mask, THClTensor *src)
 //{
@@ -297,14 +297,13 @@ void THClTensor_maskedSelect(THClState* state,
 //  THClTensor_free(state, maskCl);
 //}
 
-//void THClTensor_maskedSelectByte(THClState* state, THClTensor *tensor, THClTensor *src, THByteTensor *mask)
-//{
-//  THAssert(THClTensor_checkGPU(state, 2, tensor, src));
-//  THLongStorage* maskSize = THByteTensor_newSizeOf(mask);
-//  THClTensor* maskCl = THClTensor_newWithSize(state, maskSize, NULL);
-//  THLongStorage_free(maskSize);
-//  THClTensor_copyByte(state, maskCl, mask);
-//  THClTensor_maskedSelect(state, tensor, src, maskCl);
-//  THClTensor_free(state, maskCl);
-//}
-
+void THClTensor_maskedSelectByte(THClState* state, THClTensor *tensor, THClTensor *src, THByteTensor *mask)
+{
+ THAssert(THClTensor_checkGPU(state, 2, tensor, src));
+ THLongStorage* maskSize = THByteTensor_newSizeOf(mask);
+ THClTensor* maskCl = THClTensor_newWithSize(state, maskSize, NULL);
+ THLongStorage_free(maskSize);
+ THClTensor_copyByte(state, maskCl, mask);
+ THClTensor_maskedSelect(state, tensor, src, maskCl);
+ THClTensor_free(state, maskCl);
+}
