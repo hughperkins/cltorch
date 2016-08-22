@@ -279,7 +279,8 @@ void THClTensor_maskedFillByte(THClState* state, THClTensor *tensor, THByteTenso
 {
  THAssert(THClTensor_checkGPU(state, 1, tensor));
  THLongStorage* maskSize = THByteTensor_newSizeOf(mask);
- THClTensor* maskCl = THClTensor_newWithSize(state, maskSize, NULL);
+ const int device = tensor->storage->device;
+ THClTensor* maskCl = THClTensor_newWithSize(state, device, maskSize, NULL);
  THLongStorage_free(maskSize);
  THClTensor_copyByte(state, maskCl, mask);
  THClTensor_maskedFill(state, tensor, maskCl, value);
@@ -301,7 +302,8 @@ void THClTensor_maskedSelectByte(THClState* state, THClTensor *tensor, THClTenso
 {
  THAssert(THClTensor_checkGPU(state, 2, tensor, src));
  THLongStorage* maskSize = THByteTensor_newSizeOf(mask);
- THClTensor* maskCl = THClTensor_newWithSize(state, maskSize, NULL);
+ const int device = src->storage->device;
+ THClTensor* maskCl = THClTensor_newWithSize(state, device, maskSize, NULL);
  THLongStorage_free(maskSize);
  THClTensor_copyByte(state, maskCl, mask);
  THClTensor_maskedSelect(state, tensor, src, maskCl);
