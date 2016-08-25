@@ -197,16 +197,7 @@ void THClTensor_maskedSelect(THClState* state,
   THArgCheck(THClTensor_nElement(state, mask) == THClTensor_nElement(state, src),
             2, "sizes do not match");
 
-  // Since we are performing a prefix sum of mask, it cannot exceed
-  // the size allowed in consecutive integers in float32
-  // THArgCheck(THClTensor_nElement(state, mask) <=
-  //           (long) FLOAT32_MAX_CONSECUTIVE_INT,
-  //           3, "mask nElements exceeds single-precision float "
-  //           "consecutive integer precision size (2^24)");
-
   THClTensor* contigSrc = THClTensor_newContiguous(state, src);
-
-  // Determine our output size
   THClTensor* contigMask = THClTensor_newContiguous(state, mask);
 
   int sourceSize = THClTensor_nElement(state, contigMask);
@@ -219,31 +210,6 @@ void THClTensor_maskedSelect(THClState* state,
   boost::compute::buffer boostData(*contigSrc->storage->wrapper->getDeviceArray());
   boost::compute::buffer boostMask(*contigMask->storage->wrapper->getDeviceArray());
 
-  // long totalElements = (long) THClTensor_sumall(state, contigMask);
-  // since sumall doesnt work if we have more than something like ~2^24 elements, because exceeds float precision
-  // we need to calculate the sumall in blocks, of say 2^20 elements
-  // int totalElements = 0;
-  // int device = mask->device;
-  // const int blockSize = 1 << 21;
-  // cout << "blockSize " << blockSize << endl;
-  // int numBlocks = (sourceSize + blockSize - 1) / blockSize;
-  // THClTensor *flatContigMask = THClTensor_newWithStorage1d(state, device, contigMask->storage, 0,
-  //                              totalElements, 1);
-  // for(int block = 0; block < numBlocks; block++) {
-  //   int blockStart = block * blockSize;
-  //   int blockEndExclusive = blockStart + blockSize;
-  //   if(blockEndExclusive > totalElements) {
-  //     blockEndExclusive = totalElements;
-  //   }
-
-  //   THClTensor *blockTensor = THClTensor_newNarrow(state, flatContigMask, 0, 0, blockEndExclusive - blockStart);
-  //   int blockCount = THClTensor_sumall(state, blockTensor)
-  //   THClTensor_free(state, blockTensor);
-  //   totalElements += blockCount;
-  // }
-  // cout << "totalElements " << totalElements << endl;
-  // THClTensor_free(state, flatContigMask);
-
   size_t copied_element_count = ::boost::compute::count(
     boost::compute::make_buffer_iterator<float>(boostMask, 0),
     boost::compute::make_buffer_iterator<float>(boostMask, sourceSize),
@@ -251,7 +217,6 @@ void THClTensor_maskedSelect(THClState* state,
     boost_queue
   );
   int totalElements = (int)copied_element_count;
-  cout << "totalElements " << totalElements << endl;
 
   THClTensor_resize1d(state, tensor, totalElements);
   boost::compute::buffer boostOut(*tensor->storage->wrapper->getDeviceArray());
@@ -276,28 +241,8 @@ void THClTensor_maskedSelect(THClState* state,
   );
   tensor->storage->wrapper->markDeviceDirty();
 
-  // ==== boost compute bit ends ========
-
-  // thrust::device_ptr<float>
-  //    maskData(THClTensor_data(state, contigMask));
-  // thrust::device_ptr<float>
-  //   maskPrefixSumData(THClTensor_data(state, maskPrefixSum));
-  // thrust::exclusive_scan(maskData,
-  //                       maskData + THClTensor_nElement(state, contigMask),
-  //                       maskPrefixSumData);
-
-  // Then copy over the masked elements at their desired output index
-  // bool status = THClTensor_pointwiseApply3(
-  //  state, contigMask, maskPrefixSum,
-  //  src, TensorMaskedSelectOp(THClTensor_data(state, tensor)));
-
   THClTensor_free(state, contigSrc);
   THClTensor_free(state, contigMask);
-  // THClTensor_free(state, maskPrefixSum);
-
-  // THArgCheck(status, 2, CLTORCH_DIM_WARNING);
-
-  // THError("Not implemented");
 }
 
 void THClTensor_maskedFillByte(THClState* state, THClTensor *tensor, THByteTensor *mask, float value)
