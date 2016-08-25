@@ -208,48 +208,73 @@ void THClTensor_maskedSelect(THClState* state,
 
   // Determine our output size
   THClTensor* contigMask = THClTensor_newContiguous(state, mask);
-  long totalElements = (long) THClTensor_sumall(state, contigMask);
+
+  int sourceSize = THClTensor_nElement(state, contigMask);
+
+  EasyCL *cl = src->storage->cl;
+
+  boost::compute::context boost_context(*cl->context);
+  boost::compute::command_queue boost_queue(*cl->queue);
+
+  boost::compute::buffer boostData(*contigSrc->storage->wrapper->getDeviceArray());
+  boost::compute::buffer boostMask(*contigMask->storage->wrapper->getDeviceArray());
+
+  // long totalElements = (long) THClTensor_sumall(state, contigMask);
+  // since sumall doesnt work if we have more than something like ~2^24 elements, because exceeds float precision
+  // we need to calculate the sumall in blocks, of say 2^20 elements
+  // int totalElements = 0;
+  // int device = mask->device;
+  // const int blockSize = 1 << 21;
+  // cout << "blockSize " << blockSize << endl;
+  // int numBlocks = (sourceSize + blockSize - 1) / blockSize;
+  // THClTensor *flatContigMask = THClTensor_newWithStorage1d(state, device, contigMask->storage, 0,
+  //                              totalElements, 1);
+  // for(int block = 0; block < numBlocks; block++) {
+  //   int blockStart = block * blockSize;
+  //   int blockEndExclusive = blockStart + blockSize;
+  //   if(blockEndExclusive > totalElements) {
+  //     blockEndExclusive = totalElements;
+  //   }
+
+  //   THClTensor *blockTensor = THClTensor_newNarrow(state, flatContigMask, 0, 0, blockEndExclusive - blockStart);
+  //   int blockCount = THClTensor_sumall(state, blockTensor)
+  //   THClTensor_free(state, blockTensor);
+  //   totalElements += blockCount;
+  // }
+  // cout << "totalElements " << totalElements << endl;
+  // THClTensor_free(state, flatContigMask);
+
+  size_t copied_element_count = ::boost::compute::count(
+    boost::compute::make_buffer_iterator<float>(boostMask, 0),
+    boost::compute::make_buffer_iterator<float>(boostMask, sourceSize),
+    1,
+    boost_queue
+  );
+  int totalElements = (int)copied_element_count;
   cout << "totalElements " << totalElements << endl;
 
-  // This should be contiguous already, so no need to make it contig
-  // for the apply kernel
   THClTensor_resize1d(state, tensor, totalElements);
+  boost::compute::buffer boostOut(*tensor->storage->wrapper->getDeviceArray());
 
-  // Use a prefix sum to determine the output locations of the masked elements
-  // THClTensor* maskPrefixSum = THClTensor_new(state);
-  // THClTensor_resizeAs(state, maskPrefixSum, contigMask);
-
-
-  // ==== boost compute bit starts ========
-
-    EasyCL *cl = src->storage->cl;
-
-    boost::compute::context boost_context(*cl->context);
-    boost::compute::command_queue boost_queue(*cl->queue);
-
-    boost::compute::buffer boostData(*contigSrc->storage->wrapper->getDeviceArray());
-    boost::compute::buffer boostMask(*contigMask->storage->wrapper->getDeviceArray());
-    boost::compute::buffer boostOut(*tensor->storage->wrapper->getDeviceArray());
-
-    transform_if(
-      make_zip_iterator(
-        boost::make_tuple(
-        boost::compute::make_buffer_iterator<float>(boostData, 0),
-        boost::compute::make_buffer_iterator<float>(boostMask, 0)
-        )
-      ),
-      make_zip_iterator(
-        boost::make_tuple(
-        boost::compute::make_buffer_iterator<float>(boostData, THClTensor_nElement(state, mask)),
-        boost::compute::make_buffer_iterator<float>(boostMask, THClTensor_nElement(state, mask))
-        )
-      ),
-      boost::compute::make_buffer_iterator<float>(boostOut, 0),
-      boost::compute::get<0>(), // function that return input value
-      boost::compute::lambda::get<1>(boost::compute::_1) == 1, // lambda function that checks if mask is 1
-      boost_queue // command queue (boost::compute::command_queue object)
-    );
-    tensor->storage->wrapper->markDeviceDirty();
+  transform_if(
+    make_zip_iterator(
+      boost::make_tuple(
+      boost::compute::make_buffer_iterator<float>(boostData, 0),
+      boost::compute::make_buffer_iterator<float>(boostMask, 0)
+      )
+    ),
+    make_zip_iterator(
+      boost::make_tuple(
+      boost::compute::make_buffer_iterator<float>(boostData, sourceSize),
+      boost::compute::make_buffer_iterator<float>(boostMask, sourceSize)
+      )
+    ),
+    boost::compute::make_buffer_iterator<float>(boostOut, 0),
+    boost::compute::get<0>(), // function that return input value
+    boost::compute::lambda::get<1>(boost::compute::_1) == 1, // lambda function that checks if mask is 1
+    boost_queue // command queue (boost::compute::command_queue object)
+  );
+  tensor->storage->wrapper->markDeviceDirty();
 
   // ==== boost compute bit ends ========
 
