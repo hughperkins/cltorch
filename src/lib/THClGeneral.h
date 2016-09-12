@@ -145,7 +145,7 @@ typedef int int32;
 #ifdef __cplusplus
 class dim3 {
 public:
-    uint vec[3];
+    uint32 vec[3];
     size_t vec_for_cl[3];
 //    size_t vec_size_t[3];
     dim3() {
