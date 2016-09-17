@@ -33,13 +33,24 @@ if(UNIX)
     endif()
 endif()
 
-execute_process(COMMAND bash -c "${CMAKE_PREFIX_PATH}/bin/luarocks list distrocheck | grep distrocheck"
-  RESULT_VARIABLE DISTROCHECK)
-if(${DISTROCHECK} EQUAL "1")
-  message("CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}")
-  execute_process(COMMAND bash -c "${CMAKE_PREFIX_PATH}/bin/luarocks list")
-  message(FATAL_ERROR "
-  Please install cltorch from https://github.com/hughperkins/distro-cl")
+if(UNIX)
+  execute_process(COMMAND bash -c "${CMAKE_PREFIX_PATH}/bin/luarocks list distrocheck | grep distrocheck"
+    RESULT_VARIABLE DISTROCHECK)
+  if(${DISTROCHECK} EQUAL "1")
+    message("CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}")
+    execute_process(COMMAND bash -c "${CMAKE_PREFIX_PATH}/bin/luarocks list")
+    message(FATAL_ERROR "
+    Please install cltorch from https://github.com/hughperkins/distro-cl")
+  endif()
+else()  # windows?
+  execute_process(COMMAND "luarocks list distrocheck | find /i \"distrocheck\""
+    RESULT_VARIABLE DISTROCHECK)
+  if(${DISTROCHECK} EQUAL "1")
+    message("CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}")
+    execute_process(COMMAND "luarocks list")
+    message(FATAL_ERROR "
+    Please install cltorch from https://github.com/hughperkins/distro-cl")
+  endif()
 endif()
 
 if(USE_GIT)
